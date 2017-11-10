@@ -1,0 +1,33 @@
+Digitizer CAEN DT 5751 and sw wavedump
+
+To start the digitizer:
+$ wavedump WaveDumpConfig.txt
+
+The instrument configurations are set via WaveDumpConfig.txt file (e.g.: enabled channels, externale triggger, threshold, trigger front...).
+
+Some notes:
+*********************************
+WRITE_REGISTER  810C 0F00001 FFFFFFFF
+write directly in to the register (overwrite some of the previous and following settings via individual input card):
+
+1. 810C is the register address to be written
+
+2. first digit is  number of active channel - 1 for coincidence (AND). E.g.: "0", only 1 channel (no coindidence).
+
+3. last digit enables the channels (hexadecimal). E.g.: 1 = channel 0, F = 1111 (all 4), 8 = channel 3 only, 9 = channels 3 and 0.
+
+4. Other digit would set something else that we set using individual setting cards.
+
+If EXTERNAL TRIGGER is needed we have to comment the WRITE_REGISTER line.
+*********************************
+
+To run with display mode, press "p" (single event), "P" (continuous mode).
+To write the event in the output (currently ASCII) file, press "W".
+To stop writing to file, press W again.
+To start acquisition: "s".
+To stop acquisition: "s".
+To quit: "q".
+
+To zoom the gnuplot display: click with touchpad-right, select the area, click with touchpad-right.
+ 
+
