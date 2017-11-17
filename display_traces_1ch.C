@@ -40,7 +40,7 @@ while(aaa.compare(quit_tasto.c_str())){
 		fileIn1>>dummy>>dummy>>dummy>>dummy;
 		fileIn1>>dummy>>dummy>>dummy>>dummy;
    
-		cout<<" event: "<<event_n1<<endl;
+		cout<<" event: "<<event_n1<<" , eve_trova: "<<eve_trova<<endl;
 				
 		if (fileIn1.eof()){ 
 			aaa="q";
@@ -65,18 +65,15 @@ while(aaa.compare(quit_tasto.c_str())){
 		}
 		else{
 			if(eve_trova < event_n1) eve_trova = event_n1+1;
-			//else if (aaa == "n")
-			//	eve_trova++;
 		}
 	
 		if(!aaa.compare(quit_tasto.c_str())) break; //exit the inner while loop
 		
-		//if(!aaa.compare(prossimo.c_str())) eve_trova = event_n1+1;
-		if(!aaa.compare(prossimo.c_str())) eve_trova++;
+		if(!aaa.compare(prossimo.c_str()) && eve_trova <= event_n1) eve_trova++;
 		
 		delete h1;
 
-	} // end loop fil
+	} // end loop file
 
 } // 
 
