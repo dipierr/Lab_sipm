@@ -1,15 +1,16 @@
 #!/usr/bin/python
 
 '''
-Goal: to extract information from SiPM traces digitized by the CAEN Digitizer.
+Goal: to extract information from SiPM traces digitized by the Lecroy Oscilloscope.
 Steps: 
-	to find the peaks
-	to evaluate a baseline value relative to each peak
+	to find the peaks (at a fixed time with LED on and external trig and with Self trigger. At a random time with external trigger and LED off, for DCR)
+		to evaluate a baseline value relative to each peak (still to be added)
 	to measure amplitude of each peak
-	to measure the charge relative to of each peak
+		to measure the charge relative to of each peak
 	optionally display traces and the found peaks (baselines and amplitudes)
-	to produce amplitude spectrum
-	to produce charge spectrum
+		to produce amplitude spectrum
+		to produce charge spectrum
+		to analyze spectra: gaussian fit on peaks, cross-talk evaluation, gain
 '''
 
 import matplotlib.pyplot as plt
@@ -69,8 +70,8 @@ def read_next_event_lecroy(infile):
 	trace_np = np.array(trace)	
 	return trace_np
 
-# with self trigger the peak is right after the trigger at fixed time. Only 1 peak/trace
-def find_peak(trace,mintp,maxtp):	
+# with self trigger or with external trigger (with light) the peak is right after the trigger at fixed time. Only 1 peak/trace
+def find_peak_fixtime(trace,mintp,maxtp):	
 	peak = np.array([0.,0.]) #first index is peak_time, second peak_amplitude	
 	for i in range(0,trace[0].size-1):
 		if (trace[0][i] > mintp and trace[0][i] < maxtp):
@@ -79,6 +80,10 @@ def find_peak(trace,mintp,maxtp):
 				peak[1] = trace[1][i]			
 	return peak
 ###Visto che trace e' un numpy array, va pythonizzato! prendo il max in un certo intervallo!!!			
+
+# with external trigger at dark (DCR) the peaks can be several and at a random time
+#def find_peaks_exttrg_dark(trace):		
+#	return peaks			
 
 def show_trace(trace,peak,miny,maxy):		
 	plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
@@ -109,7 +114,8 @@ def main(**kwargs):
 		trace_all.append([])
 		trace_all.append([])
 	
-	peaks = []
+	#if only the peak amplitude is needed, to add one dimension in case also peak time is relavant
+	peaks_all = []
 	if kwargs['input_filelist'] != '':
 		with open(kwargs['input_filelist'], "r") as infilelist:
 			for f in infilelist:
@@ -123,8 +129,8 @@ def main(**kwargs):
 						if len(trace[0]) < 10 :
 							print("Reached EOF...exiting")
 							break	
-						peak = find_peak(trace,kwargs['min_time_peak'],kwargs['max_time_peak'])
-						peaks.append(peak[1])	
+						peak = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'])
+						peaks_all.append(peak[1])	
 				infile.close()									
 		infilelist.close()
 	else:
@@ -140,8 +146,8 @@ def main(**kwargs):
 					for jj in range(0,len(trace[0])-1):
 						trace_all[0].append(trace[0][jj])
 						trace_all[1].append(trace[1][jj])
-				peak = find_peak(trace,kwargs['min_time_peak'],kwargs['max_time_peak'])
-				peaks.append(peak[1])
+				peak = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'])
+				peaks_all.append(peak[1])
 				if(kwargs['display'] and not(kwargs['superimpose'])):
 					show_trace(trace,peak,kwargs['miny'],kwargs['maxy'])
 				elif(kwargs['display'] and (kwargs['superimpose'])):
@@ -161,7 +167,7 @@ def main(**kwargs):
 		infile.close()	
 	
 	plt.grid(True)
-	plt.hist(peaks, bins = 40, range = (0,20e-3), facecolor='g', edgecolor='g',histtype='step', stacked=True, fill=False)
+	plt.hist(peaks_all, bins = 40, range = (0,20e-3), facecolor='g', edgecolor='g',histtype='step', stacked=True, fill=False)
 	plt.yscale('log')
 	plt.xlabel('V')	
 	plt.show()
