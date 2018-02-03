@@ -1,5 +1,5 @@
 '''
-Reads data acquired by Agilent MSO6054A
+Reads data from Agilent MSO6054A
 Tested on Windows 10
 '''
 
