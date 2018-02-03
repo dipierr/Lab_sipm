@@ -26,7 +26,7 @@ import pandas as pd
 import argparse
 import statistics
 
-#ottengo le opzioni: 
+
 #--inputfile: file.txt containing the traces
 
 __description__ = 'Producing the azimuth and zenith angle for sim_telarray'
@@ -42,13 +42,16 @@ PARSER.add_argument('-first', '--first_event', type=int, required=False, default
 PARSER.add_argument('-last', '--last_event',type=int, required=False, default=100000, help='Last event number to analyze')
 PARSER.add_argument('-miny', '--miny', type=float, required=False, default=-0.01, help='Amplitude signal scale (y), minimum')
 PARSER.add_argument('-maxy', '--maxy', type=float, required=False, default= 0.02, help='Amplitude signal scale (y), maximum')
-#PARSER.add_argument('-eve', '--events', required=False, default=[0,2], help='First and last event numbers')
 PARSER.add_argument('-mintp', '--min_time_peak', type=float, required=False, default=-1.75e-09, help='Starting time interval [s] for peak search')
-PARSER.add_argument('-maxtp', '--max_time_peak', type=float, required=False, default=7e-9, help='Starting time interval [s] for peak search')
+PARSER.add_argument('-maxtp', '--max_time_peak', type=float, required=False, default=7e-9, help='Ending time interval [s] for peak search')
+PARSER.add_argument('-minoff', '--min_ind_offset', type=float, required=False, default=0, help='Starting index for offset search')
+PARSER.add_argument('-maxoff', '--max_ind_offset', type=float, required=False, default=3, help='Ending index for offset search')
+PARSER.add_argument('-estoff', '--estimated_offset', type=float, required=False, default=-0.036, help='Estimated offset (for plots)')
+
 
 max_a = 3
-min_index_find_offset = 0
-max_index_find_offset = 10
+bins_Volt = 180
+bins_Time = 79
 
 def find_offset(trace_selected):
 	offset = statistics.median(trace_selected)
@@ -59,7 +62,7 @@ def find_mean(trace):
 	return offset_mean
 	
 
-def read_next_event(infile, offset_found, offset):
+def read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset):
 	trace = []
 	trace.append([])
 	trace.append([])
@@ -84,11 +87,6 @@ def read_next_event(infile, offset_found, offset):
 	else:
 		offset_local = offset
 	
-	#print (offset_local)
-	
-	# for k in range(0, (trace_length-3)):
-		# trace[1][k] = trace[1][k]-float(offset_local)
-	
 	trace_np = np.array(trace)	
 	return trace_np, offset_local
 
@@ -101,7 +99,6 @@ def find_peak_fixtime(trace,mintp,maxtp):
 				peak[0] = trace[0][i]
 				peak[1] = trace[1][i]			
 	return peak
-###Visto che trace e' un numpy array, va pythonizzato! prendo il max in un certo intervallo!!!			
 
 # with external trigger at dark (DCR) the peaks can be several and at a random time
 #def find_peaks_exttrg_dark(trace):		
@@ -153,9 +150,12 @@ def find_signal(trace):
                 i=i+1
     return signal
 	
-def main(**kwargs):	
+def main(**kwargs):
 	
-	offset_found=False
+	min_index_find_offset = kwargs['min_ind_offset']
+        max_index_find_offset = kwargs['max_ind_offset']
+        estimated_offset = kwargs['estimated_offset']
+        offset_found=False
 	offset=0.
 	first_event_n = kwargs['first_event']
 	last_event_n = kwargs['last_event']
@@ -193,16 +193,14 @@ def main(**kwargs):
 							print("Read event ",i)
 						if(i==first_event_n+1):
 							offset_found=True
-						trace, offset = read_next_event(infile, offset_found, offset)
+						trace, offset = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset)
 						if (len(trace[0]) < 10) :
 							print("Reached EOF...exiting")
 							break	
 						peak = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'])
-						peaks_all.append(peak[1])	
-						#show_trace(trace,peak,kwargs['miny'],kwargs['maxy'])
+						peaks_all.append(peak[1])
 						signal = find_signal(trace)
 						signal_all.append(signal[1][:])
-						#show_trace_signal(trace,signal,kwargs['miny'],kwargs['maxy'])
 						offset_all.append(offset)
 				infile.close()
 		infilelist.close()
@@ -213,7 +211,7 @@ def main(**kwargs):
 					print("Read event ",i)
 				if(i==first_event_n+1):
 					offset_found=True
-				trace, offset = read_next_event(infile, offset_found, offset)
+				trace, offset = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset)
 				if len(trace[0]) < 10 :
 					print("Reached EOF...exiting")
 					break	
@@ -223,31 +221,32 @@ def main(**kwargs):
 						trace_all[1].append(trace[1][jj])
 				peak = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'])
 				peaks_all.append(peak[1])
+				signal = find_signal(trace)
+                                signal_all.append(signal[1][:])
 				offset_all.append(offset)
 				if(kwargs['display'] and not(kwargs['superimpose'])):
-					show_trace(trace,peak,kwargs['miny'],kwargs['maxy'])
+					show_trace(trace,peak,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset) #in order to consider the offset
 				elif(kwargs['display'] and (kwargs['superimpose'])):
 					if i == first_event_n :
 						plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
-						plt.ylim([kwargs['miny'],kwargs['maxy']])
+						plt.ylim([kwargs['miny']+estimated_offset,kwargs['maxy']+estimated_offset])  #in order to consider the offset
 						plt.ylabel("V")
 						plt.xlabel("s")
 						plt.grid(True)
-						#plt.plot(trace[0], trace[1], 'black')
-					#else:
-						#plt.plot(trace[0], trace[1], 'black')	
 					if i == last_event_n -1 :
-						plt.hist2d(trace_all[0], trace_all[1], bins=100, norm=LogNorm())
+						plt.hist2d(trace_all[0], trace_all[1], bins=[bins_Time,bins_Volt], norm=LogNorm())
 						plt.colorbar()		
 						plt.show()
+						
 		infile.close()	
 	
+	plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
 	offset_mean = find_mean(offset_all)
 	print (offset_mean)
 	peaks_all_np = np.array(peaks_all)
 	peaks_all_np = peaks_all_np - offset_mean
 	plt.grid(True)
-	plt.hist(peaks_all_np, bins = 300, range = (0, kwargs['maxy']), facecolor='g', edgecolor='g',histtype='step', stacked=True, fill=False)
+	plt.hist(peaks_all_np, bins = bins_Volt, range = (0, kwargs['maxy']), facecolor='g', edgecolor='g',histtype='step', stacked=True, fill=False)
 	plt.yscale('log')
 	plt.xlabel('V')	
 	plt.show()
