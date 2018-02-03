@@ -1,3 +1,8 @@
+'''
+Reads data acquired by Agilent MSO6054A
+Tested on Windows 10
+'''
+
 import visa
 import time
 import argparse
