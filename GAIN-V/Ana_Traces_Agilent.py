@@ -24,8 +24,7 @@ from scipy.optimize import curve_fit
 from scipy import asarray as ar,exp
 import pandas as pd
 import argparse
-
-max_a = 3
+import statistics
 
 #ottengo le opzioni: 
 #--inputfile: file.txt containing the traces
@@ -40,16 +39,27 @@ PARSER.add_argument('-d', '--display', action='store_true', required=False, defa
 PARSER.add_argument('-1plot', '--superimpose', action='store_true', required=False, default=False, help='display all events on the same figure')
 PARSER.add_argument('-all', '--all_events', action='store_true', required=False, default=False, help='Analyze all events in the file (max=100000)')
 PARSER.add_argument('-first', '--first_event', type=int, required=False, default=0, help='First event number to analyze')
-PARSER.add_argument('-last', '--last_event',type=int, required=False, default=10000, help='Last event number to analyze')
+PARSER.add_argument('-last', '--last_event',type=int, required=False, default=100000, help='Last event number to analyze')
 PARSER.add_argument('-miny', '--miny', type=float, required=False, default=-0.01, help='Amplitude signal scale (y), minimum')
 PARSER.add_argument('-maxy', '--maxy', type=float, required=False, default= 0.02, help='Amplitude signal scale (y), maximum')
 #PARSER.add_argument('-eve', '--events', required=False, default=[0,2], help='First and last event numbers')
-PARSER.add_argument('-mintp', '--min_time_peak', type=float, required=False, default=0., help='Starting time interval [s] for peak search')
-PARSER.add_argument('-maxtp', '--max_time_peak', type=float, required=False, default=3.0e-9, help='Starting time interval [s] for peak search')
+PARSER.add_argument('-mintp', '--min_time_peak', type=float, required=False, default=-1.75e-09, help='Starting time interval [s] for peak search')
+PARSER.add_argument('-maxtp', '--max_time_peak', type=float, required=False, default=7e-9, help='Starting time interval [s] for peak search')
 
-offset = 0.040
+max_a = 3
+min_index_find_offset = 0
+max_index_find_offset = 10
 
-def read_next_event_lecroy(infile):
+def find_offset(trace_selected):
+	offset = statistics.median(trace_selected)
+	return offset
+
+def find_mean(trace):
+	offset_mean = statistics.median(trace)
+	return offset_mean
+	
+
+def read_next_event(infile, offset_found, offset):
 	trace = []
 	trace.append([])
 	trace.append([])
@@ -57,26 +67,36 @@ def read_next_event_lecroy(infile):
 	for i,line in enumerate(infile):
 		if line == '':
 			break
-
+			
 		for j,dum in enumerate(line.split()):
 			if (i == 1) and (j == 0):
 				trace_length=int(dum)+3
 			if (i >= 3) and (j == 0):
 				trace[0].append(float(dum))
 			if (i >= 3) and (j == 1):	
-				trace[1].append(float(dum) + float(offset))
-				#print(float(dum))
-				
+				trace[1].append(float(dum))				
 		if (trace_length != 0 and i >= trace_length-1):
-			break		
+			break
+	
+	if ((trace[1]!=[])):# and (offset_found==False)):
+		offset_local = find_offset(trace[1][min_index_find_offset:max_index_find_offset])
+		
+	else:
+		offset_local = offset
+	
+	#print (offset_local)
+	
+	# for k in range(0, (trace_length-3)):
+		# trace[1][k] = trace[1][k]-float(offset_local)
+	
 	trace_np = np.array(trace)	
-	return trace_np
+	return trace_np, offset_local
 
 # with self trigger or with external trigger (with light) the peak is right after the trigger at fixed time. Only 1 peak/trace
 def find_peak_fixtime(trace,mintp,maxtp):	
-	peak = np.array([0.,0.]) #first index is peak_time, second peak_amplitude	
+	peak = np.array([-10.,-10.]) #first index is peak_time, second peak_amplitude	
 	for i in range(0,trace[0].size-1):
-		#if (trace[0][i] > mintp and trace[0][i] < maxtp):
+		if (trace[0][i] > mintp and trace[0][i] < maxtp):
 			if(trace[1][i] > peak[1]):
 				peak[0] = trace[0][i]
 				peak[1] = trace[1][i]			
@@ -135,6 +155,8 @@ def find_signal(trace):
 	
 def main(**kwargs):	
 	
+	offset_found=False
+	offset=0.
 	first_event_n = kwargs['first_event']
 	last_event_n = kwargs['last_event']
 	if kwargs['input_filelist'] != '':
@@ -155,9 +177,11 @@ def main(**kwargs):
 	#if only the peak amplitude is needed, to add one dimension in case also peak time is relavant
 	peaks_all = []
 	signal_all = []
+	offset_all = []
 	if kwargs['input_filelist'] != '':
 		cnt=0
 		with open(kwargs['input_filelist'], "r") as infilelist:
+			offset_found=False
 			for f in infilelist:
 				f = f.rstrip('\n')
 				cnt=cnt+1
@@ -167,8 +191,10 @@ def main(**kwargs):
 					for i in range(first_event_n,last_event_n): 
 						if (i%500 == 0):
 							print("Read event ",i)
-						trace = read_next_event_lecroy(infile)
-						if len(trace[0]) < 10 :
+						if(i==first_event_n+1):
+							offset_found=True
+						trace, offset = read_next_event(infile, offset_found, offset)
+						if (len(trace[0]) < 10) :
 							print("Reached EOF...exiting")
 							break	
 						peak = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'])
@@ -177,6 +203,7 @@ def main(**kwargs):
 						signal = find_signal(trace)
 						signal_all.append(signal[1][:])
 						#show_trace_signal(trace,signal,kwargs['miny'],kwargs['maxy'])
+						offset_all.append(offset)
 				infile.close()
 		infilelist.close()
 	else:
@@ -184,7 +211,9 @@ def main(**kwargs):
 			for i in range(first_event_n,last_event_n):
 				if (i%500 == 0):
 					print("Read event ",i)
-				trace = read_next_event_lecroy(infile)
+				if(i==first_event_n+1):
+					offset_found=True
+				trace, offset = read_next_event(infile, offset_found, offset)
 				if len(trace[0]) < 10 :
 					print("Reached EOF...exiting")
 					break	
@@ -194,6 +223,7 @@ def main(**kwargs):
 						trace_all[1].append(trace[1][jj])
 				peak = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'])
 				peaks_all.append(peak[1])
+				offset_all.append(offset)
 				if(kwargs['display'] and not(kwargs['superimpose'])):
 					show_trace(trace,peak,kwargs['miny'],kwargs['maxy'])
 				elif(kwargs['display'] and (kwargs['superimpose'])):
@@ -212,9 +242,12 @@ def main(**kwargs):
 						plt.show()
 		infile.close()	
 	
-	
+	offset_mean = find_mean(offset_all)
+	print (offset_mean)
+	peaks_all_np = np.array(peaks_all)
+	peaks_all_np = peaks_all_np - offset_mean
 	plt.grid(True)
-	plt.hist(peaks_all, bins = 200, range = (0, kwargs['maxy']), facecolor='g', edgecolor='g',histtype='step', stacked=True, fill=False)
+	plt.hist(peaks_all_np, bins = 300, range = (0, kwargs['maxy']), facecolor='g', edgecolor='g',histtype='step', stacked=True, fill=False)
 	plt.yscale('log')
 	plt.xlabel('V')	
 	plt.show()
