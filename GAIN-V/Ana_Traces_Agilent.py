@@ -49,7 +49,7 @@ PARSER.add_argument('-maxtp', '--max_time_peak', type=float, required=False, def
 PARSER.add_argument('-minoff', '--min_ind_offset', type=float, required=False, default=0, help='Starting index for offset search')
 PARSER.add_argument('-maxoff', '--max_ind_offset', type=float, required=False, default=79, help='Ending index for offset search')
 PARSER.add_argument('-estoff', '--estimated_offset', type=float, required=False, default=-0.036, help='Estimated offset (for plots)')
-PARSER.add_argument('-noise', '--noise_level', type=float, required=False, default=0.5, help='Noise level expressed as a normalized threshold (float between [0., 1.]). Only the peaks with amplitude higher than the threshold will be detected.')
+PARSER.add_argument('-noise', '--noise_level', type=float, required=False, default=-0.35, help='Noise level')
 
 
 max_a = 3
@@ -95,16 +95,18 @@ def read_next_event(infile, offset_found, offset, min_index_find_offset,max_inde
 def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
         x=trace[0]
         y=trace[1]
-        indexes = peakutils.indexes(y, thres=noise_level, min_dist=30)
-        peaks = np.array([x[indexes], y[indexes]]) #all the peaks, not only the triggered one
+        indexes = peakutils.indexes(y, thres=0.2, min_dist=30)
+        sel_indexes = []
         found = False
         
         #now I look for the triggered peak, between min_ind and max_ind
         for i in range (0, np.size(indexes)):
-            if((indexes[i]>=min_ind) and (indexes[i]<=max_ind)):
-                peak = np.array([x[indexes[i]], y[indexes[i]]]) #in the [min_ind, max_ind] iterval I choose only the first peak (which is the triggered one)
-                found = True
-                break
+            if(y[indexes[i]]>=noise_level):
+                sel_indexes.append(indexes[i])
+                if((indexes[i]>=min_ind) and (indexes[i]<=max_ind) and (found==False)):
+                    peak = np.array([x[indexes[i]], y[indexes[i]]]) #in the [min_ind, max_ind] iterval I choose only the first peak (which is the triggered one)
+                    found = True
+        peaks = np.array([x[sel_indexes], y[sel_indexes]]) #all the peaks, not only the triggered one
         if(found==False): #if i don't find a triggered peak)
             #print('ERROR: peak not found; check mintp and maxtp')
             peak = np.array([-100, -100])
