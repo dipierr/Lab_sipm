@@ -19,12 +19,14 @@ TEMPORARY VERSION
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import numpy as np
+from numpy import array
 from scipy import stats
 from scipy.optimize import curve_fit
 from scipy import asarray as ar,exp
 import pandas as pd
 import argparse
 import statistics
+import peakutils #Peak detection utilities for 1D data
 
 
 #--inputfile: file.txt containing the traces
@@ -42,11 +44,12 @@ PARSER.add_argument('-first', '--first_event', type=int, required=False, default
 PARSER.add_argument('-last', '--last_event',type=int, required=False, default=100000, help='Last event number to analyze')
 PARSER.add_argument('-miny', '--miny', type=float, required=False, default=-0.01, help='Amplitude signal scale (y), minimum')
 PARSER.add_argument('-maxy', '--maxy', type=float, required=False, default= 0.02, help='Amplitude signal scale (y), maximum')
-PARSER.add_argument('-mintp', '--min_time_peak', type=float, required=False, default=-1.75e-09, help='Starting time interval [s] for peak search')
-PARSER.add_argument('-maxtp', '--max_time_peak', type=float, required=False, default=7e-9, help='Ending time interval [s] for peak search')
+PARSER.add_argument('-mintp', '--min_time_peak', type=float, required=False, default=3, help='Starting time interval [index] for peak search')
+PARSER.add_argument('-maxtp', '--max_time_peak', type=float, required=False, default=50, help='Ending time interval [index] for peak search')
 PARSER.add_argument('-minoff', '--min_ind_offset', type=float, required=False, default=0, help='Starting index for offset search')
-PARSER.add_argument('-maxoff', '--max_ind_offset', type=float, required=False, default=3, help='Ending index for offset search')
+PARSER.add_argument('-maxoff', '--max_ind_offset', type=float, required=False, default=79, help='Ending index for offset search')
 PARSER.add_argument('-estoff', '--estimated_offset', type=float, required=False, default=-0.036, help='Estimated offset (for plots)')
+PARSER.add_argument('-noise', '--noise_level', type=float, required=False, default=0.5, help='Noise level expressed as a normalized threshold (float between [0., 1.]). Only the peaks with amplitude higher than the threshold will be detected.')
 
 
 max_a = 3
@@ -54,13 +57,10 @@ bins_Volt = 180
 bins_Time = 79
 
 def find_offset(trace_selected):
-	offset = statistics.median(trace_selected)
-	return offset
-
-def find_mean(trace):
-	offset_mean = statistics.median(trace)
-	return offset_mean
-	
+	lift = 100
+	base_vect = peakutils.baseline(trace_selected+lift, 1) #if i have a negative baseline the code crashes (maybe)
+        base = statistics.mean(base_vect) - lift
+	return base
 
 def read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset):
 	trace = []
@@ -81,32 +81,38 @@ def read_next_event(infile, offset_found, offset, min_index_find_offset,max_inde
 		if (trace_length != 0 and i >= trace_length-1):
 			break
 	
-	if ((trace[1]!=[])):# and (offset_found==False)):
-		offset_local = find_offset(trace[1][min_index_find_offset:max_index_find_offset])
+	trace_np = np.array(trace)
+	
+	if ((trace_np[1]!=[])):# and (offset_found==False)):
+		offset_local = find_offset(trace_np[1][min_index_find_offset:max_index_find_offset])
 		
 	else:
 		offset_local = offset
 	
-	trace_np = np.array(trace)	
 	return trace_np, offset_local
 
 # with self trigger or with external trigger (with light) the peak is right after the trigger at fixed time. Only 1 peak/trace
-def find_peak_fixtime(trace,mintp,maxtp):	
-	peak = np.array([-10.,-10.]) #first index is peak_time, second peak_amplitude	
-	for i in range(0,trace[0].size-1):
-		if (trace[0][i] > mintp and trace[0][i] < maxtp):
-			if(trace[1][i] > peak[1]):
-				peak[0] = trace[0][i]
-				peak[1] = trace[1][i]			
-	return peak
-
-# with external trigger at dark (DCR) the peaks can be several and at a random time
-#def find_peaks_exttrg_dark(trace):		
-#	return peaks			
+def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
+        x=trace[0]
+        y=trace[1]
+        indexes = peakutils.indexes(y, thres=noise_level, min_dist=30)
+        peaks = np.array([x[indexes], y[indexes]]) #all the peaks, not only the triggered one
+        found = False
+        
+        #now I look for the triggered peak, between min_ind and max_ind
+        for i in range (0, np.size(indexes)):
+            if((indexes[i]>=min_ind) and (indexes[i]<=max_ind)):
+                peak = np.array([x[indexes[i]], y[indexes[i]]]) #in the [min_ind, max_ind] iterval I choose only the first peak (which is the triggered one)
+                found = True
+                break
+        if(found==False): #if i don't find a triggered peak)
+            #print('ERROR: peak not found; check mintp and maxtp')
+            peak = np.array([-100, -100])
+        return peak, peaks, found
 
 def show_trace(trace,peak,miny,maxy):		
 	plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
-	plt.ylim([miny,maxy])
+	#plt.ylim([miny,maxy])
 	plt.plot(trace[0], trace[1], 'black')
 	plt.plot(peak[0],peak[1],'ro')
 	plt.ylabel("V")
@@ -114,47 +120,12 @@ def show_trace(trace,peak,miny,maxy):
 	plt.grid(True)			
 	plt.show()
 
-def show_trace_signal(trace,signal,miny,maxy):
-	plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
-	plt.ylim([miny,maxy])
-	plt.plot(trace[0], trace[1], 'black')
-	for a in range (0, max_a):
-            if(signal[1][a]>0):
-                plt.plot(signal[0][a],signal[1][a],'bo')
-	plt.ylabel("mV")
-	plt.xlabel("ns")
-	plt.grid(True)			
-	plt.show()
-	
-def find_signal(trace):
-    signal = np.array([[0., 0., 0.], [0., 0., 0.]]) #first index is time, second amplitude	
-    step_i = 10
-    i=2
-    max_i = trace[0].size-i
-    a=0
-    while (i<max_i): #signal: before rises and after falls
-            #if ((trace[1][i-7] < trace[1][i-6])  and (trace[1][i-6] < trace[1][i-5]) and (trace[1][i-5] < trace[1][i-4]) and (trace[1][i-4] < trace[1][i-3]) and (trace[1][i-3] < trace[1][i-2]) and (trace[1][i-2] < trace[1][i-1]) and (trace[1][i-1] < trace[1][i]) and (trace[1][i] > trace[1][i+1])  and (trace[1][i+1] > trace[1][i+2])  and (trace[1][i+2] > trace[1][i+3])  and (trace[1][i+3] > trace[1][i+4])  and (trace[1][i+4] > trace[1][i+5])  and (trace[1][i+5] > trace[1][i+6])  and (trace[1][i+6] > trace[1][i+7])):
-            if ((trace[1][i-2] <= trace[1][i-1]) and (trace[1][i-1] <= trace[1][i])):
-                if((trace[1][i] >= trace[1][i+1])  and (trace[1][i+1] >= trace[1][i+2])):
-                    if((trace[1][i] >= 2)):
-                        signal[0][a] = trace[0][i]
-                        signal[1][a] = trace[1][i]
-                        i=i+step_i
-                        if a<(max_a-1):
-                            a=a+1
-                    else:
-                        i=i+1
-                else:
-                    i=i+1
-            else:
-                i=i+1
-    return signal
-	
 def main(**kwargs):
 	
 	min_index_find_offset = kwargs['min_ind_offset']
         max_index_find_offset = kwargs['max_ind_offset']
         estimated_offset = kwargs['estimated_offset']
+        noise_level = kwargs['noise_level']
         offset_found=False
 	offset=0.
 	first_event_n = kwargs['first_event']
@@ -178,6 +149,7 @@ def main(**kwargs):
 	peaks_all = []
 	signal_all = []
 	offset_all = []
+	peak_not_found=0
 	if kwargs['input_filelist'] != '':
 		cnt=0
 		with open(kwargs['input_filelist'], "r") as infilelist:
@@ -197,11 +169,13 @@ def main(**kwargs):
 						if (len(trace[0]) < 10) :
 							print("Reached EOF...exiting")
 							break	
-						peak = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'])
-						peaks_all.append(peak[1])
-						signal = find_signal(trace)
-						signal_all.append(signal[1][:])
-						offset_all.append(offset)
+						peak, peaks, found = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
+						if(found==True): #I consider the peaks only if I have found the triggered peak
+                                                    peaks_all.append(peak[1])
+                                                    signal_all.append(peaks[1][:])
+                                                    offset_all.append(offset)
+                                                else:
+                                                    peak_not_found = peak_not_found+1
 				infile.close()
 		infilelist.close()
 	else:
@@ -219,13 +193,16 @@ def main(**kwargs):
 					for jj in range(0,len(trace[0])-1):
 						trace_all[0].append(trace[0][jj])
 						trace_all[1].append(trace[1][jj])
-				peak = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'])
-				peaks_all.append(peak[1])
-				signal = find_signal(trace)
-                                signal_all.append(signal[1][:])
-				offset_all.append(offset)
+				peak, peaks, found = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'],noise_level)
+				if(found==True):  #I consider the peaks only if I have found the triggered peak
+                                    peaks_all.append(peak[1])
+                                    signal_all.append(peaks[1][:])
+                                    offset_all.append(offset)
+                                else:
+                                    peak_not_found = peak_not_found+1
 				if(kwargs['display'] and not(kwargs['superimpose'])):
 					show_trace(trace,peak,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset) #in order to consider the offset
+					show_trace(trace,peaks,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset)
 				elif(kwargs['display'] and (kwargs['superimpose'])):
 					if i == first_event_n :
 						plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
@@ -240,8 +217,10 @@ def main(**kwargs):
 						
 		infile.close()	
 	
+	print('Number of peaks not found = ' + str(peak_not_found))
+	
 	plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
-	offset_mean = find_mean(offset_all)
+	offset_mean = statistics.mean(offset_all)
 	print (offset_mean)
 	peaks_all_np = np.array(peaks_all)
 	peaks_all_np = peaks_all_np - offset_mean
