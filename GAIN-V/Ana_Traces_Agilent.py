@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 '''
 Goal: to extract information from SiPM traces digitized by the AGILENT MS06054A.
 Steps: 
@@ -53,7 +51,7 @@ PARSER.add_argument('-noise', '--noise_level', type=float, required=False, defau
 
 
 max_a = 3
-bins_Volt = 180
+bins_Volt = 250
 bins_Time = 79
 
 def find_offset(trace_selected):
@@ -96,6 +94,7 @@ def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
         x=trace[0]
         y=trace[1]
         indexes = peakutils.indexes(y, thres=0.2, min_dist=30)
+        #indexes = peakutils.interpolate(x, y, ind=indexes) #Tries to enhance the resolution of the peak detection by using Gaussian fitting, centroid computation or an arbitrary function on the neighborhood of each previously detected peak index
         sel_indexes = []
         found = False
         
@@ -112,11 +111,11 @@ def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
             peak = np.array([-100, -100])
         return peak, peaks, found
 
-def show_trace(trace,peak,miny,maxy):		
+def show_trace(trace,peak,miny,maxy, layout):		
 	plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
 	#plt.ylim([miny,maxy])
 	plt.plot(trace[0], trace[1], 'black')
-	plt.plot(peak[0],peak[1],'ro')
+	plt.plot(peak[0],peak[1], str(layout))
 	plt.ylabel("V")
 	plt.xlabel("s")
 	plt.grid(True)			
@@ -203,8 +202,8 @@ def main(**kwargs):
                                 else:
                                     peak_not_found = peak_not_found+1
 				if(kwargs['display'] and not(kwargs['superimpose'])):
-					show_trace(trace,peak,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset) #in order to consider the offset
-					show_trace(trace,peaks,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset)
+					show_trace(trace,peak,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'ro') #in order to consider the offset
+					show_trace(trace,peaks,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'bo')
 				elif(kwargs['display'] and (kwargs['superimpose'])):
 					if i == first_event_n :
 						plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
@@ -223,7 +222,7 @@ def main(**kwargs):
 	
 	plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
 	offset_mean = statistics.mean(offset_all)
-	print (offset_mean)
+	print('Offset = ' + str(offset_mean))
 	peaks_all_np = np.array(peaks_all)
 	peaks_all_np = peaks_all_np - offset_mean
 	plt.grid(True)
