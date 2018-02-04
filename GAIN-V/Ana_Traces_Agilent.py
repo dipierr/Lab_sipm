@@ -51,7 +51,7 @@ PARSER.add_argument('-noise', '--noise_level', type=float, required=False, defau
 
 
 max_a = 3
-bins_Volt = 250
+bins_Volt = 180
 bins_Time = 79
 
 def find_offset(trace_selected):
@@ -111,11 +111,11 @@ def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
             peak = np.array([-100, -100])
         return peak, peaks, found
 
-def show_trace(trace,peak,miny,maxy, layout):		
+def show_trace(trace,peak,miny,maxy, points_layout):		
 	plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
 	#plt.ylim([miny,maxy])
 	plt.plot(trace[0], trace[1], 'black')
-	plt.plot(peak[0],peak[1], str(layout))
+	plt.plot(peak[0],peak[1], str(points_layout))
 	plt.ylabel("V")
 	plt.xlabel("s")
 	plt.grid(True)			
@@ -220,15 +220,29 @@ def main(**kwargs):
 	
 	print('Number of peaks not found = ' + str(peak_not_found))
 	
+	#PEAK HISTOGRAM
 	plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
 	offset_mean = statistics.mean(offset_all)
 	print('Offset = ' + str(offset_mean))
 	peaks_all_np = np.array(peaks_all)
 	peaks_all_np = peaks_all_np - offset_mean
 	plt.grid(True)
-	plt.hist(peaks_all_np, bins = bins_Volt, range = (0, kwargs['maxy']), facecolor='g', edgecolor='g',histtype='step', stacked=True, fill=False)
+	peak_hist = plt.hist(peaks_all_np, bins = bins_Volt, range = (0, kwargs['maxy']), facecolor='g', edgecolor='g',histtype='step', stacked=True, fill=False)
 	plt.yscale('log')
 	plt.xlabel('V')	
+        
+        #FINDING PEAKS IN PEAK HISTOGRAM
+        plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
+	x=peak_hist[1]
+	y=peak_hist[0]
+	y = np.append(y,0)
+	indexes = peakutils.indexes(y, thres=0.0, min_dist=bins_Volt/10)
+	peak = np.array([x[indexes], y[indexes]])
+	plt.plot(x, y, 'black')
+	plt.plot(peak[0],peak[1], 'bo')
+	plt.grid(True)
+	plt.yscale('log')
+	plt.xlabel('V')
 	plt.show()
 	
 if __name__ == '__main__':
