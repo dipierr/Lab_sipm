@@ -34,7 +34,7 @@ __description__ = 'Producing the azimuth and zenith angle for sim_telarray'
 
 formatter = argparse.ArgumentDefaultsHelpFormatter
 PARSER = argparse.ArgumentParser(description=__description__, formatter_class=formatter)
-PARSER.add_argument('-f', '--input_file', type=str, required=False, default='wave0.txt', help='ascii file produced by Lecroy osccilloscope.')
+PARSER.add_argument('-f', '--input_file', type=str, required=False, default='wave0.txt', help='ascii file produced by oscilloscope.')
 PARSER.add_argument('-flist', '--input_filelist', type=str, required=False, default='', help='list of file names to be analyzed')
 PARSER.add_argument('-d', '--display', action='store_true', required=False, default=False, help='display the selected event trace')
 PARSER.add_argument('-1plot', '--superimpose', action='store_true', required=False, default=False, help='display all events on the same figure')
@@ -144,14 +144,15 @@ def fit(bin_centers,bin_heights,bin_borders,fit_start,fit_end):
                 found_fit_end=True
                 #print fit_end_ind
             
-        popt, _ = curve_fit(gaussian, bin_centers[fit_start_ind:fit_end_ind], bin_heights[fit_start_ind:fit_end_ind], p0=[1., 0., 1.])
+        popt, pcov = curve_fit(gaussian, bin_centers[fit_start_ind:fit_end_ind], bin_heights[fit_start_ind:fit_end_ind], p0=[1., 0., 1.])
         
         x_interval_for_fit = np.linspace(bin_borders[0], bin_borders[-1], 10000)
         plt.plot(x_interval_for_fit, gaussian(x_interval_for_fit, *popt), 'r',label='fit')
         
         mean = popt[0]
+        err_mean = pcov[0][0]
         standard_deviation = popt[2]
-        return mean, standard_deviation
+        return mean, err_mean, standard_deviation
 
 def main(**kwargs):
         
@@ -268,29 +269,33 @@ def main(**kwargs):
         bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
         
         if(kwargs['fit_hist']==True):
-            if(kwargs['input_file']=='20180209_DARK_34_04.txt'):
+            if(kwargs['input_file']=='20180209_DARK_34_04.txt' or kwargs['input_file']=='20180209_DARK_34_03.txt'):
                 fit_range = [0, 0.02,  0.035,   0.05,   0.065,  0.08,   0.095,   0.11]
-            elif(kwargs['input_file']=='20180209_DARK_35_01.txt'):
+            elif(kwargs['input_file']=='20180209_DARK_35_01.txt' or kwargs['input_file']=='20180209_DARK_35_02.txt'):
                 fit_range = [0, 0.025,  0.04,   0.06,   0.075,  0.09,   0.11,   0.125] 
-            elif(kwargs['input_file']=='20180209_DARK_36_02.txt'):
+            elif(kwargs['input_file']=='20180209_DARK_36_02.txt' or kwargs['input_file']=='20180209_DARK_36_01.txt'):
                 fit_range = [0, 0.025,  0.045,  0.065,  0.085,  0.105,  0.125,  0.145]
             else:
                 print('ERROR: SPECIFY fit_range')
                 quit()
             peaks_num = len(fit_range)-1
             mean = np.linspace(0,0,peaks_num)
+            err_mean = np.linspace(0,0,peaks_num)
             standard_deviation = np.linspace(0,0,peaks_num)
             diff_mean = np.linspace(0,0,peaks_num-1)
+            sum_err_mean=0
             for i in range(0,peaks_num):
                 fit_start = fit_range[i]
                 fit_end = fit_range[i+1]
-                mean[i], standard_deviation[i] = fit(bin_centers,bin_heights,bin_borders,fit_start,fit_end)
+                mean[i], err_mean[i], standard_deviation[i] = fit(bin_centers,bin_heights,bin_borders,fit_start,fit_end)
+                sum_err_mean = sum_err_mean + err_mean[i]
                 #print(mean[i])
             for i in range(0,peaks_num-1):
                 diff_mean[i] = mean[i+1]-mean[i]
             print('Diff mean\t'+str(diff_mean))
             mean_diff_mean = statistics.mean(diff_mean)
             print('Mean diff mean\t'+str(mean_diff_mean))
+            print('Err Mean\t'+str(sum_err_mean))
             
             
         plt.show()
