@@ -16,6 +16,7 @@ TEMPORARY VERSION
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
+import matplotlib.mlab as mlab
 import numpy as np
 from numpy import array
 from scipy import stats
@@ -43,16 +44,20 @@ PARSER.add_argument('-last', '--last_event',type=int, required=False, default=10
 PARSER.add_argument('-miny', '--miny', type=float, required=False, default=-0.01, help='Amplitude signal scale (y), minimum')
 PARSER.add_argument('-maxy', '--maxy', type=float, required=False, default= 0.2, help='Amplitude signal scale (y), maximum')
 PARSER.add_argument('-mintp', '--min_time_peak', type=float, required=False, default=100, help='Starting time interval [index] for peak search')
-PARSER.add_argument('-maxtp', '--max_time_peak', type=float, required=False, default=200, help='Ending time interval [index] for peak search')
+PARSER.add_argument('-maxtp', '--max_time_peak', type=float, required=False, default=160, help='Ending time interval [index] for peak search')
 PARSER.add_argument('-minoff', '--min_ind_offset', type=float, required=False, default=0, help='Starting index for offset search')
 PARSER.add_argument('-maxoff', '--max_ind_offset', type=float, required=False, default=79, help='Ending index for offset search')
 PARSER.add_argument('-estoff', '--estimated_offset', type=float, required=False, default=0, help='Estimated offset (for plots)')
 PARSER.add_argument('-noise', '--noise_level', type=float, required=False, default=0, help='Noise level')
+PARSER.add_argument('-fit', '--fit_hist', type=bool, required=False, default=False, help='Fit histogram?')
 
 
 max_a = 3
 bins_Volt = 180
 bins_Time = 79
+
+def gaussian(x, mean, amplitude, standard_deviation):
+    return amplitude * np.exp( - ((x - mean) / standard_deviation) ** 2)
 
 def find_offset(trace_selected):
         lift = 100
@@ -90,9 +95,11 @@ def read_next_event(infile, offset_found, offset, min_index_find_offset,max_inde
 
 # with self trigger or with external trigger (with light) the peak is right after the trigger at fixed time. Only 1 peak/trace
 def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
-        x=trace[0]
-        y=trace[1]
-        indexes = peakutils.indexes(y, thres=0.2, min_dist=30)
+        first_ind = int(min_ind*0.5)
+        #print(first_ind)
+        x=trace[0][first_ind:]
+        y=trace[1][first_ind:]
+        indexes = peakutils.indexes(y, thres=0., min_dist=50)
         #indexes = peakutils.interpolate(x, y, ind=indexes) #Tries to enhance the resolution of the peak detection by using Gaussian fitting, centroid computation or an arbitrary function on the neighborhood of each previously detected peak index
         sel_indexes = []
         found = False
@@ -101,9 +108,10 @@ def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
         for i in range (0, np.size(indexes)):
             if(y[indexes[i]]>=noise_level):
                 sel_indexes.append(indexes[i])
-                if((indexes[i]>=min_ind) and (indexes[i]<=max_ind) and (found==False)):
+                if((indexes[i]>=min_ind-first_ind) and (indexes[i]<=max_ind-first_ind) and (found==False)):
                     peak = np.array([x[indexes[i]], y[indexes[i]]]) #in the [min_ind, max_ind] iterval I choose only the first peak (which is the triggered one)
                     found = True
+                    
         peaks = np.array([x[sel_indexes], y[sel_indexes]]) #all the peaks, not only the triggered one
         if(found==False): #if i don't find a triggered peak)
             #print('ERROR: peak not found; check mintp and maxtp')
@@ -118,8 +126,32 @@ def show_trace(trace,peak,miny,maxy, points_layout):
         plt.plot(peak[0],peak[1], str(points_layout))
         plt.ylabel("V")
         plt.xlabel("s")
-        plt.grid(True)                  
+        plt.grid(True)
+        plt.axvline(x=trace[0][100])
+        plt.axvline(x=trace[0][150])
         plt.show()
+
+def fit(bin_centers,bin_heights,bin_borders,fit_start,fit_end):
+        found_fit_start=False
+        found_fit_end=False
+        for i in range (0,bins_Volt):
+            if((found_fit_start==False) and (bin_centers[i]>fit_start)):
+                fit_start_ind=i
+                found_fit_start=True
+                #print fit_start_ind
+            elif((found_fit_end==False) and (bin_centers[i]>fit_end)):
+                fit_end_ind=i
+                found_fit_end=True
+                #print fit_end_ind
+            
+        popt, _ = curve_fit(gaussian, bin_centers[fit_start_ind:fit_end_ind], bin_heights[fit_start_ind:fit_end_ind], p0=[1., 0., 1.])
+        
+        x_interval_for_fit = np.linspace(bin_borders[0], bin_borders[-1], 10000)
+        plt.plot(x_interval_for_fit, gaussian(x_interval_for_fit, *popt), 'r',label='fit')
+        
+        mean = popt[0]
+        standard_deviation = popt[2]
+        return mean, standard_deviation
 
 def main(**kwargs):
         
@@ -140,7 +172,7 @@ def main(**kwargs):
                 first_event_n = 0
                 last_event_n = 100000   
         if not(kwargs['all_events']):
-                print("Reading from event ",first_event_n," to event ",last_event_n)
+                print("Reading from event "+str(first_event_n)+" to event "+str(last_event_n))
         if kwargs['superimpose']:
                 trace_all = []
                 trace_all.append([])
@@ -163,7 +195,7 @@ def main(**kwargs):
                                 with open(f, "r") as infile:
                                         for i in range(first_event_n,last_event_n): 
                                                 if (i%500 == 0):
-                                                        print("Read event ",i)
+                                                        print("Read event "+str(i))
                                                 if(i==first_event_n+1):
                                                         offset_found=True
                                                 trace, offset = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset)
@@ -183,7 +215,7 @@ def main(**kwargs):
                 with open(kwargs['input_file'], "r") as infile:
                         for i in range(first_event_n,last_event_n):
                                 if (i%500 == 0):
-                                        print("Read event ",i)
+                                        print("Read event "+str(i))
                                 if(i==first_event_n+1):
                                         offset_found=True
                                 trace, offset = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset)
@@ -203,7 +235,7 @@ def main(**kwargs):
                                         peak_not_found = peak_not_found+1
                                 if(kwargs['display'] and not(kwargs['superimpose'])):
                                         show_trace(trace,peak,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'ro') #in order to consider the offset
-                                        show_trace(trace,peaks,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'bo')
+                                        #show_trace(trace,peaks,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'bo')
                                 elif(kwargs['display'] and (kwargs['superimpose'])):
                                         if i == first_event_n :
                                                 plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
@@ -220,33 +252,50 @@ def main(**kwargs):
         
         print('Number of peaks not found = ' + str(peak_not_found))
         
-        #PEAK HISTOGRAM
+        
+        
         plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
         offset_mean = statistics.mean(offset_all)
         print('Offset = ' + str(offset_mean))
         peaks_all_np = np.array(peaks_all)
         peaks_all_np = peaks_all_np - offset_mean
         plt.grid(True)
-        peak_hist = plt.hist(peaks_all_np, bins = bins_Volt, range = (0, kwargs['maxy']), facecolor='g', edgecolor='g',histtype='step', stacked=True, fill=False)
-        plt.yscale('log')
-        plt.xlabel('V') 
+        #plt.yscale('log')
+        plt.xlabel('V')
+        #plt.ylim(1,1000)
         
-        #FINDING PEAKS IN PEAK HISTOGRAM
-        '''plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
-        x=peak_hist[1]
-        y=peak_hist[0]
-        y = np.append(y,0)
-        indexes = peakutils.indexes(y, thres=0.0, min_dist=bins_Volt/10)
-        peak = np.array([x[indexes], y[indexes]])
-        plt.plot(x, y, 'black')
-        plt.plot(peak[0],peak[1], 'bo')
-        plt.grid(True)
-        plt.yscale('log')
-        plt.xlabel('V')'''
+        bin_heights, bin_borders, _ = plt.hist(peaks_all_np, bins = bins_Volt, range = (0, kwargs['maxy']), facecolor='g', edgecolor='g',histtype='step', stacked=True, fill=False)
+        bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
+        
+        if(kwargs['fit_hist']==True):
+            if(kwargs['input_file']=='20180209_DARK_34_04.txt'):
+                fit_range = [0, 0.02,  0.035,   0.05,   0.065,  0.08,   0.095,   0.11]
+            elif(kwargs['input_file']=='20180209_DARK_35_01.txt'):
+                fit_range = [0, 0.025,  0.04,   0.06,   0.075,  0.09,   0.11,   0.125] 
+            elif(kwargs['input_file']=='20180209_DARK_36_02.txt'):
+                fit_range = [0, 0.025,  0.045,  0.065,  0.085,  0.105,  0.125,  0.145]
+            else:
+                print('ERROR: SPECIFY fit_range')
+                quit()
+            peaks_num = len(fit_range)-1
+            mean = np.linspace(0,0,peaks_num)
+            standard_deviation = np.linspace(0,0,peaks_num)
+            diff_mean = np.linspace(0,0,peaks_num-1)
+            for i in range(0,peaks_num):
+                fit_start = fit_range[i]
+                fit_end = fit_range[i+1]
+                mean[i], standard_deviation[i] = fit(bin_centers,bin_heights,bin_borders,fit_start,fit_end)
+                #print(mean[i])
+            for i in range(0,peaks_num-1):
+                diff_mean[i] = mean[i+1]-mean[i]
+            print('Diff mean\t'+str(diff_mean))
+            mean_diff_mean = statistics.mean(diff_mean)
+            print('Mean diff mean\t'+str(mean_diff_mean))
+            
+            
         plt.show()
         
         
 if __name__ == '__main__':
         args = PARSER.parse_args()
         main(**args.__dict__)
-
