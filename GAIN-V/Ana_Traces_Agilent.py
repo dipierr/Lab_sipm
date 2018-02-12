@@ -44,8 +44,8 @@ PARSER.add_argument('-first', '--first_event', type=int, required=False, default
 PARSER.add_argument('-last', '--last_event',type=int, required=False, default=100000, help='Last event number to analyze')
 PARSER.add_argument('-miny', '--miny', type=float, required=False, default=-0.01, help='Amplitude signal scale (y), minimum')
 PARSER.add_argument('-maxy', '--maxy', type=float, required=False, default= 0.2, help='Amplitude signal scale (y), maximum')
-PARSER.add_argument('-mintp', '--min_time_peak', type=float, required=False, default=100, help='Starting time interval [index] for peak search')
-PARSER.add_argument('-maxtp', '--max_time_peak', type=float, required=False, default=160, help='Ending time interval [index] for peak search')
+PARSER.add_argument('-mintp', '--min_time_peak', type=float, required=False, default=200, help='Starting time interval [index] for peak search')
+PARSER.add_argument('-maxtp', '--max_time_peak', type=float, required=False, default=320, help='Ending time interval [index] for peak search')
 PARSER.add_argument('-minoff', '--min_ind_offset', type=float, required=False, default=0, help='Starting index for offset search')
 PARSER.add_argument('-maxoff', '--max_ind_offset', type=float, required=False, default=79, help='Ending index for offset search')
 PARSER.add_argument('-estoff', '--estimated_offset', type=float, required=False, default=0, help='Estimated offset (for plots)')
@@ -151,7 +151,7 @@ def fit(bin_centers,bin_heights,bin_borders,fit_start,fit_end):
         plt.plot(x_interval_for_fit, gaussian(x_interval_for_fit, *popt), 'r',label='fit')
         
         mean = popt[0]
-        err_mean = pcov[0][0]
+        err_mean = pcov[0][0]**0.5
         standard_deviation = popt[2]
         return mean, err_mean, standard_deviation
 
@@ -270,12 +270,20 @@ def main(**kwargs):
         bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
         
         if(kwargs['fit_hist']==True):
+            #SiPM 3 -> I only consider the first 5 peaks
             if(kwargs['input_file']=='20180209_DARK_34_04.txt' or kwargs['input_file']=='20180209_DARK_34_03.txt'):
                 fit_range = [0, 0.02,  0.035,   0.05,   0.065,  0.08,   0.095,   0.11]
             elif(kwargs['input_file']=='20180209_DARK_35_01.txt' or kwargs['input_file']=='20180209_DARK_35_02.txt'):
                 fit_range = [0, 0.025,  0.04,   0.06,   0.075,  0.09,   0.11,   0.125] 
             elif(kwargs['input_file']=='20180209_DARK_36_02.txt' or kwargs['input_file']=='20180209_DARK_36_01.txt'):
                 fit_range = [0, 0.025,  0.045,  0.065,  0.085,  0.105,  0.125,  0.145]
+            #SiPM 1
+            elif(kwargs['input_file']=='20180212_1_DARK_34_02.txt'):
+                fit_range = [0,0.02,0.03,0.044,0.055,0.068,0.08]
+            elif(kwargs['input_file']=='20180212_1_DARK_35_01.txt'):
+                fit_range = [0,0.02,0.035,0.05,0.065,0.078,0.09]
+            elif(kwargs['input_file']=='20180212_1_DARK_36_01.txt'):
+                fit_range = [0,0.025,0.038,0.055,0.072,0.085,0.1]
             else:
                 print('ERROR: SPECIFY fit_range')
                 quit()
@@ -289,14 +297,21 @@ def main(**kwargs):
                 fit_start = fit_range[i]
                 fit_end = fit_range[i+1]
                 mean[i], err_mean[i], standard_deviation[i] = fit(bin_centers,bin_heights,bin_borders,fit_start,fit_end)
-                sum_err_mean = sum_err_mean + err_mean[i]
+                #sum_err_mean = sum_err_mean + err_mean[i]**2
                 #print(mean[i])
             for i in range(0,peaks_num-1):
                 diff_mean[i] = mean[i+1]-mean[i]
             print('Diff mean\t'+str(diff_mean))
             mean_diff_mean = statistics.mean(diff_mean)
-            print('Mean diff mean\t'+str(mean_diff_mean))
-            print('Err Mean\t'+str(sum_err_mean))
+            
+            #print('Mean diff mean\t'+str(mean_diff_mean))
+            #sum_err_mean = sum_err_mean**0.5
+            #print('Err Mean\t'+str(sum_err_mean))
+            
+            #I only consider the first diff (1st peak - 2nd peak) fr
+            err_diff = err_mean[0]**2 + err_mean[1]**2
+            err_diff = err_diff**0.5
+            print('Diff = '+str(diff_mean[0])+' +- '+str(err_diff))
             
             
         plt.show()

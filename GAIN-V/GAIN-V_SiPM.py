@@ -19,34 +19,72 @@ PARSER.add_argument('-o', '--option', type=int, required=False, default=1, help=
 def line_fit(p,x):
     m, q = p
     return m*x + q
+    
+def fit(HV_SiPM, GAIN_SiPM, err_HV_SiPM, err_GAIN_SiPM):
+    plt.figure()
+    plt.errorbar(HV_SiPM, GAIN_SiPM, xerr=err_HV_SiPM, yerr=err_GAIN_SiPM, linestyle='None')
+    fit_model = Model(line_fit)
+    data = RealData(HV_SiPM, GAIN_SiPM, sx=err_HV_SiPM, sy=err_GAIN_SiPM)
+    odr = ODR(data, fit_model, beta0=[1.,1.])
+    out = odr.run()
+    out.pprint() 
+    pcovODR = odr.output.cov_beta # Covariance Matrix
+    optimizedParameters = odr.output.beta # fit parameters
+    xfit = np.arange(25, 37,0.01)
+    yfit = line_fit(optimizedParameters, xfit)
+    plt.plot(xfit, yfit)
+    plt.grid(True)
+    return optimizedParameters, pcovODR
 
+def error_propagation_lin_fit(optimizedParameters, pcovODR, nSiPM):
+    #linear fit: 
+    #y = mx +q => @y=0: mx=-q => x=-q/m
+    m=optimizedParameters[0]
+    q=optimizedParameters[1]
+    
+    Vbd = -q/m
+    
+    #partial derivatives
+    df_dm = q/(m**2)
+    df_dq = -1/m
+    
+    #sigma
+    sigma = 0
+    sigma = sigma + pcovODR[0,0]*df_dm*df_dm + pcovODR[0,1]*df_dm*df_dq
+    sigma = sigma + pcovODR[1,0]*df_dq*df_dm + pcovODR[1,1]*df_dq*df_dq
+    
+    sigma = sigma**0.5
+    
+    print('Vbd_SiPM'+str(nSiPM)+'\t'+str(Vbd)+' +- '+str(sigma))
+    
+    
 
 def main(**kwargs):
     
-    #------
-    #SiPM 1
-    #------
-    plt.figure()
+    #------------
+    #SiPM 3 HD3_2
+    #------------
+    nSiPM = 3
+    HV_SiPM3 = np.array([34.00, 35.00, 36.00])
+    err_HV_SiPM3 = np.array([0.01, 0.01, 0.01])
+    #from Waweform with 2000 points (at max sample rate) (20180209_DARK_34_03.txt, 20180209_DARK_35_02.txt, 20180209_DARK_36_01.txt):
+    GAIN_SiPM3 = np.array([0.015223774484941218, 0.01757637806904217, 0.019537323488766054]) 
+    err_GAIN_SiPM3 = np.array([0.0002636386386728474, 0.00031677656441436237, 0.00019640674762372849])
+    optimizedParameters3, pcovODR3 = fit(HV_SiPM3, GAIN_SiPM3, err_HV_SiPM3, err_GAIN_SiPM3)
+    error_propagation_lin_fit(optimizedParameters3, pcovODR3, nSiPM)
+    
+    #------------
+    #SiPM 1 HD3_2
+    #------------
+    nSiPM = 1
     HV_SiPM1 = np.array([34.00, 35.00, 36.00])
     err_HV_SiPM1 = np.array([0.01, 0.01, 0.01])
-    GAIN_SiPM1 = np.array([0.0151408368519, 0.0171787459721, 0.0191618624342]) #from Waweform with 2000 points (at max sample rate) (20180209_DARK_34_03.txt, 20180209_DARK_35_02.txt, 20180209_DARK_36_01.txt)
-    err_GAIN_SiPM1 = np.array([3.07424563391e-07, 1.13123828024e-06, 2.82262560196e-07]) #from Waweform with 2000 points (at max sample rate) (20180209_DARK_34_03.txt, 20180209_DARK_35_02.txt, 20180209_DARK_36_01.txt)
-    plt.errorbar(HV_SiPM1, GAIN_SiPM1, xerr=err_HV_SiPM1, yerr=err_GAIN_SiPM1, linestyle='None')
-    
-    fit1_model = Model(line_fit)
-    data1 = RealData(HV_SiPM1, GAIN_SiPM1, sx=err_HV_SiPM1, sy=err_GAIN_SiPM1)
-    odr1 = ODR(data1, fit1_model, beta0=[1.,1.])
-    out = odr1.run()
-    out.pprint() 
-    pcov1ODR = odr1.output.cov_beta # Covariance Matrix
-    optimizedParameters1 = odr1.output.beta # fit parameters
-    xfit1 = np.arange(25, 37,0.01)
-    yfit1 = line_fit(optimizedParameters1, xfit1)
-    plt.plot(xfit1, yfit1)
-    plt.grid(True)
-    
-    print('Vbd_SiPM1\t'+str(round(-optimizedParameters1[1]/optimizedParameters1[0],2)))
-        
+    #from Waweform with 2000 points (at max sample rate) (20180212_1_DARK_34_02.txt, 20180212_1_DARK_35_01.txt, 20180212_1_DARK_36_01.txt):
+    GAIN_SiPM1 = np.array([0.012197229689097585, 0.014442865747665316, 0.01599250638039572]) 
+    err_GAIN_SiPM1 = np.array([0.00019212343238446072, 0.00024665495118529894, 7.956049599216814e-05])
+    optimizedParameters1, pcovODR1 = fit(HV_SiPM1, GAIN_SiPM1, err_HV_SiPM1, err_GAIN_SiPM1)
+    error_propagation_lin_fit(optimizedParameters1, pcovODR1, nSiPM)
+     
     plt.show()
 
 
