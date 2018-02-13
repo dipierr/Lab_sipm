@@ -4,7 +4,7 @@
 
 '''
 File to be analyzed: tab separated, written as:
-V (V)	I (muA) errI (muA)
+V (V)   I (muA) errI (muA)
 with NO header
 
 Before Vdb: linear fit
@@ -42,7 +42,8 @@ def main(**kwargs):
     low_lim = 24.2
     central_lim_low=26
     central_lim_high=26.5
-    central_lim_high_2=27.5
+    central_lim_high_2=28
+    #central_lim_high_2=27.5 # non va il test z con il confronto con GAIN-V
     up_lim = 30
 
     intersect_low = 26.2;
@@ -59,7 +60,7 @@ def main(**kwargs):
     file = open(kwargs['input_file'], "r")
     lines = file.read().split("\n")
     
-    print kwargs['input_file'], '\n'
+    print(kwargs['input_file']+ '\n')
     
     # define length of columns
     I = ["" for x in range(len(lines))]
@@ -123,8 +124,8 @@ def main(**kwargs):
 
     #plot I-V
     plt.plot(V, I, color='blue', marker='o', linestyle='None', markersize=1)
-    plt.xlabel('V (V)')
-    plt.ylabel('I ('+'$\mu$'+'A)')
+    plt.xlabel('V (V)', fontsize = 18)
+    plt.ylabel('I ('+'$\mu$'+'A)', fontsize = 18)
     plt.grid(True)
     plt.errorbar(V, I, xerr=errV, yerr=errI, linestyle='None')
     plt.ylim(10**(-3), 10**(2))
@@ -136,7 +137,7 @@ def main(**kwargs):
     #---------
 
     #FIT BEFORE Vbd: LINE
-    print 'BEFORE'
+    print( 'BEFORE')
     fit1_model = Model(line_fit)
     data1 = RealData(V1, I1, sx=errV, sy=errI1)
     odr1 = ODR(data1, fit1_model, beta0=[1.,1.])
@@ -146,7 +147,7 @@ def main(**kwargs):
     optimizedParameters1 = odr1.output.beta # fit parameters
 
     #FIT AFTER Vbd: PARABOLA 1
-    print '\n\nAFTER_1'
+    print( '\n\nAFTER_1')
     fit2_model = Model(parabola_fit)
     data2 = RealData(V2, I2, sx=errV, sy=errI2)
     odr2 = ODR(data2, fit2_model, beta0=[1.,1.,1.])
@@ -156,7 +157,7 @@ def main(**kwargs):
     optimizedParameters2 = odr2.output.beta # fit parameters
 
     #FIT AFTER Vbd: PARABOLA 2
-    print '\n\nAFTER_2'
+    print( '\n\nAFTER_2')
     fit2_2_model = Model(parabola_fit)
     data2_2 = RealData(V2_2, I2_2, sx=errV, sy=errI2_2)
     odr2_2 = ODR(data2_2, fit2_2_model, beta0=[1.,1.,1.])
@@ -173,7 +174,7 @@ def main(**kwargs):
     yfit2_2 =  parabola_fit(optimizedParameters2_2, xfit2)
 
     plt.plot(xfit1, yfit1)
-    plt.plot(xfit2, yfit2)
+    #plt.plot(xfit2, yfit2)
     plt.plot(xfit2, yfit2_2)
 
 
@@ -216,8 +217,10 @@ def main(**kwargs):
 
     sigma_1 = sigma_1 + pcov1ODR[0,0] * df_dm * df_dm + pcov1ODR[0,1] * df_dm * df_dq
     sigma_1 = sigma_1 + pcov1ODR[1,0] * df_dq * df_dm + pcov1ODR[1,1] * df_dq * df_dq
+    
+    sigma_1 = sigma_1**0.5
 
-    print '\nsigma_1 = ', sigma_1
+    print( '\nsigma_1 = '+ str(sigma_1))
 
     #-----------------
     #   INTERSECTION 2
@@ -254,8 +257,10 @@ def main(**kwargs):
 
     sigma_2 = sigma_2 + pcov1ODR[0,0] * df_dm * df_dm + pcov1ODR[0,1] * df_dm * df_dq
     sigma_2 = sigma_2 + pcov1ODR[1,0] * df_dq * df_dm + pcov1ODR[1,1] * df_dq * df_dq
+    
+    sigma_2 = sigma_2**0.5
 
-    print '\nsigma_2 = ', sigma_2
+    print ('\nsigma_2 = '+str(sigma_2))
 
 
 
@@ -267,14 +272,15 @@ def main(**kwargs):
     downErr = Intersection - IntersectionDown
     upErr = IntersectionUp - Intersection
     if round(upErr,2) != round(downErr,2):
-        print 'ERROR, check the code'
-
-    print '\n\nIntersection = ', round(Intersection,2), '+-', round(upErr,2)
+        print ('ERROR, check the code')
+    
+    print('\n\nMEAN WAY')
+    print( 'Intersection = '+str( round(Intersection,2))+ '+-'+ str(round(upErr,2)))
 
 
     plt.show()
 
 if __name__ == '__main__':
-	args = PARSER.parse_args()
-	main(**args.__dict__)
+    args = PARSER.parse_args()
+    main(**args.__dict__)
 
