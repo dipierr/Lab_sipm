@@ -61,21 +61,9 @@ def error_propagation_lin_fit(optimizedParameters, pcovODR, nSiPM):
 
 def main(**kwargs):
     
-    #------------
-    #SiPM 3 HD3_2
-    #------------
-    nSiPM = 3
-    HV_SiPM3 = np.array([34.00, 35.00, 36.00])
-    err_HV_SiPM3 = np.array([0.01, 0.01, 0.01])
-    #from Waweform with 2000 points (at max sample rate) (20180209_DARK_34_03.txt, 20180209_DARK_35_02.txt, 20180209_DARK_36_01.txt):
-    GAIN_SiPM3 = np.array([0.015223774484941218, 0.01757637806904217, 0.019537323488766054]) 
-    err_GAIN_SiPM3 = np.array([0.0002636386386728474, 0.00031677656441436237, 0.00019640674762372849])
-    optimizedParameters3, pcovODR3 = fit(HV_SiPM3, GAIN_SiPM3, err_HV_SiPM3, err_GAIN_SiPM3)
-    error_propagation_lin_fit(optimizedParameters3, pcovODR3, nSiPM)
-    
-    #------------
-    #SiPM 1 HD3_2
-    #------------
+    #--------------
+    #SiPM 1 (HD3_2)
+    #--------------
     nSiPM = 1
     HV_SiPM1 = np.array([34.00, 35.00, 36.00])
     err_HV_SiPM1 = np.array([0.01, 0.01, 0.01])
@@ -84,7 +72,31 @@ def main(**kwargs):
     err_GAIN_SiPM1 = np.array([0.00019212343238446072, 0.00024665495118529894, 7.956049599216814e-05])
     optimizedParameters1, pcovODR1 = fit(HV_SiPM1, GAIN_SiPM1, err_HV_SiPM1, err_GAIN_SiPM1)
     error_propagation_lin_fit(optimizedParameters1, pcovODR1, nSiPM)
-     
+	
+	
+	#--------------
+    #SiPM 2 (HD3_2)
+    #--------------
+    nSiPM = 2
+    HV_SiPM2 = np.array([34.00, 35.00, 36.00])
+    err_HV_SiPM2 = np.array([0.01, 0.01, 0.01])
+    #from Waweform with 2000 points (at max sample rate) (20180212_2_DARK_34_01.txt, 20180212_2_DARK_35_01.txt, .txt):
+    GAIN_SiPM2 = np.array([0.011410721379920264,0.0135010146806218,]) 
+    err_GAIN_SiPM2 = np.array([0.0003764632506002512,0.00037003304446492515,])
+    optimizedParameters2, pcovODR2 = fit(HV_SiPM2, GAIN_SiPM2, err_HV_SiPM2, err_GAIN_SiPM2)
+    error_propagation_lin_fit(optimizedParameters2, pcovODR2, nSiPM)
+	
+	#--------------
+    #SiPM 3 (HD3_2)
+    #--------------
+    nSiPM = 3
+    HV_SiPM3 = np.array([34.00, 35.00, 36.00])
+    err_HV_SiPM3 = np.array([0.01, 0.01, 0.01])
+    #from Waweform with 2000 points (at max sample rate) (20180209_DARK_34_03.txt, 20180209_DARK_35_02.txt, 20180209_DARK_36_01.txt):
+    GAIN_SiPM3 = np.array([0.015223774484941218, 0.01757637806904217, 0.019537323488766054]) 
+    err_GAIN_SiPM3 = np.array([0.0002636386386728474, 0.00031677656441436237, 0.00019640674762372849])
+    optimizedParameters3, pcovODR3 = fit(HV_SiPM3, GAIN_SiPM3, err_HV_SiPM3, err_GAIN_SiPM3)
+    error_propagation_lin_fit(optimizedParameters3, pcovODR3, nSiPM)
     plt.show()
 
 

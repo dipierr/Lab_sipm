@@ -270,7 +270,7 @@ def main(**kwargs):
         bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
         
         if(kwargs['fit_hist']==True):
-            #SiPM 3 -> I only consider the first 5 peaks
+            #SiPM 3
             if(kwargs['input_file']=='20180209_DARK_34_04.txt' or kwargs['input_file']=='20180209_DARK_34_03.txt'):
                 fit_range = [0, 0.02,  0.035,   0.05,   0.065,  0.08,   0.095,   0.11]
             elif(kwargs['input_file']=='20180209_DARK_35_01.txt' or kwargs['input_file']=='20180209_DARK_35_02.txt'):
@@ -284,6 +284,11 @@ def main(**kwargs):
                 fit_range = [0,0.02,0.035,0.05,0.065,0.078,0.09]
             elif(kwargs['input_file']=='20180212_1_DARK_36_01.txt'):
                 fit_range = [0,0.025,0.038,0.055,0.072,0.085,0.1]
+            #SiPM 2
+            elif(kwargs['input_file']=='20180212_2_DARK_34_01.txt'):
+                fit_range = [0,0.017,0.028,0.039,0.051,0.063]
+            elif(kwargs['input_file']=='20180212_2_DARK_35_01.txt'):
+                fit_range = [0,0.018,0.032,0.046,0.060,0.075]
             else:
                 print('ERROR: SPECIFY fit_range')
                 quit()
