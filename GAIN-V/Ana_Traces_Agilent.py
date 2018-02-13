@@ -154,6 +154,69 @@ def fit(bin_centers,bin_heights,bin_borders,fit_start,fit_end):
         err_mean = pcov[0][0]**0.5
         standard_deviation = popt[2]
         return mean, err_mean, standard_deviation
+        
+def hist_GAIN(peaks_all_np, maxy,fit_hist,input_file):
+        
+        plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
+        plt.grid(True)
+        #plt.yscale('log')
+        plt.xlabel('V')
+        #plt.ylim(1,1000)
+        
+        bin_heights, bin_borders, _ = plt.hist(peaks_all_np, bins = bins_Volt, range = (0, maxy), facecolor='g', edgecolor='g',histtype='step', stacked=True, fill=False)
+        bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
+        
+        if(fit_hist==True):
+            #SiPM 3
+            if(input_file=='20180209_DARK_34_04.txt' or input_file=='20180209_DARK_34_03.txt'):
+                fit_range = [0, 0.02,  0.035,   0.05,   0.065,  0.08,   0.095,   0.11]
+            elif(input_file=='20180209_DARK_35_01.txt' or input_file=='20180209_DARK_35_02.txt'):
+                fit_range = [0, 0.025,  0.04,   0.06,   0.075,  0.09,   0.11,   0.125] 
+            elif(input_file=='20180209_DARK_36_02.txt' or input_file=='20180209_DARK_36_01.txt'):
+                fit_range = [0, 0.025,  0.045,  0.065,  0.085,  0.105,  0.125,  0.145]
+            #SiPM 1
+            elif(input_file=='20180212_1_DARK_34_02.txt'):
+                fit_range = [0,0.02,0.03,0.044,0.055,0.068,0.08]
+            elif(input_file=='20180212_1_DARK_35_01.txt'):
+                fit_range = [0,0.02,0.035,0.05,0.065,0.078,0.09]
+            elif(input_file=='20180212_1_DARK_36_01.txt'):
+                fit_range = [0,0.025,0.038,0.055,0.072,0.085,0.1]
+            #SiPM 2
+            elif(input_file=='20180212_2_DARK_34_01.txt'):
+                fit_range = [0,0.017,0.028,0.039,0.051,0.063]
+            elif(input_file=='20180212_2_DARK_35_01.txt'):
+                fit_range = [0,0.018,0.032,0.046,0.060,0.075]
+            else:
+                print('ERROR: SPECIFY fit_range')
+                quit()
+            peaks_num = len(fit_range)-1
+            mean = np.linspace(0,0,peaks_num)
+            err_mean = np.linspace(0,0,peaks_num)
+            standard_deviation = np.linspace(0,0,peaks_num)
+            diff_mean = np.linspace(0,0,peaks_num-1)
+            sum_err_mean=0
+            for i in range(0,peaks_num):
+                fit_start = fit_range[i]
+                fit_end = fit_range[i+1]
+                mean[i], err_mean[i], standard_deviation[i] = fit(bin_centers,bin_heights,bin_borders,fit_start,fit_end)
+                #sum_err_mean = sum_err_mean + err_mean[i]**2
+                #print(mean[i])
+            for i in range(0,peaks_num-1):
+                diff_mean[i] = mean[i+1]-mean[i]
+            print('Diff mean\t'+str(diff_mean))
+            mean_diff_mean = statistics.mean(diff_mean)
+            
+            #print('Mean diff mean\t'+str(mean_diff_mean))
+            #sum_err_mean = sum_err_mean**0.5
+            #print('Err Mean\t'+str(sum_err_mean))
+            
+            #I only consider the first diff (1st peak - 2nd peak) fr
+            err_diff = err_mean[0]**2 + err_mean[1]**2
+            err_diff = err_diff**0.5
+            print('Diff = '+str(diff_mean[0])+' +- '+str(err_diff))
+            
+            
+        plt.show()
 
 def main(**kwargs):
         
@@ -255,71 +318,12 @@ def main(**kwargs):
         print('Number of peaks not found = ' + str(peak_not_found))
         
         
-        
-        plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
         offset_mean = statistics.mean(offset_all)
         print('Offset = ' + str(offset_mean))
         peaks_all_np = np.array(peaks_all)
         peaks_all_np = peaks_all_np - offset_mean
-        plt.grid(True)
-        #plt.yscale('log')
-        plt.xlabel('V')
-        #plt.ylim(1,1000)
         
-        bin_heights, bin_borders, _ = plt.hist(peaks_all_np, bins = bins_Volt, range = (0, kwargs['maxy']), facecolor='g', edgecolor='g',histtype='step', stacked=True, fill=False)
-        bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
-        
-        if(kwargs['fit_hist']==True):
-            #SiPM 3
-            if(kwargs['input_file']=='20180209_DARK_34_04.txt' or kwargs['input_file']=='20180209_DARK_34_03.txt'):
-                fit_range = [0, 0.02,  0.035,   0.05,   0.065,  0.08,   0.095,   0.11]
-            elif(kwargs['input_file']=='20180209_DARK_35_01.txt' or kwargs['input_file']=='20180209_DARK_35_02.txt'):
-                fit_range = [0, 0.025,  0.04,   0.06,   0.075,  0.09,   0.11,   0.125] 
-            elif(kwargs['input_file']=='20180209_DARK_36_02.txt' or kwargs['input_file']=='20180209_DARK_36_01.txt'):
-                fit_range = [0, 0.025,  0.045,  0.065,  0.085,  0.105,  0.125,  0.145]
-            #SiPM 1
-            elif(kwargs['input_file']=='20180212_1_DARK_34_02.txt'):
-                fit_range = [0,0.02,0.03,0.044,0.055,0.068,0.08]
-            elif(kwargs['input_file']=='20180212_1_DARK_35_01.txt'):
-                fit_range = [0,0.02,0.035,0.05,0.065,0.078,0.09]
-            elif(kwargs['input_file']=='20180212_1_DARK_36_01.txt'):
-                fit_range = [0,0.025,0.038,0.055,0.072,0.085,0.1]
-            #SiPM 2
-            elif(kwargs['input_file']=='20180212_2_DARK_34_01.txt'):
-                fit_range = [0,0.017,0.028,0.039,0.051,0.063]
-            elif(kwargs['input_file']=='20180212_2_DARK_35_01.txt'):
-                fit_range = [0,0.018,0.032,0.046,0.060,0.075]
-            else:
-                print('ERROR: SPECIFY fit_range')
-                quit()
-            peaks_num = len(fit_range)-1
-            mean = np.linspace(0,0,peaks_num)
-            err_mean = np.linspace(0,0,peaks_num)
-            standard_deviation = np.linspace(0,0,peaks_num)
-            diff_mean = np.linspace(0,0,peaks_num-1)
-            sum_err_mean=0
-            for i in range(0,peaks_num):
-                fit_start = fit_range[i]
-                fit_end = fit_range[i+1]
-                mean[i], err_mean[i], standard_deviation[i] = fit(bin_centers,bin_heights,bin_borders,fit_start,fit_end)
-                #sum_err_mean = sum_err_mean + err_mean[i]**2
-                #print(mean[i])
-            for i in range(0,peaks_num-1):
-                diff_mean[i] = mean[i+1]-mean[i]
-            print('Diff mean\t'+str(diff_mean))
-            mean_diff_mean = statistics.mean(diff_mean)
-            
-            #print('Mean diff mean\t'+str(mean_diff_mean))
-            #sum_err_mean = sum_err_mean**0.5
-            #print('Err Mean\t'+str(sum_err_mean))
-            
-            #I only consider the first diff (1st peak - 2nd peak) fr
-            err_diff = err_mean[0]**2 + err_mean[1]**2
-            err_diff = err_diff**0.5
-            print('Diff = '+str(diff_mean[0])+' +- '+str(err_diff))
-            
-            
-        plt.show()
+        hist_GAIN(peaks_all_np, kwargs['maxy'],kwargs['fit_hist'],kwargs['input_file'])
         
         
 if __name__ == '__main__':
