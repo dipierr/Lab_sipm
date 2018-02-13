@@ -186,6 +186,8 @@ def hist_GAIN(peaks_all_np, maxy,fit_hist,input_file):
                 fit_range = [0,0.017,0.028,0.039,0.051,0.063]
             elif(input_file=='20180212_2_DARK_35_01.txt'):
                 fit_range = [0,0.018,0.032,0.046,0.060,0.075]
+            elif(input_file=='20180212_2_DARK_36_01.txt'):
+                fit_range = [0,0.020,0.035,0.054,0.068,0.082]
             else:
                 print('ERROR: SPECIFY fit_range')
                 quit()
