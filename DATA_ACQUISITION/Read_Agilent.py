@@ -23,7 +23,7 @@ def main(**kwargs):
         rm = visa.ResourceManager()
         MSO6054A = rm.open_resource('USB0::0x0957::0x1744::MY47180105::0::INSTR')
         #selezionare il SETUP desiderato:
-        MSO6054A.write(':RECall:SETup:STARt "%s"' % ('/usb0/setup/s06'))
+        MSO6054A.write(':RECall:SETup:STARt "%s"' % ('/usb0/setup/s09'))
         #MSO6054A.write(':WAVeform:POINts:MODE %s' % ('RAW'))
         MSO6054A.write(':WAVeform:POINts %s,%d' % ('RAW', 2000))
         MSO6054A.write(':WAVeform:FORMat %s' % ('ASCii'))
