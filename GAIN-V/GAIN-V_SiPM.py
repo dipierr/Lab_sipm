@@ -81,7 +81,7 @@ def main(**kwargs):
     nSiPM = 2
     HV_SiPM2 = np.array([34.00, 35.00, 36.00])
     err_HV_SiPM2 = np.array([0.01, 0.01, 0.01])
-    #from Waweform with 2000 points (at max sample rate) (20180212_2_DARK_34_01.txt, 20180212_2_DARK_35_01.txt, .txt):
+    #from Waweform with 2000 points (at max sample rate) (20180212_2_DARK_34_01.txt, 20180212_2_DARK_35_01.txt, 20180212_2_DARK_36_01.txt):
     GAIN_SiPM2 = np.array([0.011410721379920264,0.0135010146806218,0.0154419724055663]) 
     err_GAIN_SiPM2 = np.array([0.0003764632506002512,0.00037003304446492515,0.00014876147139717083])
     optimizedParameters2, pcovODR2 = fit(HV_SiPM2, GAIN_SiPM2, err_HV_SiPM2, err_GAIN_SiPM2)
