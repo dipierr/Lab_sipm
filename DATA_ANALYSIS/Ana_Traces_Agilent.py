@@ -52,6 +52,7 @@ PARSER.add_argument('-estoff', '--estimated_offset', type=float, required=False,
 PARSER.add_argument('-noise', '--noise_level', type=float, required=False, default=0, help='Noise level')
 PARSER.add_argument('-fit', '--fit_hist', type=bool, required=False, default=False, help='Fit histogram?')
 
+#DARK mintp = 200, maxtp = 320
 
 max_a = 3
 bins_Volt = 180
@@ -100,8 +101,13 @@ def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
         #print(first_ind)
         x=trace[0][first_ind:]
         y=trace[1][first_ind:]
+        
+        #PEAKUTILS:
         indexes = peakutils.indexes(y, thres=0., min_dist=50)
         #indexes = peakutils.interpolate(x, y, ind=indexes) #Tries to enhance the resolution of the peak detection by using Gaussian fitting, centroid computation or an arbitrary function on the neighborhood of each previously detected peak index
+        
+        
+        
         sel_indexes = []
         found = False
         
@@ -116,9 +122,55 @@ def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
         peaks = np.array([x[sel_indexes], y[sel_indexes]]) #all the peaks, not only the triggered one
         if(found==False): #if i don't find a triggered peak)
             #print('ERROR: peak not found; check mintp and maxtp')
-            peak = np.array([-100, -100])
+            peak = np.array([0, 0])
                         
         return peak, peaks, found
+
+#I try a new way, since the first one does not work with LED
+def find_peak_fixtime_2(trace,min_ind,max_ind, noise_level):
+        min_ind=int(min_ind)
+        max_ind=int(max_ind)
+        x=trace[0][min_ind:max_ind] #time
+        y=trace[1][min_ind:max_ind] #volt
+        found = False
+        half_peak = 10
+        max_range = np.size(x) - half_peak*2
+        min_range = half_peak
+        temp_max_vect = []
+        temp_max_time_vect = []
+        num_check = 1 #must be < half_peak
+        fraction=1
+        
+        for i in range(0,max_range):
+            temp_max=np.amax(y)
+            temp_max_ind=np.argmax(y)
+            temp_max_time=x[temp_max_ind]
+            if((temp_max_ind>half_peak) and (temp_max_ind<(np.size(x)-half_peak))):
+                up=True
+                down=True
+                for k in range(0, num_check):
+                    if((x[temp_max_ind - half_peak + k] > temp_max*fraction)and (up==True)):
+                        up=False
+                    if((x[temp_max_ind + half_peak - k] < temp_max*fraction) and (down==True)):
+                        down = False
+                if((up==True) and (down==False)):
+                    temp_max_vect.append(temp_max)
+                    temp_max_time_vect.append(temp_max_time)
+                    found=True
+                    
+        if(found==False): #if i don't find a triggered peak)
+            #print('ERROR: peak not found; check mintp and maxtp')
+            peak = np.array([0, 0])
+        else:
+            peak_1=np.amax(temp_max_vect)
+            index = np.argmax(temp_max_vect)
+            peak_0=temp_max_time_vect[index]
+            peak = np.array([peak_0, peak_1])
+           
+        peaks=peak
+                        
+        return peak, peaks, found
+        
 
 def show_trace(trace,peak,miny,maxy, points_layout):            
         plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
@@ -128,8 +180,8 @@ def show_trace(trace,peak,miny,maxy, points_layout):
         plt.ylabel("V")
         plt.xlabel("s")
         plt.grid(True)
-        plt.axvline(x=trace[0][100])
-        plt.axvline(x=trace[0][150])
+        plt.axvline(x=trace[0][200])
+        plt.axvline(x=trace[0][320])
         plt.show()
 
 def fit(bin_centers,bin_heights,bin_borders,fit_start,fit_end):
@@ -269,7 +321,8 @@ def main(**kwargs):
                                                 if (len(trace[0]) < 10) :
                                                         print("Reached EOF...exiting")
                                                         break   
-                                                peak, peaks, found = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
+                                                peak, peaks, found = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level) #OK for DARK
+                                                #peak, peaks, found = find_peak_fixtime_2(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
                                                 if(found==True): #I consider the peaks only if I have found the triggered peak
                                                         peaks_all.append(peak[1])
                                                         signal_all.append(peaks[1][:])
@@ -293,10 +346,11 @@ def main(**kwargs):
                                         for jj in range(0,len(trace[0])-1):
                                                 trace_all[0].append(trace[0][jj])
                                                 trace_all[1].append(trace[1][jj])
-                                peak, peaks, found = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'],noise_level)
+                                peak, peaks, found = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level) #OK for DARK
+                                #peak, peaks, found = find_peak_fixtime_2(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
                                 if(found==True):  #I consider the peaks only if I have found the triggered peak
                                         peaks_all.append(peak[1])
-                                        signal_all.append(peaks[1][:])
+                                        #signal_all.append(peaks[1][:])
                                         offset_all.append(offset)
                                 else:
                                         peak_not_found = peak_not_found+1
