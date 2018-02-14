@@ -98,16 +98,16 @@ def read_next_event(infile, offset_found, offset, min_index_find_offset,max_inde
 
 # with self trigger or with external trigger (with light) the peak is right after the trigger at fixed time. Only 1 peak/trace
 def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
-        #first_ind = int(min_ind*0.5)
-        first_ind = int(min_ind)
+        first_ind = int(min_ind*0.5)
+        #first_ind = int(min_ind)
         #print(first_ind)
         x=trace[0][first_ind:]
         y=trace[1][first_ind:]
         
         #PEAKUTILS:
         #indexes = peakutils.indexes(y, thres=0.8, min_dist=1)
-        indexes = peakutils.indexes(y, thres=0.5, min_dist=1)
-        #indexes = peakutils.indexes(y, thres=0., min_dist=50) #ok for DARK NO smooth_trace
+        #indexes = peakutils.indexes(y, thres=0., min_dist=1)
+        indexes = peakutils.indexes(y, thres=0., min_dist=50) #ok for DARK NO smooth_trace
 
         #indexes = peakutils.interpolate(x, y, ind=indexes) #Tries to enhance the resolution of the peak detection by using Gaussian fitting, centroid computation or an arbitrary function on the neighborhood of each previously detected peak index
         
@@ -166,9 +166,9 @@ def find_peak_fixtime_2(trace,min_ind,max_ind, noise_level):
                     #2nd way
                     up=False
                     down=False
-                    if(y[temp_max_ind-half_peak]<temp_max):
+                    if(y[temp_max_ind-half_peak]<=temp_max):
                         up=True
-                    if(y[temp_max_ind+half_peak]<temp_max):
+                    if(y[temp_max_ind+half_peak]<=temp_max):
                         down=True
                             
                     if((up==True) and (down==True)):
