@@ -56,7 +56,7 @@ PARSER.add_argument('-smooth', '--smooth_trace', type=bool, required=False, defa
 #DARK mintp = 200, maxtp = 320
 
 max_a = 3
-bins_Volt = 180
+bins_Volt = 300#180
 bins_Time = 79
 
 def gaussian(x, mean, amplitude, standard_deviation):
@@ -106,7 +106,7 @@ def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
         
         #PEAKUTILS:
         #indexes = peakutils.indexes(y, thres=0.8, min_dist=1)
-        indexes = peakutils.indexes(y, thres=0., min_dist=1)
+        indexes = peakutils.indexes(y, thres=0.5, min_dist=1)
         #indexes = peakutils.indexes(y, thres=0., min_dist=50) #ok for DARK NO smooth_trace
 
         #indexes = peakutils.interpolate(x, y, ind=indexes) #Tries to enhance the resolution of the peak detection by using Gaussian fitting, centroid computation or an arbitrary function on the neighborhood of each previously detected peak index
@@ -208,9 +208,9 @@ def smooth_trace(trace):
         return trace_smooth
 
 def show_trace(trace,peak,miny,maxy, points_layout, mintp, maxtp):            
-        #plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
+        plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
         #plt.ylim([miny,maxy])
-        plt.figure()
+        #plt.figure()
         plt.plot(trace[0], trace[1], 'black')
         plt.plot(peak[0],peak[1], str(points_layout))
         plt.ylabel("V")
