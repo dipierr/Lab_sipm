@@ -103,7 +103,9 @@ def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
         y=trace[1][first_ind:]
         
         #PEAKUTILS:
-        indexes = peakutils.indexes(y, thres=0., min_dist=50)
+        indexes = peakutils.indexes(y, thres=0.1, min_dist=1)
+        #indexes = peakutils.indexes(y, thres=0., min_dist=50) #ok for DARK NO smooth_trace
+
         #indexes = peakutils.interpolate(x, y, ind=indexes) #Tries to enhance the resolution of the peak detection by using Gaussian fitting, centroid computation or an arbitrary function on the neighborhood of each previously detected peak index
         
         
@@ -119,10 +121,11 @@ def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
                     peak = np.array([x[indexes[i]], y[indexes[i]]]) #in the [min_ind, max_ind] iterval I choose only the first peak (which is the triggered one)
                     found = True
                     
-        peaks = np.array([x[sel_indexes], y[sel_indexes]]) #all the peaks, not only the triggered one
+        #peaks = np.array([x[sel_indexes], y[sel_indexes]]) #all the peaks, not only the triggered one
         if(found==False): #if i don't find a triggered peak)
             #print('ERROR: peak not found; check mintp and maxtp')
             peak = np.array([0, 0])
+        peaks = peak
                         
         return peak, peaks, found
 
@@ -133,7 +136,7 @@ def find_peak_fixtime_2(trace,min_ind,max_ind, noise_level):
         x=trace[0][min_ind:max_ind] #time
         y=trace[1][min_ind:max_ind] #volt
         found = False
-        half_peak = 10
+        half_peak = 5
         max_range = np.size(x) - half_peak*2
         min_range = half_peak
         temp_max_vect = []
@@ -171,8 +174,23 @@ def find_peak_fixtime_2(trace,min_ind,max_ind, noise_level):
                         
         return peak, peaks, found
         
+        
+def smooth_trace(trace):
+        len_trace = np.size(trace[0])
+        trace_smooth = []
+        trace_smooth.append([])
+        trace_smooth.append([])
+        
+        len_trace_smooth = int(len_trace/5)
+        
+        i=0
+        for k in range(0,len_trace_smooth):
+            trace_smooth[0].append((trace[0][i]+trace[0][i+1]+trace[0][i+2]+trace[0][i+3]+trace[0][i+4])/5)
+            trace_smooth[1].append((trace[1][i]+trace[1][i+1]+trace[1][i+2]+trace[1][i+3]+trace[1][i+4])/5)
+            i=i+5
+        return trace_smooth
 
-def show_trace(trace,peak,miny,maxy, points_layout):            
+def show_trace(trace,peak,miny,maxy, points_layout, mintp, maxtp):            
         plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
         #plt.ylim([miny,maxy])
         plt.plot(trace[0], trace[1], 'black')
@@ -180,8 +198,8 @@ def show_trace(trace,peak,miny,maxy, points_layout):
         plt.ylabel("V")
         plt.xlabel("s")
         plt.grid(True)
-        plt.axvline(x=trace[0][200])
-        plt.axvline(x=trace[0][320])
+        plt.axvline(x=trace[0][int(mintp)])
+        plt.axvline(x=trace[0][int(maxtp)])
         plt.show()
 
 def fit(bin_centers,bin_heights,bin_borders,fit_start,fit_end):
@@ -278,6 +296,8 @@ def main(**kwargs):
         max_index_find_offset = kwargs['max_ind_offset']
         estimated_offset = kwargs['estimated_offset']
         noise_level = kwargs['noise_level']
+        mintp = kwargs['min_time_peak']
+        maxtp = kwargs['max_time_peak']
         offset_found=False
         offset=0.
         first_event_n = kwargs['first_event']
@@ -339,6 +359,7 @@ def main(**kwargs):
                                 if(i==first_event_n+1):
                                         offset_found=True
                                 trace, offset = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset)
+                                trace = smooth_trace(trace)
                                 if len(trace[0]) < 10 :
                                         print("Reached EOF...exiting")
                                         break   
@@ -355,7 +376,7 @@ def main(**kwargs):
                                 else:
                                         peak_not_found = peak_not_found+1
                                 if(kwargs['display'] and not(kwargs['superimpose'])):
-                                        show_trace(trace,peak,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'ro') #in order to consider the offset
+                                        show_trace(trace,peak,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'ro', mintp, maxtp) #in order to consider the offset
                                         #show_trace(trace,peaks,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'bo')
                                 elif(kwargs['display'] and (kwargs['superimpose'])):
                                         if i == first_event_n :
