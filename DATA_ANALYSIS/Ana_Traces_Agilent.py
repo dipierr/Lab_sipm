@@ -97,13 +97,15 @@ def read_next_event(infile, offset_found, offset, min_index_find_offset,max_inde
 
 # with self trigger or with external trigger (with light) the peak is right after the trigger at fixed time. Only 1 peak/trace
 def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
-        first_ind = int(min_ind*0.5)
+        #first_ind = int(min_ind*0.5)
+        first_ind = int(min_ind)
         #print(first_ind)
         x=trace[0][first_ind:]
         y=trace[1][first_ind:]
         
         #PEAKUTILS:
-        indexes = peakutils.indexes(y, thres=0.1, min_dist=1)
+        #indexes = peakutils.indexes(y, thres=0.8, min_dist=1)
+        indexes = peakutils.indexes(y, thres=0., min_dist=1)
         #indexes = peakutils.indexes(y, thres=0., min_dist=50) #ok for DARK NO smooth_trace
 
         #indexes = peakutils.interpolate(x, y, ind=indexes) #Tries to enhance the resolution of the peak detection by using Gaussian fitting, centroid computation or an arbitrary function on the neighborhood of each previously detected peak index
@@ -136,30 +138,45 @@ def find_peak_fixtime_2(trace,min_ind,max_ind, noise_level):
         x=trace[0][min_ind:max_ind] #time
         y=trace[1][min_ind:max_ind] #volt
         found = False
-        half_peak = 5
-        max_range = np.size(x) - half_peak*2
+        half_peak = 7
+        #max_range = np.size(x) - half_peak*2
+        max_range = max_ind-min_ind
+        
         min_range = half_peak
         temp_max_vect = []
         temp_max_time_vect = []
-        num_check = 1 #must be < half_peak
+        num_check = 3 #must be < half_peak
         fraction=1
-        
         for i in range(0,max_range):
-            temp_max=np.amax(y)
-            temp_max_ind=np.argmax(y)
-            temp_max_time=x[temp_max_ind]
-            if((temp_max_ind>half_peak) and (temp_max_ind<(np.size(x)-half_peak))):
-                up=True
-                down=True
-                for k in range(0, num_check):
-                    if((x[temp_max_ind - half_peak + k] > temp_max*fraction)and (up==True)):
-                        up=False
-                    if((x[temp_max_ind + half_peak - k] < temp_max*fraction) and (down==True)):
-                        down = False
-                if((up==True) and (down==False)):
-                    temp_max_vect.append(temp_max)
-                    temp_max_time_vect.append(temp_max_time)
-                    found=True
+            if(found==False):
+                temp_max=np.amax(y)
+                temp_max_ind=np.argmax(y)
+                temp_max_time=x[temp_max_ind]
+                if((temp_max_ind>half_peak) and (temp_max_ind<(max_ind-min_ind-half_peak))):
+                    # #1st way
+                    # up=True
+                    # down=True
+                    # for k in range(0, num_check):
+                        # if((y[temp_max_ind - half_peak + k] > temp_max*fraction)and (up==True)):
+                            # up=False
+                        # if((y[temp_max_ind + half_peak - k] > temp_max*fraction) and (down==True)):
+                            # down = False
+
+                    #2nd way
+                    up=False
+                    down=False
+                    if(y[temp_max_ind-half_peak]<temp_max):
+                        up=True
+                    if(y[temp_max_ind+half_peak]<temp_max):
+                        down=True
+                            
+                    if((up==True) and (down==True)):
+                        temp_max_vect.append(temp_max)
+                        temp_max_time_vect.append(temp_max_time)
+                        found=True
+                    else:
+                        y[temp_max_ind]=-100
+                    
                     
         if(found==False): #if i don't find a triggered peak)
             #print('ERROR: peak not found; check mintp and maxtp')
@@ -181,18 +198,19 @@ def smooth_trace(trace):
         trace_smooth.append([])
         trace_smooth.append([])
         
-        len_trace_smooth = int(len_trace/5)
+        len_trace_smooth = int(len_trace/2)
         
         i=0
         for k in range(0,len_trace_smooth):
-            trace_smooth[0].append((trace[0][i]+trace[0][i+1]+trace[0][i+2]+trace[0][i+3]+trace[0][i+4])/5)
-            trace_smooth[1].append((trace[1][i]+trace[1][i+1]+trace[1][i+2]+trace[1][i+3]+trace[1][i+4])/5)
-            i=i+5
+            trace_smooth[0].append((trace[0][i]+trace[0][i+1])/2)
+            trace_smooth[1].append((trace[1][i]+trace[1][i+1])/2)
+            i=i+2
         return trace_smooth
 
 def show_trace(trace,peak,miny,maxy, points_layout, mintp, maxtp):            
-        plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
+        #plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
         #plt.ylim([miny,maxy])
+        plt.figure()
         plt.plot(trace[0], trace[1], 'black')
         plt.plot(peak[0],peak[1], str(points_layout))
         plt.ylabel("V")
