@@ -51,6 +51,7 @@ PARSER.add_argument('-maxoff', '--max_ind_offset', type=float, required=False, d
 PARSER.add_argument('-estoff', '--estimated_offset', type=float, required=False, default=0, help='Estimated offset (for plots)')
 PARSER.add_argument('-noise', '--noise_level', type=float, required=False, default=0, help='Noise level')
 PARSER.add_argument('-fit', '--fit_hist', type=bool, required=False, default=False, help='Fit histogram?')
+PARSER.add_argument('-smooth', '--smooth_trace', type=bool, required=False, default=False, help='Smooth trace?')
 
 #DARK mintp = 200, maxtp = 320
 
@@ -197,7 +198,6 @@ def smooth_trace(trace):
         trace_smooth = []
         trace_smooth.append([])
         trace_smooth.append([])
-        
         len_trace_smooth = int(len_trace/2)
         
         i=0
@@ -377,7 +377,8 @@ def main(**kwargs):
                                 if(i==first_event_n+1):
                                         offset_found=True
                                 trace, offset = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset)
-                                trace = smooth_trace(trace)
+                                if(kwargs['smooth_trace']==True):
+                                    trace = smooth_trace(trace)
                                 if len(trace[0]) < 10 :
                                         print("Reached EOF...exiting")
                                         break   
