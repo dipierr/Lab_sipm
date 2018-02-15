@@ -206,19 +206,13 @@ def find_peak_fixtime_diff(trace,min_ind,max_ind, noise_level):
         found = False
         
         max_range = max_ind-min_ind
-        delta = 1
         temp_max_ind=0
         
         if(True):
         #if(y[0]<0.1):
-            for i in range(delta,max_range-delta):
+            for i in range(1,max_range):
                 if(found==False):
-                    for j in range (1, delta+1):
-                        flag=0
-                        if((y[i-j]>0)and(y[i]<0)):
-                            flag=flag+1
-                    
-                    if(flag==delta):
+                    if((y[i-1]>0)and(y[i]<0)):
                         temp_max_ind = i
                         found=True
         
@@ -363,8 +357,8 @@ def main(**kwargs):
         max_index_find_offset = kwargs['max_ind_offset']
         estimated_offset = kwargs['estimated_offset']
         noise_level = kwargs['noise_level']
-        mintp = kwargs['min_time_peak']
-        maxtp = kwargs['max_time_peak']
+        mintp = int(kwargs['min_time_peak'])
+        maxtp = int(kwargs['max_time_peak'])
         
         first=True
         offset_found=False
@@ -454,9 +448,11 @@ def main(**kwargs):
                                                 trace_all[1].append(trace[1][jj])
                                 #peak, peaks, found = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level) #OK for DARK
                                 if(kwargs['differentiate_trace']==True):
-                                    found, index = find_peak_fixtime_diff(trace_diff,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
-                                    peak_0 = trace[0][index+int(kwargs['min_time_peak'])]
-                                    peak_1 = trace[1][index+int(kwargs['min_time_peak'])]
+                                    found, index = find_peak_fixtime_diff(trace_diff,mintp,maxtp, noise_level)
+                                    index_peak = index+mintp
+                                    peak_0 = trace[0][index_peak]
+                                    peak_1 = trace[1][index_peak]
+                                    #peak_1 = trace[1][index_peak] - 0.5*trace[1][mintp]
                                     peak = np.array([peak_0, peak_1])
                                 else:
                                     peak, peaks, found, index = find_peak_fixtime_2(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
