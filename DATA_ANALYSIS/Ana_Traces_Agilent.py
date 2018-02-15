@@ -61,6 +61,8 @@ max_a = 3
 bins_Volt = 300#180
 bins_Time = 79
 
+void = 100000
+
 def gaussian(x, mean, amplitude, standard_deviation):
     return amplitude * np.exp( - ((x - mean) / standard_deviation) ** 2)
 
@@ -204,12 +206,21 @@ def find_peak_fixtime_diff(trace,min_ind,max_ind, noise_level):
         found = False
         
         max_range = max_ind-min_ind
+        delta = 1
         temp_max_ind=0
-        for i in range(0,max_range-1):
-            if(found==False):
-                if((y[i]>0)and(y[i+1]<0)):
-                    temp_max_ind = i
-                    found=True
+        
+        if(True):
+        #if(y[0]<0.1):
+            for i in range(delta,max_range-delta):
+                if(found==False):
+                    for j in range (1, delta+1):
+                        flag=0
+                        if((y[i-j]>0)and(y[i]<0)):
+                            flag=flag+1
+                    
+                    if(flag==delta):
+                        temp_max_ind = i
+                        found=True
         
         return found, temp_max_ind
         
@@ -239,7 +250,7 @@ def diff_trace(trace, len_trace, time_bin):
             diff_y = trace[1][i+1]-trace[1][i]
             if(diff_y==0):
                 trace_diff[0].append((trace[0][i]))
-                trace_diff[1].append(100000)
+                trace_diff[1].append(int(void))
             else:
                 trace_diff[0].append((trace[0][i]))
                 trace_diff[1].append((diff_y)/float(time_bin))
@@ -448,7 +459,7 @@ def main(**kwargs):
                                     peak_1 = trace[1][index+int(kwargs['min_time_peak'])]
                                     peak = np.array([peak_0, peak_1])
                                 else:
-                                    peak, peaks, found, index = find_peak_fixtime_(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
+                                    peak, peaks, found, index = find_peak_fixtime_2(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
                                 
                                 if(found==True):  #I consider the peaks only if I have found the triggered peak
                                         peaks_all.append(peak[1])
