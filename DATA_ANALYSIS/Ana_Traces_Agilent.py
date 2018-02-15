@@ -52,6 +52,7 @@ PARSER.add_argument('-estoff', '--estimated_offset', type=float, required=False,
 PARSER.add_argument('-noise', '--noise_level', type=float, required=False, default=0, help='Noise level')
 PARSER.add_argument('-fit', '--fit_hist', type=bool, required=False, default=False, help='Fit histogram?')
 PARSER.add_argument('-smooth', '--smooth_trace', type=bool, required=False, default=False, help='Smooth trace?')
+PARSER.add_argument('-avg', '--average_trace', type=bool, required=False, default=False, help='Average trace?')
 
 #DARK mintp = 200, maxtp = 320
 
@@ -106,8 +107,8 @@ def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
         
         #PEAKUTILS:
         #indexes = peakutils.indexes(y, thres=0.8, min_dist=1)
-        #indexes = peakutils.indexes(y, thres=0., min_dist=1)
-        indexes = peakutils.indexes(y, thres=0., min_dist=50) #ok for DARK NO smooth_trace
+        indexes = peakutils.indexes(y, thres=0.1, min_dist=1)
+        #indexes = peakutils.indexes(y, thres=0., min_dist=50) #ok for DARK NO smooth_trace
 
         #indexes = peakutils.interpolate(x, y, ind=indexes) #Tries to enhance the resolution of the peak detection by using Gaussian fitting, centroid computation or an arbitrary function on the neighborhood of each previously detected peak index
         
@@ -307,7 +308,7 @@ def hist_GAIN(peaks_all_np, maxy,fit_hist,input_file):
             
             
         plt.show()
-
+        
 def main(**kwargs):
         
         min_index_find_offset = kwargs['min_ind_offset']
@@ -316,6 +317,8 @@ def main(**kwargs):
         noise_level = kwargs['noise_level']
         mintp = kwargs['min_time_peak']
         maxtp = kwargs['max_time_peak']
+        
+        first=True
         offset_found=False
         offset=0.
         first_event_n = kwargs['first_event']
@@ -334,11 +337,16 @@ def main(**kwargs):
                 trace_all = []
                 trace_all.append([])
                 trace_all.append([])
+        if(kwargs['average_trace']):
+            trace_mean = []
+            trace_mean.append([])
+            trace_mean.append([])
         
         #if only the peak amplitude is needed, to add one dimension in case also peak time is relavant
         peaks_all = []
         signal_all = []
         offset_all = []
+        
         peak_not_found=0
         if kwargs['input_filelist'] != '':
                 cnt=0
@@ -386,14 +394,23 @@ def main(**kwargs):
                                         for jj in range(0,len(trace[0])-1):
                                                 trace_all[0].append(trace[0][jj])
                                                 trace_all[1].append(trace[1][jj])
-                                peak, peaks, found = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level) #OK for DARK
-                                #peak, peaks, found = find_peak_fixtime_2(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
+                                #peak, peaks, found = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level) #OK for DARK
+                                peak, peaks, found = find_peak_fixtime_2(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
                                 if(found==True):  #I consider the peaks only if I have found the triggered peak
                                         peaks_all.append(peak[1])
                                         #signal_all.append(peaks[1][:])
                                         offset_all.append(offset)
                                 else:
                                         peak_not_found = peak_not_found+1
+                                
+                                if(kwargs['average_trace']and first==False):
+                                    for j in range (0, len(trace[0])):
+                                        trace_mean[1][j] = trace_mean[1][j] + trace[1][j]
+                                if(kwargs['average_trace']and first==True):
+                                    for j in range (0, len(trace[0])):
+                                        trace_mean[0].append(trace[0][j])
+                                        trace_mean[1].append(trace[1][j])
+                                        first=False
                                 if(kwargs['display'] and not(kwargs['superimpose'])):
                                         show_trace(trace,peak,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'ro', mintp, maxtp) #in order to consider the offset
                                         #show_trace(trace,peaks,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'bo')
@@ -408,6 +425,12 @@ def main(**kwargs):
                                                 plt.hist2d(trace_all[0], trace_all[1], bins=[bins_Time,bins_Volt], norm=LogNorm())
                                                 plt.colorbar()          
                                                 plt.show()
+                                if(kwargs['average_trace'] and (i==last_event_n -1)):
+                                    for j in range (0, len(trace[0])):
+                                        trace_mean[1][j] = trace_mean[1][j]/(last_event_n-first_event_n)
+                                    plt.figure()
+                                    plt.plot(trace[0], trace_mean[1], 'blue')
+                                    plt.show()
                                                 
                 infile.close()  
         
