@@ -60,6 +60,7 @@ PARSER.add_argument('-diff', '--differentiate_trace', action='store_true', requi
 max_a = 3
 bins_Volt = 300#180
 bins_Time = 79
+diff_for_mintp_offset_selected = 30
 
 void = 100000
 
@@ -72,7 +73,13 @@ def find_offset(trace_selected):
         base = statistics.mean(base_vect) - lift
         return base
 
-def read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset):
+def find_offset_selected(trace_selected):
+        lift = 100
+        base_vect = peakutils.baseline(trace_selected+lift, 3) #if i have a negative baseline the code crashes (maybe)
+        base_vect = base_vect - lift
+        return base_vect
+        
+def read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset, mintp, maxtp):
         trace = []
         trace.append([])
         trace.append([])
@@ -95,10 +102,11 @@ def read_next_event(infile, offset_found, offset, min_index_find_offset,max_inde
         
         if ((trace_np[1]!=[])):# and (offset_found==False)):
                 offset_local = find_offset(trace_np[1][min_index_find_offset:max_index_find_offset])
-                
+                mintp_offset_selected = mintp-diff_for_mintp_offset_selected
+                #offset_selected = find_offset_selected(trace_np[1][mintp_offset_selected:maxtp])
         else:
                 offset_local = offset
-        return trace_np, offset_local
+        return trace_np, offset_local#, offset_selected
 
 # with self trigger or with external trigger (with light) the peak is right after the trigger at fixed time. Only 1 peak/trace
 def find_peak_fixtime(trace,min_ind,max_ind, noise_level):
@@ -409,7 +417,8 @@ def main(**kwargs):
                                                         print("Read event "+str(i))
                                                 if(i==first_event_n+1):
                                                         offset_found=True
-                                                trace, offset = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset)
+                                                #trace, offset, offset_selected = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset, mintp, maxtp)
+                                                trace, offset = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset, mintp, maxtp)
                                                 if (len(trace[0]) < 10) :
                                                         print("Reached EOF...exiting")
                                                         break   
@@ -430,7 +439,8 @@ def main(**kwargs):
                                         print("Read event "+str(i))
                                 if(i==first_event_n+1):
                                         offset_found=True
-                                trace, offset = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset)
+                                trace, offset = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset, mintp, maxtp)
+                                #trace, offset, offset_selected = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset, mintp, maxtp)
                                 if(kwargs['smooth_trace']==True):
                                     trace = smooth_trace(trace)
                                 if(kwargs['differentiate_trace']==True and (i==first_event_n)):
@@ -449,9 +459,10 @@ def main(**kwargs):
                                 #peak, peaks, found = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level) #OK for DARK
                                 if(kwargs['differentiate_trace']==True):
                                     found, index = find_peak_fixtime_diff(trace_diff,mintp,maxtp, noise_level)
+                                                                      
                                     index_peak = index+mintp
                                     peak_0 = trace[0][index_peak]
-                                    peak_1 = trace[1][index_peak]
+                                    peak_1 = trace[1][index_peak]#-trace[1][mintp]
                                     #peak_1 = trace[1][index_peak] - 0.5*trace[1][mintp]
                                     peak = np.array([peak_0, peak_1])
                                 else:
@@ -490,6 +501,8 @@ def main(**kwargs):
                                     for j in range (0, len(trace[0])):
                                         trace_mean[1][j] = trace_mean[1][j]/(last_event_n-first_event_n)
                                     plt.figure()
+                                    plt.xlabel('s')
+                                    plt.ylabel('V')
                                     plt.plot(trace[0], trace_mean[1], 'blue')
                                     plt.show()
                                                 
