@@ -50,9 +50,10 @@ PARSER.add_argument('-minoff', '--min_ind_offset', type=float, required=False, d
 PARSER.add_argument('-maxoff', '--max_ind_offset', type=float, required=False, default=79, help='Ending index for offset search')
 PARSER.add_argument('-estoff', '--estimated_offset', type=float, required=False, default=0, help='Estimated offset (for plots)')
 PARSER.add_argument('-noise', '--noise_level', type=float, required=False, default=0, help='Noise level')
-PARSER.add_argument('-fit', '--fit_hist', type=bool, required=False, default=False, help='Fit histogram?')
-PARSER.add_argument('-smooth', '--smooth_trace', type=bool, required=False, default=False, help='Smooth trace?')
-PARSER.add_argument('-avg', '--average_trace', type=bool, required=False, default=False, help='Average trace?')
+PARSER.add_argument('-fit', '--fit_hist', action='store_true', required=False, default=False, help='Fit histogram?')
+PARSER.add_argument('-smooth', '--smooth_trace', action='store_true', required=False, default=False, help='Smooth trace?')
+PARSER.add_argument('-avg', '--average_trace', action='store_true', required=False, default=False, help='Average trace?')
+PARSER.add_argument('-diff', '--differentiate_trace', action='store_true', required=False, default=False, help='Differentiate trace?')
 
 #DARK mintp = 200, maxtp = 320
 
@@ -140,7 +141,7 @@ def find_peak_fixtime_2(trace,min_ind,max_ind, noise_level):
         x=trace[0][min_ind:max_ind] #time
         y=trace[1][min_ind:max_ind] #volt
         found = False
-        half_peak = 7
+        half_peak = 4
         #max_range = np.size(x) - half_peak*2
         max_range = max_ind-min_ind
         
@@ -149,6 +150,7 @@ def find_peak_fixtime_2(trace,min_ind,max_ind, noise_level):
         temp_max_time_vect = []
         num_check = 3 #must be < half_peak
         fraction=1
+        temp_max_ind=0
         for i in range(0,max_range):
             if(found==False):
                 temp_max=np.amax(y)
@@ -179,10 +181,11 @@ def find_peak_fixtime_2(trace,min_ind,max_ind, noise_level):
                     else:
                         y[temp_max_ind]=-100
                     
-                    
+        index=0   
         if(found==False): #if i don't find a triggered peak)
             #print('ERROR: peak not found; check mintp and maxtp')
             peak = np.array([0, 0])
+            index=0
         else:
             peak_1=np.amax(temp_max_vect)
             index = np.argmax(temp_max_vect)
@@ -190,8 +193,26 @@ def find_peak_fixtime_2(trace,min_ind,max_ind, noise_level):
             peak = np.array([peak_0, peak_1])
            
         peaks=peak
-                        
-        return peak, peaks, found
+              
+        return peak, peaks, found, temp_max_ind
+        
+def find_peak_fixtime_diff(trace,min_ind,max_ind, noise_level):
+        min_ind=int(min_ind)
+        max_ind=int(max_ind)
+        x=trace[0][min_ind:max_ind] 
+        y=trace[1][min_ind:max_ind] 
+        found = False
+        
+        max_range = max_ind-min_ind
+        temp_max_ind=0
+        for i in range(0,max_range-1):
+            if(found==False):
+                if((y[i]>0)and(y[i+1]<0)):
+                    temp_max_ind = i
+                    found=True
+        
+        return found, temp_max_ind
+        
         
         
 def smooth_trace(trace):
@@ -199,14 +220,30 @@ def smooth_trace(trace):
         trace_smooth = []
         trace_smooth.append([])
         trace_smooth.append([])
-        len_trace_smooth = int(len_trace/2)
+        len_trace_smooth = int(len_trace/4)
         
         i=0
         for k in range(0,len_trace_smooth):
-            trace_smooth[0].append((trace[0][i]+trace[0][i+1])/2)
-            trace_smooth[1].append((trace[1][i]+trace[1][i+1])/2)
-            i=i+2
+            trace_smooth[0].append((trace[0][i]+trace[0][i+1]+trace[0][i+2]+trace[0][i+3])/2)
+            trace_smooth[1].append((trace[1][i]+trace[1][i+1]+trace[1][i+2]+trace[1][i+3])/2)
+            i=i+4
         return trace_smooth
+
+def diff_trace(trace, len_trace, time_bin):
+        trace_diff = []
+        trace_diff.append([])
+        trace_diff.append([])
+        len_trace_diff = int(len_trace-1)
+               
+        for i in range(0,len_trace_diff):
+            diff_y = trace[1][i+1]-trace[1][i]
+            if(diff_y==0):
+                trace_diff[0].append((trace[0][i]))
+                trace_diff[1].append(100000)
+            else:
+                trace_diff[0].append((trace[0][i]))
+                trace_diff[1].append((diff_y)/float(time_bin))
+        return trace_diff
 
 def show_trace(trace,peak,miny,maxy, points_layout, mintp, maxtp):            
         plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
@@ -341,6 +378,10 @@ def main(**kwargs):
             trace_mean = []
             trace_mean.append([])
             trace_mean.append([])
+        if(kwargs['differentiate_trace']):
+            trace_diff = []
+            trace_diff.append([])
+            trace_diff.append([])
         
         #if only the peak amplitude is needed, to add one dimension in case also peak time is relavant
         peaks_all = []
@@ -387,6 +428,12 @@ def main(**kwargs):
                                 trace, offset = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset)
                                 if(kwargs['smooth_trace']==True):
                                     trace = smooth_trace(trace)
+                                if(kwargs['differentiate_trace']==True and (i==first_event_n)):
+                                    len_trace = np.size(trace[0])
+                                    time_bin = (trace[0][-1]-trace[0][0])/len_trace
+                                    trace_diff = diff_trace(trace, len_trace, time_bin)
+                                elif(kwargs['differentiate_trace']==True and (i<last_event_n)):
+                                    trace_diff = diff_trace(trace, len_trace, time_bin)
                                 if len(trace[0]) < 10 :
                                         print("Reached EOF...exiting")
                                         break   
@@ -395,7 +442,14 @@ def main(**kwargs):
                                                 trace_all[0].append(trace[0][jj])
                                                 trace_all[1].append(trace[1][jj])
                                 #peak, peaks, found = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level) #OK for DARK
-                                peak, peaks, found = find_peak_fixtime_2(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
+                                if(kwargs['differentiate_trace']==True):
+                                    found, index = find_peak_fixtime_diff(trace_diff,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
+                                    peak_0 = trace[0][index+int(kwargs['min_time_peak'])]
+                                    peak_1 = trace[1][index+int(kwargs['min_time_peak'])]
+                                    peak = np.array([peak_0, peak_1])
+                                else:
+                                    peak, peaks, found, index = find_peak_fixtime_(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
+                                
                                 if(found==True):  #I consider the peaks only if I have found the triggered peak
                                         peaks_all.append(peak[1])
                                         #signal_all.append(peaks[1][:])
