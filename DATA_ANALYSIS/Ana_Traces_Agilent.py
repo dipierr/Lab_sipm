@@ -55,6 +55,8 @@ PARSER.add_argument('-smooth', '--smooth_trace', action='store_true', required=F
 PARSER.add_argument('-avg', '--average_trace', action='store_true', required=False, default=False, help='Average trace?')
 PARSER.add_argument('-diff', '--differentiate_trace', action='store_true', required=False, default=False, help='Differentiate trace?')
 PARSER.add_argument('-dlc', '--DLED_CARLO', action='store_true', required=False, default=False, help='DLED CARLO?')
+PARSER.add_argument('-dled', '--DLED', action='store_true', required=False, default=False, help='DLED?')
+PARSER.add_argument('-dleddt', '--DLED_delta_t', type=int, required=False, default=39, help='Delta t for DLED')
 
 #DARK mintp = 200, maxtp = 320
 
@@ -284,18 +286,20 @@ def diff_trace(trace, len_trace, time_bin):
                 trace_diff[1].append((diff_y)/float(time_bin))
         return trace_diff
 
-def show_trace(trace,peak,miny,maxy, points_layout, mintp, maxtp):            
-        plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
+def show_trace(trace,peak,miny,maxy, points_layout,trace_layout, mintp, maxtp,new_figure,show_plot):            
+        if(new_figure==True):
+            plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
         #plt.ylim([miny,maxy])
         #plt.figure()
-        plt.plot(trace[0], trace[1], 'black')
+        plt.plot(trace[0], trace[1], str(trace_layout))
         plt.plot(peak[0],peak[1], str(points_layout))
         plt.ylabel("V")
         plt.xlabel("s")
         plt.grid(True)
         plt.axvline(x=trace[0][int(mintp)])
         plt.axvline(x=trace[0][int(maxtp)])
-        plt.show()
+        if(show_plot==True):
+            plt.show()
         
 def DLED_CARLO(trace):
         size_trace = np.size(trace[0])
@@ -314,9 +318,26 @@ def DLED_CARLO(trace):
             trace_DLED_CARLO[1].append(d[i] - d[i-1])
             trace_DLED_CARLO[0].append(dtime[i])
         # plt.figure()
+        # plt.title('DLED_CARLO')
         # plt.plot(trace_DLED_CARLO[0], trace_DLED_CARLO[1], 'black')
         # plt.show()
         return trace_DLED_CARLO
+        
+def DLED(trace, delta_t):
+        size_trace = np.size(trace[0])
+        size_d = size_trace-delta_t
+        trace_DLED = []
+        trace_DLED.append([])
+        trace_DLED.append([])
+        for i in range(delta_t,size_trace):
+            trace_DLED[1].append(trace[1][i] - trace[1][i-delta_t])
+            trace_DLED[0].append(trace[0][i])
+        # plt.figure()
+        # plt.title('DLED')
+        # plt.plot(trace_DLED[0], trace_DLED[1], 'black')
+        # plt.show()
+        
+        return trace_DLED
         
 
 def fit(bin_centers,bin_heights,bin_borders,fit_start,fit_end):
@@ -416,6 +437,10 @@ def main(**kwargs):
         mintp = int(kwargs['min_time_peak'])
         maxtp = int(kwargs['max_time_peak'])
         dlc = kwargs['DLED_CARLO']
+        dled = kwargs['DLED']
+        dleddt = kwargs['DLED_delta_t']
+        mintp_d = mintp - dleddt
+        maxtp_d = maxtp - dleddt
         
         first=True
         offset_found=False
@@ -488,12 +513,16 @@ def main(**kwargs):
                                         print("Read event "+str(i))
                                 if(i==first_event_n+1):
                                         offset_found=True
-                                trace, offset = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset, mintp, maxtp)
+                                trace_from_file, offset = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset, mintp, maxtp)
                                 #trace, offset, offset_selected = read_next_event(infile, offset_found, offset, min_index_find_offset,max_index_find_offset, mintp, maxtp)
                                 if(kwargs['smooth_trace']==True):
-                                    trace = smooth_trace(trace)
-                                if(dlc and kwargs['smooth_trace']==True):
-                                    trace = DLED_CARLO(trace)
+                                    trace = smooth_trace(trace_from_file)
+                                else:
+                                    trace = trace_from_file
+                                if(dlc):
+                                    trace = DLED_CARLO(trace, dleddt)
+                                if(dled):
+                                    trace = DLED(trace, dleddt)
                                 if(kwargs['differentiate_trace']==True and (i==first_event_n) and (dlc==False)):
                                     len_trace = np.size(trace[0])
                                     time_bin = (trace[0][-1]-trace[0][0])/len_trace
@@ -508,7 +537,7 @@ def main(**kwargs):
                                                 trace_all[0].append(trace[0][jj])
                                                 trace_all[1].append(trace[1][jj])
                                 #peak, peaks, found = find_peak_fixtime(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level) #OK for DARK
-                                if(kwargs['differentiate_trace']==True and (dlc==False)):
+                                if(kwargs['differentiate_trace']==True and (dlc==False) and (dled==False)):
                                     found, index = find_peak_fixtime_diff(trace_diff,mintp,maxtp, noise_level)
                                                                       
                                     index_peak = index+mintp
@@ -517,9 +546,11 @@ def main(**kwargs):
                                     #peak_1 = trace[1][index_peak] - 0.5*trace[1][mintp]
                                     peak = np.array([peak_0, peak_1])
                                 elif(dlc):
-                                    peak, peaks, found, index = find_peak_fixtime_3(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
+                                    peak, peaks, found, index = find_peak_fixtime_3(trace,mintp_d,maxtp_d, noise_level)
+                                elif(dled):
+                                    peak, peaks, found, index = find_peak_fixtime_3(trace,mintp_d,maxtp_d, noise_level)
                                 else:
-                                    peak, peaks, found, index = find_peak_fixtime_2(trace,kwargs['min_time_peak'],kwargs['max_time_peak'], noise_level)
+                                    peak, peaks, found, index = find_peak_fixtime_2(trace,mintp_d,maxtp_d, noise_level)
                                 
                                 if(found==True):  #I consider the peaks only if I have found the triggered peak
                                         peaks_all.append(peak[1])
@@ -536,10 +567,10 @@ def main(**kwargs):
                                         trace_mean[0].append(trace[0][j])
                                         trace_mean[1].append(trace[1][j])
                                         first=False
-                                if(kwargs['display'] and not(kwargs['superimpose'])):
-                                        show_trace(trace,peak,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'ro', mintp, maxtp) #in order to consider the offset
+                                if(kwargs['display'] and not(kwargs['superimpose']) and not ((dled)or (dlc))):
+                                        show_trace(trace,peak,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'ro', 'black',mintp, maxtp, True,True) #in order to consider the offset
                                         #show_trace(trace,peaks,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'bo')
-                                elif(kwargs['display'] and (kwargs['superimpose'])):
+                                elif(kwargs['display'] and (kwargs['superimpose']) and not ((dled)or (dlc))):
                                         if i == first_event_n :
                                                 plt.figure(num=None, figsize=(24, 6), dpi=80, facecolor='w', edgecolor='k')
                                                 plt.ylim([kwargs['miny']+estimated_offset,kwargs['maxy']+estimated_offset])  #in order to consider the offset
@@ -550,6 +581,9 @@ def main(**kwargs):
                                                 plt.hist2d(trace_all[0], trace_all[1], bins=[bins_Time,bins_Volt], norm=LogNorm())
                                                 plt.colorbar()          
                                                 plt.show()
+                                elif(kwargs['display'] and not (kwargs['superimpose']) and ((dled)or (dlc))):
+                                        show_trace(trace_from_file,peak,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'ro','black', mintp, maxtp,True, False)
+                                        show_trace(trace,peak,kwargs['miny'] + estimated_offset,kwargs['maxy'] + estimated_offset, 'ro','blue', mintp_d, maxtp_d, False,True)
                                 if(kwargs['average_trace'] and (i==last_event_n -1)):
                                     for j in range (0, len(trace[0])):
                                         trace_mean[1][j] = trace_mean[1][j]/(last_event_n-first_event_n)
