@@ -56,12 +56,12 @@ PARSER.add_argument('-avg', '--average_trace', action='store_true', required=Fal
 PARSER.add_argument('-diff', '--differentiate_trace', action='store_true', required=False, default=False, help='Differentiate trace?')
 PARSER.add_argument('-dlc', '--DLED_CARLO', action='store_true', required=False, default=False, help='DLED CARLO?')
 PARSER.add_argument('-dled', '--DLED', action='store_true', required=False, default=False, help='DLED?')
-PARSER.add_argument('-dleddt', '--DLED_delta_t', type=int, required=False, default=39, help='Delta t for DLED')
+PARSER.add_argument('-dleddt', '--DLED_delta_t', type=int, required=False, default=9, help='Delta t for DLED')
 
 #DARK mintp = 200, maxtp = 320
 
 max_a = 3
-bins_Volt = 300#180
+bins_Volt = 180
 bins_Time = 79
 diff_for_mintp_offset_selected = 30
 
@@ -520,7 +520,7 @@ def main(**kwargs):
                                 else:
                                     trace = trace_from_file
                                 if(dlc):
-                                    trace = DLED_CARLO(trace, dleddt)
+                                    trace = DLED_CARLO(trace)
                                 if(dled):
                                     trace = DLED(trace, dleddt)
                                 if(kwargs['differentiate_trace']==True and (i==first_event_n) and (dlc==False)):
