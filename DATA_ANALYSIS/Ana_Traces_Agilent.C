@@ -111,13 +111,14 @@ void show_line(TCanvas *canv, double *x, int mintp, int maxtp, double miny, doub
 int Analysis(string file, int last_event_n){
     gROOT->Reset();
     
-    //VARIABLES TO BE CHANGED
+    //---------------------------
+    //---[ SETTING VARIABLES ]---
+    //---------------------------
     int min_ind_offset = 0;
     int max_ind_offset = 80;
     double noise_level = 0.;
     int mintp = 420; //min_time_peak
     int maxtp = 500; //min_time_peak
-    bool dled = true;
     int dleddt = 9;
     double maxyhist = .2;
     bool display = true;
@@ -147,11 +148,9 @@ int Analysis(string file, int last_event_n){
     c->SetGrid();
     TCanvas *cDLED = new TCanvas("DLED","DLED");
     cDLED->SetGrid();
-    TCanvas *cAVG = new TCanvas("AVG","AVG");
-    cAVG->SetGrid();
     TCanvas *cHist = new TCanvas("hist_GAIN","hist_GAIN");
     cHist->SetGrid();
-    TH1D *ptrHist = new TH1D("hist","hist",bins_Volt,0,maxyhist);
+    TH1D *ptrHist = new TH1D("hist","",bins_Volt,0,maxyhist);
     
     double miny, maxy;
     
@@ -192,9 +191,7 @@ int Analysis(string file, int last_event_n){
         }
         
         //DLED
-        if(dled){
-            trace_DLED_lenght = DLED(trace_lenght,dleddt);
-        }
+        trace_DLED_lenght = DLED(trace_lenght,dleddt);
         
         //AVERAGE
         if(average){
@@ -234,10 +231,14 @@ int Analysis(string file, int last_event_n){
         if(n_ev==last_event_n-1)
             reading=false;
         
-        delete trace;
+        delete []trace[0];
+        delete []trace[1];
+        delete []peak;
         n_ev++;
     }
     if(average){
+        TCanvas *cAVG = new TCanvas("AVG","AVG");
+        cAVG->SetGrid();
         miny=50;
         maxy=90;
         show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght, miny, maxy);
