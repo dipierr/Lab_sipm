@@ -15,6 +15,7 @@
 #include "TGraphErrors.h"
 #include "TAxis.h"
 #include "TPad.h"
+#include "TLine.h"
 #include <stdlib.h>     //for using the function sleep
 
 using namespace std;
@@ -74,16 +75,32 @@ void average_func(int trace_lenght, int tot_ev, bool last){
 }
 
 //===============================================================================   
-void show_trace(TCanvas* canv, double *x, double *y,int trace_lenght){
+void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy){
     canv->cd();
+    for(int i=0; i<trace_lenght; i++){
+        x[i] = x[i]*TMath::Power(10,6);
+        y[i] = y[i]*TMath::Power(10,3);
+    }
     TGraphErrors *graph = new TGraphErrors(trace_lenght,x,y,0,0);
     graph->SetTitle("");
-    graph->GetXaxis()->SetTitle("Time (s)");
-    graph->GetYaxis()->SetTitle("Amplitude (V)");
+    graph->GetXaxis()->SetTitle("Time (#mus)");
+    graph->GetYaxis()->SetTitle("Amplitude (mV)");
     graph->GetYaxis()->SetTitleOffset(1.2);
     graph->GetXaxis()->SetTitleOffset(1.2);
+    graph->GetYaxis()-> SetRangeUser(miny,maxy);
     graph->Draw("");
     canv->Update();
+}
+
+//===============================================================================   
+void show_line(TCanvas *canv, double *x, int mintp, int maxtp, double miny, double maxy){
+    canv->cd();
+    TLine *lmin = new TLine (x[mintp], miny, x[mintp], maxy);
+    TLine *lmax = new TLine (x[maxtp], miny, x[maxtp], maxy);
+    lmin->SetLineColor(kBlue);
+    lmax->SetLineColor(kBlue);
+    lmin->Draw("same");
+    lmax->Draw("same");
 }
 
 
@@ -91,23 +108,29 @@ void show_trace(TCanvas* canv, double *x, double *y,int trace_lenght){
 //=============================================================================== 
 //  MAIN FUNCTION
 //===============================================================================   
-int Analysis(string file){
+int Analysis(string file, int last_event_n){
     gROOT->Reset();
     
     //VARIABLES TO BE CHANGED
     int min_ind_offset = 0;
     int max_ind_offset = 80;
     double noise_level = 0.;
-    int mintp = 450; //min_time_peak
-    int maxtp = 550; //min_time_peak
+    int mintp = 420; //min_time_peak
+    int maxtp = 500; //min_time_peak
     bool dled = true;
     int dleddt = 9;
-    double maxy = .2;
+    double maxyhist = .2;
     bool display = true;
     bool average = true;
     
+/* VALUES:
+ * 
+ * DARK from Agilent: mintp = 200;  maxtp = 320;
+ *                   
+ * DARK from Agilent: approx in the middle
+ * 
+ */
     
-    int last_event_n = 5000;
     
     ifstream OpenFile (file.c_str());
     
@@ -128,9 +151,9 @@ int Analysis(string file){
     cAVG->SetGrid();
     TCanvas *cHist = new TCanvas("hist_GAIN","hist_GAIN");
     cHist->SetGrid();
-    TH1D *ptrHist = new TH1D("hist","hist",bins_Volt,0,maxy);
+    TH1D *ptrHist = new TH1D("hist","hist",bins_Volt,0,maxyhist);
     
-    
+    double miny, maxy;
     
     n_ev=0;
     while(!OpenFile.eof() and (reading)){ // reading file
@@ -196,8 +219,14 @@ int Analysis(string file){
         
         
         if(display and n_ev==1){
-            show_trace(c,trace[0], trace[1], trace_lenght);
-            show_trace(cDLED,trace_DLED[0], trace_DLED[1], trace_DLED_lenght);
+            miny=10;
+            maxy=180;
+            show_trace(c,trace[0], trace[1], trace_lenght,miny,maxy);
+            show_line(c, trace[0], mintp, maxtp,miny,maxy);
+            miny=-30;
+            maxy=90;
+            show_trace(cDLED,trace_DLED[0], trace_DLED[1], trace_DLED_lenght, miny, maxy);
+            show_line(cDLED, trace[0], mintp, maxtp, miny, maxy);
         }
         
         
@@ -209,7 +238,9 @@ int Analysis(string file){
         n_ev++;
     }
     if(average){
-        show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght);
+        miny=50;
+        maxy=90;
+        show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght, miny, maxy);
     }
     cHist->cd();
     ptrHist->Draw();
