@@ -15,6 +15,8 @@
 #include "TGraphErrors.h"
 #include "TAxis.h"
 #include "TPad.h"
+#include <stdlib.h>     //for using the function sleep
+
 using namespace std;
 using namespace TMath;
 
@@ -26,6 +28,7 @@ void Parse(ifstream& file_to_parse,vector<vector<string> >& spreadsheet);
 //GLOBAL VARIABLES
 double **trace;
 double **trace_DLED;
+double **trace_AVG;
 double *peak;
 
 int bins_Volt = 180;
@@ -60,6 +63,16 @@ int find_peak_fix_time(int mintp, int maxtp){
     return index;
 }
 
+//===============================================================================
+void average_func(int trace_lenght, int tot_ev, bool last){
+    int i;
+    for (i=0; i<trace_lenght; i++){
+        trace_AVG[1][i] = trace_AVG[1][i] + trace[1][i];
+        if(last)
+            trace_AVG[1][i] = trace_AVG[1][i]/tot_ev;
+    }
+}
+
 //===============================================================================   
 void show_trace(TCanvas* canv, double *x, double *y,int trace_lenght){
     canv->cd();
@@ -91,6 +104,7 @@ int Analysis(string file){
     int dleddt = 9;
     double maxy = .2;
     bool display = true;
+    bool average = true;
     
     
     int last_event_n = 5000;
@@ -101,6 +115,7 @@ int Analysis(string file){
     char temp[20];
     int n_ev, index;
     bool reading = true;
+    bool last_event_flag = false;
     
     int trace_DLED_lenght = 0;
     int trace_lenght = 0;
@@ -109,9 +124,13 @@ int Analysis(string file){
     c->SetGrid();
     TCanvas *cDLED = new TCanvas("DLED","DLED");
     cDLED->SetGrid();
+    TCanvas *cAVG = new TCanvas("AVG","AVG");
+    cAVG->SetGrid();
     TCanvas *cHist = new TCanvas("hist_GAIN","hist_GAIN");
     cHist->SetGrid();
     TH1D *ptrHist = new TH1D("hist","hist",bins_Volt,0,maxy);
+    
+    
     
     n_ev=0;
     while(!OpenFile.eof() and (reading)){ // reading file
@@ -127,10 +146,16 @@ int Analysis(string file){
             cout<<"Number points "<<trace_lenght<<endl;
         
         
-        //CREATE TRACES
+        //CREATE TRACE
         trace = new double*[2];
         for(int i = 0; i < 2; i++) {
             trace[i] = new double[trace_lenght];
+        }
+         if(average==true and n_ev==0){
+            trace_AVG = new double*[2];
+            for(int i = 0; i < 2; i++) {
+                trace_AVG[i] = new double[trace_lenght];
+            }
         }
         //CREATE PEAK
         double *peak = new double[2];        
@@ -148,6 +173,21 @@ int Analysis(string file){
             trace_DLED_lenght = DLED(trace_lenght,dleddt);
         }
         
+        //AVERAGE
+        if(average){
+            if(n_ev==0){
+                for(int i=0; i< trace_lenght; i++){
+                    trace_AVG[0][i]=trace[0][i];
+                    trace_AVG[1][i]=0;
+                }
+            }
+            else{
+                if(n_ev==last_event_n-1)
+                    last_event_flag = true;
+            }
+            average_func(trace_lenght,last_event_n, last_event_flag);
+        }
+        
         index = find_peak_fix_time(mintp, maxtp);
         peak[0] = trace[0][index];
         peak[1] = trace[1][index];
@@ -160,14 +200,21 @@ int Analysis(string file){
             show_trace(cDLED,trace_DLED[0], trace_DLED[1], trace_DLED_lenght);
         }
         
-        n_ev++;
         
-        if(n_ev==last_event_n)
+        
+        if(n_ev==last_event_n-1)
             reading=false;
         
+        delete trace;
+        n_ev++;
+    }
+    if(average){
+        show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght);
     }
     cHist->cd();
     ptrHist->Draw();
+    
+    
         
     return 0;
 }
