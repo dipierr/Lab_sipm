@@ -33,7 +33,13 @@ double **trace_DLED;
 double **trace_AVG;
 double *peak;
 
-int bins_Volt = 200;
+int bins_Volt = 204;
+
+/* VALUES:
+ * 
+ * LED from Digitizer_CAEN: bins_Volt = 204;
+ * 
+ */
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -121,8 +127,8 @@ int Analysis(string file, int last_event_n){
     int min_ind_offset = 0;
     int max_ind_offset = 80;
     double noise_level = 0.;
-    int mintp = 180;//420; //min_time_peak
-    int maxtp = 250;//500; //min_time_peak
+    int mintp = 140; //min_time_peak
+    int maxtp = 280; //max_time_peak
     int dleddt = 10;
     double maxyhist = .2;
     bool display = true;
@@ -137,6 +143,8 @@ int Analysis(string file, int last_event_n){
  *                   
  * LED from Agilent: approx in the middle, mintp = 420; maxtp = 500;  dleddt = 9; maxyhist = .2;
  * 
+ * LED from Digitizer_CAEN: mintp = 140; maxtp = 280; dleddt = 10;
+ * 
  */
 
 //-------------------------------------------------------------------------------
@@ -147,7 +155,7 @@ int Analysis(string file, int last_event_n){
     
     //Local variables
     char temp[20];
-    int n_ev, index;
+    int n_ev, index, i;
     bool reading = true;
     bool last_event_flag = false;
     
@@ -203,13 +211,13 @@ int Analysis(string file, int last_event_n){
 //***** CREATE TRACE
         //trace
         trace = new double*[2];
-        for(int i = 0; i < 2; i++) {
+        for(i = 0; i < 2; i++) {
             trace[i] = new double[trace_lenght];
         }
         //trace_AVG
         if(average==true and n_ev==0){
             trace_AVG = new double*[2];
-            for(int i = 0; i < 2; i++) {
+            for(i = 0; i < 2; i++) {
                 trace_AVG[i] = new double[trace_lenght];
             }
         }
@@ -219,7 +227,7 @@ int Analysis(string file, int last_event_n){
         
 //***** READ TRACE FROM FILE
         if(Agilent_MSO6054A){
-                for(int i=0; i<trace_lenght; i++){
+                for(i=0; i<trace_lenght; i++){
                     OpenFile>>temp;
                     trace[0][i] = atof(temp);
                     OpenFile>>temp;
@@ -228,8 +236,8 @@ int Analysis(string file, int last_event_n){
         }
         else{
             if(Digitizer_CAEN){
-                for(int i=0; i<trace_lenght; i++){
-                    trace[0][i] = i;
+                for(i=0; i<trace_lenght; i++){
+                    trace[0][i] = i*TMath::Power(10,-9);
                     OpenFile>>temp;
                     trace[1][i]  = -atof(temp)/1024;
                 }
@@ -243,7 +251,7 @@ int Analysis(string file, int last_event_n){
 //***** AVERAGE
         if(average){
             if(n_ev==0){
-                for(int i=0; i< trace_lenght; i++){
+                for(i=0; i< trace_lenght; i++){
                     trace_AVG[0][i]=trace[0][i];
                     trace_AVG[1][i]=0;
                 }
@@ -289,6 +297,7 @@ int Analysis(string file, int last_event_n){
         if(Agilent_MSO6054A){miny=50; maxy=90;}
         if(Digitizer_CAEN)  {miny=-855; maxy=-825;}
         show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght, miny, maxy);
+        show_line(cAVG, trace_AVG[0], mintp, maxtp, miny, maxy);
     }
     cHist->cd();
     if(SetLogyHist) cHist->SetLogy();
