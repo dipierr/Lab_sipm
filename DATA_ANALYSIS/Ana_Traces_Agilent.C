@@ -114,21 +114,22 @@ int Analysis(string file, int last_event_n){
     //---------------------------
     //---[ SETTING VARIABLES ]---
     //---------------------------
+    
     int min_ind_offset = 0;
     int max_ind_offset = 80;
     double noise_level = 0.;
-    int mintp = 420; //min_time_peak
-    int maxtp = 500; //min_time_peak
-    int dleddt = 9;
+    int mintp = 200;//420; //min_time_peak
+    int maxtp = 320;//500; //min_time_peak
+    int dleddt = 39;
     double maxyhist = .2;
     bool display = true;
     bool average = true;
     
 /* VALUES:
  * 
- * DARK from Agilent: mintp = 200;  maxtp = 320;
+ * DARK from Agilent: mintp = 160;  maxtp = 320; dleddt = 39;
  *                   
- * DARK from Agilent: approx in the middle
+ * DARK from Agilent: approx in the middle, mintp = 420; maxtp = 500;  dleddt = 9; maxyhist = .2;
  * 
  */
     
@@ -192,6 +193,7 @@ int Analysis(string file, int last_event_n){
         
         //DLED
         trace_DLED_lenght = DLED(trace_lenght,dleddt);
+        //Now: trace_DLED
         
         //AVERAGE
         if(average){
@@ -209,8 +211,8 @@ int Analysis(string file, int last_event_n){
         }
         
         index = find_peak_fix_time(mintp, maxtp);
-        peak[0] = trace[0][index];
-        peak[1] = trace[1][index];
+        peak[0] = trace_DLED[0][index];
+        peak[1] = trace_DLED[1][index];
         ptrHist->Fill(peak[1]);
         
         
