@@ -75,12 +75,10 @@ int find_peak_fix_time(int mintp, int maxtp){
 }
 
 //===============================================================================
-void average_func(int trace_lenght, int tot_ev, bool last){
+void average_func(int trace_lenght){
     int i;
     for (i=0; i<trace_lenght; i++){
         trace_AVG[1][i] = trace_AVG[1][i] + trace[1][i];
-        if(last)
-            trace_AVG[1][i] = trace_AVG[1][i]/tot_ev;
     }
 }
 
@@ -127,8 +125,8 @@ int Analysis(string file, int last_event_n){
     int min_ind_offset = 0;
     int max_ind_offset = 80;
     double noise_level = 0.;
-    int mintp = 140; //min_time_peak
-    int maxtp = 280; //max_time_peak
+    int mintp = 260; //min_time_peak
+    int maxtp = 300; //max_time_peak
     int dleddt = 10;
     double maxyhist = .2;
     bool display = true;
@@ -143,7 +141,7 @@ int Analysis(string file, int last_event_n){
  *                   
  * LED from Agilent: approx in the middle, mintp = 420; maxtp = 500;  dleddt = 9; maxyhist = .2;
  * 
- * LED from Digitizer_CAEN: mintp = 140; maxtp = 280; dleddt = 10;
+ * LED from Digitizer_CAEN: depends on the wave
  * 
  */
 
@@ -256,11 +254,7 @@ int Analysis(string file, int last_event_n){
                     trace_AVG[1][i]=0;
                 }
             }
-            else{
-                if(n_ev==last_event_n-1)
-                    last_event_flag = true;
-            }
-            average_func(trace_lenght,last_event_n, last_event_flag);
+            average_func(trace_lenght);
         }
         
         index = find_peak_fix_time(mintp, maxtp);
@@ -272,7 +266,7 @@ int Analysis(string file, int last_event_n){
         
         if(display and n_ev == 1){
             if(Agilent_MSO6054A) {miny=10; maxy=180;}
-            if(Digitizer_CAEN)   {miny=-900;  maxy=-820;}
+            if(Digitizer_CAEN)   {miny=-900;  maxy=-700;}
             show_trace(c,trace[0], trace[1], trace_lenght,miny,maxy);
             show_line(c, trace[0], mintp, maxtp,miny,maxy);
             if(Agilent_MSO6054A) {miny=-30; maxy=90;}
@@ -291,11 +285,16 @@ int Analysis(string file, int last_event_n){
         delete []peak;
         n_ev++;
     }
+    
     if(average){
+        average_func(trace_lenght);
+        for(i=0; i<trace_lenght; i++){
+            trace_AVG[1][i] = trace_AVG[1][i]/n_ev;
+        }
         TCanvas *cAVG = new TCanvas("AVG","AVG");
         cAVG->SetGrid();
         if(Agilent_MSO6054A){miny=50; maxy=90;}
-        if(Digitizer_CAEN)  {miny=-855; maxy=-825;}
+        if(Digitizer_CAEN)  {miny=-855; maxy=-700;}
         show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght, miny, maxy);
         show_line(cAVG, trace_AVG[0], mintp, maxtp, miny, maxy);
     }
@@ -303,7 +302,7 @@ int Analysis(string file, int last_event_n){
     if(SetLogyHist) cHist->SetLogy();
     ptrHist->Draw();
     
-    
+    cout<<"Last event "<<n_ev<<endl;
         
     return 0;
 }
