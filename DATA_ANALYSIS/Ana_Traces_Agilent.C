@@ -11,11 +11,10 @@
 #include <TF1.h>
 #include <TLegend.h>
 #include <TStyle.h>
-#include "TMath.h"
-#include "TGraphErrors.h"
-#include "TAxis.h"
-#include "TPad.h"
-#include "TLine.h"
+#include <TGraphErrors.h>
+#include <TAxis.h>
+#include <TPad.h>
+#include <TLine.h>
 #include <stdlib.h>     //for using the function sleep
 
 using namespace std;
@@ -26,13 +25,18 @@ void LineParser(ifstream& file_to_parse, vector<string>& lines);
 void Parse(ifstream& file_to_parse,vector<vector<string> >& spreadsheet);
 
 
-//GLOBAL VARIABLES
+//------------------------------------------------------------------------------
+//---------------------------[   GLOBAL VARIABLES   ]---------------------------
+//------------------------------------------------------------------------------
 double **trace;
 double **trace_DLED;
 double **trace_AVG;
 double *peak;
 
-int bins_Volt = 180;
+int bins_Volt = 120;
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
 
 //===============================================================================
 int DLED(int trace_lenght, int dleddt){
@@ -111,29 +115,33 @@ void show_line(TCanvas *canv, double *x, int mintp, int maxtp, double miny, doub
 int Analysis(string file, int last_event_n){
     gROOT->Reset();
     
-    //---------------------------
-    //---[ SETTING VARIABLES ]---
-    //---------------------------
-    
+//-------------------------------------------------------------------------------
+//---------------------------[   SETTING VARIABLES   ]---------------------------
+//-------------------------------------------------------------------------------
     int min_ind_offset = 0;
     int max_ind_offset = 80;
     double noise_level = 0.;
-    int mintp = 200;//420; //min_time_peak
-    int maxtp = 320;//500; //min_time_peak
-    int dleddt = 39;
+    int mintp = 180;//420; //min_time_peak
+    int maxtp = 250;//500; //min_time_peak
+    int dleddt = 9;
     double maxyhist = .2;
     bool display = true;
     bool average = true;
+    bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
+    bool Digitizer_CAEN = true;  //true if data taken by Digitizer_CAEN, false otherwise
     
 /* VALUES:
  * 
- * DARK from Agilent: mintp = 160;  maxtp = 320; dleddt = 39;
+ * DARK from Agilent: mintp = 160 (or 200);  maxtp = 320; dleddt = 39;
  *                   
- * DARK from Agilent: approx in the middle, mintp = 420; maxtp = 500;  dleddt = 9; maxyhist = .2;
+ * LED from Agilent: approx in the middle, mintp = 420; maxtp = 500;  dleddt = 9; maxyhist = .2;
  * 
  */
-    
-    
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+
+   
     ifstream OpenFile (file.c_str());
     
     //Local variables
@@ -153,49 +161,85 @@ int Analysis(string file, int last_event_n){
     cHist->SetGrid();
     TH1D *ptrHist = new TH1D("hist","",bins_Volt,0,maxyhist);
     
-    double miny, maxy;
+    double miny=0;
+    double maxy=0;
     
     n_ev=0;
     while(!OpenFile.eof() and (reading)){ // reading file
         
         if(n_ev%500==0)
             cout<<"Read ev\t"<<n_ev<<endl;
-        
-        OpenFile>>temp; 	 
-        OpenFile>>temp;
-        trace_lenght = atoi(temp);
-        OpenFile>>temp>>temp;
-        if(n_ev==0)
+
+//***** READ HEADER FROM FILE
+        //select device
+        if(Agilent_MSO6054A and not Digitizer_CAEN){
+            OpenFile>>temp; 	 
+            OpenFile>>temp;
+            trace_lenght = atoi(temp);
+            OpenFile>>temp>>temp;
+        }
+        else{
+            if(Digitizer_CAEN and not Agilent_MSO6054A){
+                OpenFile>>temp>>temp; 
+                OpenFile>>temp;
+                trace_lenght = atoi(temp);
+                OpenFile>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp;
+        }else{
+            cout<<"ERROR: check acquisition device"<<endl;
+            return 1;
+        }
+        }
+        if(n_ev==0){
+            cout<<"Acquisition device: ";
+            if(Agilent_MSO6054A) cout<<"Agilent_MSO6054A"<<endl;
+            if(Digitizer_CAEN)   cout<<"Digitizer_CAEN"<<endl;
             cout<<"Number points "<<trace_lenght<<endl;
+        }
+        
+        //cout<<n_ev<<"\t"<<trace_lenght<<endl;
         
         
-        //CREATE TRACE
+//***** CREATE TRACE
+        //trace
         trace = new double*[2];
         for(int i = 0; i < 2; i++) {
             trace[i] = new double[trace_lenght];
         }
-         if(average==true and n_ev==0){
+        //trace_AVG
+        if(average==true and n_ev==0){
             trace_AVG = new double*[2];
             for(int i = 0; i < 2; i++) {
                 trace_AVG[i] = new double[trace_lenght];
             }
         }
-        //CREATE PEAK
+
+//***** CREATE PEAK
         double *peak = new double[2];        
         
-        //READ TRACE FROM FILE
-        for(int i=0; i<trace_lenght; i++){
-            OpenFile>>temp;
-            trace[0][i] = atof(temp);
-            OpenFile>>temp;
-            trace[1][i]  = -atof(temp);
+//***** READ TRACE FROM FILE
+        if(Agilent_MSO6054A){
+                for(int i=0; i<trace_lenght; i++){
+                    OpenFile>>temp;
+                    trace[0][i] = atof(temp);
+                    OpenFile>>temp;
+                    trace[1][i]  = -atof(temp);
+        }
+        }
+        else{
+            if(Digitizer_CAEN){
+                for(int i=0; i<trace_lenght; i++){
+                    trace[0][i] = i;
+                    OpenFile>>temp;
+                    trace[1][i]  = -atof(temp)/1024;
+                }
+        }
         }
         
-        //DLED
+//***** DLED
         trace_DLED_lenght = DLED(trace_lenght,dleddt);
         //Now: trace_DLED
         
-        //AVERAGE
+//***** AVERAGE
         if(average){
             if(n_ev==0){
                 for(int i=0; i< trace_lenght; i++){
@@ -217,13 +261,13 @@ int Analysis(string file, int last_event_n){
         
         
         
-        if(display and n_ev==1){
-            miny=10;
-            maxy=180;
+        if(display and n_ev == 1){
+            if(Agilent_MSO6054A) {miny=10; maxy=180;}
+            if(Digitizer_CAEN)   {miny=-900;  maxy=-820;}
             show_trace(c,trace[0], trace[1], trace_lenght,miny,maxy);
             show_line(c, trace[0], mintp, maxtp,miny,maxy);
-            miny=-30;
-            maxy=90;
+            if(Agilent_MSO6054A) {miny=-30; maxy=90;}
+            if(Digitizer_CAEN)   {miny=-30; maxy=90;}
             show_trace(cDLED,trace_DLED[0], trace_DLED[1], trace_DLED_lenght, miny, maxy);
             show_line(cDLED, trace[0], mintp, maxtp, miny, maxy);
         }
@@ -241,8 +285,8 @@ int Analysis(string file, int last_event_n){
     if(average){
         TCanvas *cAVG = new TCanvas("AVG","AVG");
         cAVG->SetGrid();
-        miny=50;
-        maxy=90;
+        if(Agilent_MSO6054A){miny=50; maxy=90;}
+        if(Digitizer_CAEN)  {miny=-855; maxy=-825;}
         show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght, miny, maxy);
     }
     cHist->cd();
