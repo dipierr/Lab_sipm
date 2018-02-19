@@ -33,7 +33,7 @@ double **trace_DLED;
 double **trace_AVG;
 double *peak;
 
-int bins_Volt = 120;
+int bins_Volt = 200;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -123,12 +123,13 @@ int Analysis(string file, int last_event_n){
     double noise_level = 0.;
     int mintp = 180;//420; //min_time_peak
     int maxtp = 250;//500; //min_time_peak
-    int dleddt = 9;
+    int dleddt = 10;
     double maxyhist = .2;
     bool display = true;
     bool average = true;
     bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
     bool Digitizer_CAEN = true;  //true if data taken by Digitizer_CAEN, false otherwise
+    bool SetLogyHist = false;
     
 /* VALUES:
  * 
@@ -167,7 +168,7 @@ int Analysis(string file, int last_event_n){
     n_ev=0;
     while(!OpenFile.eof() and (reading)){ // reading file
         
-        if(n_ev%500==0)
+        if(n_ev%1000==0)
             cout<<"Read ev\t"<<n_ev<<endl;
 
 //***** READ HEADER FROM FILE
@@ -290,6 +291,7 @@ int Analysis(string file, int last_event_n){
         show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght, miny, maxy);
     }
     cHist->cd();
+    if(SetLogyHist) cHist->SetLogy();
     ptrHist->Draw();
     
     
