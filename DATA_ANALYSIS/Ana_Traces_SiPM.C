@@ -96,8 +96,9 @@ void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double mi
     graph->GetYaxis()->SetTitleOffset(1.2);
     graph->GetXaxis()->SetTitleOffset(1.2);
     graph->GetYaxis()-> SetRangeUser(miny,maxy);
-    graph->Draw("");
+    graph->Draw("ap");
     canv->Update();
+    graph->Set(0);
 }
 
 //===============================================================================   
@@ -264,7 +265,7 @@ int Analysis(string file, int last_event_n){
         
         
         
-        if(display and n_ev == 1){
+        if(display){
             if(Agilent_MSO6054A) {miny=10; maxy=180;}
             if(Digitizer_CAEN)   {miny=-900;  maxy=-700;}
             show_trace(c,trace[0], trace[1], trace_lenght,miny,maxy);
@@ -273,6 +274,7 @@ int Analysis(string file, int last_event_n){
             if(Digitizer_CAEN)   {miny=-30; maxy=90;}
             show_trace(cDLED,trace_DLED[0], trace_DLED[1], trace_DLED_lenght, miny, maxy);
             show_line(cDLED, trace[0], mintp, maxtp, miny, maxy);
+            getchar();
         }
         
         
