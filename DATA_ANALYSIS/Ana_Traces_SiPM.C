@@ -25,7 +25,7 @@ void DLED(int trace_lenght, int dleddt);
 int find_peak_fix_time(int mintp, int maxtp);
 void find_peaks(double noise_level, int jump);
 void average_func(int trace_lenght);
-void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool);
+void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
 void help();
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -83,6 +83,8 @@ int Analysis(string file, int last_event_n, bool display){
     bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
     bool Digitizer_CAEN = true;  //true if data taken by Digitizer_CAEN, false otherwise
     bool SetLogyHist = false;
+    
+    bool running_graph = true;
     
 /* VALUES:
  * 
@@ -186,7 +188,7 @@ int Analysis(string file, int last_event_n, bool display){
                     OpenFile>>temp;
                     trace[0][i] = atof(temp);
                     OpenFile>>temp;
-                    trace[1][i]  = -atof(temp);
+                    trace[1][i]  = -atof(temp); //AdvanSid is an inverting amplifier, so I have negative signals. In order to analyze them, I reverse the signals. For the plot I can re-reverse them
         }
         }
         else{
@@ -227,15 +229,15 @@ int Analysis(string file, int last_event_n, bool display){
         }
         
         
-        
+//***** DISPLAY        
         if(display){
             if(Agilent_MSO6054A) {miny=10; maxy=180;}
-            if(Digitizer_CAEN)   {miny=-900;  maxy=-700;}
-            show_trace(c,trace[0], trace[1], trace_lenght,miny,maxy,mintp,maxtp,true,true);
+            if(Digitizer_CAEN)   {miny=700;  maxy=900;}
+            show_trace(c,trace[0], trace[1], trace_lenght,miny,maxy,mintp,maxtp,true,true,true);
             if(Agilent_MSO6054A) {miny=-30; maxy=90;}
             if(Digitizer_CAEN)   {miny=-30; maxy=90;}
-            show_trace(cDLED,trace_DLED[0], trace_DLED[1], trace_DLED_lenght, miny, maxy,mintp,maxtp,true,true);
-            getchar();
+            show_trace(cDLED,trace_DLED[0], trace_DLED[1], trace_DLED_lenght, miny, maxy,mintp,maxtp,true,true,false);
+            if(!running_graph)getchar();
         }
         
         
@@ -260,8 +262,8 @@ int Analysis(string file, int last_event_n, bool display){
         TCanvas *cAVG = new TCanvas("AVG","AVG");
         cAVG->SetGrid();
         if(Agilent_MSO6054A){miny=50; maxy=90;}
-        if(Digitizer_CAEN)  {miny=-855; maxy=-700;}
-        show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght, miny, maxy,mintp,maxtp,true,false);
+        if(Digitizer_CAEN)  {miny=700; maxy=855;}
+        show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght, miny, maxy,mintp,maxtp,true,false,true);
     }
     
 //***** DCR    
@@ -335,11 +337,14 @@ void average_func(int trace_lenght){
 }
 
 //------------------------------------------------------------------------------
-void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool){
+void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse){
     canv->cd();
     for(int i=0; i<trace_lenght; i++){
         x[i] = x[i]*TMath::Power(10,9);
         y[i] = y[i]*TMath::Power(10,3);
+        
+        if(reverse)
+            y[i] = -y[i];
     }
     TGraphErrors *graph = new TGraphErrors(trace_lenght,x,y,0,0);
     graph->SetTitle("");
@@ -358,5 +363,5 @@ void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double mi
         lmax->Draw("aplsame");
     }
     canv->Update();
-    if(delete_bool) graph->Set(0);
+    if(delete_bool) {delete graph;}
 }
