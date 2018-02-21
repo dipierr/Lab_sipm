@@ -133,8 +133,8 @@ int Analysis(string file, int last_event_n, bool display){
     TCanvas *cHist = new TCanvas("hist_GAIN","hist_GAIN",w,h);
     cHist->SetGrid();
     TH1D *ptrHist = new TH1D("hist","",bins_Volt,0,maxyhist);
-    
     TCanvas *cDCR = new TCanvas("hist_DCR","hist_DCR",w,h);
+    cDCR->SetGrid();
     
     double miny=0;
     double maxy=0;
@@ -289,17 +289,21 @@ int Analysis(string file, int last_event_n, bool display){
         cDCR->cd();
         
         TH1D *ptrHistDCRthr = new TH1D("histDCRthr","",bins_DCR,0,maxyhistDCR);
-        double temp, binCenter;
+        double cnt_temp, binCenter;
         for(int i=0; i<bins_DCR; i++){
-            temp=0;
+            cnt_temp=0;
             for(int j=i; j<bins_DCR; j++){
-                temp = temp + ptrHistAllPeaks->GetBinContent(j);
+                cnt_temp = cnt_temp + ptrHistAllPeaks->GetBinContent(j);
             }
+            cnt_temp = cnt_temp/DCR_time;
             binCenter = ptrHistAllPeaks->GetBinCenter(i);
-            ptrHistDCRthr -> Fill(binCenter*1000,temp);
+            ptrHistDCRthr -> Fill(binCenter*1000,cnt_temp);
         }
         cDCR->cd();
+        
+        cDCR->SetLogy();
         ptrHistDCRthr->GetXaxis()->SetTitle("Threshold (mV)");
+        ptrHistDCRthr->GetXaxis()->SetTitle("DCR (Hz)");
         ptrHistDCRthr->Draw("hist");
         
     }
