@@ -27,6 +27,7 @@ int find_peaks(double noise_level, int jump);
 void average_func(int trace_lenght);
 void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
 void help();
+void Anal3(string file1, string file2, string file3, int last_event_n, bool display);
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -50,14 +51,20 @@ double w = 1000;
 double h = 800;
 
 int bins_Volt = 204;
-int bins_DCR = 300;
+int bins_DCR = 700;
 
 double maxyhistAllPeaks = .2; 
 double maxyhistDCR = 200;
 
+int nfile = 1;
 
-TH1D *ptrHistAllPeaks = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
-
+TH1D *ptrHistAllPeaks1 = new TH1D("histAllPeaks1","",bins_DCR,0,maxyhistAllPeaks);
+TH1D *ptrHistAllPeaks2 = new TH1D("histAllPeaks2","",bins_DCR,0,maxyhistAllPeaks);
+TH1D *ptrHistAllPeaks3 = new TH1D("histAllPeaks3","",bins_DCR,0,maxyhistAllPeaks);
+TH1D *ptrHistDCRthr1 = new TH1D("histDCRthr1","",bins_DCR,0,maxyhistDCR);
+TH1D *ptrHistDCRthr2 = new TH1D("histDCRthr2","",bins_DCR,0,maxyhistDCR);
+TH1D *ptrHistDCRthr3 = new TH1D("histDCRthr3","",bins_DCR,0,maxyhistDCR);
+TCanvas *cDCR = new TCanvas("hist_DCR","hist_DCR",w,h);
 /* VALUES:
  * 
  * LED from Digitizer_CAEN: bins_Volt = 204;
@@ -99,6 +106,7 @@ int Analysis(string file, int last_event_n, bool display){
     bool SetLogyHist = false;
     
     bool running_graph = false;
+    bool legend_bool = true;
     
 /* VALUES:
  * 
@@ -133,7 +141,7 @@ int Analysis(string file, int last_event_n, bool display){
     TCanvas *cHist = new TCanvas("hist_GAIN","hist_GAIN",w,h);
     cHist->SetGrid();
     TH1D *ptrHist = new TH1D("hist","",bins_Volt,0,maxyhist);
-    TCanvas *cDCR = new TCanvas("hist_DCR","hist_DCR",w,h);
+    
     cDCR->SetGrid();
     
     double miny=0;
@@ -288,29 +296,50 @@ int Analysis(string file, int last_event_n, bool display){
         cout<<"\nDCR = "<<DCR*TMath::Power(10,-6)<<" MHz"<<endl;
         cDCR->cd();
         
-        TH1D *ptrHistDCRthr = new TH1D("histDCRthr","",bins_DCR,0,maxyhistDCR);
         double cnt_temp, binCenter;
         for(int i=0; i<bins_DCR; i++){
             cnt_temp=0;
             for(int j=i; j<bins_DCR; j++){
-                cnt_temp = cnt_temp + ptrHistAllPeaks->GetBinContent(j);
+                if(nfile==1) cnt_temp = cnt_temp + ptrHistAllPeaks1->GetBinContent(j);
+                if(nfile==2) cnt_temp = cnt_temp + ptrHistAllPeaks2->GetBinContent(j);
+                if(nfile==3) cnt_temp = cnt_temp + ptrHistAllPeaks3->GetBinContent(j);
             }
             cnt_temp = cnt_temp/DCR_time;
-            binCenter = ptrHistAllPeaks->GetBinCenter(i);
-            ptrHistDCRthr -> Fill(binCenter*1000,cnt_temp);
+            
+            if(nfile==1){ binCenter = ptrHistAllPeaks1->GetBinCenter(i); ptrHistDCRthr1 -> Fill(binCenter*1000,cnt_temp);}
+            if(nfile==2){ binCenter = ptrHistAllPeaks2->GetBinCenter(i); ptrHistDCRthr2 -> Fill(binCenter*1000,cnt_temp);}
+            if(nfile==3){ binCenter = ptrHistAllPeaks3->GetBinCenter(i); ptrHistDCRthr3 -> Fill(binCenter*1000,cnt_temp);}
         }
         cDCR->cd();
         
         cDCR->SetLogy();
-        ptrHistDCRthr->GetXaxis()->SetTitle("Threshold (mV)");
-        ptrHistDCRthr->GetXaxis()->SetTitle("DCR (Hz)");
-        ptrHistDCRthr->Draw("hist");
+        if(nfile == 1){
+            ptrHistDCRthr1->GetXaxis()->SetTitle("Threshold (mV)");
+            ptrHistDCRthr1->GetYaxis()->SetTitle("DCR (Hz)");
+            ptrHistDCRthr1->Draw("hist");
+        }
+        if(nfile == 2){
+            ptrHistDCRthr2->SetLineColor(kGreen+1);
+            ptrHistDCRthr2->Draw("histsame");
+        }
+        if(nfile == 3){
+            ptrHistDCRthr3->SetLineColor(kRed+1);
+            ptrHistDCRthr3->Draw("histsame");
+            if(legend_bool){
+                auto legend = new TLegend(0.7,0.7,0.9,0.9);
+                legend->AddEntry(ptrHistDCRthr1,"HV = 34.00 V","l");
+                legend->AddEntry(ptrHistDCRthr2,"HV = 35.00 V","l");
+                legend->AddEntry(ptrHistDCRthr3,"HV = 36.00 V","l");
+                legend->Draw();
+            }
+        }
         
     }
     
     cHist->cd();
     if(SetLogyHist) cHist->SetLogy();
     ptrHist->Draw();
+    
         
     return 0;
 }
@@ -320,6 +349,15 @@ int Analysis(string file, int last_event_n, bool display){
 //------------------------------------------------------------------------------
 //---------------------------[   OTHER FUNCTIONS   ]----------------------------
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void Anal3(string file1, string file2, string file3, int last_event_n, bool display){
+    Analysis(file1,last_event_n,display);
+    nfile=2;
+    Analysis(file2,last_event_n,display);
+    nfile=3;
+    Analysis(file3,last_event_n,display);
+}
 
 
 //------------------------------------------------------------------------------
@@ -359,7 +397,9 @@ int find_peaks(double noise_level, int jump){
             DCR_cnt_temp++;
             if(ii+jump<trace_DLED_lenght) index_peak = find_peak_fix_time(ii, ii+jump);
             else index_peak = find_peak_fix_time(ii, trace_DLED_lenght);
-            ptrHistAllPeaks->Fill(trace_DLED[1][index_peak]);
+            if(nfile == 1) ptrHistAllPeaks1->Fill(trace_DLED[1][index_peak]);
+            if(nfile == 2) ptrHistAllPeaks2->Fill(trace_DLED[1][index_peak]);
+            if(nfile == 3) ptrHistAllPeaks3->Fill(trace_DLED[1][index_peak]);
             ii=ii+jump;
         }else{
             ii++;
