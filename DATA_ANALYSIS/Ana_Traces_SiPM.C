@@ -42,8 +42,22 @@ double *peak;
 int trace_DLED_lenght;
 
 int DCR_cnt = 0;
+int DCR_cnt_temp = 0;
+int ii=0;
+double max_func;
+int index_func = 0;
+
+
+double w = 1000;
+double h = 800;
 
 int bins_Volt = 204;
+int bins_DCR = 300;
+
+double maxyhistDCR = .2;
+
+
+TH1D *ptrHistDCR = new TH1D("histDCR","",bins_DCR,0,maxyhistDCR);
 
 /* VALUES:
  * 
@@ -76,6 +90,7 @@ int Analysis(string file, int last_event_n, bool display){
     double noise_level = 0.010; //noise_level, as seen in DLED trace (in V)
     int jump = 12; //used for find_peaks
     double maxyhist = .2;
+   
     
     bool DCR_bool = true;
     bool average = false;
@@ -84,7 +99,7 @@ int Analysis(string file, int last_event_n, bool display){
     bool Digitizer_CAEN = true;  //true if data taken by Digitizer_CAEN, false otherwise
     bool SetLogyHist = false;
     
-    bool running_graph = true;
+    bool running_graph = false;
     
 /* VALUES:
  * 
@@ -112,8 +127,6 @@ int Analysis(string file, int last_event_n, bool display){
     
     
     //TCanvas
-    double w = 1000;
-    double h = 800;
     TCanvas *c = new TCanvas("Trace","Trace",w,h);
     c->SetGrid();
     TCanvas *cDLED = new TCanvas("DLED","DLED",w,h);
@@ -121,6 +134,7 @@ int Analysis(string file, int last_event_n, bool display){
     TCanvas *cHist = new TCanvas("hist_GAIN","hist_GAIN",w,h);
     cHist->SetGrid();
     TH1D *ptrHist = new TH1D("hist","",bins_Volt,0,maxyhist);
+    TCanvas *cDCR = new TCanvas("hist_DCR","hist_DCR",w,h);
     
     double miny=0;
     double maxy=0;
@@ -247,6 +261,8 @@ int Analysis(string file, int last_event_n, bool display){
         
         delete []trace[0];
         delete []trace[1];
+        delete []trace_DLED[0];
+        delete []trace_DLED[1];
         delete []peak;
         n_ev++;
     }//file is closed
@@ -270,6 +286,8 @@ int Analysis(string file, int last_event_n, bool display){
     if(DCR_bool){
         DCR = DCR_cnt/DCR_time;
         cout<<"\nDCR = "<<DCR*TMath::Power(10,-6)<<" MHz"<<endl;
+        cDCR->cd();
+        ptrHistDCR->Draw();
     }
     
     cHist->cd();
@@ -291,60 +309,65 @@ void DLED(int trace_lenght, int dleddt){
     trace_DLED_lenght = trace_lenght - dleddt;
     //CREATE TRACE DLED
     trace_DLED = new double*[2];
-    for(int i = 0; i < 2; i++) {
-        trace_DLED[i] = new double[trace_DLED_lenght];
+    for(ii = 0; ii < 2; ii++) {
+        trace_DLED[ii] = new double[trace_DLED_lenght];
     }
-    for(int i=0; i<trace_DLED_lenght; i++){
-        trace_DLED[0][i] = trace[0][i + dleddt];
-        trace_DLED[1][i] = trace[1][i + dleddt]-trace[1][i];
+    for(ii=0; ii<trace_DLED_lenght; ii++){
+        trace_DLED[0][ii] = trace[0][ii + dleddt];
+        trace_DLED[1][ii] = trace[1][ii + dleddt]-trace[1][ii];
     }
 }
 
 //------------------------------------------------------------------------------
 int find_peak_fix_time(int mintp, int maxtp){
-       
-    double max = -100;
-    int index=0;
-    for(int i=mintp; i<maxtp; i++){
-        if(trace_DLED[1][i]>max){
-            max=trace_DLED[1][i];
-            index=i;
+    max_func = -100;
+    index_func=0;
+    for( ii=mintp; ii<maxtp; ii++){
+        if(trace_DLED[1][ii]>max_func){
+            max_func=trace_DLED[1][ii];
+            index_func=ii;
         }
     }
-    return index;
+    return index_func;
 }
 
 //------------------------------------------------------------------------------
 void find_peaks(double noise_level, int jump){
-    int i=0;
-    while(i<trace_DLED_lenght){
-        if(trace_DLED[1][i]>noise_level){
+    ii=0;
+    int index_peak;
+    //DCR_cnt_temp = 0;
+    while(ii<trace_DLED_lenght){
+        if(trace_DLED[1][ii]>noise_level){
             DCR_cnt = DCR_cnt+1;
-            i=i+jump;
+            //DCR_cnt_temp++;
+            if(ii+jump<trace_DLED_lenght) index_peak = find_peak_fix_time(ii, ii+jump);
+            else index_peak = find_peak_fix_time(ii, trace_DLED_lenght);
+            ptrHistDCR->Fill(trace_DLED[1][index_peak]);
+            ii=ii+jump;
         }else{
-            i++;
+            ii++;
         }
     }
+    //cout<<DCR_cnt_temp<<endl;
 }
 
 
 //------------------------------------------------------------------------------
 void average_func(int trace_lenght){
-    int i;
-    for (i=0; i<trace_lenght; i++){
-        trace_AVG[1][i] = trace_AVG[1][i] + trace[1][i];
+    for (ii=0; ii<trace_lenght; ii++){
+        trace_AVG[1][ii] = trace_AVG[1][ii] + trace[1][ii];
     }
 }
 
 //------------------------------------------------------------------------------
 void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse){
     canv->cd();
-    for(int i=0; i<trace_lenght; i++){
-        x[i] = x[i]*TMath::Power(10,9);
-        y[i] = y[i]*TMath::Power(10,3);
+    for(ii=0; ii<trace_lenght; ii++){
+        x[ii] = x[ii]*TMath::Power(10,9);
+        y[ii] = y[ii]*TMath::Power(10,3);
         
         if(reverse)
-            y[i] = -y[i];
+            y[ii] = -y[ii];
     }
     TGraphErrors *graph = new TGraphErrors(trace_lenght,x,y,0,0);
     graph->SetTitle("");
