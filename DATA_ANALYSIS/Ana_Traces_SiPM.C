@@ -416,17 +416,17 @@ void help(){
 int Ana3(string file1, string file2, string file3, int last_event_n, bool display){
     //file1
     nfile = 1;
-    pe_0_5 = 0.010;   pe_1_5 = 0.026;
+    pe_0_5 = 0.010;   pe_1_5 = 0.025;
     Analysis(file1,last_event_n,display);
     
     //file2
     nfile=2;
-    pe_0_5 = 0.010;   pe_1_5 = 0.028;
+    pe_0_5 = 0.010;   pe_1_5 = 0.026;
     Analysis(file2,last_event_n,display);
     
     //file3
     nfile=3;
-    pe_0_5 = 0.010;   pe_1_5 = 0.030;
+    pe_0_5 = 0.010;   pe_1_5 = 0.028;
     Analysis(file3,last_event_n,display);
     
 /*          HV      0.5pe   1.5pe   FILE
@@ -435,9 +435,9 @@ int Ana3(string file1, string file2, string file3, int last_event_n, bool displa
             35 V    10 mV   28 mV   20180221_HD3-2_1_DARK_35_AS_2_01.txt
             36 V    10 mV   30 mV   20180221_HD3-2_1_DARK_36_AS_2_01.txt
     --------------------------------------------------------------------
-    SiPM2   34 V    10 mV   25 mV   20180221_HD3-2_1_DARK_34_AS_2_01.txt
-            35 V    10 mV   26 mV   20180221_HD3-2_1_DARK_34_AS_2_01.txt
-            36 V    10 mV   28 mV   20180221_HD3-2_1_DARK_34_AS_2_01.txt
+    SiPM2   34 V    10 mV   25 mV   20180221_HD3-2_2_DARK_34_AS_2_02.txt
+            35 V    10 mV   26 mV   20180221_HD3-2_2_DARK_34_AS_2_02.txt
+            36 V    10 mV   28 mV   20180221_HD3-2_2_DARK_34_AS_2_02.txt
     --------------------------------------------------------------------
     SiPM3   34 V    10 mV   25 mV   20180221_HD3-2_3_DARK_34_AS_2_01.txt
             35 V    10 mV   26 mV   20180221_HD3-2_3_DARK_35_AS_2_01.txt
