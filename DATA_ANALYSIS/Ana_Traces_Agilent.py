@@ -1,3 +1,4 @@
+#Ana_Traces_Agilent.py
 '''
 Goal: to extract information from SiPM traces digitized by the AGILENT MS06054A.
 Steps: 
