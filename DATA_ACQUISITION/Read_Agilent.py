@@ -1,3 +1,5 @@
+#Read_Agilent.py
+
 '''
 Reads data from Agilent MSO6054A
 Tested on Windows 10
