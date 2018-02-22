@@ -1,3 +1,5 @@
+#ana_traces_lecroy.py
+
 #!/usr/bin/python
 
 '''
