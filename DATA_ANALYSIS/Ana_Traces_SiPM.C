@@ -23,7 +23,7 @@
 //------------------------------------------------------------------------------
 void DLED(int trace_lenght, int dleddt);
 int find_peak_fix_time(int mintp, int maxtp);
-int find_peaks(double noise_level, int jump);
+int find_peaks(double noise_level, int jump, bool delay_bool);
 void average_func(int trace_lenght);
 void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
 void help();
@@ -46,8 +46,8 @@ int ii=0;
 double max_func;
 int index_func = 0;
 
-double pe_0_5 = 0; // !!! CHECK !!! (see comments in function Ana3(...) for values)
-double pe_1_5 = 0; // !!! CHECK !!! (see comments in function Ana3(...) for values)
+double pe_0_5 = 0.010; // !!! CHECK !!! (see comments in function Ana3(...) for values)
+double pe_1_5 = 0.025; // !!! CHECK !!! (see comments in function Ana3(...) for values)
 
 
 double w = 1000;
@@ -55,9 +55,11 @@ double h = 800;
 
 int bins_Volt = 204;
 int bins_DCR = 206;
+int bins_Delays = 200;
 
 double maxyhistAllPeaks = .2; 
 double maxyhistDCR = 200;
+double maxyhistDelays = 200;
 
 double delta_pe = 0.0005;
 
@@ -66,9 +68,17 @@ int nfile = 1;
 TH1D *ptrHistAllPeaks1 = new TH1D("histAllPeaks1","",bins_DCR,0,maxyhistAllPeaks);
 TH1D *ptrHistAllPeaks2 = new TH1D("histAllPeaks2","",bins_DCR,0,maxyhistAllPeaks);
 TH1D *ptrHistAllPeaks3 = new TH1D("histAllPeaks3","",bins_DCR,0,maxyhistAllPeaks);
+
 TH1D *ptrHistDCRthr1 = new TH1D("histDCRthr1","",bins_DCR,0,maxyhistDCR);
 TH1D *ptrHistDCRthr2 = new TH1D("histDCRthr2","",bins_DCR,0,maxyhistDCR);
 TH1D *ptrHistDCRthr3 = new TH1D("histDCRthr3","",bins_DCR,0,maxyhistDCR);
+
+TH1D *ptrHistDelays_pe_0_5_1 = new TH1D("histDelays_pe_0_5_1","",bins_Delays,0,maxyhistDelays);
+TH1D *ptrHistDelays_pe_0_5_2 = new TH1D("histDelays_pe_0_5_2","",bins_Delays,0,maxyhistDelays);
+TH1D *ptrHistDelays_pe_0_5_3 = new TH1D("histDelays_pe_0_5_3","",bins_Delays,0,maxyhistDelays);
+
+
+
 TCanvas *cDCR = new TCanvas("hist_DCR","hist_DCR",w,h);
 /* VALUES:
  * 
@@ -93,13 +103,14 @@ int Analysis(string file, int last_event_n, bool display){
     int mintp = 250; //min_time_peak
     int maxtp = 280; //max_time_peak
     int dleddt = 9;
-    double noise_level = 0.010; //noise_level, as seen in DLED trace (in V)
+    double noise_level = 0.010; //noise_level, as seen in DLED trace (in V); it should be similar to pe_0_5
     int jump = 12; //used for find_peaks
     double maxyhist = .2;
    
     
     bool DCR_bool = true;
-    bool CROSS_TALK_bool = true;
+    bool CROSS_TALK_bool = true; //if true, also DCR_bool must be true
+    bool delay_bool = true; //if true, also DCR_bool and CROSS_TALK_bool must be true
     bool average = false;
     
     bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
@@ -247,7 +258,7 @@ int Analysis(string file, int last_event_n, bool display){
         
 //***** DCR
         if(DCR_bool){
-            DCR_cnt = DCR_cnt + find_peaks(noise_level,jump);
+            DCR_cnt = DCR_cnt + find_peaks(noise_level,jump,delay_bool);
             DCR_time = DCR_time + trace_lenght*TMath::Power(10,-9);
             //cout<<find_peaks(trace_lenght,noise_level,jump)<<endl;
         }
@@ -367,7 +378,7 @@ int Analysis(string file, int last_event_n, bool display){
                 }
                 if((ptrHistAllPeaks2->GetBinCenter(i) > pe_1_5 - delta_pe) and (ptrHistAllPeaks2->GetBinCenter(i) < pe_1_5 + delta_pe)){
                     DCR_pe_1_5 = ptrHistDCRthr2->GetBinContent(i);
-                    cout<<"Found DCR_pe_0_5"<<endl;
+                    cout<<"Found DCR_pe_1_5"<<endl;
                 }
             }
             if(nfile==3){
@@ -377,13 +388,34 @@ int Analysis(string file, int last_event_n, bool display){
                 }
                 if((ptrHistAllPeaks3->GetBinCenter(i) > pe_1_5 - delta_pe) and (ptrHistAllPeaks3->GetBinCenter(i) < pe_1_5 + delta_pe)){
                     DCR_pe_1_5 = ptrHistDCRthr3->GetBinContent(i);
-                    cout<<"Found DCR_pe_0_5"<<endl;
+                    cout<<"Found DCR_pe_1_5"<<endl;
                 }
             }
         }
         
         CrossTalk = DCR_pe_1_5/DCR_pe_0_5;
         cout<<"CrossTalk = "<<CrossTalk<<endl;
+        
+        if(delay_bool){
+            if(nfile == 1){
+                TCanvas *cDelays = new TCanvas("Delays_SiPM1","Delays_SiPM1",w,h);
+                ptrHistDelays_pe_0_5_1->GetXaxis()->SetTitle("Time (ns)");
+                ptrHistDelays_pe_0_5_1->GetYaxis()->SetTitle("");
+                ptrHistDelays_pe_0_5_1->Draw("hist");
+            }
+            if(nfile == 2){
+                TCanvas *cDelays = new TCanvas("Delays_SiPM2","Delays_SiPM2",w,h);
+                ptrHistDelays_pe_0_5_2->GetXaxis()->SetTitle("Time (ns)");
+                ptrHistDelays_pe_0_5_2->GetYaxis()->SetTitle("");
+                ptrHistDelays_pe_0_5_2->Draw("hist");
+            }
+            if(nfile == 3){
+                TCanvas *cDelays = new TCanvas("Delays_SiPM3","Delays_SiPM3",w,h);
+                ptrHistDelays_pe_0_5_3->GetXaxis()->SetTitle("Time (ns)");
+                ptrHistDelays_pe_0_5_3->GetYaxis()->SetTitle("");
+                ptrHistDelays_pe_0_5_3->Draw("hist");
+            }
+        }
         
     }
         
@@ -475,15 +507,35 @@ int find_peak_fix_time(int mintp, int maxtp){
 }
 
 //------------------------------------------------------------------------------
-int find_peaks(double noise_level, int jump){
+int find_peaks(double noise_level, int jump, bool delay_bool){
     ii=0;
     int index_peak;
     int DCR_cnt_temp = 0;
+    int index_old = 0;
+    int index_new = 0;
+    bool found_first_peak = false;
     while(ii<trace_DLED_lenght){
         if(trace_DLED[1][ii]>noise_level){
             DCR_cnt_temp++;
-            if(ii+jump<trace_DLED_lenght) index_peak = find_peak_fix_time(ii, ii+jump);
-            else index_peak = find_peak_fix_time(ii, trace_DLED_lenght);
+            if(ii+jump<trace_DLED_lenght)
+                index_peak = find_peak_fix_time(ii, ii+jump);
+            else 
+                index_peak = find_peak_fix_time(ii, trace_DLED_lenght);
+            
+            if(delay_bool){
+                if(!found_first_peak){
+                    index_old = index_peak;
+                    found_first_peak = true;
+                }
+                else{
+                    index_new=index_peak;
+                    if(nfile == 1) ptrHistDelays_pe_0_5_1 -> Fill(index_new - index_old);
+                    if(nfile == 2) ptrHistDelays_pe_0_5_2 -> Fill(index_new - index_old);
+                    if(nfile == 3) ptrHistDelays_pe_0_5_3 -> Fill(index_new - index_old);  
+                    index_old = index_new;
+                }
+            }
+            
             if(nfile == 1) ptrHistAllPeaks1->Fill(trace_DLED[1][index_peak]);
             if(nfile == 2) ptrHistAllPeaks2->Fill(trace_DLED[1][index_peak]);
             if(nfile == 3) ptrHistAllPeaks3->Fill(trace_DLED[1][index_peak]);
