@@ -27,7 +27,7 @@ int find_peaks(double noise_level, int jump);
 void average_func(int trace_lenght);
 void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
 void help();
-void Ana3(string file1, string file2, string file3, int last_event_n, bool display);
+int Ana3(string file1, string file2, string file3, int last_event_n, bool display);
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -46,6 +46,9 @@ int ii=0;
 double max_func;
 int index_func = 0;
 
+double pe_0_5 = 0; // !!! CHECK !!! (see comments in function Ana3(...) for values)
+double pe_1_5 = 0; // !!! CHECK !!! (see comments in function Ana3(...) for values)
+
 
 double w = 1000;
 double h = 800;
@@ -55,6 +58,8 @@ int bins_DCR = 206;
 
 double maxyhistAllPeaks = .2; 
 double maxyhistDCR = 200;
+
+double delta_pe = 0.0005;
 
 int nfile = 1;
 
@@ -94,6 +99,7 @@ int Analysis(string file, int last_event_n, bool display){
    
     
     bool DCR_bool = true;
+    bool CROSS_TALK_bool = true;
     bool average = false;
     
     bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
@@ -331,6 +337,56 @@ int Analysis(string file, int last_event_n, bool display){
                 legend->Draw();
             }
         }
+
+//***** CROSS-TALK
+    if(CROSS_TALK_bool){
+        double DCR_pe_0_5 = 0.;
+        double DCR_pe_1_5 = 0.;
+        double CrossTalk = 0.;
+        
+        if(pe_0_5==0||pe_1_5==0){
+            cout<<"ERROR: CHECK THR FOR 0.5 AND 1.5 PE"<<endl;
+            return 1;
+        }
+        
+        for(int i=0; i<bins_DCR; i++){
+            if(nfile==1){
+                if((ptrHistAllPeaks1->GetBinCenter(i) > pe_0_5 - delta_pe) and (ptrHistAllPeaks1->GetBinCenter(i) < pe_0_5 + delta_pe)){
+                    DCR_pe_0_5 = ptrHistDCRthr1->GetBinContent(i);
+                    cout<<"Found DCR_pe_0_5"<<endl;
+                }
+                if((ptrHistAllPeaks1->GetBinCenter(i) > pe_1_5 - delta_pe) and (ptrHistAllPeaks1->GetBinCenter(i) < pe_1_5 + delta_pe)){
+                    DCR_pe_1_5 = ptrHistDCRthr1->GetBinContent(i);
+                    cout<<"Found DCR_pe_1_5"<<endl;
+                }
+            }
+            if(nfile==2){
+                if((ptrHistAllPeaks2->GetBinCenter(i) > pe_0_5 - delta_pe) and (ptrHistAllPeaks2->GetBinCenter(i) < pe_0_5 + delta_pe)){
+                    DCR_pe_0_5 = ptrHistDCRthr2->GetBinContent(i);
+                    cout<<"Found DCR_pe_0_5"<<endl;
+                }
+                if((ptrHistAllPeaks2->GetBinCenter(i) > pe_1_5 - delta_pe) and (ptrHistAllPeaks2->GetBinCenter(i) < pe_1_5 + delta_pe)){
+                    DCR_pe_1_5 = ptrHistDCRthr2->GetBinContent(i);
+                    cout<<"Found DCR_pe_0_5"<<endl;
+                }
+            }
+            if(nfile==3){
+                if((ptrHistAllPeaks3->GetBinCenter(i) > pe_0_5 - delta_pe) and (ptrHistAllPeaks3->GetBinCenter(i) < pe_0_5 + delta_pe)){
+                    DCR_pe_0_5 = ptrHistDCRthr3->GetBinContent(i);
+                    cout<<"Found DCR_pe_0_5"<<endl;
+                }
+                if((ptrHistAllPeaks3->GetBinCenter(i) > pe_1_5 - delta_pe) and (ptrHistAllPeaks3->GetBinCenter(i) < pe_1_5 + delta_pe)){
+                    DCR_pe_1_5 = ptrHistDCRthr3->GetBinContent(i);
+                    cout<<"Found DCR_pe_0_5"<<endl;
+                }
+            }
+        }
+        
+        CrossTalk = DCR_pe_1_5/DCR_pe_0_5;
+        cout<<"CrossTalk = "<<CrossTalk<<endl;
+        
+    }
+        
         
     }
     
@@ -357,12 +413,37 @@ void help(){
 
 
 //------------------------------------------------------------------------------
-void Ana3(string file1, string file2, string file3, int last_event_n, bool display){
+int Ana3(string file1, string file2, string file3, int last_event_n, bool display){
+    //file1
+    nfile = 1;
+    pe_0_5 = 0.010;   pe_1_5 = 0.026;
     Analysis(file1,last_event_n,display);
+    
+    //file2
     nfile=2;
+    pe_0_5 = 0.010;   pe_1_5 = 0.028;
     Analysis(file2,last_event_n,display);
+    
+    //file3
     nfile=3;
+    pe_0_5 = 0.010;   pe_1_5 = 0.030;
     Analysis(file3,last_event_n,display);
+    
+/*          HV      0.5pe   1.5pe   FILE
+    --------------------------------------------------------------------
+    SiPM1   34 V    10 mV   26 mV   20180221_HD3-2_1_DARK_34_AS_2_01.txt
+            35 V    10 mV   28 mV   20180221_HD3-2_1_DARK_35_AS_2_01.txt
+            36 V    10 mV   30 mV   20180221_HD3-2_1_DARK_36_AS_2_01.txt
+    --------------------------------------------------------------------
+    SiPM2   34 V    10 mV   25 mV   20180221_HD3-2_1_DARK_34_AS_2_01.txt
+            35 V    10 mV   26 mV   20180221_HD3-2_1_DARK_34_AS_2_01.txt
+            36 V    10 mV   28 mV   20180221_HD3-2_1_DARK_34_AS_2_01.txt
+    --------------------------------------------------------------------
+    SiPM3   34 V    10 mV   25 mV   20180221_HD3-2_3_DARK_34_AS_2_01.txt
+            35 V    10 mV   26 mV   20180221_HD3-2_3_DARK_35_AS_2_01.txt
+            36 V    10 mV   28 mV   20180221_HD3-2_3_DARK_36_AS_2_01.txt
+*/
+    return 0;
 }
 
 
