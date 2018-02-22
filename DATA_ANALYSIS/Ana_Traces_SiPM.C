@@ -27,7 +27,7 @@ int find_peaks(double noise_level, int jump);
 void average_func(int trace_lenght);
 void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
 void help();
-void Anal3(string file1, string file2, string file3, int last_event_n, bool display);
+void Ana3(string file1, string file2, string file3, int last_event_n, bool display);
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ double w = 1000;
 double h = 800;
 
 int bins_Volt = 204;
-int bins_DCR = 700;
+int bins_DCR = 206;
 
 double maxyhistAllPeaks = .2; 
 double maxyhistDCR = 200;
@@ -72,11 +72,6 @@ TCanvas *cDCR = new TCanvas("hist_DCR","hist_DCR",w,h);
  */
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-
-void help(){
-    cout<<"USAGE:"<<endl;
-    cout<<"Analysis(string file, int last_event_n, bool display)\n"<<endl;
-}
 
 
 //------------------------------------------------------------------------------
@@ -141,7 +136,8 @@ int Analysis(string file, int last_event_n, bool display){
     TCanvas *cHist = new TCanvas("hist_GAIN","hist_GAIN",w,h);
     cHist->SetGrid();
     TH1D *ptrHist = new TH1D("hist","",bins_Volt,0,maxyhist);
-    
+    TCanvas *cAllPeaks = new TCanvas("AllPeaks","AllPeaks",w,h);
+    cAllPeaks-> SetGrid();
     cDCR->SetGrid();
     
     double miny=0;
@@ -317,6 +313,8 @@ int Analysis(string file, int last_event_n, bool display){
             ptrHistDCRthr1->GetXaxis()->SetTitle("Threshold (mV)");
             ptrHistDCRthr1->GetYaxis()->SetTitle("DCR (Hz)");
             ptrHistDCRthr1->Draw("hist");
+            cAllPeaks->cd();
+            ptrHistAllPeaks1->Draw("hist");
         }
         if(nfile == 2){
             ptrHistDCRthr2->SetLineColor(kGreen+1);
@@ -350,8 +348,16 @@ int Analysis(string file, int last_event_n, bool display){
 //---------------------------[   OTHER FUNCTIONS   ]----------------------------
 //------------------------------------------------------------------------------
 
+void help(){
+    cout<<"USAGE:"<<endl;
+    cout<<"Analysis(string file, int last_event_n, bool display)"<<endl;
+    cout<<"Ana3(string file1, string file2, string file3, int last_event_n, bool display)"<<endl;
+}
+
+
+
 //------------------------------------------------------------------------------
-void Anal3(string file1, string file2, string file3, int last_event_n, bool display){
+void Ana3(string file1, string file2, string file3, int last_event_n, bool display){
     Analysis(file1,last_event_n,display);
     nfile=2;
     Analysis(file2,last_event_n,display);
