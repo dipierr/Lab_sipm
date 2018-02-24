@@ -27,6 +27,7 @@
 #include "TLegend.h"
 #include "TStyle.h"
 #include "TGraphErrors.h"
+#include "TMultiGraph.h"
 #include "TAxis.h"
 #include "TPad.h"
 #include "TLine.h"
@@ -58,6 +59,7 @@ double **trace;
 double **trace_DLED;
 double **trace_AVG;
 double **DCR;
+double **DCR_thr;
 double *peak;
 
 double DCR_temp[] = {0., 0., 0.};
@@ -162,7 +164,7 @@ int Analysis(string file, int last_event_n, bool display){
     //  draw:
     bool drawHistAllPeaks = false; // to draw hist of all peaks in traces
     bool drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
-    bool show_hists_DCR_DELAYS  = true;
+    bool show_hists_DCR_DELAYS  = false;
     bool showHist_bool = false; //to show hist of peaks in a selected window (e.g. for LED measures); !!! find_peak_in_a_selected_window must be true
     bool SetLogyHist = false;
     bool running_graph = false;// to see traces in an osc mode (display must be true)
@@ -548,23 +550,35 @@ int Ana3(string file1, string file2, string file3, int last_event_n){
     nfile = 1;
     pe_0_5 = 0.010;   pe_1_5 = 0.025;
     Analysis(file1,last_event_n,display);
-    DCR_temp[nfile-1] = expDel->GetParameter(0)*TMath::Power(10,3);
+    DCR_temp[nfile-1] = expDel->GetParameter(0)*TMath::Power(10,9);
+    
+    ptrHistDelays_pe_0_5_1->Reset();
+    ptrHistDelays_pe_0_5_2->Reset();
+    ptrHistDelays_pe_0_5_3->Reset();
     
     //file2
     nfile=2;
     pe_0_5 = 0.010;   pe_1_5 = 0.026;
     Analysis(file2,last_event_n,display);
-    DCR_temp[nfile-1] = expDel->GetParameter(0)*TMath::Power(10,3);
+    DCR_temp[nfile-1] = expDel->GetParameter(0)*TMath::Power(10,9);
+    
+    ptrHistDelays_pe_0_5_1->Reset();
+    ptrHistDelays_pe_0_5_2->Reset();
+    ptrHistDelays_pe_0_5_3->Reset();
     
     //file3
     nfile=3;
     pe_0_5 = 0.010;   pe_1_5 = 0.028;
     Analysis(file3,last_event_n,display);
-    DCR_temp[nfile-1] = expDel->GetParameter(0)*TMath::Power(10,3);
+    DCR_temp[nfile-1] = expDel->GetParameter(0)*TMath::Power(10,9);
+    
+    ptrHistDelays_pe_0_5_1->Reset();
+    ptrHistDelays_pe_0_5_2->Reset();
+    ptrHistDelays_pe_0_5_3->Reset();
 
-    cout<<DCR_temp[0]<<endl;
-    cout<<DCR_temp[1]<<endl;
-    cout<<DCR_temp[2]<<endl;
+//     cout<<DCR_temp[0]<<endl;
+//     cout<<DCR_temp[1]<<endl;
+//     cout<<DCR_temp[2]<<endl;
     
 /*          HV      0.5pe   1.5pe   FILE
     --------------------------------------------------------------------
@@ -585,26 +599,63 @@ int Ana3(string file1, string file2, string file3, int last_event_n){
     return 0;
 }
 
-
+//------------------------------------------------------------------------------
 int loopAna3(string file1, string file2, string file3, int last_event_n){
     bool display = false;
     
     thr_to_find_peaks = 0.010;
-    double max_thr_to_find_peaks = 0.080;
-    double gap_between_thr = 0.005;
+    double max_thr_to_find_peaks = 0.060;
+    double gap_between_thr = 0.001;
     
     int n_DCR;
     n_DCR = (int)((max_thr_to_find_peaks - thr_to_find_peaks)/gap_between_thr);
     
-    DCR = new double*[3]; //first index: nfile
+    DCR = new double*[3]; //first index: nfile => DCR[0][...] for nfile = 1; DCR[1][...] for nfile = 2; DCR[2][...] for nfile = 3. 
         for(int i = 0; i < 3; i++) {
             DCR[i] = new double[n_DCR];
     }
     
+    int h = 0;
+    double *DCR_thr = new double[n_DCR]; 
+    
     while(thr_to_find_peaks <= max_thr_to_find_peaks){
         Ana3(file1, file2, file3,last_event_n);
+        DCR_thr[h] = thr_to_find_peaks;
         thr_to_find_peaks = thr_to_find_peaks + gap_between_thr;
-    }
+        DCR[0][h] = DCR_temp[0];
+        DCR[1][h] = DCR_temp[1];
+        DCR[2][h] = DCR_temp[2]; 
+        h++;
+    } 
+    
+    TGraphErrors *gDCR_1 = new TGraphErrors(n_DCR, DCR_thr, DCR[0],NULL, NULL);
+    TGraphErrors *gDCR_2 = new TGraphErrors(n_DCR, DCR_thr, DCR[1],NULL, NULL);
+    TGraphErrors *gDCR_3 = new TGraphErrors(n_DCR, DCR_thr, DCR[2],NULL, NULL);
+    
+    gDCR_1->SetLineColor(kOrange+1);
+    gDCR_2->SetLineColor(kRed);
+    gDCR_3->SetLineColor(kMagenta);
+    
+    gDCR_1->SetLineWidth(6);
+    gDCR_2->SetLineWidth(6);
+    gDCR_3->SetLineWidth(6);
+    
+    
+    TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
+    DCR_mg->Add(gDCR_1);
+    DCR_mg->Add(gDCR_2);
+    DCR_mg->Add(gDCR_3);
+    
+    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop");
+    cDCR_loop->SetGrid();
+    cDCR_loop->SetLogy();
+    DCR_mg->Draw("ALP");
+    auto legendDCR_loop = new TLegend(0.15,0.75,0.35,0.9);
+    legendDCR_loop->AddEntry(gDCR_1,"HV = 34.00 V","p");
+    legendDCR_loop->AddEntry(gDCR_2,"HV = 35.00 V","p");
+    legendDCR_loop->AddEntry(gDCR_3,"HV = 36.00 V","p");
+    legendDCR_loop->Draw();
+    
     
     return 0;
     
