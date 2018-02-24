@@ -21,6 +21,7 @@
 #include "TMath.h"
 #include "TH1D.h"
 #include "TH2D.h"
+#include "TH1.h"
 #include "TCanvas.h"
 #include "TF1.h"
 #include "TLegend.h"
@@ -29,13 +30,15 @@
 #include "TAxis.h"
 #include "TPad.h"
 #include "TLine.h"
+#include "TSpectrum.h"
+#include "TVirtualFitter.h"
 
 //------------------------------------------------------------------------------
 //-------------------------------[   FUNCTIONS   ]------------------------------
 //------------------------------------------------------------------------------
 void DLED(int trace_lenght, int dleddt);
 int find_peak_fix_time(int mintp, int maxtp);
-int find_peaks(double noise_level, int jump, bool delay_bool);
+int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width, bool delay_bool);
 void average_func(int trace_lenght);
 void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
 void help();
@@ -130,9 +133,10 @@ int Analysis(string file, int last_event_n, bool display){
     int max_ind_offset = 80;
     int mintp = 250; //min_time_peak
     int maxtp = 280; //max_time_peak
-    int dleddt = 9;
-    double noise_level = 0.010; //noise_level, as seen in DLED trace (in V); it should be similar to pe_0_5
-    int jump = 12; //used for find_peaks
+    int dleddt = 9; //9ns is approx the rise time used for HD3_2 on AS out 2
+    double thr_to_find_peaks = 0.010; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5
+    int max_peak_width = 12; //used for find_peaks
+    int min_peak_width = 5;
     double maxyhist = .2;
    
     
@@ -285,9 +289,9 @@ int Analysis(string file, int last_event_n, bool display){
         
 //***** DCR
         if(DCR_bool){
-            DCR_cnt = DCR_cnt + find_peaks(noise_level,jump,delay_bool);
+            DCR_cnt = DCR_cnt + find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,delay_bool);
             DCR_time = DCR_time + trace_lenght*TMath::Power(10,-9);
-            //cout<<find_peaks(trace_lenght,noise_level,jump)<<endl;
+            //cout<<find_peaks(trace_lenght,thr_to_find_peaks,max_peak_width)<<endl;
         }
         
         
@@ -580,18 +584,28 @@ int find_peak_fix_time(int mintp, int maxtp){
 }
 
 //------------------------------------------------------------------------------
-int find_peaks(double noise_level, int jump, bool delay_bool){
+int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width, bool delay_bool){ //I look for every peaks in the trace, only if I'm in DARK mode
     ii=0;
     int index_peak;
     int DCR_cnt_temp = 0;
     int index_old = 0;
     int index_new = 0;
     bool found_first_peak = false;
-    while(ii<trace_DLED_lenght){
-        if(trace_DLED[1][ii]>noise_level){
-            DCR_cnt_temp++;
-            if(ii+jump<trace_DLED_lenght)
-                index_peak = find_peak_fix_time(ii, ii+jump);
+    int peak_width = max_peak_width;
+    while(ii<trace_DLED_lenght){//I find peaks after DLED
+        if(trace_DLED[1][ii]>thr_to_find_peaks){//I only consider points above thr_to_find_peaks
+            DCR_cnt_temp++; //I've seen a peak; if I'm in dark mode it's DCR
+            //Now I want to see the peak amplitude.
+            
+            for(int k=ii+min_peak_width; (k<ii+max_peak_width); k++){
+                if(trace_DLED[1][k]<thr_to_find_peaks){
+                    peak_width = k-ii;
+                    break;
+                }
+            }
+            
+            if(ii+peak_width<trace_DLED_lenght)
+                index_peak = find_peak_fix_time(ii, ii+peak_width);
             else 
                 index_peak = find_peak_fix_time(ii, trace_DLED_lenght);
             
@@ -608,6 +622,7 @@ int find_peaks(double noise_level, int jump, bool delay_bool){
                     if(nfile == 2) ptrHistDelays_pe_0_5_2 -> Fill(index_new - index_old);
                     if(nfile == 3) ptrHistDelays_pe_0_5_3 -> Fill(index_new - index_old);  
                     index_old = index_new;
+                    
                 }
             }
             
@@ -615,7 +630,7 @@ int find_peaks(double noise_level, int jump, bool delay_bool){
             if(nfile == 2) ptrHistAllPeaks2->Fill(trace_DLED[1][index_peak]);
             if(nfile == 3) ptrHistAllPeaks3->Fill(trace_DLED[1][index_peak]);
             
-            ii=ii+jump; //in order to jump at the following peak. Please check jump, it depends on data
+            ii=ii+peak_width; //in order to jump at the following peak.
         }else{
             ii++;
         }
@@ -669,3 +684,4 @@ void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double mi
     canv->Update();
     if(delete_bool) {delete graph;}
 }
+
