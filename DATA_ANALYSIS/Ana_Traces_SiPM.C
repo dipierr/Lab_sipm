@@ -119,7 +119,7 @@ TH1D *ptrHistDelays_pe_0_5_1 = new TH1D("histDelays_pe_0_5_1","",bins_Delays,0,m
 TH1D *ptrHistDelays_pe_0_5_2 = new TH1D("histDelays_pe_0_5_2","",bins_Delays,0,maxyhistDelays);
 TH1D *ptrHistDelays_pe_0_5_3 = new TH1D("histDelays_pe_0_5_3","",bins_Delays,0,maxyhistDelays);
 
-TF1 *expDel = new TF1("expDel","[1]*TMath::Exp(-[0]*x)",expDelLow_max,expDelHigh_max);
+TF1 *expDel = new TF1("expDel","TMath::Exp(-[0]*x+[1])",expDelLow_max,expDelHigh_max);
 
 //I want to create ONLY one time the Canvas below... this is not the smartest way but it shuold work...
 TCanvas *c = new TCanvas("Trace","Trace",w,h);
@@ -169,6 +169,8 @@ int Analysis(string file, int last_event_n, bool display){
     bool SetLogyHist = false;
     bool running_graph = false;// to see traces in an osc mode (display must be true)
     
+    bool all_events_same_window = false; //all the events (from 0 to last_event_n) are joined in a single event
+    
 /* VALUES:
  * 
  * DARK from Agilent: mintp = 160 (or 200);  maxtp = 320; dleddt = 39;
@@ -192,6 +194,7 @@ int Analysis(string file, int last_event_n, bool display){
     bool last_event_flag = false;
     
     int trace_lenght = 0;
+    int one_window=0;
     int DCR_cnt = 0;
     
     TH1D *ptrHist = new TH1D("hist","",bins_Volt,0,maxyhist);
@@ -223,6 +226,10 @@ int Analysis(string file, int last_event_n, bool display){
                 OpenFile>>temp>>temp; 
                 OpenFile>>temp;
                 trace_lenght = atoi(temp);
+                if(all_events_same_window){
+                    trace_lenght = atoi(temp)*last_event_n;
+                    one_window = atoi(temp);
+                }
                 OpenFile>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp;
         }else{
             cout<<"ERROR: check acquisition device"<<endl;
@@ -270,6 +277,13 @@ int Analysis(string file, int last_event_n, bool display){
                     trace[0][i] = i*TMath::Power(10,-9); //1point=1ns
                     OpenFile>>temp;
                     trace[1][i]  = -atof(temp)/1024; //1024 channels from 0 V to 1 V
+                    
+                    if(i==(one_window-1)){
+                        OpenFile>>temp>>temp; 
+                        OpenFile>>temp;
+                        OpenFile>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp;
+                    }
+                    
                 }
         }
         }
@@ -603,8 +617,8 @@ int Ana3(string file1, string file2, string file3, int last_event_n){
 int loopAna3(string file1, string file2, string file3, int last_event_n){
     bool display = false;
     
-    thr_to_find_peaks = 0.010;
-    double max_thr_to_find_peaks = 0.060;
+    thr_to_find_peaks = 0.007;
+    double max_thr_to_find_peaks = 0.04;
     double gap_between_thr = 0.001;
     
     int n_DCR;
@@ -620,7 +634,7 @@ int loopAna3(string file1, string file2, string file3, int last_event_n){
     
     while(thr_to_find_peaks <= max_thr_to_find_peaks){
         Ana3(file1, file2, file3,last_event_n);
-        DCR_thr[h] = thr_to_find_peaks;
+        DCR_thr[h] = thr_to_find_peaks*1000;
         thr_to_find_peaks = thr_to_find_peaks + gap_between_thr;
         DCR[0][h] = DCR_temp[0];
         DCR[1][h] = DCR_temp[1];
@@ -636,9 +650,9 @@ int loopAna3(string file1, string file2, string file3, int last_event_n){
     gDCR_2->SetLineColor(kRed);
     gDCR_3->SetLineColor(kMagenta);
     
-    gDCR_1->SetLineWidth(6);
-    gDCR_2->SetLineWidth(6);
-    gDCR_3->SetLineWidth(6);
+    gDCR_1->SetLineWidth(4);
+    gDCR_2->SetLineWidth(4);
+    gDCR_3->SetLineWidth(4);
     
     
     TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
@@ -651,9 +665,9 @@ int loopAna3(string file1, string file2, string file3, int last_event_n){
     cDCR_loop->SetLogy();
     DCR_mg->Draw("ALP");
     auto legendDCR_loop = new TLegend(0.15,0.75,0.35,0.9);
-    legendDCR_loop->AddEntry(gDCR_1,"HV = 34.00 V","p");
-    legendDCR_loop->AddEntry(gDCR_2,"HV = 35.00 V","p");
-    legendDCR_loop->AddEntry(gDCR_3,"HV = 36.00 V","p");
+    legendDCR_loop->AddEntry(gDCR_1,"HV = 34.00 V","l");
+    legendDCR_loop->AddEntry(gDCR_2,"HV = 35.00 V","l");
+    legendDCR_loop->AddEntry(gDCR_3,"HV = 36.00 V","l");
     legendDCR_loop->Draw();
     
     
