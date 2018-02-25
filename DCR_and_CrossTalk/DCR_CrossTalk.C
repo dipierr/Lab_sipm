@@ -1,18 +1,26 @@
 //DCR_CrossTalk.C
 
 void DCR_CrossTalk(){
-    /* SiPM 1 (HD3_2)
+    /********************************************
+     * SiPM 1 (HD3_2)
      *      20180221_HD3-2_1_DARK_34_AS_2_01.txt
      *      20180221_HD3-2_1_DARK_35_AS_2_01.txt
      *      20180221_HD3-2_1_DARK_36_AS_2_01.txt
      */
     double HV1[] = {34.00, 35.00, 36.00};
     double errHV1[] = {0.01, 0.01, 0.01};
-    double DCR1[] = {10.4116, 11.7785, 13.0908};
-    double errDCR1[] = {0.0, 0.0, 0.0};
-    double CrossTalk1[] = {0.324796, 0.366729, 0.4047};
-    double errCrossTalk1[] = {0., 0., 0.};
+    //FROM PEAKS NUM (DCR = #peaks/time)
+//         double DCR1[] = {10.4116, 11.7785, 13.0908};
+//         double errDCR1[] = {0.0, 0.0, 0.0};
+//         double CrossTalk1[] = {0.324796, 0.366729, 0.4047}; 
+//         double errCrossTalk1[] = {0., 0., 0.};
+    //FROM EXP FIT (exp fit of delays distribution)
+        double DCR1[] =         {14.04, 16.28, 18.138}; 
+        double errDCR1[] =      { 0.11,  0.10,  0.099};
+        double CrossTalk1[] =   { 0.344, 0.373, 0.4268};
+        double errCrossTalk1[] ={ 0.016, 0.011, 0.0086};
     
+                
     /* SiPM 2 (HD3_2)
      *      20180221_HD3-2_2_DARK_34_AS_2_02.txt
      *      20180221_HD3-2_2_DARK_35_AS_2_02.txt
@@ -20,10 +28,16 @@ void DCR_CrossTalk(){
      */
     double HV2[] = {34.00, 35.00, 36.00};
     double errHV2[] = {0.01, 0.01, 0.01};
-    double DCR2[] = {12.3351, 13.4354, 14.5025};
-    double errDCR2[] = {0.0, 0.0, 0.0};
-    double CrossTalk2[] ={0.33728, 0.384085, 0.42422};
-    double errCrossTalk2[] = {0., 0., 0.};
+    //FROM PEAKS NUM (DCR = #peaks/time)
+//         double DCR2[] = {12.3351, 13.4354, 14.5025};
+//         double errDCR2[] = {0.0, 0.0, 0.0};
+//         double CrossTalk2[] ={0.33728, 0.384085, 0.42422};
+//         double errCrossTalk2[] = {0., 0., 0.};
+    //FROM EXP FIT (exp fit of delays distribution)
+        double DCR2[] =         {17.13, 18.665, 20.594};
+        double errDCR2[] =      {0.10,   0.098,  0.098};
+        double CrossTalk2[] =   {0.343,  0.3788, 0.4083}; 
+        double errCrossTalk2[] ={0.011,  0.0087, 0.0071};
     
     /* SiPM 3 (HD3_2)
      *      20180221_HD3-2_3_DARK_34_AS_2_01.txt
@@ -32,10 +46,16 @@ void DCR_CrossTalk(){
      */
     double HV3[] = {34.00, 35.00, 36.00};
     double errHV3[] = {0.01, 0.01, 0.01};
-    double DCR3[] = {13.2867, 14.7243, 16.0225};
-    double errDCR3[] = {0.0, 0.0, 0.0};
-    double CrossTalk3[] = {0.351083, 0.402813, 0.444291};
-    double errCrossTalk3[] = {0., 0., 0.};
+    //FROM PEAKS NUM (DCR = #peaks/time)
+//         double DCR3[] = {13.2867, 14.7243, 16.0225};
+//         double errDCR3[] = {0.0, 0.0, 0.0};
+//         double CrossTalk3[] = {0.351083, 0.402813, 0.444291};
+//         double errCrossTalk3[] = {0., 0., 0.};
+    //FROM EXP FIT (exp fit of delays distribution)
+        double DCR3[] =         {18.490, 21.000, 23.291};
+        double errDCR3[] =      { 0.098,  0.097,  0.098};
+        double CrossTalk3[] =   { 0.3567, 0.3675, 0.4160};
+        double errCrossTalk3[] ={ 0.0095, 0.0071, 0.0057};
     
     //------------------------------
     
