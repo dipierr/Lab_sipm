@@ -37,9 +37,11 @@
 //------------------------------------------------------------------------------
 //-------------------------------[   FUNCTIONS   ]------------------------------
 //------------------------------------------------------------------------------
-int loopAna3(string file1, string file2, string file3, int last_event_n);
-int Ana3(string file1, string file2, string file3, int last_event_n);
 int Analysis(string file, int last_event_n, bool display);
+int loopAnalysis(string file1, int last_event_n);
+int Ana3(string file1, string file2, string file3, int last_event_n);
+int loopAna3(string file1, string file2, string file3, int last_event_n);
+
 
 void DLED(int trace_lenght, int dleddt);
 int find_peak_fix_time(int mintp, int maxtp);
@@ -578,13 +580,95 @@ void help(){
 }
 
 //------------------------------------------------------------------------------
+int loopAnalysis(string file1, int last_event_n){
+    bool display = false;
+    int control = 0;
+    
+    pe_0_5 = 0.010;
+    pe_1_5 = 0.025;
+
+    
+    thr_to_find_peaks = 0.007;
+    double max_thr_to_find_peaks = 0.04;
+    double gap_between_thr = 0.001;
+    
+    int n_DCR;
+    n_DCR = (int)((max_thr_to_find_peaks - thr_to_find_peaks)/gap_between_thr);
+    
+    DCR = new double*[1]; //first index: nfile => DCR[0][...] for nfile = 1 (in this case I have only one file, not as in loopAna3)
+        for(int i = 0; i < 3; i++) {
+            DCR[i] = new double[n_DCR];
+    }
+    errDCR = new double*[1]; //first index: nfile => DCR[0][...] for nfile = 1 (in this case I have only one file, not as in loopAna3)
+        for(int i = 0; i < 3; i++) {
+            errDCR[i] = new double[n_DCR];
+    }
+    
+    int h = 0;
+    double *DCR_thr = new double[n_DCR]; 
+    
+    while(thr_to_find_peaks <= max_thr_to_find_peaks){
+        control = Analysis(file1,last_event_n,display);
+        if(control==5)
+            return 5;
+        Get_DCR_temp_and_errDCR_temp(nfile);
+        ResetHistsDelays();
+        DCR_thr[h] = thr_to_find_peaks*1000; //to plot in mV
+        DCR[0][h] = DCR_temp[0];
+        errDCR[0][h] = errDCR_temp[0];
+        thr_to_find_peaks = thr_to_find_peaks + gap_between_thr; //I jump to the next thr in order to evaluate the new DRC
+        h++;
+    } 
+    
+    TGraphErrors *gDCR_1 = new TGraphErrors(n_DCR, DCR_thr, DCR[0],NULL, errDCR[0]);
+    
+    gDCR_1->SetLineColor(kGreen+1);
+    
+    gDCR_1->SetLineWidth(2);
+    
+    gDCR_1->SetFillColorAlpha(kGreen+1, 0.3);
+    
+    TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
+    DCR_mg->Add(gDCR_1);
+   
+    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop");
+    
+    cDCR_loop->SetGrid();
+    cDCR_loop->SetLogy();
+    DCR_mg->Draw("A3L");
+    
+    
+    cout<<endl<<endl;
+    cout<<"-------------------------"<<endl;
+    cout<<"-------[ RESULTS ]-------"<<endl;
+    cout<<"-------------------------"<<endl<<endl;
+
+    double CrossTalk = 0.;
+    double errCrossTalk = 0.;
+    for(int i=0; i<1; i++){
+        cout<<"FILE "<<i<<endl;
+        cout<<"   DCR at 0.5 pe = ("<<DCR_pe_0_5_vect[i]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_0_5_vect[i]*TMath::Power(10,-6)<<") MHz"<<endl;
+        cout<<"   DCR at 1.5 pe = ("<<DCR_pe_1_5_vect[i]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_1_5_vect[i]*TMath::Power(10,-6)<<") MHz"<<endl;
+        if(CROSS_TALK_bool){
+            CrossTalk = DCR_pe_1_5_vect[i]/DCR_pe_0_5_vect[i];
+            errCrossTalk = CrossTalk * TMath::Sqrt( (errDCR_pe_0_5_vect[i]/DCR_pe_0_5_vect[i])*(errDCR_pe_0_5_vect[i]/DCR_pe_0_5_vect[i]) + (errDCR_pe_1_5_vect[i]/DCR_pe_1_5_vect[i])*(errDCR_pe_1_5_vect[i]/DCR_pe_1_5_vect[i]) );
+        cout<<"   Cross Talk    = ("<<CrossTalk<<" +- "<<errCrossTalk<<")"<<endl;
+        }
+        cout<<endl;
+    }
+    
+    return 0;
+    
+}
+
+//------------------------------------------------------------------------------
 int Ana3(string file1, string file2, string file3, int last_event_n){
     
     bool display = false;
     int control = 0;
     //file1
     nfile = 1;
-    pe_0_5 = 0.010;   pe_1_5 = 0.025;
+    pe_0_5 = 0.010;   pe_1_5 = 0.024;
     control = Analysis(file1,last_event_n,display);
     
     if(control==5)
@@ -603,7 +687,7 @@ int Ana3(string file1, string file2, string file3, int last_event_n){
     
     //file3
     nfile=3;
-    pe_0_5 = 0.010;   pe_1_5 = 0.028;
+    pe_0_5 = 0.010;   pe_1_5 = 0.026;
     control = Analysis(file3,last_event_n,display);
     
     Get_DCR_temp_and_errDCR_temp(nfile);
@@ -616,9 +700,9 @@ int Ana3(string file1, string file2, string file3, int last_event_n){
             35 V    10 mV   28 mV   20180221_HD3-2_1_DARK_35_AS_2_01.txt
             36 V    10 mV   30 mV   20180221_HD3-2_1_DARK_36_AS_2_01.txt
     --------------------------------------------------------------------
-    SiPM2   34 V    10 mV   25 mV   20180221_HD3-2_2_DARK_34_AS_2_02.txt
+    SiPM2   34 V    10 mV   24 mV   20180221_HD3-2_2_DARK_34_AS_2_02.txt
             35 V    10 mV   26 mV   20180221_HD3-2_2_DARK_34_AS_2_02.txt
-            36 V    10 mV   28 mV   20180221_HD3-2_2_DARK_34_AS_2_02.txt
+            36 V    10 mV   26 mV   20180221_HD3-2_2_DARK_34_AS_2_02.txt
     --------------------------------------------------------------------
     SiPM3   34 V    10 mV   25 mV   20180221_HD3-2_3_DARK_34_AS_2_01.txt
             35 V    10 mV   26 mV   20180221_HD3-2_3_DARK_35_AS_2_01.txt
@@ -635,7 +719,7 @@ int loopAna3(string file1, string file2, string file3, int last_event_n){ //in o
     int control = 0;
     
     thr_to_find_peaks = 0.007;
-    double max_thr_to_find_peaks = 0.08;
+    double max_thr_to_find_peaks = 0.041;
     double gap_between_thr = 0.001;
     
     int n_DCR;
@@ -702,10 +786,23 @@ int loopAna3(string file1, string file2, string file3, int last_event_n){ //in o
     legendDCR_loop->Draw();
     
     
-    if(CROSS_TALK_bool){
-        for(int i=0; i<3; i++){
-            cout<<"Cross Talk file "<<i<<" = "<<DCR_pe_1_5_vect[i]/DCR_pe_1_5_vect[i]<<endl;
+    cout<<endl<<endl;
+    cout<<"-------------------------"<<endl;
+    cout<<"-------[ RESULTS ]-------"<<endl;
+    cout<<"-------------------------"<<endl<<endl;
+
+    double CrossTalk = 0.;
+    double errCrossTalk = 0.;
+    for(int i=0; i<3; i++){
+        cout<<"FILE "<<i<<endl;
+        cout<<"   DCR at 0.5 pe = ("<<DCR_pe_0_5_vect[i]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_0_5_vect[i]*TMath::Power(10,-6)<<") MHz"<<endl;
+        cout<<"   DCR at 1.5 pe = ("<<DCR_pe_1_5_vect[i]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_1_5_vect[i]*TMath::Power(10,-6)<<") MHz"<<endl;
+        if(CROSS_TALK_bool){
+            CrossTalk = DCR_pe_1_5_vect[i]/DCR_pe_0_5_vect[i];
+            errCrossTalk = CrossTalk * TMath::Sqrt( (errDCR_pe_0_5_vect[i]/DCR_pe_0_5_vect[i])*(errDCR_pe_0_5_vect[i]/DCR_pe_0_5_vect[i]) + (errDCR_pe_1_5_vect[i]/DCR_pe_1_5_vect[i])*(errDCR_pe_1_5_vect[i]/DCR_pe_1_5_vect[i]) );
+        cout<<"   Cross Talk    = ("<<CrossTalk<<" +- "<<errCrossTalk<<")"<<endl;
         }
+        cout<<endl;
     }
     
     
@@ -857,14 +954,13 @@ void Get_DCR_temp_and_errDCR_temp(int nfile){
     
     if(CROSS_TALK_bool){
         if((int)(thr_to_find_peaks*10000)==(int)(pe_0_5*10000)){
-            cout<<"++++++++++++"<<endl;
             DCR_pe_0_5_vect[nfile-1] = DCR_temp[nfile-1];
-            errDCR_pe_0_5_vect[nfile-1] = DCR_temp[nfile-1];
+            errDCR_pe_0_5_vect[nfile-1] = errDCR_temp[nfile-1];
         }
         else{
             if((int)(thr_to_find_peaks*10000)==(int)(pe_1_5*10000)){
                 DCR_pe_1_5_vect[nfile-1] = DCR_temp[nfile-1];
-                errDCR_pe_1_5_vect[nfile-1] = DCR_temp[nfile-1];
+                errDCR_pe_1_5_vect[nfile-1] = errDCR_temp[nfile-1];
             }
         }
     }
