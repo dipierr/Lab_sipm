@@ -409,7 +409,12 @@ int Analysis(string file, int last_event_n, bool display){
             ptrHistAllPeaks1->Draw("hist");
             
             if(fitHistAllPeaks){
-                if(file == "20180221_HD3-2_1_DARK_34_AS_2_01.txt"){fit1Low = 12; fit1High = 26; fit2Low = 28; fit2High = 42;}
+                if(file == "20180221_HD3-2_1_DARK_34_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_34_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_34_AS_2_01.txt")
+                {fit1Low = 12; fit1High = 26; fit2Low = 28; fit2High = 42;}
+                if(file == "20180221_HD3-2_1_DARK_35_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_35_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_35_AS_2_01.txt")
+                {fit1Low = 12; fit1High = 28; fit2Low = 32; fit2High = 46;}
+                if(file == "20180221_HD3-2_1_DARK_36_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_36_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_36_AS_2_01.txt")
+                {fit1Low = 12; fit1High = 28; fit2Low = 36; fit2High = 50;}
                 fit_hist_all_peaks(cAllPeaks1, ptrHistAllPeaks1, fit1Low, fit1High, fit2Low, fit2High);
             }
             
