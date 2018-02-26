@@ -17,7 +17,7 @@ Devices
     * [...]
     * Record Length: 1029
     * [...]
-    
+
 * change the code (READ section) to open other files
 
 ---
@@ -36,13 +36,15 @@ Tecniques
 
 ---
 Set the correct variables (OPTIONS section) to do what you need
+
 ---
 
-##HOW TO COMPILE:
+### HOW TO COMPILE:
 >$ root -l  
 >root[0] .L Ana_Traces_SiPM.C++
 
-###EXAMPLE (remember to set in the correct way the variables in OPTIONS section):
+### EXAMPLE
+(remember to set in the correct way the variables in OPTIONS section):
 
-*To analyze a single file
+* To analyze a single file
 >root[0] Analysis("20180221_HD3-2_3_DARK_36_AS_2_01.txt",15000,false)
