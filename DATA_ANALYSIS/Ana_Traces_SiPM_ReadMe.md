@@ -30,7 +30,7 @@ Calculations
 
 ---
 
-##Tecniques
+Tecniques
 -----------
 *DLED for peak detections
 
