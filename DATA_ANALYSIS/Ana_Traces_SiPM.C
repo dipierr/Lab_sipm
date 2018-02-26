@@ -1,16 +1,6 @@
 //Ana_Traces_SiPM.C
 
-/* Traces acquired by AGILENT MS06054A or by Digitizer CAEN DT 5751
- * 
- * Calculations:
- *      (i)  DCR            (Hamamatsu - MPPC Characterization)
- *      (ii) Cross Talk     (Hamamatsu - MPPC Characterization pag 44)
- * 
- * Tecniques:
- *      (i)  DLED for peak detections
- * 
- */
-
+//Read Ana_Traces_SiPM_ReadMe.txt before use
 
 #include <cstdlib>
 #include <iostream>
@@ -45,10 +35,9 @@ int loopAna3(string file1, string file2, string file3, int last_event_n);
 
 void DLED(int trace_lenght, int dleddt);
 int find_peak_fix_time(int mintp, int maxtp);
-int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width, bool DCR_DELAYS_bool);
+int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,int blind_gap, bool DCR_DELAYS_bool);
 void average_func(int trace_lenght);
 void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
-void help();
 void fit_hist_del(double expDelLow, double expDelHigh);
 void ResetHistsDelays();
 void Get_DCR_temp_and_errDCR_temp(int nfile);
@@ -99,7 +88,7 @@ double maxyhistDelays = 200;
 
 double delta_pe = 0.005;
 
-double expDelLow_max= 40.;
+double expDelLow_max= 60.;
 double expDelHigh_max = 160.;
 
 int nfile = 1;
@@ -118,7 +107,7 @@ bool DCR_DELAYS_bool = true; //DCR from delays
 bool CROSS_TALK_bool = true; //DCR must be true
 
 bool drawHistAllPeaks = false; // to draw hist of all peaks in traces
-bool fitHistAllPeaks = false;
+bool fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
 bool drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
 bool show_hists_DCR_DELAYS  = false;
 bool showHist_bool = false; 
@@ -181,8 +170,9 @@ int Analysis(string file, int last_event_n, bool display){
     int max_ind_offset = 80;
     int mintp = 250; //min_time_peak
     int maxtp = 280; //max_time_peak
-    int dleddt = 9; //9ns is approx the rise time used for HD3_2 on AS out 2
-    int max_peak_width = 12; //used for find_peaks
+    int dleddt = 9; //10ns is approx the rise time used for HD3_2 on AS out 2
+    int blind_gap = 30; //ns
+    int max_peak_width = 20; //used for find_peaks
     int min_peak_width = 0;  //used for find_peaks
     double maxyhist = 200;
     
@@ -345,13 +335,13 @@ int Analysis(string file, int last_event_n, bool display){
         
 //***** DCR
         if(DCR_CNT_bool || DCR_DELAYS_bool){
-            DCR_cnt = DCR_cnt + find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,DCR_DELAYS_bool);
+            DCR_cnt = DCR_cnt + find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
             DCR_time = DCR_time + trace_lenght*TMath::Power(10,-9);
         }
         else{
             if(drawHistAllPeaks){//all peaks but not DCR
                 thr_to_find_peaks = 10; //mV
-                find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,DCR_DELAYS_bool);
+                find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
             }
         }
         
@@ -406,6 +396,8 @@ int Analysis(string file, int last_event_n, bool display){
             TCanvas *cAllPeaks1 = new TCanvas("AllPeaks1","AllPeaks1",w,h);
             cAllPeaks1-> SetGrid();
             cAllPeaks1->cd();
+            ptrHistAllPeaks1->GetXaxis()->SetTitle("mV");
+            ptrHistAllPeaks1->GetYaxis()->SetTitle("Counts");
             ptrHistAllPeaks1->Draw("hist");
             
             if(fitHistAllPeaks){
@@ -598,13 +590,6 @@ int Analysis(string file, int last_event_n, bool display){
 //------------------------------------------------------------------------------
 //---------------------------[   OTHER FUNCTIONS   ]----------------------------
 //------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-void help(){
-    cout<<"USAGE:"<<endl;
-    cout<<"Analysis(string file, int last_event_n, bool display)"<<endl;
-    cout<<"Ana3(string file1, string file2, string file3, int last_event_n)"<<endl;
-}
 
 //------------------------------------------------------------------------------
 int loopAnalysis(string file1, int last_event_n){
@@ -866,26 +851,27 @@ int find_peak_fix_time(int mintp, int maxtp){
 }
 
 //------------------------------------------------------------------------------
-int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width, bool DCR_DELAYS_bool){ //I look for every peaks in the trace, only if I'm in DARK mode
-    ii=0;
+int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,int blind_gap,  bool DCR_DELAYS_bool){ //I look for every peaks in the trace, only if I'm in DARK mode
+    ii=2;
     int index_peak;
     int DCR_cnt_temp = 0;
     int index_old = 0;
     int index_new = 0;
     bool found_first_peak = false;
     int peak_width = max_peak_width;
-    while(ii<trace_DLED_lenght){//I find peaks after DLED
-        if(trace_DLED[1][ii]>thr_to_find_peaks){//I only consider points above thr_to_find_peaks
+    while(ii<trace_DLED_lenght){//I find peaks after the DLED procedure
+        if((trace_DLED[1][ii]>thr_to_find_peaks) and (trace_DLED[1][ii-2]<thr_to_find_peaks)){//I only consider points above thr_to_find_peaks on the rising edge
             DCR_cnt_temp++; //I've seen a peak; if I'm in dark mode it's DCR
             
             //Now I want to see the peak amplitude.
-            for(int k=ii+min_peak_width; (k<ii+max_peak_width); k++){
+            for(int k=ii+min_peak_width; (k<ii+max_peak_width); k++){//I open a window and look for a point below thr
                 if(trace_DLED[1][k]<thr_to_find_peaks){
                     peak_width = k-ii;
                     break;
                 }
             }
             
+            //Now I look for the peak in that window
             if(ii+peak_width<trace_DLED_lenght)
                 index_peak = find_peak_fix_time(ii, ii+peak_width);
             else 
@@ -912,7 +898,7 @@ int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,
             if(nfile == 2) ptrHistAllPeaks2->Fill(trace_DLED[1][index_peak]);
             if(nfile == 3) ptrHistAllPeaks3->Fill(trace_DLED[1][index_peak]);
             
-            ii=ii+peak_width; //in order to jump at the following peak.
+            ii=ii+blind_gap; //in order to jump at the following peak. Due to teh DLED procedure, I have a blind gap that is approximatively 2*(rise time)
         }else{
             ii++;
         }
