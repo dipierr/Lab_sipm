@@ -4,8 +4,8 @@ Ana_Traces_SiPM_ReadMe.txt
 Devices
 -------
 
-*Traces acquired by AGILENT MS06054A or by Digitizer CAEN DT 5751 (set the variables in OPTIONS section)
-*Files from Digitizer CAEN DT 5751 are like:
+* Traces acquired by AGILENT MS06054A or by Digitizer CAEN DT 5751 (set the variables in OPTIONS section)
+* Files from Digitizer CAEN DT 5751 are like:
     * Record Length: 1029
     * BoardID: 31
     * Channel: 0
@@ -18,28 +18,28 @@ Devices
     * Record Length: 1029
     * [...]
     
-*change the code (READ section) to open other files
+* change the code (READ section) to open other files
 
 ---
 
 Calculations
 ------------
 
-*DCR            (Hamamatsu - MPPC Characterization)
-*Cross Talk     (Hamamatsu - MPPC Characterization pag 44)
+* DCR            (Hamamatsu - MPPC Characterization)
+* Cross Talk     (Hamamatsu - MPPC Characterization pag 44)
 
 ---
 
 Tecniques
 -----------
-*DLED for peak detections
+* DLED for peak detections
 
 ---
 Set the correct variables (OPTIONS section) to do what you need
 ---
 
 ##HOW TO COMPILE:
->$ root -l
+>$ root -l  
 >root[0] .L Ana_Traces_SiPM.C++
 
 ###EXAMPLE (remember to set in the correct way the variables in OPTIONS section):
