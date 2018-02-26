@@ -76,8 +76,8 @@ def main(**kwargs):
     #err_GAIN_SiPM1 = np.array([0.00019212343238446072, 0.00024665495118529894, 7.956049599216814e-05])
     
     #from files 20180221_HD3-2_1_DARK_34_AS_2_01.txt, 20180221_HD3-2_1_DARK_35_AS_2_01.txt, 20180221_HD3-2_1_DARK_36_AS_2_01.txt considering 15000 windows of 1 musec each:
-    GAIN_SiPM1 = np.array([17.2326, 19.6901, 22.0214]) 
-    err_GAIN_SiPM1 = np.array([0.0213087, 0.0217961, 0.0219385])
+    GAIN_SiPM1 = np.array([17.1547, 19.6507, 21.9724]) 
+    err_GAIN_SiPM1 = np.array([0.0228504, 0.0238013, 0.0242636])
     
     optimizedParameters1, pcovODR1 = fit(HV_SiPM1, GAIN_SiPM1, err_HV_SiPM1, err_GAIN_SiPM1)
     error_propagation_lin_fit(optimizedParameters1, pcovODR1, nSiPM)
@@ -97,8 +97,8 @@ def main(**kwargs):
     #err_GAIN_SiPM2 = np.array([0.0003764632506002512,0.00037003304446492515,0.00014876147139717083])
     
     #from files 20180221_HD3-2_2_DARK_34_AS_2_02.txt, 20180221_HD3-2_2_DARK_35_AS_2_02.txt, 20180221_HD3-2_2_DARK_36_AS_2_02.txt considering 15000 windows of 1 musec each:
-    GAIN_SiPM2 = np.array([16.4713 ,18.7194,21.102]) 
-    err_GAIN_SiPM2 = np.array([0.0235355,0.0249616,0.0280182])
+    GAIN_SiPM2 = np.array([16.2381 ,18.5897,20.9594]) 
+    err_GAIN_SiPM2 = np.array([0.0239415,0.0262907,0.0293855])
     
     optimizedParameters2, pcovODR2 = fit(HV_SiPM2, GAIN_SiPM2, err_HV_SiPM2, err_GAIN_SiPM2)
     error_propagation_lin_fit(optimizedParameters2, pcovODR2, nSiPM)
@@ -117,8 +117,8 @@ def main(**kwargs):
     #err_GAIN_SiPM3 = np.array([0.0002636386386728474, 0.00031677656441436237, 0.00019640674762372849])
     
     #from files 20180221_HD3-2_1_DARK_34_AS_2_03.txt, 20180221_HD3-2_1_DARK_35_AS_2_03.txt, 20180221_HD3-2_1_DARK_36_AS_2_03.txt considering 15000 windows of 1 musec each:
-    GAIN_SiPM3 = np.array([17.6488,20.1882,22.7506]) 
-    err_GAIN_SiPM3 = np.array([ 0.0207118,0.0223561,0.0242696])
+    GAIN_SiPM3 = np.array([17.5719,20.1239,22.621]) 
+    err_GAIN_SiPM3 = np.array([ 0.0226653,0.0250705,0.026778])
     
     optimizedParameters3, pcovODR3 = fit(HV_SiPM3, GAIN_SiPM3, err_HV_SiPM3, err_GAIN_SiPM3)
     error_propagation_lin_fit(optimizedParameters3, pcovODR3, nSiPM)
