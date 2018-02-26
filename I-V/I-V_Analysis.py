@@ -1,5 +1,3 @@
-#I-V_Analysis.py
-
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+++++++++++++++++++++++++++++       ANALYSIS I-V CURVE for SiPM       +++++++++++++++++++++++++++++
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -11,6 +9,11 @@ with NO header
 
 Before Vdb: linear fit
 After Vbd: parabolic fit
+
+
+Reference:
+    Nagy Ferenc & al. - A model based DC analysis of SiPM breakdown voltages
+
 '''
 
 import matplotlib.pyplot as plt
@@ -232,6 +235,7 @@ def main(**kwargs):
 
     # Print the cross point
     idx = np.argwhere(np.isclose(yfit1_int, yfit2_2_int, atol=div_int_close)).reshape(-1)
+    Vbd_logI_V = xfit_int[idx]
     print ('\nIntersection_2:\t{}'.format(xfit_int[idx]))
     print ('Before_2:\t{}'.format(xfit_int[idx-1]))
     print ('After_2:\t{}'.format(xfit_int[idx+1]))
@@ -261,7 +265,8 @@ def main(**kwargs):
     sigma_2 = sigma_2 + pcov1ODR[1,0] * df_dq * df_dm + pcov1ODR[1,1] * df_dq * df_dq
     
     sigma_2 = sigma_2**0.5
-
+    
+    errVbd_logI_V = sigma_2
     print ('\nsigma_2 = '+str(sigma_2))
 
 
@@ -278,7 +283,15 @@ def main(**kwargs):
     
     print('\n\nMEAN WAY')
     print( 'Intersection = '+str( round(Intersection,2))+ '+-'+ str(round(upErr,2)))
-
+    
+    
+    print('\n\n\n')
+    print('------------------------------')
+    print('-------[   RESULTS   ]--------')
+    print('------------------------------')
+    print('\n')
+    print('log(I) - V')
+    print('Vdb = ('+str(Vbd_logI_V)+' +- '+str(errVbd_logI_V)+') V')
 
     plt.show()
 
