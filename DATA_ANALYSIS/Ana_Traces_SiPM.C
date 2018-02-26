@@ -114,11 +114,11 @@ bool find_peak_in_a_selected_window = false; //to find a peak in a selected wind
 bool average = false; //calculate the average of traces (useful for LED measures)
 
 bool DCR_CNT_bool = false; // DCR from counters
-bool DCR_DELAYS_bool = false; //DCR from delays
-bool CROSS_TALK_bool = false; //DCR must be true
+bool DCR_DELAYS_bool = true; //DCR from delays
+bool CROSS_TALK_bool = true; //DCR must be true
 
-bool drawHistAllPeaks = true; // to draw hist of all peaks in traces
-bool fitHistAllPeaks = true;
+bool drawHistAllPeaks = false; // to draw hist of all peaks in traces
+bool fitHistAllPeaks = false;
 bool drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
 bool show_hists_DCR_DELAYS  = false;
 bool showHist_bool = false; 
@@ -149,9 +149,9 @@ TH1D *ptrHistDCRthr1 = new TH1D("histDCRthr1","",bins_DCR,0,maxyhistDCR);
 TH1D *ptrHistDCRthr2 = new TH1D("histDCRthr2","",bins_DCR,0,maxyhistDCR);
 TH1D *ptrHistDCRthr3 = new TH1D("histDCRthr3","",bins_DCR,0,maxyhistDCR);
 
-TH1D *ptrHistDelays_1 = new TH1D("histDelays_pe_0_5_1","",bins_Delays,0,maxyhistDelays);
-TH1D *ptrHistDelays_2 = new TH1D("histDelays_pe_0_5_2","",bins_Delays,0,maxyhistDelays);
-TH1D *ptrHistDelays_3 = new TH1D("histDelays_pe_0_5_3","",bins_Delays,0,maxyhistDelays);
+TH1D *ptrHistDelays_1 = new TH1D("histDelays_1","",bins_Delays,0,maxyhistDelays);
+TH1D *ptrHistDelays_2 = new TH1D("histDelays_2","",bins_Delays,0,maxyhistDelays);
+TH1D *ptrHistDelays_3 = new TH1D("histDelays_3","",bins_Delays,0,maxyhistDelays);
 
 TF1 *expDel = new TF1("expDel","TMath::Exp(-[0]*x+[1])",expDelLow_max,expDelHigh_max);
 TF1 *gausFit1 = new TF1("gausFit1","gaus",-100,100);
@@ -990,7 +990,7 @@ void Get_DCR_temp_and_errDCR_temp(int nfile){
 //------------------------------------------------------------------------------
 void fit_hist_del(double expDelLow, double expDelHigh){ //fit hists filled with time delays in order to find DCR
     cout<<"Fit hist delays file "<<nfile<<endl;
-    if(nfile == 1) ptrHistDelays_1 -> Fit(expDel, "q", "", expDelLow, expDelHigh);
+    if(nfile == 1) {ptrHistDelays_1 -> Fit(expDel, "q", "", expDelLow, expDelHigh); expDel->Draw("same");}
     if(nfile == 2) ptrHistDelays_2 -> Fit(expDel, "q", "", expDelLow, expDelHigh);
     if(nfile == 3) ptrHistDelays_3 -> Fit(expDel, "q", "", expDelLow, expDelHigh);
 }
