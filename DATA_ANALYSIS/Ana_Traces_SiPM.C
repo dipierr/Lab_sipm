@@ -35,7 +35,7 @@ int Analysis(string file, int last_event_n, bool display);
 int DCR_CT_1SiPM_1HVs(string file1, int last_event_n);
 int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n);
 int GAIN_1SiPM_1HV(string file1, int last_event_n);
-int Ana1(string file1, int last_event_n);
+int Ana1(string file1, int last_event_n, bool display_one_ev_param);
 
 //SECONDARY
 void DLED(int trace_lenght, int dleddt);
@@ -43,6 +43,7 @@ int find_peak_fix_time(int mintp, int maxtp);
 int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,int blind_gap, bool DCR_DELAYS_bool);
 void average_func(int trace_lenght);
 void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
+void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
 void fit_hist_del(double expDelLow, double expDelHigh);
 void ResetHistsDelays();
 void Get_DCR_temp_and_errDCR_temp(int nfile);
@@ -128,7 +129,7 @@ bool showHist_bool = false;
 bool SetLogyHist = false;
 bool running_graph = false;// to see traces in an osc mode (display must be true)
 bool display_one_ev = false;
-bool show_line_selected_window = false;
+bool line_bool = false;
 
 bool all_events_same_window = false; //all the events (from 0 to last_event_n) are joined in a single event
 
@@ -200,7 +201,6 @@ TF1 *gausFit2 = new TF1("gausFit2","gaus",-100,100);
 
 //I want to create ONLY one time the Canvas below... this is not the smartest way but it shuold work...
 TCanvas *c = new TCanvas("Trace","Trace",w,h);
-TCanvas *cDLED = new TCanvas("DLED","DLED",w,h);
 TCanvas *cDCR = new TCanvas("hist_DCR","hist_DCR",w,h);
 TCanvas *cAllPeaks = new TCanvas("AllPeaks","AllPeaks",w,h);
 
@@ -240,6 +240,10 @@ int Analysis(string file, int last_event_n, bool display){
     
     double miny=0;
     double maxy=0;
+    double miny1=0;
+    double maxy1=0;
+    double miny2=0;
+    double maxy2=0;
     
     double DCR_time = 0.;
     double DCR = 0.;
@@ -363,31 +367,28 @@ int Analysis(string file, int last_event_n, bool display){
         
         
         
-//***** DISPLAY        
+//***** DISPLAY     
+//void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse, int section);
         if(display){
             if(!display_one_ev){
                 if(n_ev==0){
+                    c->Divide(1,2);
                     c->SetGrid();
-                    cDLED->SetGrid();
                 }
-                if(Agilent_MSO6054A) {miny=10; maxy=180;}
-                if(Digitizer_CAEN)   {miny=700;  maxy=900;}
-                show_trace(c,trace[0], trace[1], trace_lenght,miny,maxy,mintp,maxtp,show_line_selected_window,true,true);
-                if(Agilent_MSO6054A) {miny=-30; maxy=90;}
-                if(Digitizer_CAEN)   {miny=-30; maxy=90;}
-                show_trace(cDLED,trace_DLED[0], trace_DLED[1], trace_DLED_lenght, miny, maxy,mintp,maxtp,show_line_selected_window,true,false);
+                if(Agilent_MSO6054A) {miny1=10; maxy1=180;}
+                if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
+                if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
+                if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
+                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, true, true);
                 if(!running_graph)getchar();
             }else{
                 if(n_ev==ev_to_display){
                     c->SetGrid();
-                    cDLED->SetGrid();
-                    if(Agilent_MSO6054A) {miny=10; maxy=180;}
-                    if(Digitizer_CAEN)   {miny=700;  maxy=900;}
-                    show_trace(c,trace[0], trace[1], trace_lenght,miny,maxy,mintp,maxtp,show_line_selected_window,false,true);
-                    if(Agilent_MSO6054A) {miny=-30; maxy=90;}
-                    if(Digitizer_CAEN)   {miny=-30; maxy=90;}
-                    show_trace(cDLED,trace_DLED[0], trace_DLED[1], trace_DLED_lenght, miny, maxy,mintp,maxtp,show_line_selected_window,false,false);
-                    
+                    if(Agilent_MSO6054A) {miny1=10; maxy1=180;}
+                    if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
+                    if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
+                    if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
+                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, false, true);
                 }
             }
             
@@ -755,7 +756,7 @@ int GAIN_1SiPM_1HV(string file1, int last_event_n){
 
 
 //------------------------------------------------------------------------------
-int Ana1(string file1, int last_event_n){
+int Ana1(string file1, int last_event_n, bool display_one_ev_param){
     //VARIABLES:
     //TRUE:
     drawHistAllPeaks = true; // to draw hist of all peaks in traces
@@ -763,7 +764,7 @@ int Ana1(string file1, int last_event_n){
     DCR_DELAYS_bool = true; //DCR from delays
     CROSS_TALK_bool = true; //DCR must be true
     show_hists_DCR_DELAYS  = true;
-    display_one_ev = true;
+    display_one_ev = display_one_ev_param;
     //FALSE:
     find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
     average = false; //calculate the average of traces (useful for LED measures)
@@ -945,8 +946,10 @@ void average_func(int trace_lenght){
 }
 
 //------------------------------------------------------------------------------
-void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse){
-    canv->cd();
+void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse, int section){
+    if(section == 0) canv->cd();
+    if(section == 1) canv->cd(1);
+    if(section == 2) canv->cd(2);
     for(ii=0; ii<trace_lenght; ii++){
         x[ii] = x[ii]*TMath::Power(10,9);
         y[ii] = y[ii];
@@ -956,7 +959,7 @@ void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double mi
     }
     TGraphErrors *graph = new TGraphErrors(trace_lenght,x,y,0,0);
     graph->SetTitle("");
-    graph->GetXaxis()->SetTitle("Time (Ns)");
+    graph->GetXaxis()->SetTitle("Time (ns)");
     graph->GetYaxis()->SetTitle("Amplitude (mV)");
     graph->GetYaxis()->SetTitleOffset(1.2);
     graph->GetXaxis()->SetTitleOffset(1.2);
@@ -972,7 +975,61 @@ void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double mi
     }
     canv->Update();
     if(delete_bool) {delete graph;}
+
 }
+
+//------------------------------------------------------------------------------
+void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse){
+    
+    for(ii=0; ii<trace_lenght1; ii++){
+        x1[ii] = x1[ii]*TMath::Power(10,9);
+        if(reverse)
+            y1[ii] = -y1[ii];
+    }
+    for(ii=0; ii<trace_lenght2; ii++){
+        x2[ii] = x2[ii]*TMath::Power(10,9);
+    }
+    canv->cd(1);
+    TGraphErrors *graph1 = new TGraphErrors(trace_lenght1,x1,y1,0,0);
+    graph1->SetTitle("");
+    graph1->GetXaxis()->SetTitle("Time (ns)");
+    graph1->GetYaxis()->SetTitle("Amplitude (mV)");
+    graph1->GetYaxis()->SetTitleOffset(1.2);
+    graph1->GetXaxis()->SetTitleOffset(1.2);
+    graph1->GetYaxis()-> SetRangeUser(miny1,maxy1);
+    graph1->Draw("aplsame");
+    if(line_bool){
+        TLine *lmin1 = new TLine (x1[mintp], miny1, x1[mintp], maxy1);
+        TLine *lmax1 = new TLine (x1[maxtp], miny1, x1[maxtp], maxy1);
+        lmin1->SetLineColor(kBlue);
+        lmax1->SetLineColor(kBlue);
+        lmin1->Draw("aplsame");
+        lmax1->Draw("aplsame");
+    }
+    canv->Update();
+    canv->cd(2);
+    TGraphErrors *graph2 = new TGraphErrors(trace_lenght2,x2,y2,0,0);
+    graph2->SetTitle("");
+    graph2->GetXaxis()->SetTitle("Time (ns)");
+    graph2->GetYaxis()->SetTitle("Amplitude (mV)");
+    graph2->GetYaxis()->SetTitleOffset(1.2);
+    graph2->GetXaxis()->SetTitleOffset(1.2);
+    graph2->GetYaxis()-> SetRangeUser(miny2,maxy2);
+    graph2->Draw("aplsame");
+    if(line_bool){
+        TLine *lmin2 = new TLine (x2[mintp], miny2, x2[mintp], maxy2);
+        TLine *lmax2 = new TLine (x2[maxtp], miny2, x2[maxtp], maxy2);
+        lmin2->SetLineColor(kBlue);
+        lmax2->SetLineColor(kBlue);
+        lmin2->Draw("aplsame");
+        lmax2->Draw("aplsame");
+    }
+    
+    canv->Update();
+    if(delete_bool) {delete graph1; delete graph2;}
+}
+
+
 
 //------------------------------------------------------------------------------
 void ResetHistsDelays(){
