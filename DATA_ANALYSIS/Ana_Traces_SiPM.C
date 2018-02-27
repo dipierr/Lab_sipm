@@ -107,6 +107,8 @@ bool first_time_main_called = true;
 
 int n_DCR = 0;
 
+int ev_to_display = 7;
+
 //------------------------------------------------------------------------------
 //-------------------------------[   OPTIONS   ]--------------------------------
 //------------------------------------------------------------------------------
@@ -125,6 +127,8 @@ bool show_hists_DCR_DELAYS  = false;
 bool showHist_bool = false; 
 bool SetLogyHist = false;
 bool running_graph = false;// to see traces in an osc mode (display must be true)
+bool display_one_ev = false;
+bool show_line_selected_window = false;
 
 bool all_events_same_window = false; //all the events (from 0 to last_event_n) are joined in a single event
 
@@ -361,17 +365,32 @@ int Analysis(string file, int last_event_n, bool display){
         
 //***** DISPLAY        
         if(display){
-            if(n_ev==0){
-                c->SetGrid();
-                cDLED->SetGrid();
+            if(!display_one_ev){
+                if(n_ev==0){
+                    c->SetGrid();
+                    cDLED->SetGrid();
+                }
+                if(Agilent_MSO6054A) {miny=10; maxy=180;}
+                if(Digitizer_CAEN)   {miny=700;  maxy=900;}
+                show_trace(c,trace[0], trace[1], trace_lenght,miny,maxy,mintp,maxtp,show_line_selected_window,true,true);
+                if(Agilent_MSO6054A) {miny=-30; maxy=90;}
+                if(Digitizer_CAEN)   {miny=-30; maxy=90;}
+                show_trace(cDLED,trace_DLED[0], trace_DLED[1], trace_DLED_lenght, miny, maxy,mintp,maxtp,show_line_selected_window,true,false);
+                if(!running_graph)getchar();
+            }else{
+                if(n_ev==ev_to_display){
+                    c->SetGrid();
+                    cDLED->SetGrid();
+                    if(Agilent_MSO6054A) {miny=10; maxy=180;}
+                    if(Digitizer_CAEN)   {miny=700;  maxy=900;}
+                    show_trace(c,trace[0], trace[1], trace_lenght,miny,maxy,mintp,maxtp,show_line_selected_window,false,true);
+                    if(Agilent_MSO6054A) {miny=-30; maxy=90;}
+                    if(Digitizer_CAEN)   {miny=-30; maxy=90;}
+                    show_trace(cDLED,trace_DLED[0], trace_DLED[1], trace_DLED_lenght, miny, maxy,mintp,maxtp,show_line_selected_window,false,false);
+                    
+                }
             }
-            if(Agilent_MSO6054A) {miny=10; maxy=180;}
-            if(Digitizer_CAEN)   {miny=700;  maxy=900;}
-            show_trace(c,trace[0], trace[1], trace_lenght,miny,maxy,mintp,maxtp,true,true,true);
-            if(Agilent_MSO6054A) {miny=-30; maxy=90;}
-            if(Digitizer_CAEN)   {miny=-30; maxy=90;}
-            show_trace(cDLED,trace_DLED[0], trace_DLED[1], trace_DLED_lenght, miny, maxy,mintp,maxtp,true,true,false);
-            if(!running_graph)getchar();
+            
         }
         
         
@@ -744,6 +763,7 @@ int Ana1(string file1, int last_event_n){
     DCR_DELAYS_bool = true; //DCR from delays
     CROSS_TALK_bool = true; //DCR must be true
     show_hists_DCR_DELAYS  = true;
+    display_one_ev = true;
     //FALSE:
     find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
     average = false; //calculate the average of traces (useful for LED measures)
@@ -754,7 +774,7 @@ int Ana1(string file1, int last_event_n){
     running_graph = false;// to see traces in an osc mode (display must be true)
     all_events_same_window = false;
     
-    Analysis(file1, last_event_n, false);
+    Analysis(file1, last_event_n, true);
     
     return 0;
 }
@@ -851,6 +871,71 @@ int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,
     return DCR_cnt_temp;
 }
 
+//------------------------------------------------------------------------------
+TGraphErrors *DCR_func(string file1, int last_event_n, int nfile, int tot_files){ 
+    //VARIABLES:
+    //TRUE:
+    DCR_DELAYS_bool = true; //DCR from delays
+    CROSS_TALK_bool = true; //DCR must be true
+    //FALSE:
+    find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
+    average = false; //calculate the average of traces (useful for LED measures)
+    DCR_CNT_bool = false; // DCR from counters
+    drawHistAllPeaks = false; // to draw hist of all peaks in traces
+    fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
+    drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
+    show_hists_DCR_DELAYS  = false;
+    showHist_bool = false; 
+    SetLogyHist = false;
+    running_graph = false;// to see traces in an osc mode (display must be true)
+    all_events_same_window = false;
+    
+       
+    bool display = false;
+    int control = 0;
+    
+    thr_to_find_peaks = 7; //mV
+    double max_thr_to_find_peaks = 41; //mV
+    double gap_between_thr = 1; //mV
+    
+    n_DCR = (int)((max_thr_to_find_peaks - thr_to_find_peaks)/gap_between_thr);
+    
+    DCR = new double*[tot_files]; //first index: nfile => DCR[0][...] for nfile = 1 
+        for(int i = 0; i < 3; i++) {
+            DCR[i] = new double[n_DCR];
+    }
+    errDCR = new double*[tot_files]; //first index: nfile => DCR[0][...] for nfile = 1
+        for(int i = 0; i < 3; i++) {
+            errDCR[i] = new double[n_DCR];
+    }
+    
+    int h = 0;
+    double *DCR_thr = new double[n_DCR]; 
+    
+    while(thr_to_find_peaks <= max_thr_to_find_peaks){
+        control = Analysis(file1,last_event_n,display);
+        Get_DCR_temp_and_errDCR_temp(nfile);
+        ResetHistsDelays();
+        DCR_thr[h] = thr_to_find_peaks; //mV
+        DCR[nfile-1][h] = DCR_temp[nfile-1];
+        errDCR[nfile-1][h] = errDCR_temp[nfile-1];
+        thr_to_find_peaks = thr_to_find_peaks + gap_between_thr; //I jump to the next thr in order to evaluate the new DRC
+        h++;
+    }
+    
+    TGraphErrors *gDCR = new TGraphErrors(n_DCR, DCR_thr, DCR[nfile-1],NULL, errDCR[nfile-1]);
+    
+     gDCR->SetLineWidth(2);
+    
+    if(nfile==1){gDCR->SetLineColor(kGreen+1);gDCR->SetFillColorAlpha(kGreen+1, 0.3);}
+    if(nfile==2){gDCR->SetLineColor(kBlue);   gDCR->SetFillColorAlpha(kBlue, 0.3);   }
+    if(nfile==3){gDCR->SetLineColor(kRed+1);  gDCR->SetFillColorAlpha(kRed+1, 0.3);  }
+    
+    cout<<endl<<endl;
+    
+    return gDCR;
+    
+}
 
 //------------------------------------------------------------------------------
 void average_func(int trace_lenght){
@@ -961,70 +1046,5 @@ void fit_hist_all_peaks(TCanvas *c, TH1D *hist, double fit1Low, double fit1High,
     
 }
 
-//------------------------------------------------------------------------------
-TGraphErrors *DCR_func(string file1, int last_event_n, int nfile, int tot_files){ 
-    //VARIABLES:
-    //TRUE:
-    DCR_DELAYS_bool = true; //DCR from delays
-    CROSS_TALK_bool = true; //DCR must be true
-    //FALSE:
-    find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
-    average = false; //calculate the average of traces (useful for LED measures)
-    DCR_CNT_bool = false; // DCR from counters
-    drawHistAllPeaks = false; // to draw hist of all peaks in traces
-    fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
-    drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
-    show_hists_DCR_DELAYS  = false;
-    showHist_bool = false; 
-    SetLogyHist = false;
-    running_graph = false;// to see traces in an osc mode (display must be true)
-    all_events_same_window = false;
-    
-       
-    bool display = false;
-    int control = 0;
-    
-    thr_to_find_peaks = 7; //mV
-    double max_thr_to_find_peaks = 41; //mV
-    double gap_between_thr = 1; //mV
-    
-    n_DCR = (int)((max_thr_to_find_peaks - thr_to_find_peaks)/gap_between_thr);
-    
-    DCR = new double*[tot_files]; //first index: nfile => DCR[0][...] for nfile = 1 
-        for(int i = 0; i < 3; i++) {
-            DCR[i] = new double[n_DCR];
-    }
-    errDCR = new double*[tot_files]; //first index: nfile => DCR[0][...] for nfile = 1
-        for(int i = 0; i < 3; i++) {
-            errDCR[i] = new double[n_DCR];
-    }
-    
-    int h = 0;
-    double *DCR_thr = new double[n_DCR]; 
-    
-    while(thr_to_find_peaks <= max_thr_to_find_peaks){
-        control = Analysis(file1,last_event_n,display);
-        Get_DCR_temp_and_errDCR_temp(nfile);
-        ResetHistsDelays();
-        DCR_thr[h] = thr_to_find_peaks; //mV
-        DCR[nfile-1][h] = DCR_temp[nfile-1];
-        errDCR[nfile-1][h] = errDCR_temp[nfile-1];
-        thr_to_find_peaks = thr_to_find_peaks + gap_between_thr; //I jump to the next thr in order to evaluate the new DRC
-        h++;
-    }
-    
-    TGraphErrors *gDCR = new TGraphErrors(n_DCR, DCR_thr, DCR[nfile-1],NULL, errDCR[nfile-1]);
-    
-     gDCR->SetLineWidth(2);
-    
-    if(nfile==1){gDCR->SetLineColor(kGreen+1);gDCR->SetFillColorAlpha(kGreen+1, 0.3);}
-    if(nfile==2){gDCR->SetLineColor(kBlue);   gDCR->SetFillColorAlpha(kBlue, 0.3);   }
-    if(nfile==3){gDCR->SetLineColor(kRed+1);  gDCR->SetFillColorAlpha(kRed+1, 0.3);  }
-    
-    cout<<endl<<endl;
-    
-    return gDCR;
-    
-}
 
 
