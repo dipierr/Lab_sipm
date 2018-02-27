@@ -91,7 +91,7 @@ double h = 800;
 
 int bins_Volt = 204;
 int bins_DCR = 206;
-int bins_Delays = 200;
+int bins_Delays = 100;
 
 double maxyhistAllPeaks = 200; 
 double maxyhistDCR = 200;
