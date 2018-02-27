@@ -27,13 +27,17 @@
 //------------------------------------------------------------------------------
 //-------------------------------[   FUNCTIONS   ]------------------------------
 //------------------------------------------------------------------------------
-int Analysis(string file, int last_event_n, bool display);
-int Ana3(string file1, string file2, string file3, int last_event_n);
 
+//MAIN
+int Analysis(string file, int last_event_n, bool display);
+
+//PREDEFINED
 int DCR_CT_1SiPM_1HVs(string file1, int last_event_n);
 int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n);
 int GAIN_1SiPM_1HV(string file1, int last_event_n);
+int Ana1(string file1, int last_event_n);
 
+//SECONDARY
 void DLED(int trace_lenght, int dleddt);
 int find_peak_fix_time(int mintp, int maxtp);
 int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,int blind_gap, bool DCR_DELAYS_bool);
@@ -76,8 +80,8 @@ int ii=0;
 double max_func;
 int index_func = 0;
 
-double pe_0_5 = 10; // !!! CHECK !!! (see comments in function Ana3(...) for values)
-double pe_1_5 = 25; // !!! CHECK !!! (see comments in function Ana3(...) for values)
+double pe_0_5 = 10; // !!! CHECK !!! (see comments below for values)
+double pe_1_5 = 25; // !!! CHECK !!! (see comments below for values)
 
 double thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5
 
@@ -594,43 +598,45 @@ int Analysis(string file, int last_event_n, bool display){
 }
 
 
+//------------------------------------------------------------------------------
+//-------------------------[   PREDEFINED FUNCTIONS   ]-------------------------
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
-//---------------------------[   OTHER FUNCTIONS   ]----------------------------
-//------------------------------------------------------------------------------
+int DCR_CT_1SiPM_1HVs(string file1, int last_event_n){
+    
+    pe_0_5 = 10; //mV
+    pe_1_5 = 26; //mV
+    gDCR_1 = DCR_func(file1,last_event_n, 1, 1);
+    
+    TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
+    DCR_mg->Add(gDCR_1);
+   
+    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop");
+    
+    cDCR_loop->SetGrid();
+    cDCR_loop->SetLogy();
+    DCR_mg->Draw("A3L");
+    
+    cout<<endl<<endl;
+    cout<<"-------------------------"<<endl;
+    cout<<"-------[ RESULTS ]-------"<<endl;
+    cout<<"-------------------------"<<endl<<endl;
 
-//------------------------------------------------------------------------------
-int Ana3(string file1, string file2, string file3, int last_event_n){
+    double CrossTalk = 0;
+    double errCrossTalk = 0;
     
-    bool display = false;
-    int control = 0;
-    //file1
-    nfile = 1;
-    pe_0_5 = 10;   pe_1_5 = 24;
-    control = Analysis(file1,last_event_n,display);
+    CrossTalk = DCR_pe_1_5_vect[0]/DCR_pe_0_5_vect[0];
+    errCrossTalk= CrossTalk * TMath::Sqrt( (errDCR_pe_0_5_vect[0]/DCR_pe_0_5_vect[0])*(errDCR_pe_0_5_vect[0]/DCR_pe_0_5_vect[0]) + (errDCR_pe_1_5_vect[0]/DCR_pe_1_5_vect[0])*(errDCR_pe_1_5_vect[0]/DCR_pe_1_5_vect[0]) );
     
-    if(control==5)
-        return 5;
+    cout<<"File analyzed: "<<file1<<endl;
     
-    Get_DCR_temp_and_errDCR_temp(nfile);
-    ResetHistsDelays();
-    
-    //file2
-    nfile=2;
-    pe_0_5 = 10;   pe_1_5 = 26;
-    control = Analysis(file2,last_event_n,display);
-    
-    Get_DCR_temp_and_errDCR_temp(nfile);
-    ResetHistsDelays();
-    
-    //file3
-    nfile=3;
-    pe_0_5 = 10;   pe_1_5 = 26;
-    control = Analysis(file3,last_event_n,display);
-    
-    Get_DCR_temp_and_errDCR_temp(nfile);
-    ResetHistsDelays();
+    cout<<"   DCR at 0.5 pe = ("<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<") MHz"<<endl;
+    cout<<"   DCR at 1.5 pe = ("<<DCR_pe_1_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_1_5_vect[0]*TMath::Power(10,-6)<<") MHz"<<endl;
+    cout<<"   Cross Talk    = ("<<CrossTalk<<" +- "<<errCrossTalk<<")"<<endl;
 
+    return 0;
     
 /*          HV      0.5pe   1.5pe   FILE
     --------------------------------------------------------------------
@@ -646,11 +652,121 @@ int Ana3(string file1, string file2, string file3, int last_event_n){
             35 V    10 mV   26 mV   20180221_HD3-2_3_DARK_35_AS_2_01.txt
             36 V    10 mV   26 mV   20180221_HD3-2_3_DARK_36_AS_2_01.txt
 */
+    
+}
 
+
+//------------------------------------------------------------------------------
+int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n){
+    //file1:
+    pe_0_5 = 10; pe_1_5 = 26;
+    gDCR_1 = DCR_func(file1,last_event_n, 1, 3);
+    //file2:
+    pe_0_5 = 10;   pe_1_5 = 26;
+    gDCR_2 = DCR_func(file2,last_event_n, 2, 3);
+    //file3:
+    pe_0_5 = 10;   pe_1_5 = 26;
+    gDCR_3 = DCR_func(file3,last_event_n, 3, 3);     
+    
+    TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
+    DCR_mg->Add(gDCR_1);
+    DCR_mg->Add(gDCR_2);
+    DCR_mg->Add(gDCR_3);
+    
+    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop");
+    
+    cDCR_loop->SetGrid();
+    cDCR_loop->SetLogy();
+    DCR_mg->Draw("A3L");
+    auto legendDCR_loop = new TLegend(0.75,0.75,0.9,0.9);
+    legendDCR_loop->AddEntry(gDCR_1,"HV = 34.00 V","l");
+    legendDCR_loop->AddEntry(gDCR_2,"HV = 35.00 V","l");
+    legendDCR_loop->AddEntry(gDCR_3,"HV = 36.00 V","l");
+    legendDCR_loop->Draw();
+    
+    
+    cout<<endl<<endl;
+    cout<<"-------------------------"<<endl;
+    cout<<"-------[ RESULTS ]-------"<<endl;
+    cout<<"-------------------------"<<endl<<endl;
+
+    double CrossTalk[] = {0., 0., 0.};
+    double errCrossTalk[] = {0., 0., 0.};
+    for(int i=0; i<3; i++){
+        CrossTalk[i] = DCR_pe_1_5_vect[i]/DCR_pe_0_5_vect[i];
+        errCrossTalk[i]= CrossTalk[i] * TMath::Sqrt( (errDCR_pe_0_5_vect[i]/DCR_pe_0_5_vect[i])*(errDCR_pe_0_5_vect[i]/DCR_pe_0_5_vect[i]) + (errDCR_pe_1_5_vect[i]/DCR_pe_1_5_vect[i])*(errDCR_pe_1_5_vect[i]/DCR_pe_1_5_vect[i]) );
+    }
+    
+    cout<<"Files analyzed: "<<file1<<", "<<file2<<", "<<file3<<endl;
+    
+    cout<<"double DCR[] =         {"<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
+    
+    cout<<"double errDCR[] =      {"<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
+    
+    cout<<"double CrossTalk[] =   {"<<CrossTalk[0]<<", "<<CrossTalk[1]<<", "<<CrossTalk[2]<<"};"<<endl;
+
+    cout<<"double errCrossTalk[] ={"<<errCrossTalk[0]<<", "<<errCrossTalk[1]<<", "<<errCrossTalk[2]<<"};"<<endl;
     
     return 0;
 }
 
+//------------------------------------------------------------------------------
+int GAIN_1SiPM_1HV(string file1, int last_event_n){
+    //VARIABLES:
+    //TRUE:
+    drawHistAllPeaks = true; // to draw hist of all peaks in traces
+    fitHistAllPeaks = true; // fit hist of all peaks -> for GAIN
+    //FALSE:
+    find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
+    average = false; //calculate the average of traces (useful for LED measures)
+    DCR_CNT_bool = false; // DCR from counters
+    DCR_DELAYS_bool = false; //DCR from delays
+    CROSS_TALK_bool = false; //DCR must be true
+    drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
+    show_hists_DCR_DELAYS  = false;
+    showHist_bool = false; 
+    SetLogyHist = false;
+    running_graph = false;// to see traces in an osc mode (display must be true)
+    all_events_same_window = false;
+    
+    Analysis(file1, last_event_n, false);
+    
+    return 0;
+}
+
+
+//------------------------------------------------------------------------------
+int Ana1(string file1, int last_event_n){
+    //VARIABLES:
+    //TRUE:
+    drawHistAllPeaks = true; // to draw hist of all peaks in traces
+    fitHistAllPeaks = true; // fit hist of all peaks -> for GAIN
+    DCR_DELAYS_bool = true; //DCR from delays
+    CROSS_TALK_bool = true; //DCR must be true
+    show_hists_DCR_DELAYS  = true;
+    //FALSE:
+    find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
+    average = false; //calculate the average of traces (useful for LED measures)
+    DCR_CNT_bool = false; // DCR from counters
+    drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
+    showHist_bool = false; 
+    SetLogyHist = false;
+    running_graph = false;// to see traces in an osc mode (display must be true)
+    all_events_same_window = false;
+    
+    Analysis(file1, last_event_n, false);
+    
+    return 0;
+}
+
+
+
+
+
+//------------------------------------------------------------------------------
+//-------------------------[   SECONDARY FUNCTIONS   ]--------------------------
+//------------------------------------------------------------------------------
+    
 //------------------------------------------------------------------------------
 void DLED(int trace_lenght, int dleddt){
     trace_DLED_lenght = trace_lenght - dleddt;
@@ -859,7 +975,7 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int nfile, int tot_files)
     running_graph = false;// to see traces in an osc mode (display must be true)
     all_events_same_window = false;
     
-    
+       
     bool display = false;
     int control = 0;
     
@@ -869,11 +985,11 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int nfile, int tot_files)
     
     n_DCR = (int)((max_thr_to_find_peaks - thr_to_find_peaks)/gap_between_thr);
     
-    DCR = new double*[tot_files]; //first index: nfile => DCR[0][...] for nfile = 1 (in this case I have only one file, not as in loopAna3)
+    DCR = new double*[tot_files]; //first index: nfile => DCR[0][...] for nfile = 1 
         for(int i = 0; i < 3; i++) {
             DCR[i] = new double[n_DCR];
     }
-    errDCR = new double*[tot_files]; //first index: nfile => DCR[0][...] for nfile = 1 (in this case I have only one file, not as in loopAna3)
+    errDCR = new double*[tot_files]; //first index: nfile => DCR[0][...] for nfile = 1
         for(int i = 0; i < 3; i++) {
             errDCR[i] = new double[n_DCR];
     }
@@ -901,149 +1017,9 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int nfile, int tot_files)
     if(nfile==3){gDCR->SetLineColor(kRed+1);  gDCR->SetFillColorAlpha(kRed+1, 0.3);  }
     
     cout<<endl<<endl;
-//     cout<<"-------------------------"<<endl;
-//     cout<<"-------[ RESULTS ]-------"<<endl;
-//     cout<<"-------------------------"<<endl<<endl;
-
-//     double CrossTalk = 0.;
-//     double errCrossTalk = 0.;
-//     CrossTalk = DCR_pe_1_5_vect[nfile-1]/DCR_pe_0_5_vect[nfile-1];
-//     errCrossTalk = CrossTalk * TMath::Sqrt( (errDCR_pe_0_5_vect[nfile-1]/DCR_pe_0_5_vect[nfile-1])*(errDCR_pe_0_5_vect[nfile-1]/DCR_pe_0_5_vect[nfile-1]) + (errDCR_pe_1_5_vect[nfile-1]/DCR_pe_1_5_vect[nfile-1])*(errDCR_pe_1_5_vect[nfile-1]/DCR_pe_1_5_vect[nfile-1]) );
-    
-//     cout<<"File analyzed "<<file1<<endl;
-//     cout<<"   DCR at 0.5 pe = ("<<DCR_pe_0_5_vect[nfile-1]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_0_5_vect[nfile-1]*TMath::Power(10,-6)<<") MHz"<<endl;
-//     cout<<"   DCR at 1.5 pe = ("<<DCR_pe_1_5_vect[nfile-1]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_1_5_vect[nfile-1]*TMath::Power(10,-6)<<") MHz"<<endl;
-//     cout<<"   Cross Talk    = ("<<CrossTalk<<" +- "<<errCrossTalk<<")"<<endl;
-//     cout<<endl;
     
     return gDCR;
     
 }
 
-
-
-//------------------------------------------------------------------------------
-//-------------------------[   PREDEFINED FUNCTIONS   ]-------------------------
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-int DCR_CT_1SiPM_1HVs(string file1, int last_event_n){
-    
-    pe_0_5 = 10; //mV
-    pe_1_5 = 26; //mV
-    gDCR_1 = DCR_func(file1,last_event_n, 1, 1);
-    
-    TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
-    DCR_mg->Add(gDCR_1);
-   
-    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop");
-    
-    cDCR_loop->SetGrid();
-    cDCR_loop->SetLogy();
-    DCR_mg->Draw("A3L");
-    
-    cout<<endl<<endl;
-    cout<<"-------------------------"<<endl;
-    cout<<"-------[ RESULTS ]-------"<<endl;
-    cout<<"-------------------------"<<endl<<endl;
-
-    double CrossTalk = 0;
-    double errCrossTalk = 0;
-    
-    CrossTalk = DCR_pe_1_5_vect[0]/DCR_pe_0_5_vect[0];
-    errCrossTalk= CrossTalk * TMath::Sqrt( (errDCR_pe_0_5_vect[0]/DCR_pe_0_5_vect[0])*(errDCR_pe_0_5_vect[0]/DCR_pe_0_5_vect[0]) + (errDCR_pe_1_5_vect[0]/DCR_pe_1_5_vect[0])*(errDCR_pe_1_5_vect[0]/DCR_pe_1_5_vect[0]) );
-    
-    cout<<"File analyzed: "<<file1<<endl;
-    
-    cout<<"   DCR at 0.5 pe = ("<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<") MHz"<<endl;
-    cout<<"   DCR at 1.5 pe = ("<<DCR_pe_1_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_1_5_vect[0]*TMath::Power(10,-6)<<") MHz"<<endl;
-    cout<<"   Cross Talk    = ("<<CrossTalk<<" +- "<<errCrossTalk<<")"<<endl;
-
-    
-    
-    
-    
-    return 0;
-    
-}
-
-
-//------------------------------------------------------------------------------
-int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n){
-    //file1:
-    pe_0_5 = 10; pe_1_5 = 26;
-    gDCR_1 = DCR_func(file1,last_event_n, 1, 3);
-    //file2:
-    pe_0_5 = 10;   pe_1_5 = 26;
-    gDCR_2 = DCR_func(file2,last_event_n, 2, 3);
-    //file3:
-    pe_0_5 = 10;   pe_1_5 = 26;
-    gDCR_3 = DCR_func(file3,last_event_n, 3, 3);     
-    
-    TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
-    DCR_mg->Add(gDCR_1);
-    DCR_mg->Add(gDCR_2);
-    DCR_mg->Add(gDCR_3);
-    
-    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop");
-    
-    cDCR_loop->SetGrid();
-    cDCR_loop->SetLogy();
-    DCR_mg->Draw("A3L");
-    auto legendDCR_loop = new TLegend(0.75,0.75,0.9,0.9);
-    legendDCR_loop->AddEntry(gDCR_1,"HV = 34.00 V","l");
-    legendDCR_loop->AddEntry(gDCR_2,"HV = 35.00 V","l");
-    legendDCR_loop->AddEntry(gDCR_3,"HV = 36.00 V","l");
-    legendDCR_loop->Draw();
-    
-    
-    cout<<endl<<endl;
-    cout<<"-------------------------"<<endl;
-    cout<<"-------[ RESULTS ]-------"<<endl;
-    cout<<"-------------------------"<<endl<<endl;
-
-    double CrossTalk[] = {0., 0., 0.};
-    double errCrossTalk[] = {0., 0., 0.};
-    for(int i=0; i<3; i++){
-        CrossTalk[i] = DCR_pe_1_5_vect[i]/DCR_pe_0_5_vect[i];
-        errCrossTalk[i]= CrossTalk[i] * TMath::Sqrt( (errDCR_pe_0_5_vect[i]/DCR_pe_0_5_vect[i])*(errDCR_pe_0_5_vect[i]/DCR_pe_0_5_vect[i]) + (errDCR_pe_1_5_vect[i]/DCR_pe_1_5_vect[i])*(errDCR_pe_1_5_vect[i]/DCR_pe_1_5_vect[i]) );
-    }
-    
-    cout<<"Files analyzed: "<<file1<<", "<<file2<<", "<<file3<<endl;
-    
-    cout<<"double DCR[] =         {"<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
-    
-    cout<<"double errDCR[] =      {"<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
-    
-    cout<<"double CrossTalk[] =   {"<<CrossTalk[0]<<", "<<CrossTalk[1]<<", "<<CrossTalk[2]<<"};"<<endl;
-
-    cout<<"double errCrossTalk[] ={"<<errCrossTalk[0]<<", "<<errCrossTalk[1]<<", "<<errCrossTalk[2]<<"};"<<endl;
-    
-    return 0;
-}
-
-//------------------------------------------------------------------------------
-int GAIN_1SiPM_1HV(string file1, int last_event_n){
-    //VARIABLES:
-    //TRUE:
-    drawHistAllPeaks = true; // to draw hist of all peaks in traces
-    fitHistAllPeaks = true; // fit hist of all peaks -> for GAIN
-    //FALSE:
-    find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
-    average = false; //calculate the average of traces (useful for LED measures)
-    DCR_CNT_bool = false; // DCR from counters
-    DCR_DELAYS_bool = false; //DCR from delays
-    CROSS_TALK_bool = false; //DCR must be true
-    drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
-    show_hists_DCR_DELAYS  = false;
-    showHist_bool = false; 
-    SetLogyHist = false;
-    running_graph = false;// to see traces in an osc mode (display must be true)
-    all_events_same_window = false;
-    
-    Analysis(file1, last_event_n, false);
-    
-    return 0;
-}
 
