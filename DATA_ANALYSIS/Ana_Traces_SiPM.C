@@ -152,7 +152,7 @@ int maxtp = 280; //max_time_peak
 int dleddt = 9; //10ns is approx the rise time used for HD3_2 on AS out 2
 int blind_gap = 20; //ns
 int max_peak_width = 20; //used for find_peaks
-int min_peak_width = 5;  //used for find_peaks
+int min_peak_width =  5; //used for find_peaks
 double maxyhist = 200;
 
 double fit1Low = 0;
