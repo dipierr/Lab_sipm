@@ -145,7 +145,7 @@ bool all_events_same_window = false; //all the events (from 0 to last_event_n) a
     int mintp = 250; //min_time_peak
     int maxtp = 280; //max_time_peak
     int dleddt = 9; //10ns is approx the rise time used for HD3_2 on AS out 2
-    int blind_gap = 30; //ns
+    int blind_gap = 20; //ns
     int max_peak_width = 20; //used for find_peaks
     int min_peak_width = 0;  //used for find_peaks
     double maxyhist = 200;
@@ -190,7 +190,7 @@ TH1D *ptrHistDelays_1 = new TH1D("histDelays_1","",bins_Delays,0,maxyhistDelays)
 TH1D *ptrHistDelays_2 = new TH1D("histDelays_2","",bins_Delays,0,maxyhistDelays);
 TH1D *ptrHistDelays_3 = new TH1D("histDelays_3","",bins_Delays,0,maxyhistDelays);
 
-TF1 *expDel = new TF1("expDel","TMath::Exp(-[0]*x + [1])",expDelLow_max,expDelHigh_max);
+TF1 *expDel = new TF1("expDel","[1]*TMath::Exp(-[0]*x)",expDelLow_max,expDelHigh_max);
 TF1 *gausFit1 = new TF1("gausFit1","gaus",-100,100);
 TF1 *gausFit2 = new TF1("gausFit2","gaus",-100,100);
 
@@ -842,7 +842,7 @@ int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,
             if(nfile == 2) ptrHistAllPeaks2->Fill(trace_DLED[1][index_peak]);
             if(nfile == 3) ptrHistAllPeaks3->Fill(trace_DLED[1][index_peak]);
             
-            ii=ii+blind_gap; //in order to jump at the following peak. Due to teh DLED procedure, I have a blind gap that is approximatively 2*(rise time)
+            ii=index_peak+blind_gap; //in order to jump at the following peak. Due to teh DLED procedure, I have a blind gap that is approximatively 2*(rise time)
         }else{
             ii++;
         }
@@ -920,9 +920,14 @@ void Get_DCR_temp_and_errDCR_temp(int nfile){
 //------------------------------------------------------------------------------
 void fit_hist_del(double expDelLow, double expDelHigh){ //fit hists filled with time delays in order to find DCR
     cout<<"Fit hist delays file "<<nfile<<endl;
-    if(nfile == 1) {ptrHistDelays_1 -> Fit(expDel, "q", "", expDelLow, expDelHigh); expDel->Draw("same");}
-    if(nfile == 2) ptrHistDelays_2 -> Fit(expDel, "q", "", expDelLow, expDelHigh);
-    if(nfile == 3) ptrHistDelays_3 -> Fit(expDel, "q", "", expDelLow, expDelHigh);
+    expDel-> SetParName(0,"DCR"); expDel-> SetParName(1,"MultCost");
+    if(nfile == 1) {
+        expDel->SetParameter(0,0.001);
+        ptrHistDelays_1 -> Fit(expDel, "", "", expDelLow, expDelHigh);
+        expDel->Draw("same");
+    }
+    if(nfile == 2) ptrHistDelays_2 -> Fit(expDel, "", "", expDelLow, expDelHigh);
+    if(nfile == 3) ptrHistDelays_3 -> Fit(expDel, "", "", expDelLow, expDelHigh);
 }
 
 
