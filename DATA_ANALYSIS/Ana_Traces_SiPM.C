@@ -145,24 +145,24 @@ bool all_events_same_window = false; //all the events (from 0 to last_event_n) a
 //-------------------------------------------------------------------------------
 //---------------------------[   SETTING VARIABLES   ]---------------------------
 //-------------------------------------------------------------------------------
-    int min_ind_offset = 0;
-    int max_ind_offset = 80;
-    int mintp = 250; //min_time_peak
-    int maxtp = 280; //max_time_peak
-    int dleddt = 9; //10ns is approx the rise time used for HD3_2 on AS out 2
-    int blind_gap = 20; //ns
-    int max_peak_width = 20; //used for find_peaks
-    int min_peak_width = 0;  //used for find_peaks
-    double maxyhist = 200;
-    
-    double fit1Low = 0;
-    double fit1High = 0;
-    double fit2Low = 0;
-    double fit2High = 0;
-    
-    //DEVICE:
-    bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
-    bool Digitizer_CAEN = true;  //true if data taken by Digitizer_CAEN, false otherwise
+int min_ind_offset = 0;
+int max_ind_offset = 80;
+int mintp = 250; //min_time_peak
+int maxtp = 280; //max_time_peak
+int dleddt = 9; //10ns is approx the rise time used for HD3_2 on AS out 2
+int blind_gap = 20; //ns
+int max_peak_width = 20; //used for find_peaks
+int min_peak_width = 5;  //used for find_peaks
+double maxyhist = 200;
+
+double fit1Low = 0;
+double fit1High = 0;
+double fit2Low = 0;
+double fit2High = 0;
+
+//DEVICE:
+bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
+bool Digitizer_CAEN = true;  //true if data taken by Digitizer_CAEN, false otherwise
     
 /* VALUES:
  * 
@@ -368,7 +368,8 @@ int Analysis(string file, int last_event_n, bool display){
         
         
 //***** DISPLAY     
-//void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse, int section);
+//void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
+
         if(display){
             if(!display_one_ev){
                 if(n_ev==0){
@@ -383,6 +384,7 @@ int Analysis(string file, int last_event_n, bool display){
                 if(!running_graph)getchar();
             }else{
                 if(n_ev==ev_to_display){
+                    c->Divide(1,2);
                     c->SetGrid();
                     if(Agilent_MSO6054A) {miny1=10; maxy1=180;}
                     if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
@@ -825,7 +827,7 @@ int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,
     bool found_first_peak = false;
     int peak_width = max_peak_width;
     while(ii<trace_DLED_lenght){//I find peaks after the DLED procedure
-        if((trace_DLED[1][ii]>thr_to_find_peaks) and (trace_DLED[1][ii-2]<thr_to_find_peaks)){//I only consider points above thr_to_find_peaks on the rising edge
+        if((trace_DLED[1][ii]>thr_to_find_peaks) and (trace_DLED[1][ii-2]<thr_to_find_peaks) and (ii+max_peak_width<trace_DLED_lenght)){//I only consider points above thr_to_find_peaks on the rising edge
             DCR_cnt_temp++; //I've seen a peak; if I'm in dark mode it's DCR
             
             //Now I want to see the peak amplitude.
@@ -842,30 +844,26 @@ int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,
             else 
                 index_peak = find_peak_fix_time(ii, trace_DLED_lenght);
             
-            //DCR from the delay (Itzler Mark - Dark Count Rate Measure (pag 5 ss))
-            if(DCR_DELAYS_bool){
-                if(!found_first_peak){
-                    index_old = index_peak;
-                    found_first_peak = true;
-                }
-                else{
+            if((index_peak-index_old)>blind_gap){
+                //DCR from the delay (Itzler Mark - Dark Count Rate Measure (pag 5 ss))
+                if(DCR_DELAYS_bool){
                     index_new=index_peak;
                     //I fill the hist with delays between 1 pe peaks (or higher):
                     if(nfile == 1) ptrHistDelays_1 -> Fill(index_new - index_old); 
                     if(nfile == 2) ptrHistDelays_2 -> Fill(index_new - index_old);
                     if(nfile == 3) ptrHistDelays_3 -> Fill(index_new - index_old);  
-                    index_old = index_new;
-                    
-                }
+                    index_old = index_new;   
+                    }
+                if(nfile == 1) ptrHistAllPeaks1->Fill(trace_DLED[1][index_peak]);
+                if(nfile == 2) ptrHistAllPeaks2->Fill(trace_DLED[1][index_peak]);
+                if(nfile == 3) ptrHistAllPeaks3->Fill(trace_DLED[1][index_peak]);
+                
+                ii=ii+peak_width;  
+            }else{
+                ii++;
             }
-            
-            if(nfile == 1) ptrHistAllPeaks1->Fill(trace_DLED[1][index_peak]);
-            if(nfile == 2) ptrHistAllPeaks2->Fill(trace_DLED[1][index_peak]);
-            if(nfile == 3) ptrHistAllPeaks3->Fill(trace_DLED[1][index_peak]);
-            
-            ii=index_peak+blind_gap; //in order to jump at the following peak. Due to teh DLED procedure, I have a blind gap that is approximatively 2*(rise time)
-        }else{
-            ii++;
+            }else{
+                ii++;
         }
     }
     //cout<<DCR_cnt_temp<<endl;
