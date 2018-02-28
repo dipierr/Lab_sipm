@@ -824,7 +824,6 @@ int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,
     int DCR_cnt_temp = 0;
     int index_old = 0;
     int index_new = 0;
-    bool found_first_peak = false;
     int peak_width = max_peak_width;
     while(ii<trace_DLED_lenght){//I find peaks after the DLED procedure
         if((trace_DLED[1][ii]>thr_to_find_peaks) and (trace_DLED[1][ii-2]<thr_to_find_peaks) and (ii+max_peak_width<trace_DLED_lenght)){//I only consider points above thr_to_find_peaks on the rising edge
@@ -849,9 +848,11 @@ int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,
                 if(DCR_DELAYS_bool){
                     index_new=index_peak;
                     //I fill the hist with delays between 1 pe peaks (or higher):
-                    if(nfile == 1) ptrHistDelays_1 -> Fill(index_new - index_old); 
-                    if(nfile == 2) ptrHistDelays_2 -> Fill(index_new - index_old);
-                    if(nfile == 3) ptrHistDelays_3 -> Fill(index_new - index_old);  
+                    if(index_old>0){
+                        if(nfile == 1) ptrHistDelays_1 -> Fill(index_new - index_old); 
+                        if(nfile == 2) ptrHistDelays_2 -> Fill(index_new - index_old);
+                        if(nfile == 3) ptrHistDelays_3 -> Fill(index_new - index_old); 
+                    }
                     index_old = index_new;   
                     }
                 if(nfile == 1) ptrHistAllPeaks1->Fill(trace_DLED[1][index_peak]);
