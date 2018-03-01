@@ -49,6 +49,7 @@ void ResetHistsDelays();
 void Get_DCR_temp_and_errDCR_temp(int nfile);
 void fit_hist_all_peaks(TCanvas *c, TH1D *hist, double fit1Low, double fit1High, double fit2Low, double fit2High);
 TGraphErrors* DCR_func(string file1, int last_event_n, int nfile, int tot_files);
+void Read_Agilent_CAEN(string file, int last_event_n, bool display);
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -78,6 +79,7 @@ double errDCR_pe_1_5_vect[] = {0., 0., 0.};
 int trace_DLED_lenght;
 
 int ii=0;
+int i=0;
 double max_func;
 int index_func = 0;
 
@@ -107,8 +109,25 @@ int nfile = 1;
 bool first_time_main_called = true;
 
 int n_DCR = 0;
-
+int DCR_cnt = 0;
 int ev_to_display = 7;
+
+double DCR_time = 0.;
+double DCR_from_cnt = 0.;
+
+char temp[20];
+int n_ev, index_for_peak;
+bool reading = true;
+bool last_event_flag = false;
+int trace_lenght = 0;
+int one_window=0;
+double miny=0;
+double maxy=0;
+double miny1=0;
+double maxy1=0;
+double miny2=0;
+double maxy2=0;
+
 
 //------------------------------------------------------------------------------
 //-------------------------------[   OPTIONS   ]--------------------------------
@@ -132,6 +151,8 @@ bool display_one_ev = false;
 bool line_bool = false;
 
 bool all_events_same_window = false; //all the events (from 0 to last_event_n) are joined in a single event
+
+bool DO_NOT_DELETE_HIST_LED = false; //If set true, run only ONE TIME Analysis!!!
 
 /* VALUES:
  * 
@@ -182,6 +203,7 @@ bool Digitizer_CAEN = true;  //true if data taken by Digitizer_CAEN, false other
 //--------------------[   GLOBAL HISTs, CANVs and FUNCs   ]---------------------
 //------------------------------------------------------------------------------
 
+TH1D *ptrHist = new TH1D("hist","",bins_Volt,0,maxyhist);
 
 TH1D *ptrHistAllPeaks1 = new TH1D("histAllPeaks1","",bins_DCR,0,maxyhistAllPeaks);
 TH1D *ptrHistAllPeaks2 = new TH1D("histAllPeaks2","",bins_DCR,0,maxyhistAllPeaks);
@@ -223,193 +245,7 @@ int Analysis(string file, int last_event_n, bool display){
         }
     }
 
-   
-    ifstream OpenFile (file.c_str());
-    
-    //Local variables
-    char temp[20];
-    int n_ev, index, i;
-    bool reading = true;
-    bool last_event_flag = false;
-    
-    int trace_lenght = 0;
-    int one_window=0;
-    int DCR_cnt = 0;
-    
-    TH1D *ptrHist = new TH1D("hist","",bins_Volt,0,maxyhist);
-    
-    double miny=0;
-    double maxy=0;
-    double miny1=0;
-    double maxy1=0;
-    double miny2=0;
-    double maxy2=0;
-    
-    double DCR_time = 0.;
-    double DCR = 0.;
-    
-    n_ev=0;
-
-//***** READ FILE
-    while(!OpenFile.eof() and (reading)){
-        
-        if(n_ev%1000==0)
-            cout<<"Read ev\t"<<n_ev<<endl;
-
-//***** READ HEADER FROM FILE
-        //select device
-        if(Agilent_MSO6054A and not Digitizer_CAEN){
-            OpenFile>>temp; 	 
-            OpenFile>>temp;
-            trace_lenght = atoi(temp);
-            OpenFile>>temp>>temp;
-        }
-        else{
-            if(Digitizer_CAEN and not Agilent_MSO6054A){
-                OpenFile>>temp>>temp; 
-                OpenFile>>temp;
-                trace_lenght = atoi(temp);
-                if(all_events_same_window){
-                    trace_lenght = atoi(temp)*last_event_n;
-                    one_window = atoi(temp);
-                }
-                OpenFile>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp;
-        }else{
-            cout<<"ERROR: check acquisition device"<<endl;
-            return 1;
-        }
-        }
-        if(n_ev==0){
-            cout<<"Acquisition device: ";
-            if(Agilent_MSO6054A) cout<<"Agilent_MSO6054A"<<endl;
-            if(Digitizer_CAEN)   cout<<"Digitizer_CAEN"<<endl;
-            cout<<"Number points "<<trace_lenght<<endl;
-        }        
-        
-//***** CREATE TRACE
-        //trace
-        trace = new double*[2];
-        for(i = 0; i < 2; i++) {
-            trace[i] = new double[trace_lenght];
-        }
-        //trace_AVG
-        if(average==true and n_ev==0){
-            trace_AVG = new double*[2];
-            for(i = 0; i < 2; i++) {
-                trace_AVG[i] = new double[trace_lenght];
-            }
-        }
-
-//***** CREATE PEAK
-        if(find_peak_in_a_selected_window){
-            double *peak = new double[2];  
-        }
-        
-//***** READ TRACE FROM FILE
-        if(Agilent_MSO6054A){
-                for(i=0; i<trace_lenght; i++){
-                    OpenFile>>temp;
-                    trace[0][i] = atof(temp);
-                    OpenFile>>temp;
-                    trace[1][i]  = -atof(temp); //AdvanSid is an inverting amplifier, so I have negative signals. In order to analyze them, I reverse the signals. For the plot I can re-reverse them
-        }
-        }
-        else{
-            if(Digitizer_CAEN){
-                for(i=0; i<trace_lenght; i++){
-                    trace[0][i] = i*TMath::Power(10,-9); //1point=1ns
-                    OpenFile>>temp;
-                    trace[1][i]  = -atof(temp)/1024 * 1000; //1024 channels from 0 V to 1 V, expressed in mV
-                    
-                    if(i==(one_window-1)){
-                        OpenFile>>temp>>temp; 
-                        OpenFile>>temp;
-                        OpenFile>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp;
-                    }
-                    
-                }
-        }
-        }
-        
-//***** DLED
-        DLED(trace_lenght,dleddt);
-        //Now: trace_DLED
-        
-//***** AVERAGE
-        if(average){
-            if(n_ev==0){
-                for(i=0; i< trace_lenght; i++){
-                    trace_AVG[0][i]=trace[0][i];
-                    trace_AVG[1][i]=0;
-                }
-            }
-            average_func(trace_lenght);
-        }
-        
-        if(find_peak_in_a_selected_window){
-            index = find_peak_fix_time(mintp, maxtp);
-            peak[0] = trace_DLED[0][index];
-            peak[1] = trace_DLED[1][index];
-            ptrHist->Fill(peak[1]);
-        }
-        
-//***** DCR
-        if(DCR_CNT_bool || DCR_DELAYS_bool){
-            DCR_cnt = DCR_cnt + find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
-            DCR_time = DCR_time + trace_lenght*TMath::Power(10,-9);
-        }
-        else{
-            if(drawHistAllPeaks){//all peaks but not DCR
-                thr_to_find_peaks = 10; //mV
-                find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
-            }
-        }
-        
-        
-        
-//***** DISPLAY     
-//void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
-
-        if(display){
-            if(!display_one_ev){
-                if(n_ev==0){
-                    c->Divide(1,2);
-                    c->SetGrid();
-                }
-                if(Agilent_MSO6054A) {miny1=10; maxy1=180;}
-                if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
-                if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
-                if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
-                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, true, true);
-                if(!running_graph)getchar();
-            }else{
-                if(n_ev==ev_to_display){
-                    c->Divide(1,2);
-                    c->SetGrid();
-                    if(Agilent_MSO6054A) {miny1=10; maxy1=180;}
-                    if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
-                    if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
-                    if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
-                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, false, true);
-                }
-            }
-            
-        }
-        
-        
-        
-        if(n_ev==last_event_n-1)
-            reading=false;
-        
-        delete []trace[0];
-        delete []trace[1];
-        delete []trace_DLED[0];
-        delete []trace_DLED[1];
-        delete []peak;
-        n_ev++;
-    }//file is closed
-    
-    cout<<"Last event "<<n_ev<<endl;
+   Read_Agilent_CAEN(file, last_event_n, display);
     
 //***** AVERAGE
     if(average){
@@ -436,11 +272,13 @@ int Analysis(string file, int last_event_n, bool display){
             
             if(fitHistAllPeaks){
                 if(file == "20180221_HD3-2_1_DARK_34_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_34_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_34_AS_2_01.txt")
-                {fit1Low = 12; fit1High = 26; fit2Low = 28; fit2High = 42;}
+                {fit1Low = 12; fit1High = 26; fit2Low = 28; fit2High = 42;}else{
                 if(file == "20180221_HD3-2_1_DARK_35_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_35_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_35_AS_2_01.txt")
-                {fit1Low = 12; fit1High = 28; fit2Low = 32; fit2High = 46;}
+                {fit1Low = 12; fit1High = 28; fit2Low = 32; fit2High = 46;}else{
                 if(file == "20180221_HD3-2_1_DARK_36_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_36_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_36_AS_2_01.txt")
-                {fit1Low = 12; fit1High = 28; fit2Low = 36; fit2High = 50;}
+                {fit1Low = 12; fit1High = 28; fit2Low = 36; fit2High = 50;}else{
+                    fit1Low = 12; fit1High = 28; fit2Low = 36; fit2High = 50;
+                }}}
                 fit_hist_all_peaks(cAllPeaks1, ptrHistAllPeaks1, fit1Low, fit1High, fit2Low, fit2High);
             }
             
@@ -486,8 +324,8 @@ int Analysis(string file, int last_event_n, bool display){
 //***** DCR from CNT 
     if(DCR_CNT_bool){
         
-        DCR = DCR_cnt/DCR_time;
-        cout<<"\nDCR = "<<DCR*TMath::Power(10,-6)<<" MHz"<<endl;
+        DCR_from_cnt = DCR_cnt/DCR_time;
+        cout<<"\nDCR = "<<DCR_from_cnt*TMath::Power(10,-6)<<" MHz"<<endl;
         cDCR->SetGrid();
         cDCR->cd();
         
@@ -612,7 +450,9 @@ int Analysis(string file, int last_event_n, bool display){
         ptrHist->Draw("hist");
     }
     
-    delete ptrHist;
+    
+        
+    if(!DO_NOT_DELETE_HIST_LED)delete ptrHist;
     
     first_time_main_called = false;
     
@@ -688,7 +528,7 @@ int DCR_CT_1SiPM_1HVs(string file1, int last_event_n){
 //------------------------------------------------------------------------------
 int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n){
     //file1:
-    pe_0_5 = 10; pe_1_5 = 26;
+    pe_0_5 = 10; pe_1_5 = 24;
     gDCR_1 = DCR_func(file1,last_event_n, 1, 3);
     //file2:
     pe_0_5 = 10;   pe_1_5 = 26;
@@ -765,7 +605,7 @@ int GAIN_1SiPM_1HV(string file1, int last_event_n){
 
 
 //------------------------------------------------------------------------------
-int Ana1(string file1, int last_event_n, bool display_one_ev_param){
+int Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_bool){
     //VARIABLES:
     //TRUE:
     drawHistAllPeaks = true; // to draw hist of all peaks in traces
@@ -786,6 +626,17 @@ int Ana1(string file1, int last_event_n, bool display_one_ev_param){
     
     pe_0_5 = 10;
     thr_to_find_peaks = pe_0_5;
+    
+    if(LED_bool){
+        find_peak_in_a_selected_window = true;
+        drawHistAllPeaks = false; // to draw hist of all peaks in traces
+        fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
+        DCR_DELAYS_bool = false; //DCR from delays
+        CROSS_TALK_bool = false; //DCR must be true
+        show_hists_DCR_DELAYS  = false;
+        showHist_bool = true;
+        DO_NOT_DELETE_HIST_LED = true;
+    }
     
     Analysis(file1, last_event_n, true);
     
@@ -1118,4 +969,168 @@ void fit_hist_all_peaks(TCanvas *c, TH1D *hist, double fit1Low, double fit1High,
     
 }
 
+
+//------------------------------------------------------------------------------
+void Read_Agilent_CAEN(string file, int last_event_n, bool display){
+        ifstream OpenFile (file.c_str());
+    
+    n_ev=0;
+
+//***** READ FILE
+    while(!OpenFile.eof() and (reading)){
+        
+        if(n_ev%1000==0)
+            cout<<"Read ev\t"<<n_ev<<endl;
+
+//***** READ HEADER FROM FILE
+        //select device
+        if(Agilent_MSO6054A and not Digitizer_CAEN){
+            OpenFile>>temp; 	 
+            OpenFile>>temp;
+            trace_lenght = atoi(temp);
+            OpenFile>>temp>>temp;
+        }
+        else{
+            if(Digitizer_CAEN and not Agilent_MSO6054A){
+                OpenFile>>temp>>temp; 
+                OpenFile>>temp;
+                trace_lenght = atoi(temp);
+                if(all_events_same_window){
+                    trace_lenght = atoi(temp)*last_event_n;
+                    one_window = atoi(temp);
+                }
+                OpenFile>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp;
+        }else{
+            cout<<"ERROR: check acquisition device"<<endl;
+        }
+        }
+        if(n_ev==0){
+            cout<<"Acquisition device: ";
+            if(Agilent_MSO6054A) cout<<"Agilent_MSO6054A"<<endl;
+            if(Digitizer_CAEN)   cout<<"Digitizer_CAEN"<<endl;
+            cout<<"Number points "<<trace_lenght<<endl;
+        }        
+        
+//***** CREATE TRACE
+        //trace
+        trace = new double*[2];
+        for(i = 0; i < 2; i++) {
+            trace[i] = new double[trace_lenght];
+        }
+        //trace_AVG
+        if(average==true and n_ev==0){
+            trace_AVG = new double*[2];
+            for(i = 0; i < 2; i++) {
+                trace_AVG[i] = new double[trace_lenght];
+            }
+        }
+
+        
+//***** READ TRACE FROM FILE
+        if(Agilent_MSO6054A){
+                for(i=0; i<trace_lenght; i++){
+                    OpenFile>>temp;
+                    trace[0][i] = atof(temp);
+                    OpenFile>>temp;
+                    trace[1][i]  = -atof(temp); //AdvanSid is an inverting amplifier, so I have negative signals. In order to analyze them, I reverse the signals. For the plot I can re-reverse them
+        }
+        }
+        else{
+            if(Digitizer_CAEN){
+                for(i=0; i<trace_lenght; i++){
+                    trace[0][i] = i*TMath::Power(10,-9); //1point=1ns
+                    OpenFile>>temp;
+                    trace[1][i]  = -atof(temp)/1024 * 1000; //1024 channels from 0 V to 1 V, expressed in mV
+                    
+                    if(i==(one_window-1)){
+                        OpenFile>>temp>>temp; 
+                        OpenFile>>temp;
+                        OpenFile>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp>>temp;
+                    }
+                    
+                }
+        }
+        }
+        
+//***** DLED
+        DLED(trace_lenght,dleddt);
+        //Now: trace_DLED
+        
+//***** AVERAGE
+        if(average){
+            if(n_ev==0){
+                for(i=0; i< trace_lenght; i++){
+                    trace_AVG[0][i]=trace[0][i];
+                    trace_AVG[1][i]=0;
+                }
+            }
+            average_func(trace_lenght);
+        }
+        
+        if(find_peak_in_a_selected_window){
+            double *peak = new double[2];
+            index_for_peak = find_peak_fix_time(mintp, maxtp);
+            peak[0] = trace_DLED[0][index_for_peak];
+            peak[1] = trace_DLED[1][index_for_peak];
+            ptrHist->Fill(peak[1]);
+        }
+        
+//***** DCR
+        if(DCR_CNT_bool || DCR_DELAYS_bool){
+            DCR_cnt = DCR_cnt + find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
+            DCR_time = DCR_time + trace_lenght*TMath::Power(10,-9);
+        }
+        else{
+            if(drawHistAllPeaks){//all peaks but not DCR
+                thr_to_find_peaks = 10; //mV
+                find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
+            }
+        }
+        
+        
+        
+//***** DISPLAY     
+//void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
+
+        if(display){
+            if(!display_one_ev){
+                if(n_ev==0){
+                    c->Divide(1,2);
+                    c->SetGrid();
+                }
+                if(Agilent_MSO6054A) {miny1=10; maxy1=180;}
+                if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
+                if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
+                if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
+                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, true, true);
+                if(!running_graph)getchar();
+            }else{
+                if(n_ev==ev_to_display){
+                    c->Divide(1,2);
+                    c->SetGrid();
+                    if(Agilent_MSO6054A) {miny1=10; maxy1=180;}
+                    if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
+                    if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
+                    if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
+                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, false, true);
+                }
+            }
+            
+        }
+        
+        
+        
+        if(n_ev==last_event_n-1)
+            reading=false;
+        
+        delete []trace[0];
+        delete []trace[1];
+        delete []trace_DLED[0];
+        delete []trace_DLED[1];
+        delete []peak;
+        n_ev++;
+    }//file is closed
+    
+    cout<<"Last event "<<n_ev<<endl;
+}
 
