@@ -8,6 +8,12 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <stdio.h>
+#include <stdlib.h>
+#include <cstdio>
+#include <fcntl.h>
+#include <unistd.h>
+#include <math.h>
 #include "TMath.h"
 #include "TH1D.h"
 #include "TH2D.h"
@@ -23,6 +29,54 @@
 #include "TLine.h"
 #include "TSpectrum.h"
 #include "TVirtualFitter.h"
+
+//------------------------------------------------------------------------------
+//--------------------------[   READ BIN DRS4 INTRO   ]-------------------------
+//------------------------------------------------------------------------------
+typedef struct {
+   char           tag[3];
+   char           version;
+} FHEADER;
+
+typedef struct {
+   char           time_header[4];
+} THEADER;
+
+typedef struct {
+   char           bn[2];
+   unsigned short board_serial_number;
+} BHEADER;
+
+typedef struct {
+   char           event_header[4];
+   unsigned int   event_serial_number;
+   unsigned short year;
+   unsigned short month;
+   unsigned short day;
+   unsigned short hour;
+   unsigned short minute;
+   unsigned short second;
+   unsigned short millisecond;
+   unsigned short range;
+} EHEADER;
+
+typedef struct {
+   char           tc[2];
+   unsigned short trigger_cell;
+} TCHEADER;
+
+typedef struct {
+   char           c[1];
+   char           cn[3];
+} CHEADER;
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+
+
+
+
 
 //------------------------------------------------------------------------------
 //-------------------------------[   FUNCTIONS   ]------------------------------
@@ -49,7 +103,10 @@ void ResetHistsDelays();
 void Get_DCR_temp_and_errDCR_temp(int nfile);
 void fit_hist_all_peaks(TCanvas *c, TH1D *hist, double fit1Low, double fit1High, double fit2Low, double fit2High);
 TGraphErrors* DCR_func(string file1, int last_event_n, int nfile, int tot_files);
+
+
 void Read_Agilent_CAEN(string file, int last_event_n, bool display);
+int ReadBin(string filename, bool display);
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -154,6 +211,12 @@ bool all_events_same_window = false; //all the events (from 0 to last_event_n) a
 
 bool DO_NOT_DELETE_HIST_LED = false; //If set true, run only ONE TIME Analysis!!!
 
+//DEVICE:
+bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
+bool Digitizer_CAEN = true;  //true if data taken by Digitizer_CAEN, false otherwise
+bool DRS4_Evaluation_Board = false;
+
+
 /* VALUES:
  * 
  * LED from Digitizer_CAEN: bins_Volt = 204;
@@ -181,9 +244,6 @@ double fit1High = 0;
 double fit2Low = 0;
 double fit2High = 0;
 
-//DEVICE:
-bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
-bool Digitizer_CAEN = true;  //true if data taken by Digitizer_CAEN, false otherwise
     
 /* VALUES:
  * 
@@ -244,8 +304,12 @@ int Analysis(string file, int last_event_n, bool display){
                 return 5;
         }
     }
-
-   Read_Agilent_CAEN(file, last_event_n, display);
+    
+    if(Agilent_MSO6054A or Digitizer_CAEN) 
+        Read_Agilent_CAEN(file, last_event_n, display);
+    if(DRS4_Evaluation_Board)
+        ReadBin(file, display);
+    
     
 //***** AVERAGE
     if(average){
@@ -597,6 +661,9 @@ int GAIN_1SiPM_1HV(string file1, int last_event_n){
     SetLogyHist = false;
     running_graph = false;// to see traces in an osc mode (display must be true)
     all_events_same_window = false;
+    
+    pe_0_5 = 10;
+    thr_to_find_peaks = pe_0_5;
     
     Analysis(file1, last_event_n, false);
     
@@ -972,7 +1039,7 @@ void fit_hist_all_peaks(TCanvas *c, TH1D *hist, double fit1Low, double fit1High,
 
 //------------------------------------------------------------------------------
 void Read_Agilent_CAEN(string file, int last_event_n, bool display){
-        ifstream OpenFile (file.c_str());
+    ifstream OpenFile (file.c_str());
     
     n_ev=0;
 
@@ -1132,5 +1199,291 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
     }//file is closed
     
     cout<<"Last event "<<n_ev<<endl;
+}
+
+
+
+
+//------------------------------------------------------------------------------
+//int main(int argc, const char * argv[])
+int ReadBin(string filename, bool display)
+{
+   FHEADER  fh;
+   THEADER  th;
+   BHEADER  bh;
+   EHEADER  eh;
+   TCHEADER tch;
+   CHEADER  ch;
+   
+   
+   unsigned int scaler;
+   unsigned short voltage[1024];
+   double waveform[16][4][1024], time[16][4][1024];
+   float bin_width[16][4][1024];
+   int i, j, b, chn, n, chn_index, n_boards;
+   double t1, t2, dt;
+//    char filename[256];
+
+   int ndt;
+   double threshold, sumdt, sumdt2;
+   n_ev = 0;
+   
+//    if (argc > 1)
+//       strcpy(filename, argv[1]);
+//    else {
+//       printf("Usage: read_binary <filename>\n");
+//       return 0;
+//    }
+   
+   int len = filename.length();
+   char file_for_fopen[len];
+   
+   for(int k=0; k< len; k++){
+       file_for_fopen[k] = filename[k];
+    }   
+   
+   // open the binary waveform file
+   FILE *f = fopen(file_for_fopen, "rb");
+   if (f == NULL) {
+      //printf("Cannot find file \'%s\'\n", filename);
+      return 0;
+   }
+
+   // read file header
+   fread(&fh, sizeof(fh), 1, f);
+   if (fh.tag[0] != 'D' || fh.tag[1] != 'R' || fh.tag[2] != 'S') {
+      //printf("Found invalid file header in file \'%s\', aborting.\n", filename);
+      return 0;
+   }
+   
+   if (fh.version != '2') {
+      //printf("Found invalid file version \'%c\' in file \'%s\', should be \'2\', aborting.\n", fh.version, filename);
+      return 0;
+   }
+
+   // read time header
+   fread(&th, sizeof(th), 1, f);
+   if (memcmp(th.time_header, "TIME", 4) != 0) {
+      //printf("Invalid time header in file \'%s\', aborting.\n", filename);
+      return 0;
+   }
+
+   for (b = 0 ; ; b++) {
+      // read board header
+      fread(&bh, sizeof(bh), 1, f);
+      if (memcmp(bh.bn, "B#", 2) != 0) {
+         // probably event header found
+         fseek(f, -4, SEEK_CUR);
+         break;
+      }
+      
+      //printf("Found data for board #%d\n", bh.board_serial_number);
+      
+      // read time bin widths
+      memset(bin_width[b], sizeof(bin_width[0]), 0);
+      for (chn=0 ; chn<5 ; chn++) {
+         fread(&ch, sizeof(ch), 1, f);
+         if (ch.c[0] != 'C') {
+            // event header found
+            fseek(f, -4, SEEK_CUR);
+            break;
+         }
+         i = ch.cn[2] - '0' - 1;
+         //printf("Found timing calibration for channel #%d\n", i+1);
+         fread(&bin_width[b][i][0], sizeof(float), 1024, f);
+         // fix for 2048 bin mode: double channel
+         if (bin_width[b][i][1023] > 10 || bin_width[b][i][1023] < 0.01) {
+            for (j=0 ; j<512 ; j++)
+               bin_width[b][i][j+512] = bin_width[b][i][j];
+         }
+      }
+   }
+   n_boards = b;
+   cout<<b<<endl;
+   // initialize statistics
+   ndt = 0;
+   sumdt = sumdt2 = 0;
+   
+   // loop over all events in the data file
+   for (n=0 ; ; n++) {
+      // read event header
+      i = (int)fread(&eh, sizeof(eh), 1, f);
+      if (i < 1)
+         break;
+      
+      //printf("Found event #%d %d %d\n", eh.event_serial_number, eh.second, eh.millisecond);
+      
+      // loop over all boards in data file
+      for (b=0 ; b<n_boards ; b++) {
+         
+         // read board header
+         fread(&bh, sizeof(bh), 1, f);
+         if (memcmp(bh.bn, "B#", 2) != 0) {
+            //printf("Invalid board header in file \'%s\', aborting.\n", filename);
+            return 0;
+         }
+         
+         // read trigger cell
+         fread(&tch, sizeof(tch), 1, f);
+         if (memcmp(tch.tc, "T#", 2) != 0) {
+            //printf("Invalid trigger cell header in file \'%s\', aborting.\n", filename);
+            return 0;
+         }
+
+    
+         
+         // reach channel data
+         for (chn=0 ; chn<4 ; chn++) {
+            cout<<"CH LOOP"<<endl;
+            // read channel header
+            fread(&ch, sizeof(ch), 1, f);
+            if (ch.c[0] != 'C') {
+               // event header found
+               fseek(f, -4, SEEK_CUR);
+               break;
+            }
+            chn_index = ch.cn[2] - '0' - 1;
+            cout<<"-----"<<chn_index<<endl;
+            fread(&scaler, sizeof(int), 1, f);
+            fread(voltage, sizeof(short), 1024, f);
+            
+            for (i=0 ; i<1024 ; i++) {
+               // convert data to volts
+               waveform[b][chn_index][i] = (voltage[i] / 65536. + eh.range/1000.0 - 0.5);
+               
+               // calculate time for this cell
+                // calculate time for this cell
+               for (j=0,time[b][chn_index][i]=0 ; j<i ; j++)
+                  time[b][chn_index][i] += bin_width[b][chn_index][(j+tch.trigger_cell) % 1024];
+            }
+         }
+         
+         // align cell #0 of all channels
+         t1 = time[b][0][(1024-tch.trigger_cell) % 1024];
+         for (chn=1 ; chn<4 ; chn++) {
+            t2 = time[b][chn][(1024-tch.trigger_cell) % 1024];
+            dt = t1 - t2;
+            for (i=0 ; i<1024 ; i++)
+               time[b][chn][i] += dt;
+         }
+         
+         
+         
+        
+//#####################################################################################        
+         
+         trace_lenght = 1024;
+         
+         //***** CREATE TRACE
+        //trace
+        trace = new double*[2];
+        for(i = 0; i < 2; i++) {
+            trace[i] = new double[trace_lenght];
+        }
+        //trace_AVG
+        if(average==true and n_ev==0){
+            trace_AVG = new double*[2];
+            for(i = 0; i < 2; i++) {
+                trace_AVG[i] = new double[trace_lenght];
+            }
+        }
+    
+        for(int k=0; k<trace_lenght; k++){
+             trace[0][k] = time[0][0][k];
+             trace[1][k] = waveform[0][0][k];
+        }
+        
+        for(int k=0; k<trace_lenght; k++){
+             cout<<trace[0][k]<<"\t";
+             cout<<trace[1][k]<<endl;
+        }
+        
+               
+//***** DLED
+        DLED(trace_lenght,dleddt);
+        //Now: trace_DLED
+        
+//***** AVERAGE
+        if(average){
+            if(n_ev==0){
+                for(i=0; i< trace_lenght; i++){
+                    trace_AVG[0][i]=trace[0][i];
+                    trace_AVG[1][i]=0;
+                }
+            }
+            average_func(trace_lenght);
+        }
+        
+        if(find_peak_in_a_selected_window){
+            double *peak = new double[2];
+            index_for_peak = find_peak_fix_time(mintp, maxtp);
+            peak[0] = trace_DLED[0][index_for_peak];
+            peak[1] = trace_DLED[1][index_for_peak];
+            ptrHist->Fill(peak[1]);
+        }
+        
+//***** DCR
+        if(DCR_CNT_bool || DCR_DELAYS_bool){
+            DCR_cnt = DCR_cnt + find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
+            DCR_time = DCR_time + trace_lenght*TMath::Power(10,-9);
+        }
+        else{
+            if(drawHistAllPeaks){//all peaks but not DCR
+                thr_to_find_peaks = 10; //mV
+                find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
+            }
+        }
+        
+        
+        
+//***** DISPLAY     
+//void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
+
+        if(display){
+            if(!display_one_ev){
+                if(n_ev==0){
+                    c->Divide(1,2);
+                    c->SetGrid();
+                }
+                if(Agilent_MSO6054A) {miny1=10; maxy1=180;}
+                if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
+                if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
+                if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
+                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, true, true);
+                if(!running_graph)getchar();
+            }else{
+                if(n_ev==ev_to_display){
+                    c->Divide(1,2);
+                    c->SetGrid();
+                    if(Agilent_MSO6054A) {miny1=10; maxy1=180;}
+                    if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
+                    if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
+                    if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
+                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, false, true);
+                }
+            }
+            
+        }
+        
+        
+        delete []trace[0];
+        delete []trace[1];
+        delete []trace_DLED[0];
+        delete []trace_DLED[1];
+        delete []peak;
+        n_ev++;
+    
+    cout<<"Last event "<<n_ev<<endl;
+
+         
+         
+//#####################################################################################
+
+
+      }//end loop boards
+   }//loop events
+   
+   
+   return 1;
 }
 
