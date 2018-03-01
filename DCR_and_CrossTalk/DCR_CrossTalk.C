@@ -15,10 +15,11 @@ void DCR_CrossTalk(){
 //         double CrossTalk1[] = {0.324796, 0.366729, 0.4047}; 
 //         double errCrossTalk1[] = {0., 0., 0.};
     //FROM EXP FIT (exp fit of delays distribution)
-        double DCR1[] =         {13.8664, 15.8979, 18.1396}; 
-        double errDCR1[] =      { 0.144578,  0.13528,  0.133393};
-        double CrossTalk1[] =   { 0.311457, 0.379046, 0.435951};
-        double errCrossTalk1[] ={ 0.0218527, 0.0157017, 0.0117493};
+        double DCR1[] =         {14.145, 16.1991, 18.123};
+        double errDCR1[] =      {0.149264, 0.142905, 0.141507};
+        double CrossTalk1[] =   {0.319225, 0.381651, 0.438408};
+        double errCrossTalk1[] ={0.0216727, 0.0158506, 0.0121084};
+
     
                 
     /* SiPM 2 (HD3_2)
@@ -34,10 +35,12 @@ void DCR_CrossTalk(){
 //         double CrossTalk2[] ={0.33728, 0.384085, 0.42422};
 //         double errCrossTalk2[] = {0., 0., 0.};
     //FROM EXP FIT (exp fit of delays distribution)
-        double DCR2[] =         {16.8427, 18.7268, 20.3622};
-        double errDCR2[] =      {0.13462,   0.13083,  0.130154};
-        double CrossTalk2[] =   {0.362002,  0.381099, 0.410961}; 
-        double errCrossTalk2[] ={0.0150638,  0.0117008, 0.00961355};
+        double DCR2[] =         {17.0027, 18.7497, 20.4274};
+        double errDCR2[] =      {0.141721, 0.139356, 0.14036};
+        double CrossTalk2[] =   {0.360867, 0.381071, 0.40627};
+        double errCrossTalk2[] ={0.0152721, 0.0120017, 0.00990401};
+
+
     
     /* SiPM 3 (HD3_2)
      *      20180221_HD3-2_3_DARK_34_AS_2_01.txt
@@ -52,10 +55,12 @@ void DCR_CrossTalk(){
 //         double CrossTalk3[] = {0.351083, 0.402813, 0.444291};
 //         double errCrossTalk3[] = {0., 0., 0.};
     //FROM EXP FIT (exp fit of delays distribution)
-        double DCR3[] =         {18.3181, 20.9415, 23.1352};
-        double errDCR3[] =      { 0.131413,  0.12804,  0.128851};
-        double CrossTalk3[] =   { 0.356701, 0.373765, 0.412389};
-        double errCrossTalk3[] ={ 0.0128243, 0.00960361, 0.00766722};
+        double DCR3[] =         {18.5443, 20.8988, 23.2489};
+        double errDCR3[] =      {0.140562, 0.138892, 0.140885};
+        double CrossTalk3[] =   {0.35188, 0.377134, 0.408868};
+        double errCrossTalk3[] ={0.0130153, 0.00995042, 0.00793973};
+
+
     
     //------------------------------
     
