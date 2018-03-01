@@ -659,8 +659,12 @@ int DCR_CT_1SiPM_1HVs(string file1, int last_event_n){
     cout<<"   Cross Talk    = ("<<CrossTalk<<" +- "<<errCrossTalk<<")"<<endl;
 
     return 0;
+   
     
-/*          HV      0.5pe   1.5pe   FILE
+/* ---------------------------------------------------------------------
+ * ----------------------------[   HD3-2   ]---------------------------- 
+ * ---------------------------------------------------------------------
+            HV      0.5pe   1.5pe   FILE
     --------------------------------------------------------------------
     SiPM1   34 V    10 mV   24 mV   20180221_HD3-2_1_DARK_34_AS_2_01.txt
             35 V    10 mV   26 mV   20180221_HD3-2_1_DARK_35_AS_2_01.txt
@@ -674,7 +678,10 @@ int DCR_CT_1SiPM_1HVs(string file1, int last_event_n){
             35 V    10 mV   26 mV   20180221_HD3-2_3_DARK_35_AS_2_01.txt
             36 V    10 mV   26 mV   20180221_HD3-2_3_DARK_36_AS_2_01.txt
 */
-    
+/*
+ * CARLO's pe_0_5 = 7;
+ */    
+
 }
 
 
@@ -777,7 +784,16 @@ int Ana1(string file1, int last_event_n, bool display_one_ev_param){
     running_graph = false;// to see traces in an osc mode (display must be true)
     all_events_same_window = false;
     
+    pe_0_5 = 10;
+    thr_to_find_peaks = pe_0_5;
+    
     Analysis(file1, last_event_n, true);
+    
+    Get_DCR_temp_and_errDCR_temp(1);
+    
+    cout<<"File analyzed: "<<file1<<endl;
+    
+    cout<<"   DCR at 0.5 pe = ("<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<") MHz"<<endl;
     
     return 0;
 }
@@ -1101,6 +1117,5 @@ void fit_hist_all_peaks(TCanvas *c, TH1D *hist, double fit1Low, double fit1High,
     cout<<"GAIN = "<<gain<<" +- "<<errgain<<endl;
     
 }
-
 
 
