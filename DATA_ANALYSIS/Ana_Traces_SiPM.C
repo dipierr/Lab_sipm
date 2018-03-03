@@ -110,6 +110,60 @@ int ReadBin(string filename, bool display);
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
+//-------------------------------------------------------------------------------
+//-----------------------[   SETTING GLOBAL VARIABLES   ]------------------------
+//-------------------------------------------------------------------------------
+int mintp = 250; //min_time_peak
+int maxtp = 280; //max_time_peak
+int dleddt = 9; //10ns is approx the rise time used for HD3_2 on AS out 2
+int blind_gap = 20; //ns
+int max_peak_width = 20; //used for find_peaks
+int min_peak_width =  5; //used for find_peaks
+double maxyhist = 200;
+
+double pe_0_5 = 10; // !!! CHECK !!! (see comments below for values)
+double pe_1_5 = 25; // !!! CHECK !!! (see comments below for values)
+
+double thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5
+
+double w = 1000;
+double h = 800;
+
+int bins_Volt = 204;
+int bins_DCR = 206;
+int bins_Delays = 100;
+
+double maxyhistAllPeaks = 200; 
+double maxyhistDCR = 200;
+double maxyhistDelays = 200;
+
+double delta_pe = 0.005;
+
+double expDelLow_max= 60.;
+double expDelHigh_max = 160.;
+
+double fit1Low = 0;
+double fit1High = 0;
+double fit2Low = 0;
+double fit2High = 0;
+
+int nfiletot = 1;
+
+
+    
+/* VALUES:
+ * 
+ * DARK from Agilent: mintp = 160 (or 200);  maxtp = 320; dleddt = 39;
+ *                   
+ * LED from Agilent: approx in the middle, mintp = 420; maxtp = 500;  dleddt = 9; maxyhist = .2;
+ * 
+ * LED from Digitizer_CAEN: depends on the wave
+ * 
+ */
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 //---------------------------[   GLOBAL VARIABLES   ]---------------------------
@@ -139,27 +193,6 @@ int ii=0;
 int i=0;
 double max_func;
 int index_func = 0;
-
-double pe_0_5 = 10; // !!! CHECK !!! (see comments below for values)
-double pe_1_5 = 25; // !!! CHECK !!! (see comments below for values)
-
-double thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5
-
-double w = 1000;
-double h = 800;
-
-int bins_Volt = 204;
-int bins_DCR = 206;
-int bins_Delays = 100;
-
-double maxyhistAllPeaks = 200; 
-double maxyhistDCR = 200;
-double maxyhistDelays = 200;
-
-double delta_pe = 0.005;
-
-double expDelLow_max= 60.;
-double expDelHigh_max = 160.;
 
 int nfile = 1;
 
@@ -226,38 +259,6 @@ bool DRS4_Evaluation_Board = false;
 //------------------------------------------------------------------------------
 
 
-//-------------------------------------------------------------------------------
-//---------------------------[   SETTING VARIABLES   ]---------------------------
-//-------------------------------------------------------------------------------
-int min_ind_offset = 0;
-int max_ind_offset = 80;
-int mintp = 250; //min_time_peak
-int maxtp = 280; //max_time_peak
-int dleddt = 9; //10ns is approx the rise time used for HD3_2 on AS out 2
-int blind_gap = 20; //ns
-int max_peak_width = 20; //used for find_peaks
-int min_peak_width =  5; //used for find_peaks
-double maxyhist = 200;
-
-double fit1Low = 0;
-double fit1High = 0;
-double fit2Low = 0;
-double fit2High = 0;
-
-    
-/* VALUES:
- * 
- * DARK from Agilent: mintp = 160 (or 200);  maxtp = 320; dleddt = 39;
- *                   
- * LED from Agilent: approx in the middle, mintp = 420; maxtp = 500;  dleddt = 9; maxyhist = .2;
- * 
- * LED from Digitizer_CAEN: depends on the wave
- * 
- */
-
-//-------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-
 
 //------------------------------------------------------------------------------
 //--------------------[   GLOBAL HISTs, CANVs and FUNCs   ]---------------------
@@ -276,6 +277,8 @@ TH1D *ptrHistDCRthr3 = new TH1D("histDCRthr3","",bins_DCR,0,maxyhistDCR);
 TH1D *ptrHistDelays_1 = new TH1D("histDelays_1","",bins_Delays,0,maxyhistDelays);
 TH1D *ptrHistDelays_2 = new TH1D("histDelays_2","",bins_Delays,0,maxyhistDelays);
 TH1D *ptrHistDelays_3 = new TH1D("histDelays_3","",bins_Delays,0,maxyhistDelays);
+
+TH1D *ptrHistDelays[3];
 
 TF1 *expDel = new TF1("expDel","[1]*TMath::Exp(-[0]*x)",expDelLow_max,expDelHigh_max);
 TF1 *gausFit1 = new TF1("gausFit1","gaus",-100,100);
@@ -591,6 +594,13 @@ int DCR_CT_1SiPM_1HVs(string file1, int last_event_n){
 
 //------------------------------------------------------------------------------
 int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n){
+    
+    nfiletot = 3;
+    
+    for(int k=0; k<nfiletot; k++){
+        ptrHistDelays[k] = new TH1D("histDelays","",bins_Delays,0,maxyhistDelays);
+    }
+    
     //file1:
     pe_0_5 = 10; pe_1_5 = 24;
     gDCR_1 = DCR_func(file1,last_event_n, 1, 3);
