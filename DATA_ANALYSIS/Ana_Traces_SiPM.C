@@ -1066,10 +1066,8 @@ int ReadBin(string filename, bool display)
    float bin_width[16][4][1024];
    int i, j, b, chn, n, chn_index, n_boards;
    double t1, t2, dt;
-//    char filename[256];
 
-   int ndt;
-   double threshold, sumdt, sumdt2;
+   double threshold;
    n_ev = 0;
    
 //    if (argc > 1)
@@ -1143,10 +1141,7 @@ int ReadBin(string filename, bool display)
       }
    }
    n_boards = b;
-   cout<<b<<endl;
-   // initialize statistics
-   ndt = 0;
-   sumdt = sumdt2 = 0;
+   
    
    // loop over all events in the data file
    for (n=0 ; ; n++) {
@@ -1178,7 +1173,6 @@ int ReadBin(string filename, bool display)
          
          // reach channel data
          for (chn=0 ; chn<4 ; chn++) {
-            cout<<"CH LOOP"<<endl;
             // read channel header
             fread(&ch, sizeof(ch), 1, f);
             if (ch.c[0] != 'C') {
@@ -1187,7 +1181,6 @@ int ReadBin(string filename, bool display)
                break;
             }
             chn_index = ch.cn[2] - '0' - 1;
-            cout<<"-----"<<chn_index<<endl;
             fread(&scaler, sizeof(int), 1, f);
             fread(voltage, sizeof(short), 1024, f);
             
@@ -1211,14 +1204,12 @@ int ReadBin(string filename, bool display)
                time[b][chn][i] += dt;
          }
          
-         
-         
         
-//#####################################################################################        
+//====================================================================================        
          
          trace_lenght = 1024;
          
-         //***** CREATE TRACE
+//***** CREATE TRACE
         //trace
         trace = new double*[2];
         for(i = 0; i < 2; i++) {
@@ -1234,14 +1225,9 @@ int ReadBin(string filename, bool display)
     
         for(int k=0; k<trace_lenght; k++){
              trace[0][k] = time[0][0][k];
-             trace[1][k] = waveform[0][0][k];
+             trace[1][k] = waveform[0][0][k]*1000; //to convert in mV
         }
-        
-        for(int k=0; k<trace_lenght; k++){
-             cout<<trace[0][k]<<"\t";
-             cout<<trace[1][k]<<endl;
-        }
-        
+           
                
 //***** DLED
         DLED(trace_lenght,dleddt);
@@ -1268,8 +1254,7 @@ int ReadBin(string filename, bool display)
         
 //***** DCR
         if(DCR_DELAYS_bool){
-            DCR_cnt = DCR_cnt + find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
-            DCR_time = DCR_time + trace_lenght*TMath::Power(10,-9);
+            find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
         }
         else{
             if(drawHistAllPeaks){//all peaks but not DCR
@@ -1289,20 +1274,14 @@ int ReadBin(string filename, bool display)
                     c->Divide(1,2);
                     c->SetGrid();
                 }
-                if(Agilent_MSO6054A) {miny1=10; maxy1=180;}
-                if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
-                if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
-                if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
+                miny1 = -100; maxy1 = 100; miny2 = -100; maxy2 = 100;
                 show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, true, true);
                 if(!running_graph)getchar();
             }else{
                 if(n_ev==ev_to_display){
                     c->Divide(1,2);
                     c->SetGrid();
-                    if(Agilent_MSO6054A) {miny1=10; maxy1=180;}
-                    if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
-                    if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
-                    if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
+                    miny1 = -100; maxy1 = 100; miny2 = -100; maxy2 = 100;
                     show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, false, true);
                 }
             }
@@ -1316,17 +1295,12 @@ int ReadBin(string filename, bool display)
         delete []trace_DLED[1];
         delete []peak;
         n_ev++;
-    
-    cout<<"Last event "<<n_ev<<endl;
-
-         
-         
-//#####################################################################################
-
+        
+//====================================================================================        
 
       }//end loop boards
    }//loop events
-   
+   cout<<"Last event "<<n_ev<<endl;
    
    return 1;
 }
