@@ -30,6 +30,8 @@
 #include "TSpectrum.h"
 #include "TVirtualFitter.h"
 
+#define nfilemax 3
+
 //------------------------------------------------------------------------------
 //--------------------------[   READ BIN DRS4 INTRO   ]-------------------------
 //------------------------------------------------------------------------------
@@ -88,81 +90,109 @@ int Analysis(string file, int last_event_n, bool display);
 //PREDEFINED
 int DCR_CT_1SiPM_1HVs(string file1, int last_event_n);
 int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n);
-int GAIN_1SiPM_1HV(string file1, int last_event_n);
-int Ana1(string file1, int last_event_n, bool display_one_ev_param);
+int Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_bool);
 
 //SECONDARY
 void DLED(int trace_lenght, int dleddt);
 int find_peak_fix_time(int mintp, int maxtp);
 int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,int blind_gap, bool DCR_DELAYS_bool);
 void average_func(int trace_lenght);
+void fit_hist_del(double expDelLow, double expDelHigh);
+void fit_hist_all_peaks(TCanvas *c, TH1D *hist, double fit1Low, double fit1High, double fit2Low, double fit2High);
+TGraphErrors* DCR_func(string file1, int last_event_n, int tot_files);
+void Get_DCR_temp_and_errDCR_temp();
 void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
 void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
-void fit_hist_del(double expDelLow, double expDelHigh);
-void ResetHistsDelays();
-void Get_DCR_temp_and_errDCR_temp(int nfile);
-void fit_hist_all_peaks(TCanvas *c, TH1D *hist, double fit1Low, double fit1High, double fit2Low, double fit2High);
-TGraphErrors* DCR_func(string file1, int last_event_n, int nfile, int tot_files);
 
-
+//READ FILE
 void Read_Agilent_CAEN(string file, int last_event_n, bool display);
 int ReadBin(string filename, bool display);
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
+
+
+//------------------------------------------------------------------------------
+//-------------------------------[   OPTIONS   ]--------------------------------
+//------------------------------------------------------------------------------
+
+bool find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
+bool average = false; //calculate the average of traces (useful for LED measures)
+
+bool DCR_DELAYS_bool = false; //DCR from delays
+bool CROSS_TALK_bool = false; //DCR must be true
+
+bool drawHistAllPeaks = false; // to draw hist of all peaks in traces
+bool fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
+bool drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
+bool show_hists_DCR_DELAYS  = false;
+bool showHist_bool = false; 
+bool SetLogyHist = false;
+bool running_graph = false;// to see traces in an osc mode (display must be true)
+bool display_one_ev = false;
+bool line_bool = false;
+
+bool all_events_same_window = false; //all the events (from 0 to last_event_n) are joined in a single event
+
+bool DO_NOT_DELETE_HIST_LED = false; //If set true, run only ONE TIME Analysis!!!
+
+//DEVICE:
+bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
+bool Digitizer_CAEN = true;  //true if data taken by Digitizer_CAEN, false otherwise
+bool DRS4_Evaluation_Board = false;
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+
+
+
 //-------------------------------------------------------------------------------
 //-----------------------[   SETTING GLOBAL VARIABLES   ]------------------------
 //-------------------------------------------------------------------------------
+//peaks related
 int mintp = 250; //min_time_peak
 int maxtp = 280; //max_time_peak
 int dleddt = 9; //10ns is approx the rise time used for HD3_2 on AS out 2
 int blind_gap = 20; //ns
 int max_peak_width = 20; //used for find_peaks
 int min_peak_width =  5; //used for find_peaks
-double maxyhist = 200;
-
 double pe_0_5 = 10; // !!! CHECK !!! (see comments below for values)
 double pe_1_5 = 25; // !!! CHECK !!! (see comments below for values)
-
 double thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5
 
+//hist related
+double maxyhist = 200;
+double maxyhistAllPeaks = 200; 
+double maxyhistDCR = 200;
+double maxyhistDelays = 200;
 double w = 1000;
 double h = 800;
-
 int bins_Volt = 204;
 int bins_DCR = 206;
 int bins_Delays = 100;
 
-double maxyhistAllPeaks = 200; 
-double maxyhistDCR = 200;
-double maxyhistDelays = 200;
-
-double delta_pe = 0.005;
-
+//fit related
 double expDelLow_max= 60.;
 double expDelHigh_max = 160.;
-
 double fit1Low = 0;
 double fit1High = 0;
 double fit2Low = 0;
 double fit2High = 0;
 
-int nfiletot = 1;
+//display related
+int ev_to_display = 7;
 
 
-    
 /* VALUES:
- * 
- * DARK from Agilent: mintp = 160 (or 200);  maxtp = 320; dleddt = 39;
- *                   
- * LED from Agilent: approx in the middle, mintp = 420; maxtp = 500;  dleddt = 9; maxyhist = .2;
- * 
- * LED from Digitizer_CAEN: depends on the wave
- * 
+ *  DARK from Agilent: mintp = 160 (or 200);  maxtp = 320; dleddt = 39;
+ *  LED from Agilent: approx in the middle, mintp = 420; maxtp = 500;  dleddt = 9; maxyhist = .2;
+ *  LED from Digitizer_CAEN: depends on the wave
  */
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
+
 
 
 //------------------------------------------------------------------------------
@@ -187,74 +217,14 @@ double DCR_pe_1_5_vect[] = {0., 0., 0.};
 double errDCR_pe_0_5_vect[] = {0., 0., 0.};
 double errDCR_pe_1_5_vect[] = {0., 0., 0.};
 
-int trace_DLED_lenght;
+int trace_DLED_lenght; int ii=0; int i=0; int index_func = 0; int nfile = 0; int n_DCR = 0; int DCR_cnt = 0; int trace_lenght = 0; int n_ev, index_for_peak; int one_window=0;
+int nfiletot = 1;
 
-int ii=0;
-int i=0;
-double max_func;
-int index_func = 0;
+double miny=0; double maxy=0; double miny1=0; double maxy1=0; double miny2=0; double maxy2=0; double gain, errgain; double DCR_time = 0.; double DCR_from_cnt = 0.; double max_func;
 
-int nfile = 1;
-
-bool first_time_main_called = true;
-
-int n_DCR = 0;
-int DCR_cnt = 0;
-int ev_to_display = 7;
-
-double DCR_time = 0.;
-double DCR_from_cnt = 0.;
+bool first_time_main_called = true; bool reading = true; bool last_event_flag = false;
 
 char temp[20];
-int n_ev, index_for_peak;
-bool reading = true;
-bool last_event_flag = false;
-int trace_lenght = 0;
-int one_window=0;
-double miny=0;
-double maxy=0;
-double miny1=0;
-double maxy1=0;
-double miny2=0;
-double maxy2=0;
-
-
-//------------------------------------------------------------------------------
-//-------------------------------[   OPTIONS   ]--------------------------------
-//------------------------------------------------------------------------------
-
-bool find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
-bool average = false; //calculate the average of traces (useful for LED measures)
-
-bool DCR_CNT_bool = false; // DCR from counters
-bool DCR_DELAYS_bool = false; //DCR from delays
-bool CROSS_TALK_bool = false; //DCR must be true
-
-bool drawHistAllPeaks = false; // to draw hist of all peaks in traces
-bool fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
-bool drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
-bool show_hists_DCR_DELAYS  = false;
-bool showHist_bool = false; 
-bool SetLogyHist = false;
-bool running_graph = false;// to see traces in an osc mode (display must be true)
-bool display_one_ev = false;
-bool line_bool = false;
-
-bool all_events_same_window = false; //all the events (from 0 to last_event_n) are joined in a single event
-
-bool DO_NOT_DELETE_HIST_LED = false; //If set true, run only ONE TIME Analysis!!!
-
-//DEVICE:
-bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
-bool Digitizer_CAEN = true;  //true if data taken by Digitizer_CAEN, false otherwise
-bool DRS4_Evaluation_Board = false;
-
-
-/* VALUES:
- * 
- * LED from Digitizer_CAEN: bins_Volt = 204;
- * 
- */
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -266,19 +236,9 @@ bool DRS4_Evaluation_Board = false;
 
 TH1D *ptrHist = new TH1D("hist","",bins_Volt,0,maxyhist);
 
-TH1D *ptrHistAllPeaks1 = new TH1D("histAllPeaks1","",bins_DCR,0,maxyhistAllPeaks);
-TH1D *ptrHistAllPeaks2 = new TH1D("histAllPeaks2","",bins_DCR,0,maxyhistAllPeaks);
-TH1D *ptrHistAllPeaks3 = new TH1D("histAllPeaks3","",bins_DCR,0,maxyhistAllPeaks);
-
-TH1D *ptrHistDCRthr1 = new TH1D("histDCRthr1","",bins_DCR,0,maxyhistDCR);
-TH1D *ptrHistDCRthr2 = new TH1D("histDCRthr2","",bins_DCR,0,maxyhistDCR);
-TH1D *ptrHistDCRthr3 = new TH1D("histDCRthr3","",bins_DCR,0,maxyhistDCR);
-
-TH1D *ptrHistDelays_1 = new TH1D("histDelays_1","",bins_Delays,0,maxyhistDelays);
-TH1D *ptrHistDelays_2 = new TH1D("histDelays_2","",bins_Delays,0,maxyhistDelays);
-TH1D *ptrHistDelays_3 = new TH1D("histDelays_3","",bins_Delays,0,maxyhistDelays);
-
-TH1D *ptrHistDelays[3];
+TH1D *ptrHistAllPeaks[nfilemax];
+TH1D *ptrHistDCRthr[nfilemax];
+TH1D *ptrHistDelays[nfilemax];
 
 TF1 *expDel = new TF1("expDel","[1]*TMath::Exp(-[0]*x)",expDelLow_max,expDelHigh_max);
 TF1 *gausFit1 = new TF1("gausFit1","gaus",-100,100);
@@ -293,25 +253,17 @@ TCanvas *cAllPeaks = new TCanvas("AllPeaks","AllPeaks",w,h);
 //------------------------------------------------------------------------------
 
 
+
 //------------------------------------------------------------------------------
 //----------------------------[   MAIN FUNCTION   ]-----------------------------
 //------------------------------------------------------------------------------   
 int Analysis(string file, int last_event_n, bool display){
     gROOT->Reset();
-    
-    if(first_time_main_called){
-        if(DCR_CNT_bool and DCR_DELAYS_bool){
-            cout<<"WARNING: both DCR_CNT_bool and DCR_DELAYS_bool are true: do you want to evaluate DCR both by counting peaks and fitting the delays distribution? Y/N";
-            char opt = getchar();
-            if(opt!='Y' and opt!='y')
-                return 5;
-        }
-    }
-    
     if(Agilent_MSO6054A or Digitizer_CAEN) 
         Read_Agilent_CAEN(file, last_event_n, display);
     if(DRS4_Evaluation_Board)
         ReadBin(file, display);
+    
     
     
 //***** AVERAGE
@@ -329,13 +281,13 @@ int Analysis(string file, int last_event_n, bool display){
     
 //***** HIST ALL PEAKS
     if(drawHistAllPeaks){
-        if(nfile == 1){
+        if(nfile == 0){
             TCanvas *cAllPeaks1 = new TCanvas("AllPeaks1","AllPeaks1",w,h);
             cAllPeaks1-> SetGrid();
             cAllPeaks1->cd();
-            ptrHistAllPeaks1->GetXaxis()->SetTitle("mV");
-            ptrHistAllPeaks1->GetYaxis()->SetTitle("Counts");
-            ptrHistAllPeaks1->Draw("hist");
+            ptrHistAllPeaks[nfile]->GetXaxis()->SetTitle("mV");
+            ptrHistAllPeaks[nfile]->GetYaxis()->SetTitle("Counts");
+            ptrHistAllPeaks[nfile]->Draw("hist");
             
             if(fitHistAllPeaks){
                 if(file == "20180221_HD3-2_1_DARK_34_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_34_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_34_AS_2_01.txt")
@@ -346,167 +298,39 @@ int Analysis(string file, int last_event_n, bool display){
                 {fit1Low = 12; fit1High = 28; fit2Low = 36; fit2High = 50;}else{
                     fit1Low = 12; fit1High = 28; fit2Low = 36; fit2High = 50;
                 }}}
-                fit_hist_all_peaks(cAllPeaks1, ptrHistAllPeaks1, fit1Low, fit1High, fit2Low, fit2High);
-            }
-            
-            if(drawHistAllPeaksAll){
-                cAllPeaks-> SetGrid();
-                cAllPeaks->cd();
-                ptrHistAllPeaks1->Draw("histsame");
+                fit_hist_all_peaks(cAllPeaks1, ptrHistAllPeaks[nfile], fit1Low, fit1High, fit2Low, fit2High);
             }
             
         }
-        if(nfile == 2){
-            TCanvas *cAllPeaks2 = new TCanvas("AllPeaks2","AllPeaks2",w,h);
-            cAllPeaks2-> SetGrid();
-            cAllPeaks2->cd();
-            ptrHistAllPeaks2->Draw("hist");
+        if(drawHistAllPeaksAll){
+            cAllPeaks->cd();
             
-            if(drawHistAllPeaksAll){
-                cAllPeaks->cd();
-                ptrHistAllPeaks2->SetLineColor(kGreen+1);
-                ptrHistAllPeaks2->Draw("histsame");
-            }
-        }
-        if(nfile == 3){
-            TCanvas *cAllPeaks3 = new TCanvas("AllPeaks3","AllPeaks3",w,h);
-            cAllPeaks3-> SetGrid();
-            cAllPeaks3->cd();
-            ptrHistAllPeaks3->Draw("hist");
+            if(nfile==1) ptrHistAllPeaks[nfile]->SetLineColor(kGreen+1);
+            if(nfile==2) ptrHistAllPeaks[nfile]->SetLineColor(kRed+1);
+            ptrHistAllPeaks[nfile]->Draw("histsame");
             
-            if(drawHistAllPeaksAll){
-                cAllPeaks->cd();
-                ptrHistAllPeaks3->SetLineColor(kRed+1);
-                ptrHistAllPeaks3->Draw("histsame");
-                
-                auto legend = new TLegend(0.7,0.7,0.9,0.9);
-                legend->AddEntry(ptrHistDCRthr1,"HV = 34.00 V","l");
-                legend->AddEntry(ptrHistDCRthr2,"HV = 35.00 V","l");
-                legend->AddEntry(ptrHistDCRthr3,"HV = 36.00 V","l");
-                legend->Draw();
-            }
-        }
-    }
-    
-//***** DCR from CNT 
-    if(DCR_CNT_bool){
-        
-        DCR_from_cnt = DCR_cnt/DCR_time;
-        cout<<"\nDCR = "<<DCR_from_cnt*TMath::Power(10,-6)<<" MHz"<<endl;
-        cDCR->SetGrid();
-        cDCR->cd();
-        
-        double cnt_temp, binCenter;
-        for(int i=0; i<bins_DCR; i++){
-            cnt_temp=0;
-            for(int j=i; j<bins_DCR; j++){
-                if(nfile==1) cnt_temp = cnt_temp + ptrHistAllPeaks1->GetBinContent(j);
-                if(nfile==2) cnt_temp = cnt_temp + ptrHistAllPeaks2->GetBinContent(j);
-                if(nfile==3) cnt_temp = cnt_temp + ptrHistAllPeaks3->GetBinContent(j);
-            }
-            cnt_temp = cnt_temp/DCR_time;
-            
-            if(nfile==1){ binCenter = ptrHistAllPeaks1->GetBinCenter(i); ptrHistDCRthr1 -> Fill(binCenter,cnt_temp);}
-            if(nfile==2){ binCenter = ptrHistAllPeaks2->GetBinCenter(i); ptrHistDCRthr2 -> Fill(binCenter,cnt_temp);}
-            if(nfile==3){ binCenter = ptrHistAllPeaks3->GetBinCenter(i); ptrHistDCRthr3 -> Fill(binCenter,cnt_temp);}
-        }
-        cDCR->cd();
-        
-        cDCR->SetLogy();
-        if(nfile == 1){
-            ptrHistDCRthr1->GetXaxis()->SetTitle("Threshold (mV)");
-            ptrHistDCRthr1->GetYaxis()->SetTitle("DCR (Hz)");
-            ptrHistDCRthr1->Draw("hist");
-        }
-        if(nfile == 2){
-            ptrHistDCRthr2->SetLineColor(kGreen+1);
-            ptrHistDCRthr2->Draw("histsame");
-        }
-        if(nfile == 3){
-            ptrHistDCRthr3->SetLineColor(kRed+1);
-            ptrHistDCRthr3->Draw("histsame");
             auto legend = new TLegend(0.7,0.7,0.9,0.9);
-            legend->AddEntry(ptrHistDCRthr1,"HV = 34.00 V","l");
-            legend->AddEntry(ptrHistDCRthr2,"HV = 35.00 V","l");
-            legend->AddEntry(ptrHistDCRthr3,"HV = 36.00 V","l");
+            for(int k=0; k<nfilemax; k++){
+                if(nfile==0) legend->AddEntry(ptrHistDCRthr[nfile],"HV = 34.00 V","l");
+                if(nfile==1) legend->AddEntry(ptrHistDCRthr[nfile],"HV = 35.00 V","l");
+                if(nfile==2) legend->AddEntry(ptrHistDCRthr[nfile],"HV = 36.00 V","l");
+            }
             legend->Draw();
         }
-
-//***** CROSS-TALK
-    if(CROSS_TALK_bool){
-        double DCR_pe_0_5 = 0.;
-        double DCR_pe_1_5 = 0.;
-        double CrossTalk = 0.;
-        
-        if(pe_0_5==0||pe_1_5==0){
-            cout<<"ERROR: CHECK THR FOR 0.5 AND 1.5 PE"<<endl;
-            return 1;
-        }
-        
-        for(int i=0; i<bins_DCR; i++){
-            if(nfile==1){
-                if((ptrHistAllPeaks1->GetBinCenter(i) > pe_0_5 - delta_pe) and (ptrHistAllPeaks1->GetBinCenter(i) < pe_0_5 + delta_pe)){
-                    DCR_pe_0_5 = ptrHistDCRthr1->GetBinContent(i);
-                    cout<<"Found DCR_pe_0_5"<<endl;
-                }
-                if((ptrHistAllPeaks1->GetBinCenter(i) > pe_1_5 - delta_pe) and (ptrHistAllPeaks1->GetBinCenter(i) < pe_1_5 + delta_pe)){
-                    DCR_pe_1_5 = ptrHistDCRthr1->GetBinContent(i);
-                    cout<<"Found DCR_pe_1_5"<<endl;
-                }
-            }
-            if(nfile==2){
-                if((ptrHistAllPeaks2->GetBinCenter(i) > pe_0_5 - delta_pe) and (ptrHistAllPeaks2->GetBinCenter(i) < pe_0_5 + delta_pe)){
-                    DCR_pe_0_5 = ptrHistDCRthr2->GetBinContent(i);
-                    cout<<"Found DCR_pe_0_5"<<endl;
-                }
-                if((ptrHistAllPeaks2->GetBinCenter(i) > pe_1_5 - delta_pe) and (ptrHistAllPeaks2->GetBinCenter(i) < pe_1_5 + delta_pe)){
-                    DCR_pe_1_5 = ptrHistDCRthr2->GetBinContent(i);
-                    cout<<"Found DCR_pe_1_5"<<endl;
-                }
-            }
-            if(nfile==3){
-                if((ptrHistAllPeaks3->GetBinCenter(i) > pe_0_5 - delta_pe) and (ptrHistAllPeaks3->GetBinCenter(i) < pe_0_5 + delta_pe)){
-                    DCR_pe_0_5 = ptrHistDCRthr3->GetBinContent(i);
-                    cout<<"Found DCR_pe_0_5"<<endl;
-                }
-                if((ptrHistAllPeaks3->GetBinCenter(i) > pe_1_5 - delta_pe) and (ptrHistAllPeaks3->GetBinCenter(i) < pe_1_5 + delta_pe)){
-                    DCR_pe_1_5 = ptrHistDCRthr3->GetBinContent(i);
-                    cout<<"Found DCR_pe_1_5"<<endl;
-                }
-            }
-        }
-        
-        CrossTalk = DCR_pe_1_5/DCR_pe_0_5;
-        cout<<"CrossTalk = "<<CrossTalk<<endl;
-}
-
     }
     
 //***** DCR from DELAYS
     if(DCR_DELAYS_bool){
         if(show_hists_DCR_DELAYS){
-            if(nfile == 1){
-                    TCanvas *cDelays1 = new TCanvas("Delays_SiPM_file1","Delays_SiPM_file1",w,h);
-                    ptrHistDelays_1->GetXaxis()->SetTitle("Time (ns)");
-                    ptrHistDelays_1->GetYaxis()->SetTitle("");
-                    ptrHistDelays_1->Draw("hist");
-            }
-            if(nfile == 2){
-                    TCanvas *cDelays2 = new TCanvas("Delays_SiPM_file2","Delays_SiPM_file2",w,h);
-                    ptrHistDelays_2->GetXaxis()->SetTitle("Time (ns)");
-                    ptrHistDelays_2->GetYaxis()->SetTitle("");
-                    ptrHistDelays_2->Draw("hist");
-            }
-            if(nfile == 3){
-                    TCanvas *cDelays3 = new TCanvas("Delays_SiPM_file3","Delays_SiPM_file3",w,h);
-                    ptrHistDelays_3->GetXaxis()->SetTitle("Time (ns)");
-                    ptrHistDelays_3->GetYaxis()->SetTitle("");
-                    ptrHistDelays_3->Draw("hist");
-            }
+            new TCanvas();
+            ptrHistDelays[nfile]->GetXaxis()->SetTitle("Time (ns)");
+            ptrHistDelays[nfile]->GetYaxis()->SetTitle("");
+            ptrHistDelays[nfile]->Draw("hist");
         }
         
+        cout<<"333"<<endl;
         fit_hist_del(expDelLow_max, expDelHigh_max);
-        
+        cout<<"222"<<endl;
     }
     
     if(showHist_bool){
@@ -531,13 +355,37 @@ int Analysis(string file, int last_event_n, bool display){
 //-------------------------[   PREDEFINED FUNCTIONS   ]-------------------------
 //------------------------------------------------------------------------------
 
-
 //------------------------------------------------------------------------------
 int DCR_CT_1SiPM_1HVs(string file1, int last_event_n){
+    //VARIABLES:
+    //TRUE:
+    DCR_DELAYS_bool = true; //DCR from delays
+    CROSS_TALK_bool = true; //DCR must be true
+    DO_NOT_DELETE_HIST_LED = true;
+    //FALSE:
+    drawHistAllPeaks = false; // to draw hist of all peaks in traces
+    fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
+    find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
+    average = false; //calculate the average of traces (useful for LED measures)
+    drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
+    show_hists_DCR_DELAYS  = false;
+    showHist_bool = false; 
+    SetLogyHist = false;
+    running_graph = false;// to see traces in an osc mode (display must be true)
+    all_events_same_window = false;
+    
+    
+    nfile = 0;
     
     pe_0_5 = 10; //mV
     pe_1_5 = 26; //mV
-    gDCR_1 = DCR_func(file1,last_event_n, 1, 1);
+    
+    ptrHistDelays[0]    = new TH1D("histDelays","",bins_Delays,0,maxyhistDelays);
+    ptrHistAllPeaks[0]  = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
+    ptrHistDCRthr[0]    = new TH1D("histDCRthr","",bins_DCR,0,maxyhistDCR);
+    
+    
+    gDCR_1 = DCR_func(file1,last_event_n, 1);
     
     TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
     DCR_mg->Add(gDCR_1);
@@ -597,19 +445,42 @@ int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n
     
     nfiletot = 3;
     
+    //VARIABLES:
+    //TRUE:
+    DCR_DELAYS_bool = true; //DCR from delays
+    CROSS_TALK_bool = true; //DCR must be true
+    DO_NOT_DELETE_HIST_LED = true;
+    //FALSE:
+    drawHistAllPeaks = false; // to draw hist of all peaks in traces
+    fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
+    find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
+    average = false; //calculate the average of traces (useful for LED measures)
+    drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
+    show_hists_DCR_DELAYS  = false;
+    showHist_bool = false; 
+    SetLogyHist = false;
+    running_graph = false;// to see traces in an osc mode (display must be true)
+    all_events_same_window = false;
+    
     for(int k=0; k<nfiletot; k++){
-        ptrHistDelays[k] = new TH1D("histDelays","",bins_Delays,0,maxyhistDelays);
+        ptrHistDelays[k]   = new TH1D("histDelays","",bins_Delays,0,maxyhistDelays);
+        ptrHistAllPeaks[k] = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
+        ptrHistDCRthr[k]   = new TH1D("histDCRthr","",bins_DCR,0,maxyhistDCR);
     }
     
     //file1:
     pe_0_5 = 10; pe_1_5 = 24;
-    gDCR_1 = DCR_func(file1,last_event_n, 1, 3);
+    nfile = 0;
+    gDCR_1 = DCR_func(file1,last_event_n, 3);
     //file2:
+    nfile = 1;
     pe_0_5 = 10;   pe_1_5 = 26;
-    gDCR_2 = DCR_func(file2,last_event_n, 2, 3);
+    gDCR_2 = DCR_func(file2,last_event_n, 3);
     //file3:
+    nfile = 2;
     pe_0_5 = 10;   pe_1_5 = 26;
-    gDCR_3 = DCR_func(file3,last_event_n, 3, 3);     
+    gDCR_3 = DCR_func(file3,last_event_n, 3);  
+    
     
     TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
     DCR_mg->Add(gDCR_1);
@@ -654,52 +525,24 @@ int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n
 }
 
 //------------------------------------------------------------------------------
-int GAIN_1SiPM_1HV(string file1, int last_event_n){
-    //VARIABLES:
-    //TRUE:
-    drawHistAllPeaks = true; // to draw hist of all peaks in traces
-    fitHistAllPeaks = true; // fit hist of all peaks -> for GAIN
-    //FALSE:
-    find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
-    average = false; //calculate the average of traces (useful for LED measures)
-    DCR_CNT_bool = false; // DCR from counters
-    DCR_DELAYS_bool = false; //DCR from delays
-    CROSS_TALK_bool = false; //DCR must be true
-    drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
-    show_hists_DCR_DELAYS  = false;
-    showHist_bool = false; 
-    SetLogyHist = false;
-    running_graph = false;// to see traces in an osc mode (display must be true)
-    all_events_same_window = false;
-    
-    pe_0_5 = 10;
-    thr_to_find_peaks = pe_0_5;
-    
-    Analysis(file1, last_event_n, false);
-    
-    return 0;
-}
-
-
-//------------------------------------------------------------------------------
 int Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_bool){
     //VARIABLES:
     //TRUE:
     drawHistAllPeaks = true; // to draw hist of all peaks in traces
     fitHistAllPeaks = true; // fit hist of all peaks -> for GAIN
     DCR_DELAYS_bool = true; //DCR from delays
-    CROSS_TALK_bool = true; //DCR must be true
     show_hists_DCR_DELAYS  = true;
     display_one_ev = display_one_ev_param;
     //FALSE:
+    CROSS_TALK_bool = true; //DCR must be true
     find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
     average = false; //calculate the average of traces (useful for LED measures)
-    DCR_CNT_bool = false; // DCR from counters
     drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
     showHist_bool = false; 
     SetLogyHist = false;
     running_graph = false;// to see traces in an osc mode (display must be true)
     all_events_same_window = false;
+    DO_NOT_DELETE_HIST_LED = true;
     
     pe_0_5 = 10;
     thr_to_find_peaks = pe_0_5;
@@ -715,12 +558,21 @@ int Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_boo
         DO_NOT_DELETE_HIST_LED = true;
     }
     
+    ptrHistAllPeaks[0]  = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
+    ptrHistDelays[0]    = new TH1D("histDelays","",bins_Delays,0,maxyhistDelays);
+    ptrHistDCRthr[0]    = new TH1D("histDCRthr","",bins_DCR,0,maxyhistDCR);
+    
     Analysis(file1, last_event_n, true);
     
-    Get_DCR_temp_and_errDCR_temp(1);
+    Get_DCR_temp_and_errDCR_temp();
+    
+    cout<<endl<<endl;
+    cout<<"-------------------------"<<endl;
+    cout<<"-------[ RESULTS ]-------"<<endl;
+    cout<<"-------------------------"<<endl<<endl;
     
     cout<<"File analyzed: "<<file1<<endl;
-    
+    cout<<"   GAIN = ("<<gain<<" +- "<<errgain<<") mV"<<endl;
     cout<<"   DCR at 0.5 pe = ("<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<") MHz"<<endl;
     
     return 0;
@@ -788,20 +640,16 @@ int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,
                 index_peak = find_peak_fix_time(ii, trace_DLED_lenght);
             
             if((index_peak-index_old)>blind_gap){
+                index_new=index_peak;
                 //DCR from the delay (Itzler Mark - Dark Count Rate Measure (pag 5 ss))
                 if(DCR_DELAYS_bool){
-                    index_new=index_peak;
                     //I fill the hist with delays between 1 pe peaks (or higher):
                     if(index_old>0){
-                        if(nfile == 1) ptrHistDelays_1 -> Fill(index_new - index_old); 
-                        if(nfile == 2) ptrHistDelays_2 -> Fill(index_new - index_old);
-                        if(nfile == 3) ptrHistDelays_3 -> Fill(index_new - index_old); 
+                        ptrHistDelays[nfile] -> Fill(index_new - index_old); 
                     }
-                    index_old = index_new;   
-                    }
-                if(nfile == 1) ptrHistAllPeaks1->Fill(trace_DLED[1][index_peak]);
-                if(nfile == 2) ptrHistAllPeaks2->Fill(trace_DLED[1][index_peak]);
-                if(nfile == 3) ptrHistAllPeaks3->Fill(trace_DLED[1][index_peak]);
+                }
+                index_old = index_new;  
+                ptrHistAllPeaks[nfile]->Fill(trace_DLED[1][index_peak]);
                 
                 ii=ii+peak_width;  
             }else{
@@ -811,12 +659,11 @@ int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,
                 ii++;
         }
     }
-    //cout<<DCR_cnt_temp<<endl;
     return DCR_cnt_temp;
 }
 
 //------------------------------------------------------------------------------
-TGraphErrors *DCR_func(string file1, int last_event_n, int nfile, int tot_files){ 
+TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files){ 
     //VARIABLES:
     //TRUE:
     DCR_DELAYS_bool = true; //DCR from delays
@@ -824,7 +671,6 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int nfile, int tot_files)
     //FALSE:
     find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
     average = false; //calculate the average of traces (useful for LED measures)
-    DCR_CNT_bool = false; // DCR from counters
     drawHistAllPeaks = false; // to draw hist of all peaks in traces
     fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
     drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
@@ -834,7 +680,6 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int nfile, int tot_files)
     running_graph = false;// to see traces in an osc mode (display must be true)
     all_events_same_window = false;
     
-       
     bool display = false;
     int control = 0;
     
@@ -844,11 +689,11 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int nfile, int tot_files)
     
     n_DCR = (int)((max_thr_to_find_peaks - thr_to_find_peaks)/gap_between_thr);
     
-    DCR = new double*[tot_files]; //first index: nfile => DCR[0][...] for nfile = 1 
+    DCR = new double*[tot_files];
         for(int i = 0; i < 3; i++) {
             DCR[i] = new double[n_DCR];
     }
-    errDCR = new double*[tot_files]; //first index: nfile => DCR[0][...] for nfile = 1
+    errDCR = new double*[tot_files]; 
         for(int i = 0; i < 3; i++) {
             errDCR[i] = new double[n_DCR];
     }
@@ -858,22 +703,27 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int nfile, int tot_files)
     
     while(thr_to_find_peaks <= max_thr_to_find_peaks){
         control = Analysis(file1,last_event_n,display);
-        Get_DCR_temp_and_errDCR_temp(nfile);
-        ResetHistsDelays();
+        cout<<"444"<<endl;
+        Get_DCR_temp_and_errDCR_temp();
+        cout<<"111"<<endl;
+        ptrHistDelays[nfile]->Reset();
+        cout<<"00"<<endl;
         DCR_thr[h] = thr_to_find_peaks; //mV
-        DCR[nfile-1][h] = DCR_temp[nfile-1];
-        errDCR[nfile-1][h] = errDCR_temp[nfile-1];
+        DCR[nfile][h] = DCR_temp[nfile];
+        errDCR[nfile][h] = errDCR_temp[nfile];
         thr_to_find_peaks = thr_to_find_peaks + gap_between_thr; //I jump to the next thr in order to evaluate the new DRC
         h++;
     }
     
-    TGraphErrors *gDCR = new TGraphErrors(n_DCR, DCR_thr, DCR[nfile-1],NULL, errDCR[nfile-1]);
+    
+    
+    TGraphErrors *gDCR = new TGraphErrors(n_DCR, DCR_thr, DCR[nfile],NULL, errDCR[nfile]);
     
      gDCR->SetLineWidth(2);
     
-    if(nfile==1){gDCR->SetLineColor(kGreen+1);gDCR->SetFillColorAlpha(kGreen+1, 0.3);}
-    if(nfile==2){gDCR->SetLineColor(kBlue);   gDCR->SetFillColorAlpha(kBlue, 0.3);   }
-    if(nfile==3){gDCR->SetLineColor(kRed+1);  gDCR->SetFillColorAlpha(kRed+1, 0.3);  }
+    if(nfile==0){gDCR->SetLineColor(kGreen+1);gDCR->SetFillColorAlpha(kGreen+1, 0.3);}
+    if(nfile==1){gDCR->SetLineColor(kBlue);   gDCR->SetFillColorAlpha(kBlue, 0.3);   }
+    if(nfile==2){gDCR->SetLineColor(kRed+1);  gDCR->SetFillColorAlpha(kRed+1, 0.3);  }
     
     cout<<endl<<endl;
     
@@ -972,55 +822,40 @@ void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, 
     if(delete_bool) {delete graph1; delete graph2;}
 }
 
-
-
 //------------------------------------------------------------------------------
-void ResetHistsDelays(){
-    ptrHistDelays_1->Reset();
-    ptrHistDelays_2->Reset();
-    ptrHistDelays_3->Reset();
-}
-
-//------------------------------------------------------------------------------
-void Get_DCR_temp_and_errDCR_temp(int nfile){
-    DCR_temp[nfile-1] = expDel->GetParameter(0)*TMath::Power(10,9);
-    errDCR_temp[nfile-1] = expDel->GetParError(0)*TMath::Power(10,9);
+void Get_DCR_temp_and_errDCR_temp(){
+    DCR_temp[nfile] = expDel->GetParameter(0)*TMath::Power(10,9);
+    errDCR_temp[nfile] = expDel->GetParError(0)*TMath::Power(10,9);
     
     if(CROSS_TALK_bool){
         if((int)(thr_to_find_peaks*10000)==(int)(pe_0_5*10000)){
-            DCR_pe_0_5_vect[nfile-1] = DCR_temp[nfile-1];
-            errDCR_pe_0_5_vect[nfile-1] = errDCR_temp[nfile-1];
+            DCR_pe_0_5_vect[nfile] = DCR_temp[nfile];
+            errDCR_pe_0_5_vect[nfile] = errDCR_temp[nfile];
         }
         else{
             if((int)(thr_to_find_peaks*10000)==(int)(pe_1_5*10000)){
-                DCR_pe_1_5_vect[nfile-1] = DCR_temp[nfile-1];
-                errDCR_pe_1_5_vect[nfile-1] = errDCR_temp[nfile-1];
+                DCR_pe_1_5_vect[nfile] = DCR_temp[nfile];
+                errDCR_pe_1_5_vect[nfile] = errDCR_temp[nfile];
             }
         }
     }
     
 }
 
-
 //------------------------------------------------------------------------------
 void fit_hist_del(double expDelLow, double expDelHigh){ //fit hists filled with time delays in order to find DCR
     cout<<"Fit hist delays file "<<nfile<<endl;
     expDel-> SetParName(0,"DCR"); expDel-> SetParName(1,"MultCost");
-    if(nfile == 1) {
-        expDel->SetParameter(0,0.001);
-        ptrHistDelays_1 -> Fit(expDel, "", "", expDelLow, expDelHigh);
-        expDel->Draw("same");
-    }
-    if(nfile == 2) ptrHistDelays_2 -> Fit(expDel, "", "", expDelLow, expDelHigh);
-    if(nfile == 3) ptrHistDelays_3 -> Fit(expDel, "", "", expDelLow, expDelHigh);
+    expDel->SetParameter(0,0.001);
+    ptrHistDelays[nfile] -> Fit(expDel, "", "", expDelLow, expDelHigh);
+    expDel->Draw("same");
 }
-
 
 //------------------------------------------------------------------------------
 void fit_hist_all_peaks(TCanvas *c, TH1D *hist, double fit1Low, double fit1High, double fit2Low, double fit2High){
     
-    double mean1, mean2, gain;
-    double errmean1, errmean2, errgain;
+    double mean1, mean2;
+    double errmean1, errmean2;
     
     c->cd();
     
@@ -1048,8 +883,13 @@ void fit_hist_all_peaks(TCanvas *c, TH1D *hist, double fit1Low, double fit1High,
 
 
 //------------------------------------------------------------------------------
+//------------------------------[   READ FILES   ]------------------------------
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void Read_Agilent_CAEN(string file, int last_event_n, bool display){
     ifstream OpenFile (file.c_str());
+    reading = true;
     
     n_ev=0;
 
@@ -1102,7 +942,7 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
             }
         }
 
-        
+
 //***** READ TRACE FROM FILE
         if(Agilent_MSO6054A){
                 for(i=0; i<trace_lenght; i++){
@@ -1153,9 +993,8 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
         }
         
 //***** DCR
-        if(DCR_CNT_bool || DCR_DELAYS_bool){
-            DCR_cnt = DCR_cnt + find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
-            DCR_time = DCR_time + trace_lenght*TMath::Power(10,-9);
+        if(DCR_DELAYS_bool){
+           find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
         }
         else{
             if(drawHistAllPeaks){//all peaks but not DCR
@@ -1164,8 +1003,7 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
             }
         }
         
-        
-        
+
 //***** DISPLAY     
 //void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
 
@@ -1211,11 +1049,7 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
     cout<<"Last event "<<n_ev<<endl;
 }
 
-
-
-
 //------------------------------------------------------------------------------
-//int main(int argc, const char * argv[])
 int ReadBin(string filename, bool display)
 {
    FHEADER  fh;
@@ -1433,7 +1267,7 @@ int ReadBin(string filename, bool display)
         }
         
 //***** DCR
-        if(DCR_CNT_bool || DCR_DELAYS_bool){
+        if(DCR_DELAYS_bool){
             DCR_cnt = DCR_cnt + find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
             DCR_time = DCR_time + trace_lenght*TMath::Power(10,-9);
         }
@@ -1496,4 +1330,3 @@ int ReadBin(string filename, bool display)
    
    return 1;
 }
-
