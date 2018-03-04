@@ -47,6 +47,7 @@ Set the correct variables (OPTIONS section) to do what you need
 ### HOW TO USE
   * Analyze a SiPM at a certain HV and view some useful plots:
   > root[1] Ana1("file1", last_event_n, display_one_ev_param, LED_bool);
+  
     * file1 (string) is the name of the file you want to analyze (e.g.: if you want to analyze a file named wave0.txt, just type "wave0.txt")
     * last_event_n (int) is the last event you want to analyze (e.g.: if you want to analyze the first 1000 events stored in the file "file1", just type 1000)
     * display_one_ev_param (bool)
