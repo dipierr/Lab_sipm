@@ -9,7 +9,6 @@
  *                                                                              *
  ********************************************************************************/
 
-//Read Ana_Traces_SiPM_ReadMe.md before use
 
 #include <cstdlib>
 #include <iostream>
@@ -1325,7 +1324,7 @@ int ReadBin(string filename, bool display)
 //------------------------------------------------------------------------------
 void help(){
     cout<<endl;
-    cout<<"Ana_Traces_SiPM.cxx"<<endl
+    cout<<"Ana_Traces_SiPM.cxx"<<endl;
     cout<<"PREDEFINED FUNCTIONS:"<<endl;
     cout<<"\tint DCR_CT_1SiPM_1HVs(string file1, int last_event_n);"<<endl;
     cout<<"\tint DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n);"<<endl;
@@ -1333,4 +1332,5 @@ void help(){
     cout<<endl;
     cout<<"See Ana_Traces_SiPM_ReadMe.md for more information"<<endl;
     cout<<"Davide Depaoli 2018"<<endl;
+    cout<<endl;
 }
