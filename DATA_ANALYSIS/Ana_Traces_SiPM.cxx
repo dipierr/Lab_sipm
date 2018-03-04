@@ -1,6 +1,15 @@
-// //Ana_Traces_SiPM.C
+//Ana_Traces_SiPM.cxx
 
-//Read Ana_Traces_SiPM_ReadMe.txt before use
+/********************************************************************************
+ *  Ana_Traces_SiPM.cxx                                                         *
+ *                                                                              *
+ *  Read Ana_Traces_SiPM_ReadMe.md before use                                   *
+ *                                                                              *
+ *  Davide Depaoli 2018                                                         *
+ *                                                                              *
+ ********************************************************************************/
+
+//Read Ana_Traces_SiPM_ReadMe.md before use
 
 #include <cstdlib>
 #include <iostream>
@@ -108,6 +117,9 @@ void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, 
 //READ FILE
 void Read_Agilent_CAEN(string file, int last_event_n, bool display);
 int ReadBin(string filename, bool display);
+
+//HELP
+void help();
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -1303,4 +1315,22 @@ int ReadBin(string filename, bool display)
    cout<<"Last event "<<n_ev<<endl;
    
    return 1;
+}
+
+
+//------------------------------------------------------------------------------
+//---------------------------------[   HELP   ]---------------------------------
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void help(){
+    cout<<endl;
+    cout<<"Ana_Traces_SiPM.cxx"<<endl
+    cout<<"PREDEFINED FUNCTIONS:"<<endl;
+    cout<<"\tint DCR_CT_1SiPM_1HVs(string file1, int last_event_n);"<<endl;
+    cout<<"\tint DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n);"<<endl;
+    cout<<"\tint Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_bool);"<<endl;
+    cout<<endl;
+    cout<<"See Ana_Traces_SiPM_ReadMe.md for more information"<<endl;
+    cout<<"Davide Depaoli 2018"<<endl;
 }
