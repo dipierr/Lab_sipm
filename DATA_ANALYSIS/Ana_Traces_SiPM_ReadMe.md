@@ -47,14 +47,6 @@ Set the correct variables (OPTIONS section) to do what you need
 ### HOW TO USE
   * Analyze a SiPM at a certain HV and view some useful plots:  
   > root[1] Ana1("file1", last_event_n, display_one_ev_param, LED_bool);  
-     *   file1 (string) is the name of the file you want to analyze (e.g.: if you want to analyze a file named wave0.txt, just type "wave0.txt")
-     *   last_event_n (int) is the last event you want to analyze (e.g.: if you want to analyze the first 1000 events stored in the file "file1", just type 1000)
-     *   display_one_ev_param (bool)
-       *  true if you want to display a single event (trace from file and trace after the DLED procedure)
-       *  false if you want to see all the traces (oscilloscope mode)
-     *   LED_bool (bool)
-       *  true in case of a LED measure (remember to set the window in which data will be analyzed)
-       *  false in Dark Mode
 
   * Dark Count Rate and Cross Talk for a SiPM at a certain HV:
   > root[1] DCR_CT_1SiPM_1HVs("file1", last_event_n)
@@ -67,6 +59,18 @@ Set the correct variables (OPTIONS section) to do what you need
     * file2 (string), see above
     * file3 (string), see above
     * last_event_n (int), see above
+    
+  * WHERE:
+   *  file1 (string) is the name of the file you want to analyze (e.g.: if you want to analyze a file named wave0.txt, just type "wave0.txt")
+   * file2 (string), as file1
+   * file3 (string), as file1
+   * last_event_n (int) is the last event you want to analyze (e.g.: if you want to analyze the first 1000 events stored in the file "file1", just type 1000)
+   * display_one_ev_param (bool)
+      *  true if you want to display a single event (trace from file and trace after the DLED procedure)
+      *  false if you want to see all the traces (oscilloscope mode)
+   *   LED_bool (bool)
+       *  true in case of a LED measure (remember to set the window in which data will be analyzed)
+       *  false in Dark Mode
 ---
 
 See the code for more information.
