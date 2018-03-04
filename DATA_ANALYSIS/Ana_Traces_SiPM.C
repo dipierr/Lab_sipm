@@ -111,39 +111,16 @@ int ReadBin(string filename, bool display);
 //------------------------------------------------------------------------------
 
 
-
 //------------------------------------------------------------------------------
-//-------------------------------[   OPTIONS   ]--------------------------------
+//--------------------------------[   DEVICE   ]--------------------------------
 //------------------------------------------------------------------------------
 
-bool find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
-bool average = false; //calculate the average of traces (useful for LED measures)
-
-bool DCR_DELAYS_bool = false; //DCR from delays
-bool CROSS_TALK_bool = false; //DCR must be true
-
-bool drawHistAllPeaks = false; // to draw hist of all peaks in traces
-bool fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
-bool drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
-bool show_hists_DCR_DELAYS  = false;
-bool showHist_bool = false; 
-bool SetLogyHist = false;
-bool running_graph = false;// to see traces in an osc mode (display must be true)
-bool display_one_ev = false;
-bool line_bool = false;
-
-bool all_events_same_window = false; //all the events (from 0 to last_event_n) are joined in a single event
-
-bool DO_NOT_DELETE_HIST_LED = false; //If set true, run only ONE TIME Analysis!!!
-
-//DEVICE:
 bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
 bool Digitizer_CAEN = true;  //true if data taken by Digitizer_CAEN, false otherwise
-bool DRS4_Evaluation_Board = false;
+bool DRS4_Evaluation_Board = false; //true if data taken by DRS4_Evaluation_Board, false otherwise
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-
 
 
 
@@ -227,6 +204,35 @@ bool first_time_main_called = true; bool reading = true; bool last_event_flag = 
 char temp[20];
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+//-------------------------------[   OPTIONS   ]--------------------------------
+//------------------------------------------------------------------------------
+
+bool find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
+bool average = false; //calculate the average of traces (useful for LED measures)
+
+bool DCR_DELAYS_bool = false; //DCR from delays
+bool CROSS_TALK_bool = false; //DCR must be true
+
+bool drawHistAllPeaks = false; // to draw hist of all peaks in traces
+bool fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
+bool drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
+bool show_hists_DCR_DELAYS  = false;
+bool showHist_bool = false; 
+bool SetLogyHist = false;
+bool running_graph = false;// to see traces in an osc mode (display must be true)
+bool display_one_ev = false;
+bool line_bool = false;
+
+bool all_events_same_window = false; //all the events (from 0 to last_event_n) are joined in a single event
+
+bool DO_NOT_DELETE_HIST_LED = false; //If set true, run only ONE TIME Analysis!!!
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
 
 
 
@@ -357,23 +363,11 @@ int Analysis(string file, int last_event_n, bool display){
 
 //------------------------------------------------------------------------------
 int DCR_CT_1SiPM_1HVs(string file1, int last_event_n){
-    //VARIABLES:
     //TRUE:
     DCR_DELAYS_bool = true; //DCR from delays
     CROSS_TALK_bool = true; //DCR must be true
     DO_NOT_DELETE_HIST_LED = true;
-    //FALSE:
-    drawHistAllPeaks = false; // to draw hist of all peaks in traces
-    fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
-    find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
-    average = false; //calculate the average of traces (useful for LED measures)
-    drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
-    show_hists_DCR_DELAYS  = false;
-    showHist_bool = false; 
-    SetLogyHist = false;
-    running_graph = false;// to see traces in an osc mode (display must be true)
-    all_events_same_window = false;
-    
+       
     
     nfile = 0;
     
@@ -443,25 +437,14 @@ int DCR_CT_1SiPM_1HVs(string file1, int last_event_n){
 //------------------------------------------------------------------------------
 int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n){
     
-    nfiletot = 3;
-    
-    //VARIABLES:
     //TRUE:
     DCR_DELAYS_bool = true; //DCR from delays
     CROSS_TALK_bool = true; //DCR must be true
     DO_NOT_DELETE_HIST_LED = true;
-    //FALSE:
-    drawHistAllPeaks = false; // to draw hist of all peaks in traces
-    fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
-    find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
-    average = false; //calculate the average of traces (useful for LED measures)
-    drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
-    show_hists_DCR_DELAYS  = false;
-    showHist_bool = false; 
-    SetLogyHist = false;
-    running_graph = false;// to see traces in an osc mode (display must be true)
-    all_events_same_window = false;
     
+    nfiletot = 3;
+    
+        
     for(int k=0; k<nfiletot; k++){
         ptrHistDelays[k]   = new TH1D("histDelays","",bins_Delays,0,maxyhistDelays);
         ptrHistAllPeaks[k] = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
@@ -533,15 +516,6 @@ int Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_boo
     DCR_DELAYS_bool = true; //DCR from delays
     show_hists_DCR_DELAYS  = true;
     display_one_ev = display_one_ev_param;
-    //FALSE:
-    CROSS_TALK_bool = true; //DCR must be true
-    find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
-    average = false; //calculate the average of traces (useful for LED measures)
-    drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
-    showHist_bool = false; 
-    SetLogyHist = false;
-    running_graph = false;// to see traces in an osc mode (display must be true)
-    all_events_same_window = false;
     DO_NOT_DELETE_HIST_LED = true;
     
     pe_0_5 = 10;
@@ -552,7 +526,6 @@ int Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_boo
         drawHistAllPeaks = false; // to draw hist of all peaks in traces
         fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
         DCR_DELAYS_bool = false; //DCR from delays
-        CROSS_TALK_bool = false; //DCR must be true
         show_hists_DCR_DELAYS  = false;
         showHist_bool = true;
         DO_NOT_DELETE_HIST_LED = true;
@@ -664,21 +637,6 @@ int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,
 
 //------------------------------------------------------------------------------
 TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files){ 
-    //VARIABLES:
-    //TRUE:
-    DCR_DELAYS_bool = true; //DCR from delays
-    CROSS_TALK_bool = true; //DCR must be true
-    //FALSE:
-    find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
-    average = false; //calculate the average of traces (useful for LED measures)
-    drawHistAllPeaks = false; // to draw hist of all peaks in traces
-    fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
-    drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
-    show_hists_DCR_DELAYS  = false;
-    showHist_bool = false; 
-    SetLogyHist = false;
-    running_graph = false;// to see traces in an osc mode (display must be true)
-    all_events_same_window = false;
     
     bool display = false;
     int control = 0;
