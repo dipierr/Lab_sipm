@@ -261,8 +261,6 @@ TCanvas *c = new TCanvas("Trace","Trace",w,h);
 TCanvas *cDCR = new TCanvas("hist_DCR","hist_DCR",w,h);
 TCanvas *cAllPeaks = new TCanvas("AllPeaks","AllPeaks",w,h);
 
-TGraphErrors *graphPeaks;
-
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -791,23 +789,35 @@ void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, 
         lmax2->Draw("aplsame");
     }
     
+    TGraphErrors *graphPeaks;
+    TGraphErrors *graphPeaks_DLED;
     if(display_peaks_now){
-        double x_peaks[num_peaks], y_peaks[num_peaks];
+        double x_peaks[num_peaks], y_peaks[num_peaks], x_peaks_DLED[num_peaks], y_peaks_DLED[num_peaks];
         for(int i=0; i<num_peaks; i++){
-            x_peaks[i] = trace_DLED[0][index_vect[i]];
-            y_peaks[i] = trace_DLED[1][index_vect[i]];
-            cout<<x_peaks[i]<<endl;
+            x_peaks[i] = trace[0][index_vect[i]+dleddt];
+            y_peaks[i] = trace[1][index_vect[i]+dleddt];
+            x_peaks_DLED[i] = trace_DLED[0][index_vect[i]];
+            y_peaks_DLED[i] = trace_DLED[1][index_vect[i]];
         }
+        //graphPeaks
         TGraphErrors *graphPeaks = new TGraphErrors(num_peaks,x_peaks,y_peaks,0,0);
         graphPeaks->SetMarkerStyle(20);
         graphPeaks->SetMarkerColor(kRed);
-        c->cd(2);
+        c->cd(1);
         graphPeaks->Draw("psame");
+        //graphPeaks_DLED
+        TGraphErrors *graphPeaks_DLED = new TGraphErrors(num_peaks,x_peaks_DLED, y_peaks_DLED,0,0);
+        graphPeaks_DLED->SetMarkerStyle(20);
+        graphPeaks_DLED->SetMarkerColor(kGreen+1);
+        c->cd(2);
+        graphPeaks_DLED->Draw("psame");
     }
     
     canv->Update();
-    if(delete_bool) {delete graph1; delete graph2; 
-        if(display_peaks_now)delete graphPeaks;}
+    if(delete_bool) {
+        delete graph1; delete graph2; 
+        if(display_peaks_now){delete graphPeaks; delete graphPeaks_DLED;}
+    }
 }
 
 //------------------------------------------------------------------------------
