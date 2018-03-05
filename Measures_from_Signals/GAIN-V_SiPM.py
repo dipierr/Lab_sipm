@@ -79,8 +79,12 @@ def main(**kwargs):
     #err_GAIN_SiPM1 = np.array([0.00019212343238446072, 0.00024665495118529894, 7.956049599216814e-05])
     
     #from files 20180221_HD3-2_1_DARK_34_AS_2_01.txt, 20180221_HD3-2_1_DARK_35_AS_2_01.txt, 20180221_HD3-2_1_DARK_36_AS_2_01.txt considering 15000 windows of 1 musec each:
-    GAIN_SiPM1 = np.array([17.1506, 19.6551, 21.9663]) 
-    err_GAIN_SiPM1 = np.array([0.0209611, 0.0217898, 0.0217723])
+    #GAIN_SiPM1 = np.array([17.1506, 19.6551, 21.9663]) 
+    #err_GAIN_SiPM1 = np.array([0.0209611, 0.0217898, 0.0217723])
+    
+    #from files 20180305_HD3-2_1_DARK_34_AS_2_01, 20180305_HD3-2_1_DARK_35_AS_2_01, 20180305_HD3-2_1_DARK_36_AS_2_01
+    GAIN_SiPM1 = np.array([19.6574, 22.627, 24.9128]) 
+    err_GAIN_SiPM1 = np.array([0.00944929, 0.00953918, 0.0111212])
     
     optimizedParameters1, pcovODR1 = fit(HV_SiPM1, GAIN_SiPM1, err_HV_SiPM1, err_GAIN_SiPM1)
     error_propagation_lin_fit(optimizedParameters1, pcovODR1, nSiPM)
@@ -100,8 +104,12 @@ def main(**kwargs):
     #err_GAIN_SiPM2 = np.array([0.0003764632506002512,0.00037003304446492515,0.00014876147139717083])
     
     #from files 20180221_HD3-2_2_DARK_34_AS_2_02.txt, 20180221_HD3-2_2_DARK_35_AS_2_02.txt, 20180221_HD3-2_2_DARK_36_AS_2_02.txt considering 15000 windows of 1 musec each:
-    GAIN_SiPM2 = np.array([16.1435 ,18.5611,20.9333]) 
-    err_GAIN_SiPM2 = np.array([0.0226831,0.0241206,0.0272634])
+    #GAIN_SiPM2 = np.array([16.1435 ,18.5611,20.9333]) 
+    #err_GAIN_SiPM2 = np.array([0.0226831,0.0241206,0.0272634])
+    
+    #from files 20180305_HD3-2_2_DARK_34_AS_2_01, 20180305_HD3-2_2_DARK_35_AS_2_01, 20180305_HD3-2_2_DARK_36_AS_2_01
+    GAIN_SiPM2 = np.array([18.4962, 20.97, 23.4698]) 
+    err_GAIN_SiPM2 = np.array([0.00943349, 0.00990902, 0.0104709])
     
     optimizedParameters2, pcovODR2 = fit(HV_SiPM2, GAIN_SiPM2, err_HV_SiPM2, err_GAIN_SiPM2)
     error_propagation_lin_fit(optimizedParameters2, pcovODR2, nSiPM)
@@ -120,8 +128,12 @@ def main(**kwargs):
     #err_GAIN_SiPM3 = np.array([0.0002636386386728474, 0.00031677656441436237, 0.00019640674762372849])
     
     #from files 20180221_HD3-2_1_DARK_34_AS_2_03.txt, 20180221_HD3-2_1_DARK_35_AS_2_03.txt, 20180221_HD3-2_1_DARK_36_AS_2_03.txt considering 15000 windows of 1 musec each:
-    GAIN_SiPM3 = np.array([17.5343,20.0972,22.6212]) 
-    err_GAIN_SiPM3 = np.array([ 0.0201935,0.022037,0.0237572])
+    #GAIN_SiPM3 = np.array([17.5343,20.0972,22.6212]) 
+    #err_GAIN_SiPM3 = np.array([ 0.0201935,0.022037,0.0237572])
+    
+    #from files 20180305_HD3-2_3_DARK_34_AS_2_01, 20180305_HD3-2_3_DARK_35_AS_2_01, 20180305_HD3-2_3_DARK_36_AS_2_01
+    GAIN_SiPM3 = np.array([20.074, 22.8873, 25.5604]) 
+    err_GAIN_SiPM3 = np.array([0.00899452,0.00963387 , 0.0108095])
     
     optimizedParameters3, pcovODR3 = fit(HV_SiPM3, GAIN_SiPM3, err_HV_SiPM3, err_GAIN_SiPM3)
     error_propagation_lin_fit(optimizedParameters3, pcovODR3, nSiPM)
