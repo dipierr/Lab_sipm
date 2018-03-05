@@ -3,7 +3,7 @@
 /********************************************************************************
  *  Ana_Traces_SiPM.cxx                                                         *
  *                                                                              *
- *  Read Ana_Traces_SiPM_ReadMe.md before use                                   *
+ *  Read Ana_Traces_SiPM_ReadMe.md and/or the code before use                   *
  *                                                                              *
  *  Davide Depaoli 2018                                                         *
  *                                                                              *
@@ -39,7 +39,7 @@
 #include "TVirtualFitter.h"
 
 #define nfilemax 3
-#define max_peak_num 20
+#define max_peak_num 50
 
 //------------------------------------------------------------------------------
 //--------------------------[   READ BIN DRS4 INTRO   ]-------------------------
@@ -115,7 +115,7 @@ void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, 
 
 //READ FILE
 void Read_Agilent_CAEN(string file, int last_event_n, bool display);
-int ReadBin(string filename, bool display);
+int ReadBin(string filename, int last_event_n, bool display);
 
 //HELP
 void help();
@@ -128,8 +128,8 @@ void help();
 //------------------------------------------------------------------------------
 
 bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
-bool Digitizer_CAEN = true;  //true if data taken by Digitizer_CAEN, false otherwise
-bool DRS4_Evaluation_Board = false; //true if data taken by DRS4_Evaluation_Board, false otherwise
+bool Digitizer_CAEN = false;  //true if data taken by Digitizer_CAEN, false otherwise
+bool DRS4_Evaluation_Board = true; //true if data taken by DRS4_Evaluation_Board, false otherwise
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -247,6 +247,10 @@ bool all_events_same_window = false; //all the events (from 0 to last_event_n) a
 
 bool DO_NOT_DELETE_HIST_LED = false; //If set true, run only ONE TIME Analysis!!!
 
+bool fit_34 = false;
+bool fit_35 = false;
+bool fit_36 = false;
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -285,7 +289,7 @@ int Analysis(string file, int last_event_n, bool display){
     if(Agilent_MSO6054A or Digitizer_CAEN) 
         Read_Agilent_CAEN(file, last_event_n, display);
     if(DRS4_Evaluation_Board)
-        ReadBin(file, display);
+        ReadBin(file, last_event_n, display);
     
     
     
@@ -311,15 +315,21 @@ int Analysis(string file, int last_event_n, bool display){
             ptrHistAllPeaks[nfile]->GetXaxis()->SetTitle("mV");
             ptrHistAllPeaks[nfile]->GetYaxis()->SetTitle("Counts");
             ptrHistAllPeaks[nfile]->Draw("hist");
+            cAllPeaks1->Update();
             
             if(fitHistAllPeaks){
-                if(file == "20180221_HD3-2_1_DARK_34_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_34_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_34_AS_2_01.txt")
+                if(file == "20180221_HD3-2_1_DARK_34_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_34_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_34_AS_2_01.txt" or fit_34)
                 {fit1Low = 12; fit1High = 26; fit2Low = 28; fit2High = 42;}else{
-                if(file == "20180221_HD3-2_1_DARK_35_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_35_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_35_AS_2_01.txt")
+                if(file == "20180221_HD3-2_1_DARK_35_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_35_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_35_AS_2_01.txt" or fit_35)
                 {fit1Low = 12; fit1High = 28; fit2Low = 32; fit2High = 46;}else{
-                if(file == "20180221_HD3-2_1_DARK_36_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_36_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_36_AS_2_01.txt")
+                if(file == "20180221_HD3-2_1_DARK_36_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_36_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_36_AS_2_01.txt" or fit_36)
                 {fit1Low = 12; fit1High = 28; fit2Low = 36; fit2High = 50;}else{
-                    fit1Low = 12; fit1High = 28; fit2Low = 36; fit2High = 50;
+                    cout<<"--------------------"<<endl;
+                    cout<<"File not recognized. Please enter:"<<endl;
+                    cout<<"fit1Low  "; scanf("%lf", &fit1Low);
+                    cout<<"fit1High "; scanf("%lf", &fit1High);
+                    cout<<"fit2Low  "; scanf("%lf", &fit2Low);
+                    cout<<"fit2High "; scanf("%lf", &fit2High);
                 }}}
                 fit_hist_all_peaks(cAllPeaks1, ptrHistAllPeaks[nfile], fit1Low, fit1High, fit2Low, fit2High);
             }
@@ -565,6 +575,7 @@ int Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_boo
     cout<<"-------------------------"<<endl<<endl;
     
     cout<<"File analyzed: "<<file1<<endl;
+    cout<<"Fit range for GAIN: fit1Low = "<<fit1Low<<"; fit1High = "<<fit1High<<"; fit2Low = "<<fit2Low<<"; fit2High = "<<fit2High<<";"<<endl;
     cout<<"   GAIN = ("<<gain<<" +- "<<errgain<<") mV"<<endl;
     cout<<"   DCR at 0.5 pe = ("<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<") MHz"<<endl;
     
@@ -1061,7 +1072,7 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
 }
 
 //------------------------------------------------------------------------------
-int ReadBin(string filename, bool display)
+int ReadBin(string filename, int last_event_n, bool display)
 {
    FHEADER  fh;
    THEADER  th;
@@ -1161,6 +1172,11 @@ int ReadBin(string filename, bool display)
       if (i < 1)
          break;
       
+      if(n_ev%1000==0)
+            cout<<"Read ev\t"<<n_ev<<endl;
+      if(n_ev==last_event_n)
+          break;
+      
       //printf("Found event #%d %d %d\n", eh.event_serial_number, eh.second, eh.millisecond);
       
       // loop over all boards in data file
@@ -1236,10 +1252,10 @@ int ReadBin(string filename, bool display)
     
         for(int k=0; k<trace_lenght; k++){
              trace[0][k] = time[0][0][k];
-             trace[1][k] = waveform[0][0][k]*1000; //to convert in mV
+             trace[1][k] = -waveform[0][0][k]*1000; //to convert in mV
         }
            
-               
+            
 //***** DLED
         DLED(trace_lenght,dleddt);
         //Now: trace_DLED
