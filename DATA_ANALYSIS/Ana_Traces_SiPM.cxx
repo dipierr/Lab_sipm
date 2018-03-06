@@ -473,6 +473,9 @@ int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n
     
     nfiletot = 3;
     
+    double pe_0_5_vect[3] = {10,10,10};
+    double pe_1_5_vect[3] = {30,31,32};
+    
         
     for(int k=0; k<nfiletot; k++){
         ptrHistDelays[k]   = new TH1D("histDelays","",bins_Delays,0,maxyhistDelays);
@@ -481,16 +484,16 @@ int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n
     }
     
     //file1:
-    pe_0_5 = 10; pe_1_5 = 24;
+    pe_0_5 = pe_0_5_vect[0]; pe_1_5 = pe_1_5_vect[0];
     nfile = 0;
     gDCR_1 = DCR_func(file1,last_event_n, 3);
     //file2:
     nfile = 1;
-    pe_0_5 = 10;   pe_1_5 = 26;
+    pe_0_5 = pe_0_5_vect[1];   pe_1_5 = pe_1_5_vect[1];
     gDCR_2 = DCR_func(file2,last_event_n, 3);
     //file3:
     nfile = 2;
-    pe_0_5 = 10;   pe_1_5 = 26;
+    pe_0_5 = pe_0_5_vect[2];   pe_1_5 = pe_1_5_vect[2];
     gDCR_3 = DCR_func(file3,last_event_n, 3);  
     
     
@@ -523,8 +526,10 @@ int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n
         errCrossTalk[i]= CrossTalk[i] * TMath::Sqrt( (errDCR_pe_0_5_vect[i]/DCR_pe_0_5_vect[i])*(errDCR_pe_0_5_vect[i]/DCR_pe_0_5_vect[i]) + (errDCR_pe_1_5_vect[i]/DCR_pe_1_5_vect[i])*(errDCR_pe_1_5_vect[i]/DCR_pe_1_5_vect[i]) );
     }
     
-    cout<<"Files analyzed: "<<file1<<", "<<file2<<", "<<file3<<endl;
-    
+    cout<<"Files analyzed:"<<endl;
+    cout<<file1<<"   pe_0_5 = "<<pe_0_5_vect[0]<<" mV; pe_1_5 = "<<pe_1_5_vect[0]<<" mV"<<endl;
+    cout<<file2<<"   pe_0_5 = "<<pe_0_5_vect[1]<<" mV; pe_1_5 = "<<pe_1_5_vect[1]<<" mV"<<endl;
+    cout<<file3<<"   pe_0_5 = "<<pe_0_5_vect[2]<<" mV; pe_1_5 = "<<pe_1_5_vect[2]<<" mV"<<endl;
     cout<<"double DCR[] =         {"<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
     
     cout<<"double errDCR[] =      {"<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
