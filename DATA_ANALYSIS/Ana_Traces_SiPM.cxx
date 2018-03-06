@@ -97,8 +97,8 @@ typedef struct {
 int Analysis(string file, int last_event_n, bool display);
 
 //PREDEFINED
-int DCR_CT_1SiPM_1HVs(string file1, int last_event_n);
-int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n);
+int DCR_CT_1SiPM_1HVs(string file1, int last_event_n, bool DCR_only_2_points);
+int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n, bool DCR_only_2_points);
 int Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_bool);
 
 //SECONDARY
@@ -247,9 +247,7 @@ bool all_events_same_window = false; //all the events (from 0 to last_event_n) a
 
 bool DO_NOT_DELETE_HIST_LED = false; //If set true, run only ONE TIME Analysis!!!
 
-bool fit_34 = false;
-bool fit_35 = false;
-bool fit_36 = false;
+bool DCRonly2points = false;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -318,11 +316,11 @@ int Analysis(string file, int last_event_n, bool display){
             cAllPeaks1->Update();
             
             if(fitHistAllPeaks){
-                if(file == "20180221_HD3-2_1_DARK_34_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_34_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_34_AS_2_01.txt" or fit_34)
+                if(file == "20180221_HD3-2_1_DARK_34_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_34_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_34_AS_2_01.txt")
                 {fit1Low = 12; fit1High = 26; fit2Low = 28; fit2High = 42;}else{
-                if(file == "20180221_HD3-2_1_DARK_35_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_35_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_35_AS_2_01.txt" or fit_35)
+                if(file == "20180221_HD3-2_1_DARK_35_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_35_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_35_AS_2_01.txt")
                 {fit1Low = 12; fit1High = 28; fit2Low = 32; fit2High = 46;}else{
-                if(file == "20180221_HD3-2_1_DARK_36_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_36_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_36_AS_2_01.txt" or fit_36)
+                if(file == "20180221_HD3-2_1_DARK_36_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_36_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_36_AS_2_01.txt")
                 {fit1Low = 12; fit1High = 28; fit2Low = 36; fit2High = 50;}else{
                     cout<<"--------------------"<<endl;
                     cout<<"File not recognized. Please enter:"<<endl;
@@ -389,17 +387,19 @@ int Analysis(string file, int last_event_n, bool display){
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-int DCR_CT_1SiPM_1HVs(string file1, int last_event_n){
+int DCR_CT_1SiPM_1HVs(string file1, int last_event_n, bool DCR_only_2_points){
     //TRUE:
     DCR_DELAYS_bool = true; //DCR from delays
     CROSS_TALK_bool = true; //DCR must be true
     DO_NOT_DELETE_HIST_LED = true;
+    
+    DCRonly2points = DCR_only_2_points;
        
     
     nfile = 0;
     
     pe_0_5 = 10; //mV
-    pe_1_5 = 26; //mV
+    pe_1_5 = 30; //mV
     
     ptrHistDelays[0]    = new TH1D("histDelays","",bins_Delays,0,maxyhistDelays);
     ptrHistAllPeaks[0]  = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
@@ -429,7 +429,7 @@ int DCR_CT_1SiPM_1HVs(string file1, int last_event_n){
     errCrossTalk= CrossTalk * TMath::Sqrt( (errDCR_pe_0_5_vect[0]/DCR_pe_0_5_vect[0])*(errDCR_pe_0_5_vect[0]/DCR_pe_0_5_vect[0]) + (errDCR_pe_1_5_vect[0]/DCR_pe_1_5_vect[0])*(errDCR_pe_1_5_vect[0]/DCR_pe_1_5_vect[0]) );
     
     cout<<"File analyzed: "<<file1<<endl;
-    
+    cout<<"pe_0_5 = "<<pe_0_5<<" mV; pe_1_5 = "<<pe_1_5<<" mV"<<endl;
     cout<<"   DCR at 0.5 pe = ("<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<") MHz"<<endl;
     cout<<"   DCR at 1.5 pe = ("<<DCR_pe_1_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_1_5_vect[0]*TMath::Power(10,-6)<<") MHz"<<endl;
     cout<<"   Cross Talk    = ("<<CrossTalk<<" +- "<<errCrossTalk<<")"<<endl;
@@ -462,12 +462,14 @@ int DCR_CT_1SiPM_1HVs(string file1, int last_event_n){
 
 
 //------------------------------------------------------------------------------
-int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n){
+int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n, bool DCR_only_2_points){
     
     //TRUE:
     DCR_DELAYS_bool = true; //DCR from delays
     CROSS_TALK_bool = true; //DCR must be true
     DO_NOT_DELETE_HIST_LED = true;
+    
+    DCRonly2points = DCR_only_2_points;
     
     nfiletot = 3;
     
@@ -679,9 +681,18 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files){
     bool display = false;
     int control = 0;
     
-    thr_to_find_peaks = 7; //mV
-    double max_thr_to_find_peaks = 41; //mV
-    double gap_between_thr = 1; //mV
+    double max_thr_to_find_peaks; //mV
+    double gap_between_thr; //mV
+    
+    if(!DCRonly2points){
+        thr_to_find_peaks = 7; //mV
+        max_thr_to_find_peaks = 41; //mV
+        gap_between_thr = 1; //mV
+    }else{
+        thr_to_find_peaks = pe_0_5;
+        max_thr_to_find_peaks = pe_1_5;
+        gap_between_thr = max_thr_to_find_peaks - thr_to_find_peaks;
+    }
     
     n_DCR = (int)((max_thr_to_find_peaks - thr_to_find_peaks)/gap_between_thr);
     
@@ -1342,8 +1353,8 @@ void help(){
     cout<<endl;
     cout<<"Ana_Traces_SiPM.cxx"<<endl;
     cout<<"PREDEFINED FUNCTIONS:"<<endl;
-    cout<<"\tint DCR_CT_1SiPM_1HVs(string file1, int last_event_n);"<<endl;
-    cout<<"\tint DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n);"<<endl;
+    cout<<"\tint DCR_CT_1SiPM_1HVs(string file1, int last_event_n, bool DCR_only_2_points);"<<endl;
+    cout<<"\tint DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n, bool DCR_only_2_points);"<<endl;
     cout<<"\tint Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_bool);"<<endl;
     cout<<endl;
     cout<<"See Ana_Traces_SiPM_ReadMe.md for more information"<<endl;
