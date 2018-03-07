@@ -53,6 +53,8 @@
 
 #define nfilemax 3
 #define max_peak_num 50
+#define max_peaks 5000000
+
 
 //------------------------------------------------------------------------------
 //--------------------------[   READ BIN DRS4 INTRO   ]-------------------------
@@ -125,6 +127,7 @@ TGraphErrors* DCR_func(string file1, int last_event_n, int tot_files);
 void Get_DCR_temp_and_errDCR_temp();
 void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
 void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
+void find_peaks_from_vector();
 
 //READ FILE
 void Read_Agilent_CAEN(string file, int last_event_n, bool display);
@@ -173,6 +176,9 @@ double h = 800;
 int bins_Volt = 204;
 int bins_DCR = 206;
 int bins_Delays = 100;
+double peaks_all_delay[2][max_peaks];
+int ind_peaks_all_delay = 0;
+int n_ev_tot = 0;
 
 //fit related
 double expDelLow_max= 60.;
@@ -297,10 +303,14 @@ TCanvas *cAllPeaks = new TCanvas("AllPeaks","AllPeaks",w,h);
 //------------------------------------------------------------------------------   
 int Analysis(string file, int last_event_n, bool display){
     gROOT->Reset();
-    if(Agilent_MSO6054A or Digitizer_CAEN) 
-        Read_Agilent_CAEN(file, last_event_n, display);
-    if(DRS4_Evaluation_Board)
-        ReadBin(file, last_event_n, display);
+    if(first_time_main_called){
+        if(Agilent_MSO6054A or Digitizer_CAEN) 
+            Read_Agilent_CAEN(file, last_event_n, display);
+        if(DRS4_Evaluation_Board)
+            ReadBin(file, last_event_n, display);
+    }else{
+        find_peaks_from_vector();
+    }
     
     
     
@@ -485,7 +495,7 @@ int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n
     nfiletot = 3;
     
     double pe_0_5_vect[3] = {10,10,10};
-    double pe_1_5_vect[3] = {27.5,29.5,31};
+    double pe_1_5_vect[3] = {30,31,32};
     
         
     for(int k=0; k<nfiletot; k++){
@@ -497,14 +507,23 @@ int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n
     //file1:
     pe_0_5 = pe_0_5_vect[0]; pe_1_5 = pe_1_5_vect[0];
     nfile = 0;
+    first_time_main_called = true;
+    ind_peaks_all_delay = 0;
+    for(int i=0; i<max_peaks; i++){peaks_all_delay[0][i] = 0; peaks_all_delay[1][i] = 0;}
     gDCR_1 = DCR_func(file1,last_event_n, 3);
     //file2:
     nfile = 1;
     pe_0_5 = pe_0_5_vect[1];   pe_1_5 = pe_1_5_vect[1];
+    first_time_main_called = true;
+    ind_peaks_all_delay = 0;
+    for(int i=0; i<max_peaks; i++){peaks_all_delay[0][i] = 0; peaks_all_delay[1][i] = 0;}
     gDCR_2 = DCR_func(file2,last_event_n, 3);
     //file3:
     nfile = 2;
     pe_0_5 = pe_0_5_vect[2];   pe_1_5 = pe_1_5_vect[2];
+    first_time_main_called = true;
+    ind_peaks_all_delay = 0;
+    for(int i=0; i<max_peaks; i++){peaks_all_delay[0][i] = 0; peaks_all_delay[1][i] = 0;}
     gDCR_3 = DCR_func(file3,last_event_n, 3);  
     
     
@@ -670,6 +689,9 @@ int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,
                     //I fill the hist with delays between 1 pe peaks (or higher):
                     if(index_old>0){
                         ptrHistDelays[nfile] -> Fill(index_new - index_old); 
+                        peaks_all_delay[0][ind_peaks_all_delay] = index_peak;
+                        peaks_all_delay[1][ind_peaks_all_delay] = trace_DLED[1][index_peak];
+                        ind_peaks_all_delay++;
                     }
                 }
                 index_old = index_new;  
@@ -687,8 +709,34 @@ int find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width,
                 ii++;
         }
     }
+    peaks_all_delay[0][ind_peaks_all_delay] = -1;
+    peaks_all_delay[1][ind_peaks_all_delay] = -1;
+    ind_peaks_all_delay++;
     
     return DCR_cnt_temp;
+}
+
+//------------------------------------------------------------------------------
+void find_peaks_from_vector(){
+    int n,i,k;
+    int index_old, index_new;
+    index_old = index_new = 0;
+    for(int i=0;i<ind_peaks_all_delay; i++){
+        if(peaks_all_delay[0][i]==-1){
+            index_old = 0;
+            index_new = 0;
+        }else{
+        if(peaks_all_delay[1][i] > thr_to_find_peaks){
+            index_new = peaks_all_delay[0][i];
+            if(index_old>0){
+                ptrHistDelays[nfile] -> Fill(index_new - index_old);
+            }
+            index_old = index_new;
+        }
+        }
+        }
+//          cout<<peaks_all_delay[0][i]<<"\t"<<peaks_all_delay[1][i]<<endl;   
+    
 }
 
 //------------------------------------------------------------------------------
@@ -702,7 +750,7 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files){
     
     if(!DCRonly2points){
         thr_to_find_peaks = 7; //mV
-        max_thr_to_find_peaks = 41; //mV
+        max_thr_to_find_peaks = 70; //mV
         gap_between_thr = 1; //mV
     }else{
         thr_to_find_peaks = pe_0_5;
@@ -1095,7 +1143,8 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
         n_ev++;
     }//file is closed
     
-    cout<<"Last event "<<n_ev<<endl;
+    n_ev_tot = n_ev;
+    cout<<"Last event "<<n_ev_tot<<endl;
 }
 
 //------------------------------------------------------------------------------
@@ -1354,7 +1403,8 @@ int ReadBin(string filename, int last_event_n, bool display)
 
       }//end loop boards
    }//loop events
-   cout<<"Last event "<<n_ev<<endl;
+  n_ev_tot = n_ev;
+  cout<<"Last event "<<n_ev_tot<<endl;
    
    return 1;
 }
