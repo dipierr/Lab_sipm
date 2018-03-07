@@ -1,8 +1,23 @@
 #GAIN-V_SiPM.py
 
-#-----------
-#GAIN-V_SiPM
-#-----------
+'''
+---------------------------------------------------------------------------------
+|                                                                               |
+|   GAIN-V_SiPM.py                                                              |
+|                                                                               |
+|   File to be analyzed: tab separated, written as:                             |
+|   V (V)   I (muA) errI (muA)                                                  | 
+|   with NO header                                                              |
+|                                                                               |
+|   Finds Vbd of SiPM using GAIV vs V data                                      |
+|                                                                               |
+|   To run:                                                                     |
+|   $ python GAIN-V_SiPM.py                                                     |
+|                                                                               |     
+|   Davide Depaoli 2018                                                         |
+|                                                                               |
+---------------------------------------------------------------------------------
+'''
 
 
 import numpy as np
