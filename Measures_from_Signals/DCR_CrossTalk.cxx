@@ -1,4 +1,20 @@
-//DCR_CrossTalk.C
+//DCR_CrossTalk.cxx
+
+/********************************************************************************
+ *  DCR_CrossTalk.cxx                                                           *
+ *                                                                              *
+ *  Plots DCR and CrossTalk of SiPMs:                                           *
+ *       HD3-2 # 1                                                              *
+ *       HD3-2 # 2                                                              *
+ *       HD3-2 # 3                                                              *
+ *                                                                              *
+ *  To run:                                                                     *
+ *    $ root -l                                                                 *
+ *    root[0] .x DCR_CrossTalk.cxx                                              *
+ *                                                                              *
+ *  Davide Depaoli 2018                                                         *
+ *                                                                              *
+ ********************************************************************************/
 
 void DCR_CrossTalk(){
     /********************************************
