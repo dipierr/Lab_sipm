@@ -3,7 +3,20 @@
 /********************************************************************************
  *  Ana_Traces_SiPM.cxx                                                         *
  *                                                                              *
- *  Read Ana_Traces_SiPM_ReadMe.md and/or the code before use                   *
+ *  Read Ana_Traces_SiPM_ReadMe.md and/or the code before use.                  *
+ *                                                                              *
+ *  Key points:                                                                 *
+ *  (1) Open root:                                                              *
+ *          $ root -l                                                           *
+ *  (2) Compile the macro:                                                      *
+ *          root[0] .L Ana_Traces_SiPM.cxx++                                    *
+ *  (3) Run the desired function:                                               *
+ *          root [1] DCR_CT_1SiPM_1HVs(string file1, int last_event_n,          *
+ *                    bool DCR_only_2_points);                                  *
+ *          root [1] DCR_CT_1SiPM_3HVs(string file1, string file2, string file3,*
+ *                    int last_event_n, bool DCR_only_2_points);                *
+ *          root [1] Ana1(string file1, int last_event_n,                       *
+ *                    bool display_one_ev_param, bool LED_bool);                *
  *                                                                              *
  *  Davide Depaoli 2018                                                         *
  *                                                                              *
@@ -359,9 +372,7 @@ int Analysis(string file, int last_event_n, bool display){
             ptrHistDelays[nfile]->Draw("hist");
         }
         
-        cout<<"333"<<endl;
         fit_hist_del(expDelLow_max, expDelHigh_max);
-        cout<<"222"<<endl;
     }
     
     if(showHist_bool){
