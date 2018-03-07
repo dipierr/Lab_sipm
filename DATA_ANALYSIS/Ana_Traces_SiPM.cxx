@@ -485,7 +485,7 @@ int DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n
     nfiletot = 3;
     
     double pe_0_5_vect[3] = {10,10,10};
-    double pe_1_5_vect[3] = {30,31,32};
+    double pe_1_5_vect[3] = {27.5,29.5,31};
     
         
     for(int k=0; k<nfiletot; k++){
