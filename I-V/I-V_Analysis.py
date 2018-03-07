@@ -1,20 +1,29 @@
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#+++++++++++++++++++++++++++++       ANALYSIS I-V CURVE for SiPM       +++++++++++++++++++++++++++++
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#I-V_Analysis.py
+
 
 '''
-File to be analyzed: tab separated, written as:
-V (V)   I (muA) errI (muA)
-with NO header
-
-Before Vdb: linear fit
-After Vbd: parabolic fit
-
-
-Reference:
-    Nagy Ferenc & al. - A model based DC analysis of SiPM breakdown voltages
-
+---------------------------------------------------------------------------------
+|                                                                               |
+|   I-V_Analysis.py                                                             |
+|                                                                               |
+|   File to be analyzed: tab separated, written as:                             |
+|   V (V)   I (muA) errI (muA)                                                  | 
+|   with NO header                                                              |
+|                                                                               |
+|   Before Vdb: linear fit                                                      |
+|   After Vbd: parabolic fit                                                    |
+|                                                                               |
+|   Reference:                                                                  |
+|   Nagy Ferenc & al. - A model based DC analysis of SiPM breakdown voltages    |
+|                                                                               |
+|                                                                               |     
+|   Davide Depaoli 2018                                                         |
+|                                                                               |
+|                                                                               | 
+---------------------------------------------------------------------------------
 '''
+
+
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -43,6 +52,10 @@ def parabola_fit(p,x):
     return a*(x)**2+b*x+c
     
 def main(**kwargs):
+    
+#-------------------------------------------------------------------------------
+#--------------------------------[   LOG(I) - V   ]-----------------------------
+#-------------------------------------------------------------------------------
     
     low_lim = 24.2
     central_lim_low=26
@@ -283,6 +296,9 @@ def main(**kwargs):
     
     print('\n\nMEAN WAY')
     print( 'Intersection = '+str( round(Intersection,2))+ '+-'+ str(round(upErr,2)))
+    
+    
+    
     
     
     print('\n\n\n')
