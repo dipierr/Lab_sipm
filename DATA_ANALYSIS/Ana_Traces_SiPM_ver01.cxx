@@ -1,7 +1,11 @@
-//Ana_Traces_SiPM.cxx
+//Ana_Traces_SiPM_ver01.cxx
 
 /********************************************************************************
- *  Ana_Traces_SiPM.cxx                                                         *
+ *  Ana_Traces_SiPM_ver01.cxx                                                   *                                                                     
+ *                                                                              *
+ *  ver01:                                                                      *
+ *      does NOT save all peaks in an array                                     *
+ *      seems to be more stable                                                 *
  *                                                                              *
  *  Read Ana_Traces_SiPM_ReadMe.md and/or the code before use.                  *
  *                                                                              *
