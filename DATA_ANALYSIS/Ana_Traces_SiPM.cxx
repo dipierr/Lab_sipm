@@ -124,8 +124,8 @@ void fit_hist_del(double expDelLow, double expDelHigh);
 void fit_hist_all_peaks(TCanvas *c, TH1D *hist, double fit1Low, double fit1High, double fit2Low, double fit2High);
 TGraphErrors* DCR_func(string file1, int last_event_n, int tot_files);
 void Get_DCR_temp_and_errDCR_temp();
-void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
-void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
+void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool);
+void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool);
 void find_peaks_from_vector();
 void find_DCR_1_5_pe();
 
@@ -158,10 +158,10 @@ bool DRS4_Evaluation_Board = true; //true if data taken by DRS4_Evaluation_Board
 //peaks related
 int mintp = 250; //min_time_peak
 int maxtp = 280; //max_time_peak
-int dleddt = 9; //10ns is approx the rise time used for HD3_2 on AS out 2
-int blind_gap = 20; //ns
-int max_peak_width = 20; //used for find_peaks
-int min_peak_width =  5; //used for find_peaks
+int dleddt = 35; //10ns is approx the rise time used for HD3_2 on AS out 2
+int blind_gap = 2*dleddt; //ns
+int max_peak_width = 50; //used for find_peaks
+int min_peak_width =  20; //used for find_peaks
 double thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5
 double pe_0_5_vect[3] = {10.,10.,10.};
 double pe_1_5_vect[3] = {10.,10.,10.};
@@ -170,7 +170,7 @@ double max_pe_1_5 = 33;
 
 //hist related
 double maxyhist = 200;
-double maxyhistAllPeaks = 200; 
+double maxyhistAllPeaks = 20; 
 double maxyhistDCR = 200;
 double maxyhistDelays = 200;
 double w = 1000;
@@ -191,9 +191,13 @@ double fit2Low = 0;
 double fit2High = 0;
 
 //display related
-int ev_to_display = 7;
+int ev_to_display = 5;
 
-/* VALUES:
+/* VALUES
+ *  HD3-2 dleddt = 9; min_peak_width = 5; max_peak_width = 20; maxyhistAllPeaks = 200; 
+ *  MPPC  dleddt = ;
+ * 
+ * 
  *  DARK from Agilent: mintp = 160 (or 200);  maxtp = 320; dleddt = 39;
  *  LED from Agilent: approx in the middle, mintp = 420; maxtp = 500;  dleddt = 9; maxyhist = .2;
  *  LED from Digitizer_CAEN: depends on the wave
@@ -201,6 +205,17 @@ int ev_to_display = 7;
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
+
+
+//-------------------------------------------------------------------------------
+//----------------------------[   SETTING OPTIONS   ]----------------------------
+//-------------------------------------------------------------------------------
+
+bool reverse_bool = false;
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+
 
 
 
@@ -230,7 +245,7 @@ double errDCR_pe_0_5_vect[] = {0., 0., 0.};
 double errDCR_pe_1_5_vect[] = {0., 0., 0.};
 
 int trace_DLED_lenght; int ii=0; int i=0; int index_func = 0; int nfile = 0; int n_DCR = 0; int DCR_cnt = 0; int trace_lenght = 0; int n_ev, index_for_peak; int one_window=0;
-int nfiletot = 1;
+int nfiletot = 1; int n_smoot = 0;
 
 double miny=0; double maxy=0; double miny1=0; double maxy1=0; double miny2=0; double maxy2=0; double gain, errgain; double DCR_time = 0.; double DCR_from_cnt = 0.; double max_func;
 
@@ -275,6 +290,7 @@ bool all_events_same_window = false; //all the events (from 0 to last_event_n) a
 bool DO_NOT_DELETE_HIST_LED = false; //If set true, run only ONE TIME Analysis!!!
 
 bool DCRonly2points = false;
+
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -479,6 +495,7 @@ void Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_bo
     display_peaks = true;
     
     nfile = 0;
+    thr_to_find_peaks = 6;
    
     
     if(LED_bool){
@@ -543,7 +560,7 @@ void Analysis(string file, int last_event_n, bool display){
         cAVG->SetGrid();
         if(Agilent_MSO6054A){miny=50; maxy=90;}
         if(Digitizer_CAEN)  {miny=700; maxy=855;}
-        show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght, miny, maxy,mintp,maxtp,true,false,true);
+        show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght, miny, maxy,mintp,maxtp,true,false);
     }
     
 //***** HIST ALL PEAKS
@@ -695,7 +712,6 @@ void find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width
                     index_vect[num_peaks] = index_peak;
                     num_peaks++;
                 }
-                
                 ii=ii+peak_width;  
             }else{
                 ii++;
@@ -741,7 +757,7 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files){
     if(!DCRonly2points){
         thr_to_find_peaks = 7; //mV
         max_thr_to_find_peaks = 50; //mV
-        gap_between_thr = 0.5; //mV
+        gap_between_thr = 0.1; //mV
     }else{
         thr_to_find_peaks = pe_0_5_vect[nfile];
         max_thr_to_find_peaks = pe_1_5_vect[nfile];
@@ -753,22 +769,23 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files){
     n_DCR = (int)((max_thr_to_find_peaks - thr_to_find_peaks)/gap_between_thr);
     
     if(first_time_DCR_called){
-    DCR = new double*[tot_files];
-        for(int i = 0; i < 3; i++) {
-            DCR[i] = new double[n_DCR];
-    }
-    errDCR = new double*[tot_files]; 
-        for(int i = 0; i < 3; i++) {
-            errDCR[i] = new double[n_DCR];
-    }
-    thr_to_find_peaks_vect = new double*[tot_files]; 
-        for(int i = 0; i < 3; i++) {
-            thr_to_find_peaks_vect[i] = new double[n_DCR];
-    }
-    der_DCR = new double*[tot_files]; 
-        for(int i = 0; i < 3; i++) {
-            der_DCR[i] = new double[n_DCR];
-    }
+        DCR = new double*[tot_files];
+            for(int i = 0; i < 3; i++) {
+                DCR[i] = new double[n_DCR];
+        }
+        errDCR = new double*[tot_files]; 
+            for(int i = 0; i < 3; i++) {
+                errDCR[i] = new double[n_DCR];
+        }
+        thr_to_find_peaks_vect = new double*[tot_files]; 
+            for(int i = 0; i < 3; i++) {
+                thr_to_find_peaks_vect[i] = new double[n_DCR];
+        }
+        n_smoot = (int)n_DCR/10;
+        der_DCR = new double*[tot_files]; 
+            for(int i = 0; i < 3; i++) {
+                der_DCR[i] = new double[n_smoot];
+        }
     }
     first_time_DCR_called = false;
     
@@ -846,11 +863,11 @@ void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double mi
 }
 
 //------------------------------------------------------------------------------
-void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse){
+void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool){
     
     for(ii=0; ii<trace_lenght1; ii++){
         x1[ii] = x1[ii];
-        if(reverse)
+        if(reverse_bool)
             y1[ii] = -y1[ii];
     }
     for(ii=0; ii<trace_lenght2; ii++){
@@ -939,10 +956,26 @@ void Get_DCR_temp_and_errDCR_temp(){
 void find_DCR_1_5_pe(){
     double min=100000000;
     int min_index = 0;
+    int sums = 10;
     der_DCR[nfile][0] = min;
-    for(int i=1; i<n_DCR; i++){
-        der_DCR[nfile][i] = TMath::Abs(DCR[nfile][i] - DCR[nfile][i-1]);
-        cout<<der_DCR[nfile][i]<<endl;
+    int j,k;
+    j=k=0;
+    for(int i=0; i<n_smoot; i++){
+        der_DCR[nfile][i] = 0;
+    }
+    while(j<n_DCR){
+        for(int i=j; i<j+sums; i++){
+            der_DCR[nfile][k] = der_DCR[nfile][k] + DCR[nfile][i];
+        }
+        der_DCR[nfile][k] = der_DCR[nfile][k]/sums;
+        
+        j = j+sums;
+        k = k+1;
+        
+    }
+    
+    for(int i=1; i<n_smoot; i++){
+        der_DCR[nfile][i] = TMath::Abs(der_DCR[nfile][i] - der_DCR[nfile][i-1]);
     }
     for(int i=0; i<n_DCR; i++){
         if(thr_to_find_peaks_vect[nfile][i]>min_pe_1_5 and thr_to_find_peaks_vect[nfile][i]<max_pe_1_5){
@@ -954,7 +987,7 @@ void find_DCR_1_5_pe(){
     }
     
     DCR_pe_1_5_vect[nfile] = DCR[nfile][min_index];
-    pe_1_5_vect[nfile] = min_thr_to_find_peaks + min_index*gap_between_thr;
+    pe_1_5_vect[nfile] = min_thr_to_find_peaks + min_index*gap_between_thr*sums;
 }
 
 //------------------------------------------------------------------------------
@@ -1137,7 +1170,7 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
                 if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
                 if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
                 if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
-                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, true, true);
+                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, true);
                 if(!running_graph)getchar();
             }else{
                 if(n_ev==ev_to_display){
@@ -1147,7 +1180,7 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
                     if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
                     if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
                     if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
-                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, false, true);
+                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, false);
                 }
             }
             
@@ -1356,7 +1389,13 @@ void ReadBin(string filename, int last_event_n, bool display)
     
         for(int k=0; k<trace_lenght; k++){
              trace[0][k] = time[0][0][k];
-             trace[1][k] = -waveform[0][0][k]*1000; //to convert in mV
+             if(reverse_bool) trace[1][k] = -waveform[0][0][k]*1000; //to convert in mV
+             else trace[1][k] = waveform[0][0][k]*1000;
+        }
+        
+        if(display){
+            if(!display_one_ev) display_peaks_now = display_peaks;
+            if(display_one_ev and (n_ev==ev_to_display)) display_peaks_now = display_peaks;
         }
            
             
@@ -1400,20 +1439,19 @@ void ReadBin(string filename, int last_event_n, bool display)
 //void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
 
         if(display){
+            miny1 = -10; maxy1 = 20; miny2 = -10; maxy2 = 20;
             if(!display_one_ev){
                 if(n_ev==0){
                     c->Divide(1,2);
                     c->SetGrid();
                 }
-                miny1 = -100; maxy1 = 100; miny2 = -100; maxy2 = 100;
-                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, true, true);
+                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, true);
                 if(!running_graph)getchar();
             }else{
                 if(n_ev==ev_to_display){
                     c->Divide(1,2);
                     c->SetGrid();
-                    miny1 = -100; maxy1 = 100; miny2 = -100; maxy2 = 100;
-                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, false, true);
+                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, false);
                 }
             }
             
