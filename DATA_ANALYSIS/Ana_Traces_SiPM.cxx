@@ -127,7 +127,7 @@ void Get_DCR_temp_and_errDCR_temp();
 void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
 void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
 void find_peaks_from_vector();
-void find_DCR_1_5_pe(int tot_files);
+void find_DCR_1_5_pe();
 
 //READ FILE
 void Read_Agilent_CAEN(string file, int last_event_n, bool display);
@@ -165,8 +165,8 @@ int min_peak_width =  5; //used for find_peaks
 double thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5
 double pe_0_5_vect[3] = {10.,10.,10.};
 double pe_1_5_vect[3] = {10.,10.,10.};
-double min_pe_1_5 = 25;
-double max_pe_1_5 = 35;
+double min_pe_1_5 = 28;
+double max_pe_1_5 = 33;
 
 //hist related
 double maxyhist = 200;
@@ -741,7 +741,7 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files){
     if(!DCRonly2points){
         thr_to_find_peaks = 7; //mV
         max_thr_to_find_peaks = 50; //mV
-        gap_between_thr = 0.1; //mV
+        gap_between_thr = 0.5; //mV
     }else{
         thr_to_find_peaks = pe_0_5_vect[nfile];
         max_thr_to_find_peaks = pe_1_5_vect[nfile];
@@ -787,7 +787,7 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files){
         h++;
     }
     
-    find_DCR_1_5_pe(tot_files);
+    find_DCR_1_5_pe();
     
     
     
@@ -936,12 +936,13 @@ void Get_DCR_temp_and_errDCR_temp(){
 
 
 //------------------------------------------------------------------------------
-void find_DCR_1_5_pe(int tot_files){
+void find_DCR_1_5_pe(){
     double min=100000000;
     int min_index = 0;
     der_DCR[nfile][0] = min;
     for(int i=1; i<n_DCR; i++){
         der_DCR[nfile][i] = TMath::Abs(DCR[nfile][i] - DCR[nfile][i-1]);
+        cout<<der_DCR[nfile][i]<<endl;
     }
     for(int i=0; i<n_DCR; i++){
         if(thr_to_find_peaks_vect[nfile][i]>min_pe_1_5 and thr_to_find_peaks_vect[nfile][i]<max_pe_1_5){
