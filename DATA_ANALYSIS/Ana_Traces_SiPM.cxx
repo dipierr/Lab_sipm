@@ -158,10 +158,10 @@ bool DRS4_Evaluation_Board = true; //true if data taken by DRS4_Evaluation_Board
 //peaks related
 int mintp = 250; //min_time_peak
 int maxtp = 280; //max_time_peak
-int dleddt = 35; //10ns is approx the rise time used for HD3_2 on AS out 2
+int dleddt = 9; //10ns is approx the rise time used for HD3_2 on AS out 2
 int blind_gap = 2*dleddt; //ns
-int max_peak_width = 50; //used for find_peaks
-int min_peak_width =  20; //used for find_peaks
+int max_peak_width = 20; //used for find_peaks
+int min_peak_width =  5; //used for find_peaks
 double thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5
 double pe_0_5_vect[3] = {10.,10.,10.};
 double pe_1_5_vect[3] = {10.,10.,10.};
@@ -170,7 +170,7 @@ double max_pe_1_5 = 33;
 
 //hist related
 double maxyhist = 200;
-double maxyhistAllPeaks = 20; 
+double maxyhistAllPeaks = 200; 
 double maxyhistDCR = 200;
 double maxyhistDelays = 200;
 double w = 1000;
@@ -211,7 +211,7 @@ int ev_to_display = 5;
 //----------------------------[   SETTING OPTIONS   ]----------------------------
 //-------------------------------------------------------------------------------
 
-bool reverse_bool = false;
+bool reverse_bool = true;
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
@@ -232,6 +232,8 @@ double *peak;
 double *peaks;
 double **thr_to_find_peaks_vect;
 double **der_DCR;
+double **thr_to_find_peaks_vect_mean;
+double **DCR_mean;  
 
 TGraphErrors *gDCR_1;
 TGraphErrors *gDCR_2;
@@ -786,6 +788,14 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files){
             for(int i = 0; i < 3; i++) {
                 der_DCR[i] = new double[n_smoot];
         }
+        thr_to_find_peaks_vect_mean = new double*[tot_files]; 
+            for(int i = 0; i < 3; i++) {
+                thr_to_find_peaks_vect_mean[i] = new double[n_smoot];
+        }
+        DCR_mean = new double*[tot_files]; 
+            for(int i = 0; i < 3; i++) {
+                DCR_mean[i] = new double[n_smoot];
+        }
     }
     first_time_DCR_called = false;
     
@@ -962,12 +972,16 @@ void find_DCR_1_5_pe(){
     j=k=0;
     for(int i=0; i<n_smoot; i++){
         der_DCR[nfile][i] = 0;
+        thr_to_find_peaks_vect_mean[nfile][i] = 0;
+        DCR_mean[nfile][i] = 0;
     }
     while(j<n_DCR){
         for(int i=j; i<j+sums; i++){
-            der_DCR[nfile][k] = der_DCR[nfile][k] + DCR[nfile][i];
+            DCR_mean[nfile][k] = DCR_mean[nfile][k] + DCR[nfile][i];
+            thr_to_find_peaks_vect_mean[nfile][k] = thr_to_find_peaks_vect_mean[nfile][k] + thr_to_find_peaks_vect[nfile][i];
         }
-        der_DCR[nfile][k] = der_DCR[nfile][k]/sums;
+        DCR_mean[nfile][k] = DCR_mean[nfile][k]/sums;
+        thr_to_find_peaks_vect_mean[nfile][k] = thr_to_find_peaks_vect_mean[nfile][k]/sums;
         
         j = j+sums;
         k = k+1;
@@ -975,10 +989,10 @@ void find_DCR_1_5_pe(){
     }
     
     for(int i=1; i<n_smoot; i++){
-        der_DCR[nfile][i] = TMath::Abs(der_DCR[nfile][i] - der_DCR[nfile][i-1]);
+        der_DCR[nfile][i] = TMath::Abs(DCR_mean[nfile][i] - DCR_mean[nfile][i-1]);
     }
-    for(int i=0; i<n_DCR; i++){
-        if(thr_to_find_peaks_vect[nfile][i]>min_pe_1_5 and thr_to_find_peaks_vect[nfile][i]<max_pe_1_5){
+    for(int i=0; i<n_smoot; i++){
+        if(thr_to_find_peaks_vect_mean[nfile][i]>min_pe_1_5 and thr_to_find_peaks_vect_mean[nfile][i]<max_pe_1_5){
             if(der_DCR[nfile][i]<min){
                 min = der_DCR[nfile][i];
                 min_index = i;
@@ -986,8 +1000,8 @@ void find_DCR_1_5_pe(){
         }
     }
     
-    DCR_pe_1_5_vect[nfile] = DCR[nfile][min_index];
-    pe_1_5_vect[nfile] = min_thr_to_find_peaks + min_index*gap_between_thr*sums;
+    DCR_pe_1_5_vect[nfile] = DCR_mean[nfile][min_index];
+    pe_1_5_vect[nfile] = thr_to_find_peaks_vect_mean[nfile][min_index];
 }
 
 //------------------------------------------------------------------------------
