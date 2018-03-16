@@ -182,10 +182,10 @@ int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 double thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
 
 // ONLY for LED measures
-int minLED = 130; //min_time_peak
-int maxLED = 150; //max_time_peak
-int min_time_offset = 50;
-int max_time_offset = 100;
+int minLED = 50; //min_time_peak
+int maxLED = 80; //max_time_peak
+int min_time_offset = 20;
+int max_time_offset = 40;
 
 //---------------
 //---------------
@@ -195,8 +195,8 @@ int max_time_offset = 100;
 //---[ HISTS ]---
 //---------------
 
-double maxyhist = 5000;
-double maxyHistCharge = 2000;
+double maxyhist = 200;
+double maxyHistCharge = 5000;
 double maxyhistAllPeaks = 200; 
 double maxyhistDCR = 200;
 double maxyhistDelays = 200;
@@ -205,7 +205,7 @@ double h = 800;
 int bins_Volt = 204;
 int bins_DCR = 206;
 int bins_Delays = 100;
-int bins_Charge = 2000;
+int bins_Charge = 500;
 
 //---------------
 //---------------
@@ -657,7 +657,7 @@ void Analysis(string file, int last_event_n, bool display){
         
         TCanvas *cAVG = new TCanvas("AVG","AVG");
         cAVG->SetGrid();
-        miny = -10; maxy = 10;
+        miny = -10; maxy = 30;
         show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght, miny, maxy,true,false);
        
     }
@@ -1137,14 +1137,13 @@ void fit_hist_all_peaks(TCanvas *c, TH1D *hist, double fit1Low, double fit1High,
 //------------------------------------------------------------------------------
 void find_offset(){
     offset = 0.;
-    int last_n;
-    int first_n;
-    last_n = (int)(trace_lenght * max_time_offset/trace[0][trace_lenght- 1]);
-    first_n = (int)(trace_lenght * min_time_offset/trace[0][trace_lenght- 1]);
-    for(int i=0; i<last_n; i++){
+    int last_n, first_n;
+    last_n = (int)(trace_lenght * max_time_offset / trace[0][trace_lenght- 1]);
+    first_n = (int)(trace_lenght * min_time_offset / trace[0][trace_lenght- 1]);
+    for(int i=first_n; i<last_n; i++){
         offset = offset + trace[1][i];
     }
-    offset = offset/last_n;
+    offset = offset/(last_n-first_n);
 }
 
 //------------------------------------------------------------------------------
