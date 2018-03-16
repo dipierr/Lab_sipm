@@ -15,7 +15,7 @@
  *          root [1] DCR_CT_1SiPM_3HVs(string file1, string file2, string file3,*
  *                    int last_event_n)                                         *
  *          root [1] Ana1(string file1, int last_event_n,                       *
- *                    bool display_one_ev_param, bool LED_bool);                *
+ *                    bool display_one_ev_param);                               *
  *                                                                              *
  *  Davide Depaoli 2018                                                         *
  *                                                                              *
@@ -111,7 +111,7 @@ typedef struct {
 //PREDEFINED
 void DCR_CT_1SiPM_1HV(string file1, int last_event_n);
 void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n);
-void Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_bool);
+void Ana1(string file1, int last_event_n, bool display_one_ev_param);
 
 //SECONDARY
 void Analysis(string file, int last_event_n, bool display);
@@ -123,8 +123,8 @@ void fit_hist_del(double expDelLow, double expDelHigh);
 void fit_hist_all_peaks(TCanvas *c, TH1D *hist, double fit1Low, double fit1High, double fit2Low, double fit2High);
 TGraphErrors* DCR_func(string file1, int last_event_n, int tot_files);
 void Get_DCR_temp_and_errDCR_temp();
-void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool);
-void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool);
+void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, bool line_bool, bool delete_bool);
+void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, bool line_bool, bool delete_bool);
 void find_peaks_from_vector();
 void find_DCR_0_5_pe_and_1_5_pe();
 
@@ -166,7 +166,7 @@ int max_peak_width = 20; //used for find_peaks
 int min_peak_width =  5; //used for find_peaks
 
 // ONLY for DCR_CT_1SiPM_1HV and DCR_CT_1SiPM_3HVs:
-double min_thr_to_find_peaks = 7;  //first thr value in the DCR vs thr plot (mV)
+double min_thr_to_find_peaks = 6;  //first thr value in the DCR vs thr plot (mV)
 double max_thr_to_find_peaks = 50; //last thr value in the DCR vs thr plot (mV)
 double gap_between_thr = 0.1; //gap between thresholds in the DCR vs thr plot (mV)
 double min_pe_0_5 = 7;  //min value for 0.5pe threshold (mV)
@@ -179,8 +179,8 @@ int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 double thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
 
 // ONLY for LED measures
-int mintp = 250; //min_time_peak
-int maxtp = 280; //max_time_peak
+int minLED = 130; //min_time_peak
+int maxLED = 160; //max_time_peak
 
 //---------------
 //---------------
@@ -244,7 +244,7 @@ int ev_to_display = 5;
 //----------------------------[   SETTING OPTIONS   ]----------------------------
 //-------------------------------------------------------------------------------
 
-bool reverse_bool = true;
+bool reverse_bool = false;
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
@@ -294,6 +294,7 @@ char temp[20];
 
 int num_peaks=0;
 int index_vect[max_peak_num];
+int mintp = 0; int maxtp = 0;
 
 double peaks_all_delay[2][max_peaks];
 int ind_peaks_all_delay = 0;
@@ -548,7 +549,7 @@ void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_
 }
 
 //------------------------------------------------------------------------------
-void Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_bool){
+void Ana1(string file1, int last_event_n, bool display_one_ev_param){
     //VARIABLES:
     //TRUE:
     find_peaks_bool = true;
@@ -561,16 +562,6 @@ void Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_bo
     display_peaks = true;
     
     nfile = 0; //I only consider 1 file   
-    
-    if(LED_bool){
-        find_peak_in_a_selected_window = true;
-        drawHistAllPeaks = false; // to draw hist of all peaks in traces
-        fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
-        DCR_DELAYS_bool = false; //DCR from delays
-        show_hists_DCR_DELAYS  = false;
-        showHist_bool = true;
-        DO_NOT_DELETE_HIST_LED = true;
-    }
     
     ptrHistAllPeaks[0]  = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
     ptrHistDelays[0]    = new TH1D("histDelays","",bins_Delays,0,maxyhistDelays);
@@ -597,6 +588,19 @@ void Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_bo
     
 }
 
+void Ana_LED(string file1, int last_event_n){
+    //VARIABLES:
+    //TRUE:
+    average = true;
+    
+    nfile = 0; //I only consider 1 file
+    
+    //Analysis
+    Analysis(file1, last_event_n, false);
+    
+}
+
+
 
 
 
@@ -622,15 +626,15 @@ void Analysis(string file, int last_event_n, bool display){
     
 //***** AVERAGE
     if(average){
-        average_func(trace_lenght);
         for(i=0; i<trace_lenght; i++){
-            trace_AVG[1][i] = trace_AVG[1][i]/n_ev;
+            trace_AVG[1][i] = trace_AVG[1][i]/n_ev_tot;
         }
+        
         TCanvas *cAVG = new TCanvas("AVG","AVG");
         cAVG->SetGrid();
-        if(Agilent_MSO6054A){miny=50; maxy=90;}
-        if(Digitizer_CAEN)  {miny=700; maxy=855;}
-        show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght, miny, maxy,mintp,maxtp,true,false);
+        miny = -10; maxy = 10;
+        show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_lenght, miny, maxy,true,false);
+       
     }
     
 //***** HIST ALL PEAKS
@@ -896,25 +900,13 @@ void find_peaks_from_vector(){
     
 }
 
-
-
 //------------------------------------------------------------------------------
-void average_func(int trace_lenght){
-    for (ii=0; ii<trace_lenght; ii++){
-        trace_AVG[1][ii] = trace_AVG[1][ii] + trace[1][ii];
-    }
-}
-
-//------------------------------------------------------------------------------
-void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse, int section){
-    if(section == 0) canv->cd();
-    if(section == 1) canv->cd(1);
-    if(section == 2) canv->cd(2);
+void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double miny, double maxy, bool line_bool, bool delete_bool){
     for(ii=0; ii<trace_lenght; ii++){
         x[ii] = x[ii];
         y[ii] = y[ii];
         
-        if(reverse)
+        if(reverse_bool)
             y[ii] = -y[ii];
     }
     TGraphErrors *graph = new TGraphErrors(trace_lenght,x,y,0,0);
@@ -926,8 +918,8 @@ void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double mi
     graph->GetYaxis()-> SetRangeUser(miny,maxy);
     graph->Draw("aplsame");
     if(line_bool){
-        TLine *lmin = new TLine (x[mintp], miny, x[mintp], maxy);
-        TLine *lmax = new TLine (x[maxtp], miny, x[maxtp], maxy);
+        TLine *lmin = new TLine (minLED, miny, minLED, maxy);
+        TLine *lmax = new TLine (maxLED, miny, maxLED, maxy);
         lmin->SetLineColor(kBlue);
         lmax->SetLineColor(kBlue);
         lmin->Draw("aplsame");
@@ -939,7 +931,7 @@ void show_trace(TCanvas* canv, double *x, double *y, int trace_lenght, double mi
 }
 
 //------------------------------------------------------------------------------
-void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool){
+void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, bool line_bool, bool delete_bool){
     
     for(ii=0; ii<trace_lenght1; ii++){
         x1[ii] = x1[ii];
@@ -958,14 +950,6 @@ void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, 
     graph1->GetXaxis()->SetTitleOffset(1.2);
     graph1->GetYaxis()-> SetRangeUser(miny1,maxy1);
     graph1->Draw("aplsame");
-    if(line_bool){
-        TLine *lmin1 = new TLine (x1[mintp], miny1, x1[mintp], maxy1);
-        TLine *lmax1 = new TLine (x1[maxtp], miny1, x1[maxtp], maxy1);
-        lmin1->SetLineColor(kBlue);
-        lmax1->SetLineColor(kBlue);
-        lmin1->Draw("aplsame");
-        lmax1->Draw("aplsame");
-    }
     canv->Update();
     canv->cd(2);
     TGraphErrors *graph2 = new TGraphErrors(trace_lenght2,x2,y2,0,0);
@@ -976,14 +960,6 @@ void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, 
     graph2->GetXaxis()->SetTitleOffset(1.2);
     graph2->GetYaxis()-> SetRangeUser(miny2,maxy2);
     graph2->Draw("aplsame");
-    if(line_bool){
-        TLine *lmin2 = new TLine (x2[mintp], miny2, x2[mintp], maxy2);
-        TLine *lmax2 = new TLine (x2[maxtp], miny2, x2[maxtp], maxy2);
-        lmin2->SetLineColor(kBlue);
-        lmax2->SetLineColor(kBlue);
-        lmin2->Draw("aplsame");
-        lmax2->Draw("aplsame");
-    }
     
     TGraphErrors *graphPeaks;
     TGraphErrors *graphPeaks_DLED;
@@ -1047,12 +1023,15 @@ void find_DCR_0_5_pe_and_1_5_pe(){
             //sum
             DCR_mean[nfile][k] = DCR_mean[nfile][k] + DCR[nfile][i];
             thr_to_find_peaks_vect_mean[nfile][k] = thr_to_find_peaks_vect_mean[nfile][k] + thr_to_find_peaks_vect[nfile][i];
+            
             //error propagation: sigma^2 = sigma1^2 + sigma2^2 + ...
             errDCR_mean[nfile][k] = errDCR_mean[nfile][k] + errDCR[nfile][i]*errDCR[nfile][i];
         }
+        
         //division for n_mean
         DCR_mean[nfile][k] = DCR_mean[nfile][k]/n_mean;
         thr_to_find_peaks_vect_mean[nfile][k] = thr_to_find_peaks_vect_mean[nfile][k]/n_mean;
+        
         //error propagation: sigma = sqrt(sigma^2)
         errDCR_mean[nfile][k] = TMath::Sqrt(errDCR_mean[nfile][k]);
         
@@ -1266,7 +1245,6 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
         
 
 //***** DISPLAY     
-//void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
         if(display){
             if(!display_one_ev){
                 if(n_ev==0){
@@ -1277,7 +1255,7 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
                 if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
                 if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
                 if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
-                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, true);
+                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, line_bool, true);
                 if(!running_graph)getchar();
             }else{
                 if(n_ev==ev_to_display){
@@ -1287,7 +1265,7 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
                     if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
                     if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
                     if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
-                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, false);
+                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, line_bool, false);
                 }
             }
             
@@ -1516,7 +1494,9 @@ void ReadBin(string filename, int last_event_n, bool display)
                     trace_AVG[1][i]=0;
                 }
             }
-            average_func(trace_lenght);
+            for (ii=0; ii<trace_lenght; ii++){
+                trace_AVG[1][ii] = trace_AVG[1][ii] + trace[1][ii];
+            }
         }
         
         if(find_peak_in_a_selected_window){
@@ -1535,8 +1515,6 @@ void ReadBin(string filename, int last_event_n, bool display)
         
         
 //***** DISPLAY     
-//void show_trace2(TCanvas* canv, double *x1, double *y1, double *x2, double *y2, int trace_lenght1, int trace_lenght2, double miny1, double maxy1, double miny2, double maxy2, int mintp, int maxtp, bool line_bool, bool delete_bool, bool reverse);
-
         if(display){
             miny1 = -10; maxy1 = 20; miny2 = -10; maxy2 = 20;
             if(!display_one_ev){
@@ -1544,13 +1522,13 @@ void ReadBin(string filename, int last_event_n, bool display)
                     c->Divide(1,2);
                     c->SetGrid();
                 }
-                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, true);
+                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, line_bool, true);
                 if(!running_graph)getchar();
             }else{
                 if(n_ev==ev_to_display){
                     c->Divide(1,2);
                     c->SetGrid();
-                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, mintp, maxtp, line_bool, false);
+                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, line_bool, false);
                 }
             }
             
@@ -1586,7 +1564,7 @@ void help(){
     cout<<"PREDEFINED FUNCTIONS:"<<endl;
     cout<<"\tvoid DCR_CT_1SiPM_1HV(string file1, int last_event_n);"<<endl;
     cout<<"\tvoid DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n);"<<endl;
-    cout<<"\tvoid Ana1(string file1, int last_event_n, bool display_one_ev_param, bool LED_bool);"<<endl;
+    cout<<"\tvoid Ana1(string file1, int last_event_n, bool display_one_ev_param);"<<endl;
     cout<<endl;
     cout<<"See Ana_Traces_SiPM_ReadMe.md for more information"<<endl<<endl;
     cout<<"Davide Depaoli 2018"<<endl;
