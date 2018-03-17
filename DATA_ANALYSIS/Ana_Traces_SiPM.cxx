@@ -163,7 +163,7 @@ bool DRS4_Evaluation_Board = true; //true if data taken by DRS4_Evaluation_Board
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 9; //10ns is approx the rise time used for HD3_2 on AS out 2
+int dleddt = 10; //10ns is approx the rise time used for HD3_2 on AS out 2
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 20; //used for find_peaks
 int min_peak_width =  5; //used for find_peaks
@@ -182,10 +182,10 @@ int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 double thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
 
 // ONLY for LED measures
-int minLED = 50; //min_time_peak
-int maxLED = 80; //max_time_peak
-int min_time_offset = 20;
-int max_time_offset = 40;
+int minLED = 130; //min time for peak (ns)
+int maxLED = 160; //max time for peak (ns)
+int min_time_offset = 20; //min time for offset (ns)
+int max_time_offset = 40; //max time for offset (ns)
 
 //---------------
 //---------------
@@ -251,7 +251,7 @@ int ev_to_display = 5;
 //----------------------------[   SETTING OPTIONS   ]----------------------------
 //-------------------------------------------------------------------------------
 
-bool reverse_bool = false;
+bool reverse_bool = true;
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
@@ -1295,25 +1295,18 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
 
 //***** DISPLAY     
         if(display){
+            miny1 = -10; maxy1 = 100; miny2 = -10; maxy2 = 100;
             if(!display_one_ev){
                 if(n_ev==0){
                     c->Divide(1,2);
                     c->SetGrid();
                 }
-                if(Agilent_MSO6054A) {miny1=10; maxy1=180;}
-                if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
-                if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
-                if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
                 show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, line_bool, true);
                 if(!running_graph)getchar();
             }else{
                 if(n_ev==ev_to_display){
                     c->Divide(1,2);
                     c->SetGrid();
-                    if(Agilent_MSO6054A) {miny1=10; maxy1=180;}
-                    if(Digitizer_CAEN)   {miny1=700;  maxy1=900;}
-                    if(Agilent_MSO6054A) {miny2=-30; maxy2=90;}
-                    if(Digitizer_CAEN)   {miny2=-30; maxy2=90;}
                     show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_lenght, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, line_bool, false);
                 }
             }
@@ -1536,18 +1529,6 @@ void ReadBin(string filename, int last_event_n, bool display)
             if(display_one_ev and (n_ev==ev_to_display)) display_peaks_now = display_peaks;
         }
         
-//***** AVERAGE
-        if(average){
-            if(n_ev==0){
-                for(i=0; i< trace_lenght; i++){
-                    trace_AVG[0][i]=trace[0][i];
-                    trace_AVG[1][i]=0;
-                }
-            }
-            for (ii=0; ii<trace_lenght; ii++){
-                trace_AVG[1][ii] = trace_AVG[1][ii] + trace[1][ii];
-            }
-        }
            
             
 //***** DLED
@@ -1583,12 +1564,23 @@ void ReadBin(string filename, int last_event_n, bool display)
             find_charge_selected_window(mintp, maxtp);
         }
         
-        
+//***** AVERAGE
+        if(average){
+            if(n_ev==0){
+                for(i=0; i< trace_lenght; i++){
+                    trace_AVG[0][i]=trace[0][i];
+                    trace_AVG[1][i]=0;
+                }
+            }
+            for (ii=0; ii<trace_lenght; ii++){
+                trace_AVG[1][ii] = trace_AVG[1][ii] + trace[1][ii];
+            }
+        }        
 
         
 //***** DISPLAY     
         if(display){
-            miny1 = -10; maxy1 = 20; miny2 = -10; maxy2 = 20;
+            miny1 = -30; maxy1 = 100; miny2 = -30; maxy2 = 100;
             if(!display_one_ev){
                 if(n_ev==0){
                     c->Divide(1,2);
