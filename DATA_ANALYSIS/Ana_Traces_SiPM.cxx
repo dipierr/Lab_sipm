@@ -141,32 +141,37 @@ void help();
 //------------------------------------------------------------------------------
 
 
-//------------------------------------------------------------------------------
-//--------------------------------[   DEVICE   ]--------------------------------
-//------------------------------------------------------------------------------
-
-bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
-bool Digitizer_CAEN = false;  //true if data taken by Digitizer_CAEN, false otherwise
-bool DRS4_Evaluation_Board = true; //true if data taken by DRS4_Evaluation_Board, false otherwise
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-
-
 
 //-------------------------------------------------------------------------------
 //-----------------------[   SETTING GLOBAL VARIABLES   ]------------------------
 //-------------------------------------------------------------------------------
+
+//-----------------
+//---[ OPTIONS ]---
+//-----------------
+
+// DEVICE
+bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
+bool Digitizer_CAEN = false;  //true if data taken by Digitizer_CAEN, false otherwise
+bool DRS4_Evaluation_Board = true; //true if data taken by DRS4_Evaluation_Board, false otherwise
+
+// TRACK related options
+bool reverse_bool = true; //true if the signal is negative
+bool DLED_bool = true; //true to use the DLED technique
+
+//-----------------
+//-----------------
+
 
 //---------------
 //---[ PEAKS ]---
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 10; //10ns is approx the rise time used for HD3_2 on AS out 2
+int dleddt = 9; //10ns is approx the rise time used for HD3_2 on AS out 2
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 20; //used for find_peaks
-int min_peak_width =  5; //used for find_peaks
+int min_peak_width =  0; //used for find_peaks
 
 // ONLY for DCR_CT_1SiPM_1HV and DCR_CT_1SiPM_3HVs:
 double min_thr_to_find_peaks = 6;  //first thr value in the DCR vs thr plot (mV)
@@ -234,7 +239,7 @@ int ev_to_display = 5;
 
 
 /* VALUES
- *  HD3-2 dleddt = 9; min_peak_width = 5; max_peak_width = 20; maxyhistAllPeaks = 200; 
+ *  HD3-2 dleddt = 9; min_peak_width = 5; max_peak_width = 20; maxyhistAllPeaks = 200; thr_to_find_peaks = 10;
  *  MPPC  dleddt = ;
  * 
  * 
@@ -242,16 +247,6 @@ int ev_to_display = 5;
  *  LED from Agilent: approx in the middle, mintp = 420; maxtp = 500;  dleddt = 9; maxyhist = .2;
  *  LED from Digitizer_CAEN: depends on the wave
  */
-
-//-------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-
-
-//-------------------------------------------------------------------------------
-//----------------------------[   SETTING OPTIONS   ]----------------------------
-//-------------------------------------------------------------------------------
-
-bool reverse_bool = true;
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
@@ -325,8 +320,6 @@ double offset = 0.; double charge = 0.;
 bool find_peak_in_a_selected_window = false; //to find a peak in a selected window (e.g. for LED measures)
 bool average = false; //calculate the average of traces (useful for LED measures)
 
-bool DLED_bool = false;
-
 bool DCR_DELAYS_bool = false; //DCR from delays
 bool CROSS_TALK_bool = false; //DCR must be true
 
@@ -394,8 +387,7 @@ void DCR_CT_1SiPM_1HV(string file1, int last_event_n){
     DCR_DELAYS_bool = true; //DCR from delays
     CROSS_TALK_bool = true; //DCR must be true
     DO_NOT_DELETE_HIST_LED = true;
-    DLED_bool = true;
-       
+    
     nfile = 0; //I only consider 1 file
     
     ptrHistDelays[0]    = new TH1D("histDelays","",bins_Delays,0,maxyhistDelays);
@@ -468,7 +460,6 @@ void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_
     DCR_DELAYS_bool = true; //DCR from delays
     CROSS_TALK_bool = true; //DCR must be true
     DO_NOT_DELETE_HIST_LED = true;
-    DLED_bool = true;
     
     //I have 3 files
     nfiletot = 3;
@@ -577,7 +568,6 @@ void Ana1(string file1, int last_event_n, bool display_one_ev_param){
     display_one_ev = display_one_ev_param;
     DO_NOT_DELETE_HIST_LED = true;
     display_peaks = true;
-    DLED_bool = true;
     
     nfile = 0; //I only consider 1 file   
     
@@ -1254,6 +1244,11 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
         if(DLED_bool){
             DLED(trace_lenght,dleddt);
             //Now: trace_DLED
+        }else{
+            for(ii=0; ii<trace_DLED_lenght; ii++){
+                trace_DLED[0][ii] = trace[0][ii];
+                trace_DLED[1][ii] = trace[1][ii];
+            }
         }
         
 //***** AVERAGE
@@ -1535,6 +1530,11 @@ void ReadBin(string filename, int last_event_n, bool display)
         if(DLED_bool){
             DLED(trace_lenght,dleddt);
             //Now: trace_DLED
+        }else{
+            for(ii=0; ii<trace_DLED_lenght; ii++){
+                trace_DLED[0][ii] = trace[0][ii];
+                trace_DLED[1][ii] = trace[1][ii];
+            }
         }
         
         
@@ -1580,7 +1580,7 @@ void ReadBin(string filename, int last_event_n, bool display)
         
 //***** DISPLAY     
         if(display){
-            miny1 = -30; maxy1 = 100; miny2 = -30; maxy2 = 100;
+            miny1 = -10; maxy1 = 10; miny2 = -10; maxy2 = 10;
             if(!display_one_ev){
                 if(n_ev==0){
                     c->Divide(1,2);
