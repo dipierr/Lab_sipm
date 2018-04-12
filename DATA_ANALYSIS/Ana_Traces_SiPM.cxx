@@ -112,6 +112,8 @@ typedef struct {
 void DCR_CT_1SiPM_1HV(string file1, int last_event_n);
 void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n);
 void Ana1(string file1, int last_event_n, bool display_one_ev_param);
+void Ana_LED(string file1, int last_event_n);
+void Ana_Ped(string file1, int last_event_n);
 
 //SECONDARY
 void Analysis(string file, int last_event_n, bool display);
@@ -156,8 +158,8 @@ bool Digitizer_CAEN = false;  //true if data taken by Digitizer_CAEN, false othe
 bool DRS4_Evaluation_Board = true; //true if data taken by DRS4_Evaluation_Board, false otherwise
 
 // TRACK related options
-bool reverse_bool = true; //true if the signal is negative
-bool DLED_bool = true; //true to use the DLED technique
+bool reverse_bool = false; //true if the signal is negative
+bool DLED_bool = false; //true to use the DLED technique
 
 //-----------------
 //-----------------
@@ -239,7 +241,7 @@ int ev_to_display = 5;
 
 
 /* VALUES
- *  HD3-2 dleddt = 9; min_peak_width = 5; max_peak_width = 20; maxyhistAllPeaks = 200; thr_to_find_peaks = 10;
+ *  HD3-2 dleddt = 9; blind_gap = 2*dleddt; min_peak_width = 5; max_peak_width = 20; maxyhistAllPeaks = 200; thr_to_find_peaks = 10;
  *  MPPC  dleddt = ;
  * 
  * 
@@ -308,6 +310,7 @@ double fit2Low = 0;
 double fit2High = 0;
 
 double offset = 0.; double charge = 0.;
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -343,6 +346,8 @@ bool find_peaks_bool = false;
 bool find_offset_bool = false;
 bool find_charge_led_bool = false;
 
+bool fill_hist = false;
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -354,6 +359,9 @@ bool find_charge_led_bool = false;
 //------------------------------------------------------------------------------
 
 TH1D *ptrHist = new TH1D("hist","",bins_Volt,0,maxyhist);
+
+TH1D *ptrAll = new TH1D("histAll","",500,-100,100);
+TH1D *ptrAllTrace = new TH1D("histAllT","",1000,-5,5);
 
 TH1D *ptrHistCharge = new TH1D("HistCharge","",bins_Charge,-maxyHistCharge,maxyHistCharge);
 
@@ -369,6 +377,7 @@ TF1 *gausFit2 = new TF1("gausFit2","gaus",-100,100);
 TCanvas *c = new TCanvas("Trace","Trace",w,h);
 TCanvas *cDCR = new TCanvas("hist_DCR","hist_DCR",w,h);
 TCanvas *cAllPeaks = new TCanvas("AllPeaks","AllPeaks",w,h);
+
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -615,6 +624,23 @@ void Ana_LED(string file1, int last_event_n){
     
 }
 
+void Ana_Ped(string file1, int last_event_n){
+    //VARIABLES:
+    //TRUE:
+    fill_hist = true;
+    
+    nfile = 0; //I only consider 1 file
+    
+    //Analysis
+    Analysis(file1, last_event_n, false);
+    
+    new TCanvas();
+    ptrAllTrace->Draw();
+    
+}
+
+
+
 
 
 
@@ -810,6 +836,7 @@ void DLED(int trace_lenght, int dleddt){
     for(ii=0; ii<trace_DLED_lenght; ii++){
         trace_DLED[0][ii] = trace[0][ii + dleddt];
         trace_DLED[1][ii] = trace[1][ii + dleddt]-trace[1][ii];
+        if(fill_hist) ptrAll->Fill(trace_DLED[1][ii]);
     }
 }
 
@@ -854,6 +881,7 @@ void find_peaks(double thr_to_find_peaks, int max_peak_width, int min_peak_width
             else 
                 index_peak = find_peak_fix_time(ii, trace_DLED_lenght);
             
+        
             if((index_peak-index_old)>blind_gap){
                 index_new=index_peak;
                 //DCR from the delay (Itzler Mark - Dark Count Rate Measure (pag 5 ss))
@@ -1337,18 +1365,11 @@ void ReadBin(string filename, int last_event_n, bool display)
    TCHEADER tch;
    CHEADER  ch;
    
-   
    unsigned int scaler;
    unsigned short voltage[1024];
    double waveform[16][4][1024], time[16][4][1024];
    float bin_width[16][4][1024];
    int i, j, b, chn, n, chn_index, n_boards;
-   double t1, t2, dt;
-
-   double threshold;
-   n_ev = 0;
-   
-   
    int len = filename.length();
    char file_for_fopen[len];
    
@@ -1359,31 +1380,27 @@ void ReadBin(string filename, int last_event_n, bool display)
    // open the binary waveform file
    FILE *f = fopen(file_for_fopen, "rb");
    if (f == NULL) {
-      //printf("Cannot find file \'%s\'\n", filename);
-//       return 0;
-       cout<<"Cannot find file"<<endl;
+//       printf("Cannot find file \'%s\'\n", filename);
+      return;
    }
 
    // read file header
    fread(&fh, sizeof(fh), 1, f);
    if (fh.tag[0] != 'D' || fh.tag[1] != 'R' || fh.tag[2] != 'S') {
-      //printf("Found invalid file header in file \'%s\', aborting.\n", filename);
-//       return 0;
-       cout<<"Found invalid file header in file"<<endl;
+//       printf("Found invalid file header in file \'%s\', aborting.\n", filename);
+      return;
    }
    
    if (fh.version != '2') {
-      //printf("Found invalid file version \'%c\' in file \'%s\', should be \'2\', aborting.\n", fh.version, filename);
-//       return 0;
-      cout<<"Found invalid file version"<<endl;
+//       printf("Found invalid file version \'%c\' in file \'%s\', should be \'2\', aborting.\n", fh.version, filename);
+      return;
    }
 
    // read time header
    fread(&th, sizeof(th), 1, f);
    if (memcmp(th.time_header, "TIME", 4) != 0) {
-      //printf("Invalid time header in file \'%s\', aborting.\n", filename);
-//       return 0;
-      cout<<"Invalid time header in file"<<endl;
+//       printf("Invalid time header in file \'%s\', aborting.\n", filename);
+      return;
    }
 
    for (b = 0 ; ; b++) {
@@ -1395,7 +1412,7 @@ void ReadBin(string filename, int last_event_n, bool display)
          break;
       }
       
-      //printf("Found data for board #%d\n", bh.board_serial_number);
+//       printf("Found data for board #%d\n", bh.board_serial_number);
       
       // read time bin widths
       memset(bin_width[b], sizeof(bin_width[0]), 0);
@@ -1407,7 +1424,7 @@ void ReadBin(string filename, int last_event_n, bool display)
             break;
          }
          i = ch.cn[2] - '0' - 1;
-         //printf("Found timing calibration for channel #%d\n", i+1);
+//          printf("Found timing calibration for channel #%d\n", i+1);
          fread(&bin_width[b][i][0], sizeof(float), 1024, f);
          // fix for 2048 bin mode: double channel
          if (bin_width[b][i][1023] > 10 || bin_width[b][i][1023] < 0.01) {
@@ -1418,7 +1435,7 @@ void ReadBin(string filename, int last_event_n, bool display)
    }
    n_boards = b;
    
-   
+
    // loop over all events in the data file
    for (n=0 ; ; n++) {
       // read event header
@@ -1426,12 +1443,13 @@ void ReadBin(string filename, int last_event_n, bool display)
       if (i < 1)
          break;
       
+      
       if(n_ev%1000==0)
             cout<<"Read ev\t"<<n_ev<<endl;
       if(n_ev==last_event_n)
           break;
       
-      //printf("Found event #%d %d %d\n", eh.event_serial_number, eh.second, eh.millisecond);
+//       printf("Found event #%d %d %d\n", eh.event_serial_number, eh.second, eh.millisecond);
       
       // loop over all boards in data file
       for (b=0 ; b<n_boards ; b++) {
@@ -1439,23 +1457,23 @@ void ReadBin(string filename, int last_event_n, bool display)
          // read board header
          fread(&bh, sizeof(bh), 1, f);
          if (memcmp(bh.bn, "B#", 2) != 0) {
-            //printf("Invalid board header in file \'%s\', aborting.\n", filename);
-//             return 0;
-            cout<<"Invalid board header in file"<<endl;
+//             printf("Invalid board header in file \'%s\', aborting.\n", filename);
+            return;
          }
          
          // read trigger cell
          fread(&tch, sizeof(tch), 1, f);
          if (memcmp(tch.tc, "T#", 2) != 0) {
-            //printf("Invalid trigger cell header in file \'%s\', aborting.\n", filename);
-            cout<<"Invalid trigger cell header in file"<<endl;
-//             return 0;
+//             printf("Invalid trigger cell header in file \'%s\', aborting.\n", filename);
+            return;
          }
 
-    
+//          if (n_boards > 1)
+//             printf("Found data for board #%d\n", bh.board_serial_number);
          
          // reach channel data
          for (chn=0 ; chn<4 ; chn++) {
+            
             // read channel header
             fread(&ch, sizeof(ch), 1, f);
             if (ch.c[0] != 'C') {
@@ -1472,21 +1490,12 @@ void ReadBin(string filename, int last_event_n, bool display)
                waveform[b][chn_index][i] = (voltage[i] / 65536. + eh.range/1000.0 - 0.5);
                
                // calculate time for this cell
-                // calculate time for this cell
                for (j=0,time[b][chn_index][i]=0 ; j<i ; j++)
                   time[b][chn_index][i] += bin_width[b][chn_index][(j+tch.trigger_cell) % 1024];
             }
          }
          
-         // align cell #0 of all channels
-         t1 = time[b][0][(1024-tch.trigger_cell) % 1024];
-         for (chn=1 ; chn<4 ; chn++) {
-            t2 = time[b][chn][(1024-tch.trigger_cell) % 1024];
-            dt = t1 - t2;
-            for (i=0 ; i<1024 ; i++)
-               time[b][chn][i] += dt;
-         }
-         
+   
         
 //==============================================================================
 // now you can modify
@@ -1515,8 +1524,11 @@ void ReadBin(string filename, int last_event_n, bool display)
     
         for(int k=0; k<trace_lenght; k++){
              trace[0][k] = time[0][0][k];
+            
              if(reverse_bool) trace[1][k] = -waveform[0][0][k]*1000; //to convert in mV
              else trace[1][k] = waveform[0][0][k]*1000;
+             
+             if(fill_hist) ptrAllTrace->Fill(trace[1][k]);
         }
         
         if(display){
