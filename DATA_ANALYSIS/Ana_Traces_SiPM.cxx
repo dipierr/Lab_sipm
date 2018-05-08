@@ -114,6 +114,8 @@ typedef struct {
 void DCR_CT_1SiPM_1HV(string file1, int last_event_n);
 void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n);
 void Ana1(string file1, int last_event_n, bool display_one_ev_param);
+void Ana_LED(string file1, int last_event_n);
+void Ana_Ped(string file1, int last_event_n);
 
 //SECONDARY
 void Analysis(string file, int last_event_n, bool display);
@@ -135,7 +137,8 @@ void find_offset_mod_2();
 void find_offset_mod_3();
 void find_offset_mod_4();
 void subtract_offset();
-void remove_peak_0();
+void remove_peak_0_half();
+void remove_peak_0_all();
 void find_charge_selected_window(int mintp, int maxtp);
 
 //READ FILE
@@ -162,12 +165,12 @@ void help();
 // DEVICE
 bool Agilent_MSO6054A = false; //true if data taken by Agilent_MSO6054A, false otherwise
 bool Digitizer_CAEN = false;  //true if data taken by Digitizer_CAEN, false otherwise
-bool DRS4_Evaluation_Board = false; //true if data taken by DRS4_Evaluation_Board, false otherwise
-bool DRS4_Evaluation_Board_Mod = true; //true if data taken by DRS4_Evaluation_Board mod version, false otherwise
+bool DRS4_Evaluation_Board = true; //true if data taken by DRS4_Evaluation_Board, false otherwise
+bool DRS4_Evaluation_Board_Mod = false; //true if data taken by DRS4_Evaluation_Board mod version, false otherwise
 
 // TRACK related options
-bool reverse_bool = false; //true if the signal is negative
-bool DLED_bool = false; //true to use the DLED technique
+bool reverse_bool = true; //true if the signal is negative
+bool DLED_bool = true; //true to use the DLED technique
 
 //-----------------
 //-----------------
@@ -179,13 +182,17 @@ bool DLED_bool = false; //true to use the DLED technique
 int start_blind_gap = 20;
 int end_bling_gap = 100;
 
+//--------------
+//---[ GSPS ]---
+//--------------
+double GSPS = 1;
 
 //---------------
 //---[ PEAKS ]---
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 9; //10ns is approx the rise time used for HD3_2 on AS out 2
+int dleddt = 9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 20; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
@@ -205,7 +212,7 @@ float thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V);
 
 // ONLY for LED measures
 int minLED = 130; //min time for peak (ns)
-int maxLED = 160; //max time for peak (ns)
+int maxLED = 175; //max time for peak (ns)
 int min_time_offset = 20; //min time for offset (ns)
 int max_time_offset = 40; //max time for offset (ns)
 
@@ -217,14 +224,14 @@ int max_time_offset = 40; //max time for offset (ns)
 //---[ HISTS ]---
 //---------------
 
-float maxyhist = 200;
+float maxyhist = 100;
 float maxyHistCharge = 5000;
 float maxyhistAllPeaks = 200; 
 float maxyhistDCR = 200;
 float maxyhistDelays = 200;
 float w = 1000;
 float h = 800;
-int bins_Volt = 204;
+int bins_Volt = 290;
 int bins_DCR = 206;
 int bins_Delays = 100;
 int bins_Charge = 500;
@@ -302,7 +309,7 @@ float DCR_pe_1_5_vect[] = {0., 0., 0.};
 float errDCR_pe_0_5_vect[] = {0., 0., 0.};
 float errDCR_pe_1_5_vect[] = {0., 0., 0.};
 
-int trace_DLED_lenght; int ii=0; int i=0; int index_func = 0; int nfile = 0; int n_DCR = 0; int DCR_cnt = 0; int trace_length = 0; int n_ev, index_for_peak; int one_window=0;
+int trace_DLED_length; int ii=0; int i=0; int index_func = 0; int nfile = 0; int n_DCR = 0; int DCR_cnt = 0; int trace_length = 0; int n_ev, index_for_peak; int one_window=0;
 int nfiletot = 1; int n_smooth = 0;
 
 float miny=0; float maxy=0; float miny1=0; float maxy1=0; float miny2=0; float maxy2=0; float gain, errgain; float DCR_time = 0.; float DCR_from_cnt = 0.; float max_func;
@@ -361,6 +368,7 @@ bool DO_NOT_DELETE_HIST_LED = false; //If set true, run only ONE TIME Analysis!!
 bool find_peaks_bool = false;
 bool find_offset_bool = false;
 bool find_charge_led_bool = false;
+bool remove_0_peak_bool = false;
 
 bool fill_hist = false;
 //------------------------------------------------------------------------------
@@ -376,7 +384,7 @@ bool fill_hist = false;
 TH1D *ptrHist = new TH1D("hist","",bins_Volt,0,maxyhist);
 
 TH1F *ptrAll = new TH1F("histAll","",500,-100,100);
-TH1F *ptrAllTrace = new TH1F("histAllT","",300,-10.05,19.95);
+TH1F *ptrAllTrace = new TH1F("histAllT","",150,-10.0,20.0);
 
 TH1F *offset_hist = new TH1F("offset_hist","Offset histogram;V [mV];freq",1000,-20.,20.);
 
@@ -594,6 +602,7 @@ void Ana1(string file1, int last_event_n, bool display_one_ev_param){
     DO_NOT_DELETE_HIST_LED = true;
     display_peaks = true;
     
+    
     nfile = 0; //I only consider 1 file   
     
     ptrHistAllPeaks[0]  = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
@@ -628,6 +637,9 @@ void Ana_LED(string file1, int last_event_n){
     average = true;
     find_offset_bool = true;
     find_charge_led_bool = true;
+    find_peak_in_a_selected_window = true;
+    DO_NOT_DELETE_HIST_LED = true;
+    DLED_bool = true;
     
     nfile = 0; //I only consider 1 file
     
@@ -635,8 +647,8 @@ void Ana_LED(string file1, int last_event_n){
     Analysis(file1, last_event_n, false);
     
     new TCanvas();
-    
-    ptrHistCharge->Draw();
+    //ptrHistCharge->Draw();
+    ptrHist->Draw();
     
 }
 
@@ -645,7 +657,9 @@ void Ana_Ped(string file1, int last_event_n){
     //VARIABLES:
     //TRUE:
     fill_hist = true;
+    remove_0_peak_bool = true;
     find_offset_bool = true;
+    
     DLED_bool = false;
 
     nfile = 0; //I only consider 1 file
@@ -693,7 +707,7 @@ void Analysis(string file, int last_event_n, bool display){
         
         TCanvas *cAVG = new TCanvas("AVG","AVG");
         cAVG->SetGrid();
-        miny = -10; maxy = 30;
+        miny = -100; maxy = 30;
         show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_length, miny, maxy,true,false);
        
     }
@@ -853,7 +867,7 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files){
  
 //------------------------------------------------------------------------------
 void DLED(int trace_length, int dleddt){
-    for(ii=0; ii<trace_DLED_lenght; ii++){
+    for(ii=0; ii<trace_DLED_length; ii++){
         trace_DLED[0][ii] = trace[0][ii + dleddt];
         trace_DLED[1][ii] = trace[1][ii + dleddt]-trace[1][ii];
     }
@@ -874,7 +888,8 @@ int find_peak_fix_time(int mintp, int maxtp){
 
 //------------------------------------------------------------------------------
 void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,int blind_gap,  bool DCR_DELAYS_bool){ //I look for every peaks in the trace, only if I'm in DARK mode
-    ii=2;
+    ii=2*GSPS;
+    int before_ind = (int)2*GSPS;
     int index_peak;
     int DCR_cnt_temp = 0;
     int index_old = 0;
@@ -882,8 +897,8 @@ void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,
     int peak_width = max_peak_width;
     num_peaks=0;
     for(int i=0; i<max_peak_num; i++)index_vect[i]=0;
-    while(ii<trace_DLED_lenght){//I find peaks after the DLED procedure
-        if((trace_DLED[1][ii]>thr_to_find_peaks) and (trace_DLED[1][ii-2]<thr_to_find_peaks) and (ii+max_peak_width<trace_DLED_lenght)){//I only consider points above thr_to_find_peaks on the rising edge
+    while(ii<trace_DLED_length){//I find peaks after the DLED procedure
+        if((trace_DLED[1][ii]>thr_to_find_peaks) and (trace_DLED[1][ii-before_ind]<thr_to_find_peaks) and (ii+max_peak_width<trace_DLED_length)){//I only consider points above thr_to_find_peaks on the rising edge
             DCR_cnt_temp++; //I've seen a peak; if I'm in dark mode it's DCR
             
             //Now I want to see the peak amplitude.
@@ -895,10 +910,10 @@ void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,
             }
             
             //Now I look for the peak in that window
-            if(ii+peak_width<trace_DLED_lenght)
+            if(ii+peak_width<trace_DLED_length)
                 index_peak = find_peak_fix_time(ii, ii+peak_width);
             else 
-                index_peak = find_peak_fix_time(ii, trace_DLED_lenght);
+                index_peak = find_peak_fix_time(ii, trace_DLED_length);
             
             if((index_peak-index_old)>blind_gap){
                 index_new=index_peak;
@@ -1303,8 +1318,9 @@ void subtract_offset(){
     }
 }
 
+
 //------------------------------------------------------------------------------
-void remove_peak_0(){
+void remove_peak_0_half(){
     bool flag_0;
     flag_0=false;
     for(int i=0; i<trace_length; i++){
@@ -1317,6 +1333,18 @@ void remove_peak_0(){
         }
         
     }
+}
+
+
+//------------------------------------------------------------------------------
+void remove_peak_0_all(){
+    
+    for(int i = 1; i < trace_length - 1; i++){
+        if(trace[1][i] == 0){
+            trace[1][i] = (trace[1][i-1] + trace[1][i+1])/2;
+        }
+    }
+
 }
 
 
@@ -1422,7 +1450,7 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
             DLED(trace_length,dleddt);
             //Now: trace_DLED
         }else{
-            for(ii=0; ii<trace_DLED_lenght; ii++){
+            for(ii=0; ii<trace_DLED_length; ii++){
                 trace_DLED[0][ii] = trace[0][ii];
                 trace_DLED[1][ii] = trace[1][ii];
             }
@@ -1473,13 +1501,13 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
                     c->Divide(1,2);
                     c->SetGrid();
                 }
-                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, line_bool, true);
+                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_length, miny1, maxy1, miny2, maxy2, line_bool, true);
                 if(!running_graph)getchar();
             }else{
                 if(n_ev==ev_to_display){
                     c->Divide(1,2);
                     c->SetGrid();
-                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, line_bool, false);
+                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_length, miny1, maxy1, miny2, maxy2, line_bool, false);
                 }
             }
             
@@ -1683,11 +1711,11 @@ void ReadBin(string filename, int last_event_n, bool display)
                 trace_AVG[i] = new float[trace_length];
             }
         }
-        trace_DLED_lenght = trace_length - dleddt;
+        trace_DLED_length = trace_length - dleddt;
         //CREATE TRACE DLED
         trace_DLED = new float*[2];
         for(ii = 0; ii < 2; ii++) {
-            trace_DLED[ii] = new float[trace_DLED_lenght];
+            trace_DLED[ii] = new float[trace_DLED_length];
         }
     
         for(int k=0; k<trace_length; k++){
@@ -1708,7 +1736,7 @@ void ReadBin(string filename, int last_event_n, bool display)
             DLED(trace_length,dleddt);
             //Now: trace_DLED
         }else{
-            for(ii=0; ii<trace_DLED_lenght; ii++){
+            for(ii=0; ii<trace_DLED_length; ii++){
                 trace_DLED[0][ii] = trace[0][ii];
                 trace_DLED[1][ii] = trace[1][ii];
             }
@@ -1749,27 +1777,27 @@ void ReadBin(string filename, int last_event_n, bool display)
                     trace_AVG[1][i]=0;
                 }
             }
-            for (ii=0; ii<trace_length; ii++){
-                trace_AVG[1][ii] = trace_AVG[1][ii] + trace[1][ii];
+            for (int i=0; i<trace_length; i++){
+                trace_AVG[1][i] = trace_AVG[1][i] + trace[1][i];
             }
         }        
 
         
 //***** DISPLAY     
         if(display){
-            miny1 = -10; maxy1 = 10; miny2 = -10; maxy2 = 10;
+            miny1 = -100; maxy1 = 10; miny2 = -100; maxy2 = 10;
             if(!display_one_ev){
                 if(n_ev==0){
                     c->Divide(1,2);
                     c->SetGrid();
                 }
-                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, line_bool, true);
+                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_length, miny1, maxy1, miny2, maxy2, line_bool, true);
                 if(!running_graph)getchar();
             }else{
                 if(n_ev==ev_to_display){
                     c->Divide(1,2);
                     c->SetGrid();
-                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, line_bool, false);
+                    show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_length, miny1, maxy1, miny2, maxy2, line_bool, false);
                 }
             }
             
@@ -1849,11 +1877,11 @@ void ReadRootFile(string filename, int last_event_n, bool display){
 
   // create DLED trace
 
-  trace_DLED_lenght = trace_length - dleddt;
+  trace_DLED_length = trace_length - dleddt;
   
   trace_DLED = new float*[2];
   for(ii = 0; ii < 2; ii++) {
-    trace_DLED[ii] = new float[trace_DLED_lenght];
+    trace_DLED[ii] = new float[trace_DLED_length];
   }
 
   // loop over ttree entries. Each entry is a trace.
@@ -1872,7 +1900,11 @@ void ReadRootFile(string filename, int last_event_n, bool display){
       cout<<trace[0][i]<<"\t"<<trace[1][i]<<endl;
     } */          
     
-    remove_peak_0();
+    //REMOVE PEAK AT 0
+    if(remove_0_peak_bool){
+        remove_peak_0_half();
+    }
+    
     
     
     for (int k = 0; k < trace_length; ++k)
@@ -1912,7 +1944,7 @@ void ReadRootFile(string filename, int last_event_n, bool display){
     }
     else
     {
-      for(ii=0; ii<trace_DLED_lenght; ii++){
+      for(ii=0; ii<trace_DLED_length; ii++){
         trace_DLED[0][ii] = trace[0][ii];
         trace_DLED[1][ii] = trace[1][ii];
       }
@@ -1975,6 +2007,21 @@ void ReadRootFile(string filename, int last_event_n, bool display){
         
     //***** AVERAGE
     if(average){
+
+      if(DLED_bool){
+
+        if(entry==0){
+            for(i=0; i< trace_DLED_length; i++){
+                trace_AVG[0][i]=trace_DLED[0][i];
+                trace_AVG[1][i]=0;
+            }
+        }
+        for (ii=0; ii<trace_DLED_length; ii++){
+            trace_AVG[1][ii] = trace_AVG[1][ii] + trace_DLED[1][ii];
+        }
+      }
+      else{
+
         if(entry==0){
             for(i=0; i< trace_length; i++){
                 trace_AVG[0][i]=trace[0][i];
@@ -1984,24 +2031,25 @@ void ReadRootFile(string filename, int last_event_n, bool display){
         for (ii=0; ii<trace_length; ii++){
             trace_AVG[1][ii] = trace_AVG[1][ii] + trace[1][ii];
         }
+      }
     } // end if average     
 
         
     //***** DISPLAY     
     if(display){
-        miny1 = -10; maxy1 = 10; miny2 = -10; maxy2 = 10;
+        miny1 = -100; maxy1 = 100; miny2 = -100; maxy2 = 100;
         if(!display_one_ev){
             if(entry==0){
                 c->Divide(1,2);
                 c->SetGrid();
             }
-            show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, line_bool, true);
+            show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_length, miny1, maxy1, miny2, maxy2, line_bool, true);
             if(!running_graph)getchar();
         }else{
             if(entry==ev_to_display){
                 c->Divide(1,2);
                 c->SetGrid();
-                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_lenght, miny1, maxy1, miny2, maxy2, line_bool, false);
+                show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_length, miny1, maxy1, miny2, maxy2, line_bool, false);
             }
         }   
     } // end if display
@@ -2009,6 +2057,8 @@ void ReadRootFile(string filename, int last_event_n, bool display){
   } // end entry loop
 
   cout << endl << "Last event " << last_event_n <<endl;
+
+  n_ev_tot = last_event_n;
     
   delete []trace[0];
   delete []trace[1];
@@ -2030,9 +2080,13 @@ void help(){
     cout<<endl;
     cout<<"Ana_Traces_SiPM.cxx"<<endl;
     cout<<"PREDEFINED FUNCTIONS:"<<endl;
+    
     cout<<"\tvoid DCR_CT_1SiPM_1HV(string file1, int last_event_n);"<<endl;
     cout<<"\tvoid DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n);"<<endl;
     cout<<"\tvoid Ana1(string file1, int last_event_n, bool display_one_ev_param);"<<endl;
+    cout<<"\tvoid Ana_LED(string file1, int last_event_n);"<<endl;
+    cout<<"\tvoid Ana_Ped(string file1, int last_event_n);"<<endl;
+    
     cout<<endl;
     cout<<"See Ana_Traces_SiPM_ReadMe.md for more information"<<endl<<endl;
     cout<<"Davide Depaoli 2018"<<endl;
