@@ -211,8 +211,8 @@ int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 float thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
 
 // ONLY for LED measures
-int minLED = 130; //min time for peak (ns)
-int maxLED = 175; //max time for peak (ns)
+int minLED = 160; //charge window: min time for peak (ns)
+int maxLED = 175; //charge window: max time for peak (ns)
 int min_time_offset = 20; //min time for offset (ns)
 int max_time_offset = 40; //max time for offset (ns)
 
@@ -224,17 +224,17 @@ int max_time_offset = 40; //max time for offset (ns)
 //---[ HISTS ]---
 //---------------
 
-float maxyhist = 100;
-float maxyHistCharge = 5000;
+float maxyhist = 200;
+float maxyHistCharge = 50;
 float maxyhistAllPeaks = 200; 
 float maxyhistDCR = 200;
 float maxyhistDelays = 200;
 float w = 1000;
 float h = 800;
-int bins_Volt = 290;
+int bins_Volt = 204;
 int bins_DCR = 206;
 int bins_Delays = 100;
-int bins_Charge = 500;
+int bins_Charge = 100;
 
 //---------------
 //---------------
@@ -367,7 +367,7 @@ bool DO_NOT_DELETE_HIST_LED = false; //If set true, run only ONE TIME Analysis!!
 
 bool find_peaks_bool = false;
 bool find_offset_bool = false;
-bool find_charge_led_bool = false;
+bool find_charge_window_bool = false;
 bool remove_0_peak_bool = false;
 
 bool fill_hist = false;
@@ -381,10 +381,10 @@ bool fill_hist = false;
 //--------------------[   GLOBAL HISTs, CANVs and FUNCs   ]---------------------
 //------------------------------------------------------------------------------
 
-TH1D *ptrHist = new TH1D("hist","",bins_Volt,0,maxyhist);
+TH1D *ptrHist = new TH1D("hist","",400,0,200);
 
 TH1F *ptrAll = new TH1F("histAll","",500,-100,100);
-TH1F *ptrAllTrace = new TH1F("histAllT","",150,-10.0,20.0);
+TH1F *ptrAllTrace = new TH1F("histAllT","",86,-10.0,20.0);
 
 TH1F *offset_hist = new TH1F("offset_hist","Offset histogram;V [mV];freq",1000,-20.,20.);
 
@@ -636,10 +636,10 @@ void Ana_LED(string file1, int last_event_n){
     //TRUE:
     average = true;
     find_offset_bool = true;
-    find_charge_led_bool = true;
     find_peak_in_a_selected_window = true;
     DO_NOT_DELETE_HIST_LED = true;
-    DLED_bool = true;
+    
+    find_charge_window_bool = false;
     
     nfile = 0; //I only consider 1 file
     
@@ -649,18 +649,21 @@ void Ana_LED(string file1, int last_event_n){
     new TCanvas();
     //ptrHistCharge->Draw();
     ptrHist->Draw();
-    
 }
 
 //------------------------------------------------------------------------------
 void Ana_Ped(string file1, int last_event_n){
     //VARIABLES:
     //TRUE:
-    fill_hist = true;
-    remove_0_peak_bool = true;
     find_offset_bool = true;
+    find_charge_window_bool = true;
     
+    //FALSE
     DLED_bool = false;
+    fill_hist = false;
+    remove_0_peak_bool = false;
+
+
 
     nfile = 0; //I only consider 1 file
     
@@ -669,8 +672,12 @@ void Ana_Ped(string file1, int last_event_n){
     
     new TCanvas();
     ptrAllTrace->Draw();
+    
     TCanvas *c4 = new TCanvas();
     offset_hist->Draw();
+    
+    new TCanvas();
+    ptrHistCharge->Draw();
     
 }
 
@@ -1729,7 +1736,16 @@ void ReadBin(string filename, int last_event_n, bool display)
             if(display_one_ev and (n_ev==ev_to_display)) display_peaks_now = display_peaks;
         }
         
-           
+        // FIND OFFSET
+  /* if(find_offset_bool){
+      find_offset_mod_3();
+      subtract_offset();
+    } // end if offset
+*/
+    
+    for(int i=start_blind_gap; i<trace_length-end_bling_gap; i++){
+        ptrAllTrace->Fill(trace[1][i]);
+    }   
             
 //***** DLED
         if(DLED_bool){
@@ -1745,6 +1761,8 @@ void ReadBin(string filename, int last_event_n, bool display)
         
         if(find_peak_in_a_selected_window){
             float *peak = new float[2];
+            mintp = (int)(1024*minLED/trace[0][trace_length-1]);
+            maxtp = (int)(1024*maxLED/trace[0][trace_length-1]);
             index_for_peak = find_peak_fix_time(mintp, maxtp);
             peak[0] = trace_DLED[0][index_for_peak];
             peak[1] = trace_DLED[1][index_for_peak];
@@ -1763,7 +1781,7 @@ void ReadBin(string filename, int last_event_n, bool display)
         }
         
 //***** FIND CHARGE for LED
-        if(find_charge_led_bool){
+        if(find_charge_window_bool){
             mintp = (int)(1024*minLED/trace[0][trace_length-1]);
             maxtp = (int)(1024*maxLED/trace[0][trace_length-1]);
             find_charge_selected_window(mintp, maxtp);
@@ -1999,7 +2017,7 @@ void ReadRootFile(string filename, int last_event_n, bool display){
 */
 
     //***** FIND CHARGE for LED
-    if(find_charge_led_bool){
+    if(find_charge_window_bool){
       mintp = (int)(1024*minLED/trace[0][trace_length-1]);
       maxtp = (int)(1024*maxLED/trace[0][trace_length-1]);
       find_charge_selected_window(mintp, maxtp);
