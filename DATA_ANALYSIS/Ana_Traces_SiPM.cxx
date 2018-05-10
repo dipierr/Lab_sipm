@@ -373,6 +373,8 @@ bool find_charge_window_bool = false;
 bool remove_0_peak_bool = false;
 
 bool fill_hist = false;
+
+bool ptrAllTrace_bool = false;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -1753,9 +1755,11 @@ void ReadBin(string filename, int last_event_n, bool display)
     } // end if offset
 */
     
+    if(ptrAllTrace_bool){
     for(int i=start_blind_gap; i<trace_length-end_bling_gap; i++){
         ptrAllTrace->Fill(trace[1][i]);
     }   
+    }
             
 //***** DLED
         if(DLED_bool){
