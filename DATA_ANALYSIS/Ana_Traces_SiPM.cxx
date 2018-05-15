@@ -695,7 +695,7 @@ void Ana_Ped(string file1, int last_event_n){
     new TCanvas();
     ptrAllTrace->Draw();
     
-    TCanvas *c4 = new TCanvas();
+    new TCanvas();
     offset_hist->Draw();
     
     new TCanvas();
@@ -979,7 +979,7 @@ void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,
 
 //------------------------------------------------------------------------------
 void find_peaks_from_vector(){
-    int n,i,k;
+    //int n,i,k;
     int index_old, index_new;
     index_old = index_new = 0;
     for(int i=0;i<ind_peaks_all_delay; i++){
@@ -1002,21 +1002,22 @@ void find_peaks_from_vector(){
 
 //------------------------------------------------------------------------------
 void show_trace(TCanvas* canv, float *x, float *y, int trace_length, float miny, float maxy, bool line_bool, bool delete_bool){
-    for(ii=0; ii<trace_length; ii++){
-        x[ii] = x[ii];
-        y[ii] = y[ii];
-        
-        if(reverse_bool)
-            y[ii] = -y[ii];
+    
+    if(reverse_bool){
+      for(ii=0; ii<trace_length; ii++){
+        y[ii] = -y[ii];
+      }
     }
+
     TGraphErrors *graph = new TGraphErrors(trace_length,x,y,0,0);
-    graph->SetTitle("");
+    graph->SetTitle("Trace");
+    graph->Draw("apl");
     graph->GetXaxis()->SetTitle("Time (ns)");
     graph->GetYaxis()->SetTitle("Amplitude (mV)");
     graph->GetYaxis()->SetTitleOffset(1.2);
     graph->GetXaxis()->SetTitleOffset(1.2);
     graph->GetYaxis()-> SetRangeUser(miny,maxy);
-    graph->Draw("aplsame");
+    graph->Draw("apl");
     if(line_bool){
         TLine *lmin = new TLine (minLED, miny, minLED, maxy);
         TLine *lmax = new TLine (maxLED, miny, maxLED, maxy);
@@ -1032,15 +1033,12 @@ void show_trace(TCanvas* canv, float *x, float *y, int trace_length, float miny,
 
 //------------------------------------------------------------------------------
 void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int trace_length1, int trace_length2, float miny1, float maxy1, float miny2, float maxy2, bool line_bool, bool delete_bool){
-    
-    for(ii=0; ii<trace_length1; ii++){
-        x1[ii] = x1[ii];
-        if(reverse_bool)
-            y1[ii] = -y1[ii];
+    if(reverse_bool){
+      for(ii=0; ii<trace_length1; ii++){
+        y1[ii] = -y1[ii];
+      }
     }
-    for(ii=0; ii<trace_length2; ii++){
-        x2[ii] = x2[ii];
-    }
+
     canv->cd(1);
     TGraphErrors *graph1 = new TGraphErrors(trace_length1,x1,y1,0,0);
     graph1->SetName("graph1");
@@ -1290,16 +1288,13 @@ void find_offset_mod(){  // USING TSpectrum
         trace_histo->Fill(trace[0][ii], trace[1][ii]);
   }
 
- 
-
-  TH1* b = new TH1D();
   TSpectrum *s = new TSpectrum();
   
   //find BACKGROUND:
-  b = s->Background(trace_histo,100);
+  TH1 *bckg = s->Background(trace_histo,100);
   
   //subtract BACKGROUND:
-  trace_histo->Add(b,trace_histo,-1,1);
+  trace_histo->Add(bckg,trace_histo,-1,1);
 
   // update trace
   for(ii=x_low; ii<x_up; ii++){
@@ -1310,7 +1305,7 @@ void find_offset_mod(){  // USING TSpectrum
 
   delete trace_histo;
   delete s;
-  delete b;
+  delete bckg;
 
 }
 
@@ -1554,6 +1549,7 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
             peak[0] = trace_DLED[0][index_for_peak];
             peak[1] = trace_DLED[1][index_for_peak];
             ptrHist->Fill(peak[1]);
+            delete[] peak;
         }
         
 //***** DCR
@@ -1605,8 +1601,7 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
 }
 
 //------------------------------------------------------------------------------
-void ReadBin(string filename, int last_event_n, bool display)
-{
+void ReadBin(string filename, int last_event_n, bool display){
 // from read_binary.cpp, created by Stefan Ritt
 // use it to read binary from DRS4 Evaluation Board
 // please do not modify until the end of this section (until the first "===" row)
@@ -1642,6 +1637,7 @@ void ReadBin(string filename, int last_event_n, bool display)
       //printf("Cannot find file \'%s\'\n", filename);
 //       return 0;
        cout<<"Cannot find file"<<endl;
+       return;
    }
 
    // read file header
@@ -1837,6 +1833,7 @@ void ReadBin(string filename, int last_event_n, bool display)
             peak[0] = trace_DLED[0][index_for_peak];
             peak[1] = trace_DLED[1][index_for_peak];
             ptrHist->Fill(peak[1]);
+            delete[] peak;
         }
         
 //***** PEAKS FINDING
@@ -1904,7 +1901,7 @@ void ReadBin(string filename, int last_event_n, bool display)
    }//loop events
   n_ev_tot = n_ev;
   cout<<"Last event "<<n_ev_tot<<endl;
-
+  fclose(f);
 }
 
 //------------------------------------------------------------------------------
@@ -1914,24 +1911,6 @@ void ReadRootFile(string filename, int last_event_n, bool display){
   TTree *wave      = (TTree *)file_root->Get("Waveforms");
 
   trace_length = 1024;
-
-  int bad_peak;
-  int nch = 0;
-
- /* if(!wave->FindBranch("time_ch_1") && !wave->FindBranch("time_ch_2") && !wave->FindBranch("volt_ch_1") && !wave->FindBranch("volt_ch_2")){
-
-    cout << "At least two channels are needed (one wit the signal and one open for spike finding and removal!" << endl;
-    cout << "Also check that the branches are called time_ch_[chn], where chn is the channel number (1,2,3 or 4)." << endl;
-    cout << "After you fix this, run again this macro. Now it will exit." << endl;
-
-    return;
-
-  }
-  else
-  {
-    nch += 2; 
-  }
-*/
 
   Int_t nentries = wave->GetEntries();
 
@@ -1977,8 +1956,6 @@ void ReadRootFile(string filename, int last_event_n, bool display){
 
     if(entry%1000==0) cout<<"Read event "<<entry<<endl;
 
-    bad_peak = 0;
-
     wave->GetEntry(entry);
     
     /*for(int i=0; i<trace_length; i++){
@@ -1999,24 +1976,8 @@ void ReadRootFile(string filename, int last_event_n, bool display){
         if (reverse_bool){
         trace[1][k] = -trace[1][k];
         }
-        
-        //if (k!=0){
-          //if (abs(trace[1][k] - trace[1][k-1]) > 10.)
-          //{
-           // bad_peak += 1;
-          //}
-        //}
-
 
     } // end for loop over waveform
-
-      //cout << "Number of bad peaks: " << bad_peak << endl;
-
-      //if (bad_peak >= 50)
-      //{
-        //cout << "Removing entry " << entry << endl;
-        //continue;
-      //}
 
     if(display){
       if(!display_one_ev) display_peaks_now = display_peaks;
@@ -2043,6 +2004,7 @@ void ReadRootFile(string filename, int last_event_n, bool display){
       peak[0] = trace_DLED[0][index_for_peak];
       peak[1] = trace_DLED[1][index_for_peak];
       ptrHist->Fill(peak[1]);
+      delete[] peak;
     } // end if find peak in selected window
         
     // PEAKS FINDING
@@ -2060,30 +2022,6 @@ void ReadRootFile(string filename, int last_event_n, bool display){
     for(int i=start_blind_gap; i<trace_length-end_bling_gap; i++){
         ptrAllTrace->Fill(trace[1][i]);
     }
-
-/*    bool is_shitty = false;
-    if(fill_hist){
-      for (int l = 20; l < trace_length - 100; ++l)
-      {
-        if(trace[1][l]<-10.){
-          //cout << "Entry number with V<-10.0 mV: " << entry << endl;
-          is_shitty = true;
-          break;
-        }
-        if(trace[1][l]>10.){
-          cout << "Entry number with V<-10.0 mV: " << entry << endl;
-          //is_shitty = true;
-          //break;
-        }
-      }
-
-      if (!is_shitty){
-        for (int l = 20; l < trace_length - 100; ++l){ 
-          ptrAllTrace->Fill(trace[1][l]);
-        }
-      }
-    } // end if fill_hist
-*/
 
     //***** FIND CHARGE for LED
     if(find_charge_window_bool){
