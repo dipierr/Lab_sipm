@@ -622,7 +622,8 @@ void Ana1(string file1, int last_event_n, bool display_one_ev_param){
     //Analysis
     Analysis(file1, last_event_n, true);
 
-new TCanvas();
+    TCanvas *chargehist = new TCanvas("chargehist", "chargehist", 5);
+    chargehist->cd();
     ptrHistCharge->Draw();
     ptrHist->Draw();
    
@@ -761,10 +762,10 @@ void Analysis(string file, int last_event_n, bool display){
                 {fit1Low = 12; fit1High = 28; fit2Low = 36; fit2High = 50;}else{
                     cout<<"--------------------"<<endl;
                     cout<<"File not recognized. Please enter:"<<endl;
-                    cout<<"fit1Low  "; scanf("%f", &fit1Low);
-                    cout<<"fit1High "; scanf("%f", &fit1High);
-                    cout<<"fit2Low  "; scanf("%f", &fit2Low);
-                    cout<<"fit2High "; scanf("%f", &fit2High);
+                    cout<<"fit1Low  "; if (scanf("%f", &fit1Low) == 1){;}
+                    cout<<"fit1High "; if (scanf("%f", &fit1High) == 1){;}
+                    cout<<"fit2Low  "; if (scanf("%f", &fit2Low) == 1){;}
+                    cout<<"fit2High "; if (scanf("%f", &fit2High) == 1){;}
                 }}}
                 fit_hist_all_peaks(cAllPeaks1, ptrHistAllPeaks[nfile], fit1Low, fit1High, fit2Low, fit2High);
             }
@@ -1042,7 +1043,7 @@ void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int 
     canv->cd(1);
     TGraphErrors *graph1 = new TGraphErrors(trace_length1,x1,y1,0,0);
     graph1->SetName("graph1");
-    graph1->SetTitle("graph1");
+    graph1->SetTitle("Original trace");
     graph1->Draw("apl");
     graph1->GetXaxis()->SetTitle("Time (ns)");
     graph1->GetYaxis()->SetTitle("Amplitude (mV)");
@@ -1063,7 +1064,7 @@ void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int 
     canv->cd(2);
     TGraphErrors *graph2 = new TGraphErrors(trace_length2,x2,y2,0,0);
     graph2->SetName("graph2");
-    graph2->SetTitle("graph2");
+    graph2->SetTitle("Trace after DLED");
     graph2->Draw("apl");
     graph2->GetXaxis()->SetTitle("Time (ns)");
     graph2->GetYaxis()->SetTitle("Amplitude (mV)");
@@ -1641,7 +1642,11 @@ void ReadBin(string filename, int last_event_n, bool display){
    }
 
    // read file header
-   fread(&fh, sizeof(fh), 1, f);
+   if (fread(&fh, sizeof(fh), 1, f) != 1){
+    cout << "Problem in reading binary file." << endl;
+    fclose(f);
+    return;
+   }
    if (fh.tag[0] != 'D' || fh.tag[1] != 'R' || fh.tag[2] != 'S') {
       //printf("Found invalid file header in file \'%s\', aborting.\n", filename);
 //       return 0;
@@ -1655,7 +1660,11 @@ void ReadBin(string filename, int last_event_n, bool display){
    }
 
    // read time header
-   fread(&th, sizeof(th), 1, f);
+   if (fread(&th, sizeof(th), 1, f) != 1){
+    cout << "Problem in reading binary file." << endl;
+    fclose(f);
+    return;
+   }
    if (memcmp(th.time_header, "TIME", 4) != 0) {
       //printf("Invalid time header in file \'%s\', aborting.\n", filename);
 //       return 0;
@@ -1664,7 +1673,11 @@ void ReadBin(string filename, int last_event_n, bool display){
 
    for (b = 0 ; ; b++) {
       // read board header
-      fread(&bh, sizeof(bh), 1, f);
+      if (fread(&bh, sizeof(bh), 1, f) != 1){
+        cout << "Problem in reading binary file." << endl;
+        fclose(f);
+        return;
+      }
       if (memcmp(bh.bn, "B#", 2) != 0) {
          // probably event header found
          fseek(f, -4, SEEK_CUR);
@@ -1676,7 +1689,11 @@ void ReadBin(string filename, int last_event_n, bool display){
       // read time bin widths
       memset(bin_width[b], sizeof(bin_width[0]), 0);
       for (chn=0 ; chn<5 ; chn++) {
-         fread(&ch, sizeof(ch), 1, f);
+         if (fread(&ch, sizeof(ch), 1, f) != 1){
+          cout << "Problem in reading binary file." << endl;
+          fclose(f);
+          return;
+         }
          if (ch.c[0] != 'C') {
             // event header found
             fseek(f, -4, SEEK_CUR);
@@ -1684,7 +1701,11 @@ void ReadBin(string filename, int last_event_n, bool display){
          }
          i = ch.cn[2] - '0' - 1;
          //printf("Found timing calibration for channel #%d\n", i+1);
-         fread(&bin_width[b][i][0], sizeof(float), 1024, f);
+         if (fread(&bin_width[b][i][0], sizeof(float), 1024, f) != 1024){
+          cout << "Problem in reading binary file." << endl;
+          fclose(f);
+          return;
+          }
          // fix for 2048 bin mode: float channel
          if (bin_width[b][i][1023] > 10 || bin_width[b][i][1023] < 0.01) {
             for (j=0 ; j<512 ; j++)
@@ -1713,7 +1734,11 @@ void ReadBin(string filename, int last_event_n, bool display){
       for (b=0 ; b<n_boards ; b++) {
          
          // read board header
-         fread(&bh, sizeof(bh), 1, f);
+         if (fread(&bh, sizeof(bh), 1, f) != 1){
+          cout << "Problem in reading binary file." << endl;
+          fclose(f);
+          return;
+         }
          if (memcmp(bh.bn, "B#", 2) != 0) {
             //printf("Invalid board header in file \'%s\', aborting.\n", filename);
 //             return 0;
@@ -1721,7 +1746,11 @@ void ReadBin(string filename, int last_event_n, bool display){
          }
          
          // read trigger cell
-         fread(&tch, sizeof(tch), 1, f);
+         if (fread(&tch, sizeof(tch), 1, f) != 1){
+          cout << "Problem in reading binary file." << endl;
+          fclose(f);
+          return;
+         }
          if (memcmp(tch.tc, "T#", 2) != 0) {
             //printf("Invalid trigger cell header in file \'%s\', aborting.\n", filename);
             cout<<"Invalid trigger cell header in file"<<endl;
@@ -1733,15 +1762,28 @@ void ReadBin(string filename, int last_event_n, bool display){
          // reach channel data
          for (chn=0 ; chn<4 ; chn++) {
             // read channel header
-            fread(&ch, sizeof(ch), 1, f);
+            if (fread(&ch, sizeof(ch), 1, f) != 1){
+              cout << "Problem in reading binary file." << endl;
+              fclose(f);
+              return;
+            }
             if (ch.c[0] != 'C') {
                // event header found
                fseek(f, -4, SEEK_CUR);
                break;
             }
             chn_index = ch.cn[2] - '0' - 1;
-            fread(&scaler, sizeof(int), 1, f);
-            fread(voltage, sizeof(short), 1024, f);
+            if (fread(&scaler, sizeof(int), 1, f) != 1){
+              cout << "Problem in reading binary file." << endl;
+              fclose(f);
+              return;
+            }
+            
+            if (fread(voltage, sizeof(short), 1024, f) != 1024){
+              cout << "Problem in reading binary file." << endl;
+              fclose(f);
+              return;
+            }
             
             for (i=0 ; i<1024 ; i++) {
                // convert data to volts
