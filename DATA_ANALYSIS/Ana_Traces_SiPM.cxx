@@ -51,6 +51,7 @@
 #include "TVirtualFitter.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TSystem.h"
 
 #define nfilemax 3
 #define max_peak_num 50
@@ -211,8 +212,8 @@ int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 float thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
 
 // ONLY for LED measures
-int minLED = 180; //charge window: min time for peak (ns)
-int maxLED = 210; //charge window: max time for peak (ns)
+int minLED = 110; //charge window: min time for peak (ns)
+int maxLED = 130; //charge window: max time for peak (ns)
 int min_time_offset = 20; //min time for offset (ns)
 int max_time_offset = 40; //max time for offset (ns)
 
@@ -274,7 +275,6 @@ int ev_to_display = 5;
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
-
 
 
 
@@ -369,7 +369,7 @@ bool DO_NOT_DELETE_HIST_LED = false; //If set true, run only ONE TIME Analysis!!
 
 bool find_peaks_bool = false;
 bool find_offset_bool = false;
-bool find_charge_window_bool = false;
+bool find_charge_window_bool = true;
 bool remove_0_peak_bool = false;
 
 bool fill_hist = false;
@@ -385,7 +385,7 @@ bool ptrAllTrace_bool = false;
 //--------------------[   GLOBAL HISTs, CANVs and FUNCs   ]---------------------
 //------------------------------------------------------------------------------
 
-TH1D *ptrHist = new TH1D("hist","",100,0,200);
+TH1D *ptrHist = new TH1D("hist","",140,0,200);
 
 TH1F *ptrAll = new TH1F("histAll","",500,-100,100);
 TH1F *ptrAllTrace = new TH1F("histAllT","",86,-10.0,20.0);
@@ -605,8 +605,14 @@ void Ana1(string file1, int last_event_n, bool display_one_ev_param){
     display_one_ev = display_one_ev_param;
     DO_NOT_DELETE_HIST_LED = true;
     display_peaks = true;
-    
-    
+
+    //Charge:
+    line_bool = true;
+    find_charge_window_bool = true;
+    minLED = 110; //ns
+    maxLED = 130; //ns
+
+        
     nfile = 0; //I only consider 1 file   
     
     ptrHistAllPeaks[0]  = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
@@ -615,6 +621,11 @@ void Ana1(string file1, int last_event_n, bool display_one_ev_param){
     
     //Analysis
     Analysis(file1, last_event_n, true);
+
+new TCanvas();
+    ptrHistCharge->Draw();
+    ptrHist->Draw();
+   
     
     //Get DCR (only @ threshold, set in the 'SETTING GLOBAL VARIABLES' section)
     Get_DCR_temp_and_errDCR_temp();
@@ -643,7 +654,7 @@ void Ana_LED(string file1, int last_event_n){
     find_peak_in_a_selected_window = true;
     DO_NOT_DELETE_HIST_LED = true;
     
-    find_charge_window_bool = false;
+    find_charge_window_bool = true;
     
     min_peak_window = minLED;
     max_peak_window = maxLED;
@@ -654,7 +665,7 @@ void Ana_LED(string file1, int last_event_n){
     Analysis(file1, last_event_n, false);
     
     new TCanvas();
-    //ptrHistCharge->Draw();
+    ptrHistCharge->Draw();
     ptrHist->Draw();
 }
 
@@ -1032,26 +1043,49 @@ void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int 
     }
     canv->cd(1);
     TGraphErrors *graph1 = new TGraphErrors(trace_length1,x1,y1,0,0);
-    graph1->SetTitle("");
+    graph1->SetName("graph1");
+    graph1->SetTitle("graph1");
+    graph1->Draw("apl");
     graph1->GetXaxis()->SetTitle("Time (ns)");
     graph1->GetYaxis()->SetTitle("Amplitude (mV)");
     graph1->GetYaxis()->SetTitleOffset(1.2);
     graph1->GetXaxis()->SetTitleOffset(1.2);
     graph1->GetYaxis()-> SetRangeUser(miny1,maxy1);
-    graph1->Draw("aplsame");
-    canv->Update();
+    graph1->Draw("apl");
+    graph1->SetEditable(kFALSE);
+   if(line_bool){
+        TLine *lmin = new TLine (minLED, miny1, minLED, maxy1);
+        TLine *lmax = new TLine (maxLED, miny1, maxLED, maxy1);
+        lmin->SetLineColor(kBlue);
+        lmax->SetLineColor(kBlue);
+        lmin->Draw("plsame");
+        lmax->Draw("plsame");
+    }
+ 
     canv->cd(2);
     TGraphErrors *graph2 = new TGraphErrors(trace_length2,x2,y2,0,0);
-    graph2->SetTitle("");
+    graph2->SetName("graph2");
+    graph2->SetTitle("graph2");
+    graph2->Draw("apl");
     graph2->GetXaxis()->SetTitle("Time (ns)");
     graph2->GetYaxis()->SetTitle("Amplitude (mV)");
     graph2->GetYaxis()->SetTitleOffset(1.2);
     graph2->GetXaxis()->SetTitleOffset(1.2);
     graph2->GetYaxis()-> SetRangeUser(miny2,maxy2);
-    graph2->Draw("aplsame");
+    graph2->Draw("apl");
+    graph2->SetEditable(kFALSE);
+if(line_bool){
+        TLine *lmin = new TLine (minLED, miny2, minLED, maxy2);
+        TLine *lmax = new TLine (maxLED, miny2, maxLED, maxy2);
+        lmin->SetLineColor(kBlue);
+        lmax->SetLineColor(kBlue);
+        lmin->Draw("plsame");
+        lmax->Draw("plsame");
+    }
     
-    TGraphErrors *graphPeaks;
-    TGraphErrors *graphPeaks_DLED;
+    TGraphErrors *graphPeaks = nullptr;
+    TGraphErrors *graphPeaks_DLED = nullptr;
+
     if(display_peaks_now){
         float x_peaks[num_peaks], y_peaks[num_peaks], x_peaks_DLED[num_peaks], y_peaks_DLED[num_peaks];
         for(int i=0; i<num_peaks; i++){
@@ -1060,21 +1094,44 @@ void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int 
             x_peaks_DLED[i] = trace_DLED[0][index_vect[i]];
             y_peaks_DLED[i] = trace_DLED[1][index_vect[i]];
         }
+
         //graphPeaks
-        TGraphErrors *graphPeaks = new TGraphErrors(num_peaks,x_peaks,y_peaks,0,0);
+        c->cd(1);
+        graphPeaks = new TGraphErrors(num_peaks,x_peaks,y_peaks,0,0);
+        graphPeaks->SetName("graphPeaks");
+        graphPeaks->SetTitle("graphPeaks");
         graphPeaks->SetMarkerStyle(20);
         graphPeaks->SetMarkerColor(kRed);
-        c->cd(1);
         graphPeaks->Draw("psame");
+        graphPeaks->SetEditable(kFALSE);
+        
+
         //graphPeaks_DLED
-        TGraphErrors *graphPeaks_DLED = new TGraphErrors(num_peaks,x_peaks_DLED, y_peaks_DLED,0,0);
+        c->cd(2);
+        graphPeaks_DLED = new TGraphErrors(num_peaks,x_peaks_DLED, y_peaks_DLED,0,0);
+        graphPeaks_DLED->SetName("graphPeaks_DLED");
+        graphPeaks_DLED->SetTitle("graphPeaks_DLED");
         graphPeaks_DLED->SetMarkerStyle(20);
         graphPeaks_DLED->SetMarkerColor(kGreen+1);
-        c->cd(2);
         graphPeaks_DLED->Draw("psame");
+        graphPeaks_DLED->SetEditable(kFALSE);
+        
     }
     
     canv->Update();
+
+    // let the user to interact with the canvas, like zooming the axis
+    // show next trace by pressing any key
+
+    if(!running_graph){
+      while(!gSystem->ProcessEvents()) {
+         if (c->WaitPrimitive()==0)
+         {
+            break;
+         }
+      }
+    }
+
     if(delete_bool) {
         delete graph1; delete graph2; 
         if(display_peaks_now){delete graphPeaks; delete graphPeaks_DLED;}
@@ -1521,7 +1578,6 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
                     c->SetGrid();
                 }
                 show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_length, miny1, maxy1, miny2, maxy2, line_bool, true);
-                if(!running_graph)getchar();
             }else{
                 if(n_ev==ev_to_display){
                     c->Divide(1,2);
@@ -1817,14 +1873,13 @@ void ReadBin(string filename, int last_event_n, bool display)
         
 //***** DISPLAY     
         if(display){
-            miny1 = -100; maxy1 = 10; miny2 = -100; maxy2 = 10;
+            miny1 = -180; maxy1 = 100; miny2 = -70; maxy2 = 150;
             if(!display_one_ev){
                 if(n_ev==0){
                     c->Divide(1,2);
                     c->SetGrid();
                 }
                 show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_length, miny1, maxy1, miny2, maxy2, line_bool, true);
-                if(!running_graph)getchar();
             }else{
                 if(n_ev==ev_to_display){
                     c->Divide(1,2);
@@ -2076,7 +2131,6 @@ void ReadRootFile(string filename, int last_event_n, bool display){
                 c->SetGrid();
             }
             show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_length, miny1, maxy1, miny2, maxy2, line_bool, true);
-            if(!running_graph)getchar();
         }else{
             if(entry==ev_to_display){
                 c->Divide(1,2);
