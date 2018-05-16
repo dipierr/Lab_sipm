@@ -1725,8 +1725,7 @@ void ReadBin(string filename, int last_event_n, bool display){
       
       if(n_ev%1000==0)
             cout<<"Read ev\t"<<n_ev<<endl;
-      if(n_ev==last_event_n)
-          break;
+      
       
       //printf("Found event #%d %d %d\n", eh.event_serial_number, eh.second, eh.millisecond);
       
@@ -1940,8 +1939,12 @@ void ReadBin(string filename, int last_event_n, bool display){
 // Please do not modify below, until the end of the function
 
       }//end loop boards
+
+   if(n_ev==last_event_n-1)
+          break;
+
    }//loop events
-  n_ev_tot = n_ev;
+  n_ev_tot = n_ev + 1;
   cout<<"Last event "<<n_ev_tot<<endl;
   fclose(f);
 }
