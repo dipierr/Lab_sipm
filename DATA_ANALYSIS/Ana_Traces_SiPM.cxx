@@ -57,6 +57,8 @@
 #define max_peak_num 50
 #define max_peaks 5000000
 
+#define tau -225
+
 
 //------------------------------------------------------------------------------
 //--------------------------[   READ BIN DRS4 INTRO   ]-------------------------
@@ -141,6 +143,8 @@ void subtract_offset();
 void remove_peak_0_half();
 void remove_peak_0_all();
 void find_charge_selected_window(int mintp, int maxtp);
+void show_AVG_trace_window(TCanvas *c, float *tracet, float *tracev, int trace_length, bool delete_bool);
+void DLED_offset_remove();
 
 //READ FILE
 void Read_Agilent_CAEN(string file, int last_event_n, bool display);
@@ -172,6 +176,10 @@ bool DRS4_Evaluation_Board_Mod = false; //true if data taken by DRS4_Evaluation_
 // TRACK related options
 bool reverse_bool = true; //true if the signal is negative
 bool DLED_bool = true; //true to use the DLED technique
+bool DLED_offset_remove_bool = true;
+bool fill_hist_peaks_when_found = true;
+
+bool find_1phe_bool = false;
 
 //-----------------
 //-----------------
@@ -212,10 +220,15 @@ int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 float thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
 
 // ONLY for LED measures
-int minLED = 110; //charge window: min time for peak (ns)
-int maxLED = 130; //charge window: max time for peak (ns)
+int minLED_amp = 110; //charge window: min time for peak (ns)
+int maxLED_amp = 130; //charge window: max time for peak (ns)
 int min_time_offset = 20; //min time for offset (ns)
 int max_time_offset = 40; //max time for offset (ns)
+
+int minLED_charge = 110;
+int maxLED_charge = 180;
+
+const int trace_window_length = maxLED_charge - minLED_charge + 1;
 
 //---------------
 //---------------
@@ -284,6 +297,7 @@ int ev_to_display = 5;
 float **trace;
 float **trace_DLED;
 float **trace_AVG;
+float **AVG_trace_window;
 float **DCR;
 float **errDCR;
 float **DCR_thr;
@@ -319,7 +333,7 @@ bool first_time_DCR_called = true;
 char temp[20];
 
 int num_peaks=0;
-int index_vect[max_peak_num];
+int index_vect[max_peak_num] = {0};
 int mintp = 0; int maxtp = 0;
 
 float peaks_all_delay[2][max_peaks];
@@ -357,7 +371,7 @@ bool drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the
 bool show_hists_DCR_DELAYS  = false;
 bool showHist_bool = false; 
 bool SetLogyHist = false;
-bool running_graph = false;// to see traces in an osc mode (display must be true)
+bool running_graph = false; // to see traces in an osc mode (display must be true)
 bool display_one_ev = false;
 bool line_bool = false;
 bool display_peaks = false;
@@ -406,6 +420,7 @@ TF1 *gausFit2 = new TF1("gausFit2","gaus",-100,100);
 TCanvas *c = new TCanvas("Trace","Trace",w,h);
 TCanvas *cDCR = new TCanvas("hist_DCR","hist_DCR",w,h);
 TCanvas *cAllPeaks = new TCanvas("AllPeaks","AllPeaks",w,h);
+TCanvas *AVG_trace_canvas = new TCanvas("AVG_trace_canvas", "AVG_trace_canvas", 5);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -605,14 +620,12 @@ void Ana1(string file1, int last_event_n, bool display_one_ev_param){
     display_one_ev = display_one_ev_param;
     DO_NOT_DELETE_HIST_LED = true;
     display_peaks = true;
+    find_offset_bool = true;
 
     //Charge:
     line_bool = true;
     find_charge_window_bool = true;
-    minLED = 110; //ns
-    maxLED = 130; //ns
-
-        
+            
     nfile = 0; //I only consider 1 file   
     
     ptrHistAllPeaks[0]  = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
@@ -653,14 +666,16 @@ void Ana_LED(string file1, int last_event_n){
     average = true;
     find_offset_bool = true;
     find_peak_in_a_selected_window = true;
+    find_peaks_bool = true;
     DO_NOT_DELETE_HIST_LED = true;
     
     find_charge_window_bool = true;
     
-    min_peak_window = minLED;
-    max_peak_window = maxLED;
+    min_peak_window = minLED_amp;
+    max_peak_window = maxLED_amp;
     
     nfile = 0; //I only consider 1 file
+    ptrHistAllPeaks[0]  = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
     
     //Analysis
     Analysis(file1, last_event_n, false);
@@ -959,8 +974,8 @@ void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,
                     }
                 }
                 index_old = index_new;  
-                ptrHistAllPeaks[nfile]->Fill(trace_DLED[1][index_peak]);
-                if(display_peaks_now and num_peaks<max_peak_num){
+                if(fill_hist_peaks_when_found) ptrHistAllPeaks[nfile]->Fill(trace_DLED[1][index_peak]);
+                if(num_peaks<max_peak_num){
                     index_vect[num_peaks] = index_peak;
                     num_peaks++;
                 }
@@ -975,7 +990,6 @@ void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,
     peaks_all_delay[0][ind_peaks_all_delay] = -1;
     peaks_all_delay[1][ind_peaks_all_delay] = -1;
     ind_peaks_all_delay++;
-    
 }
 
 //------------------------------------------------------------------------------
@@ -1020,8 +1034,8 @@ void show_trace(TCanvas* canv, float *x, float *y, int trace_length, float miny,
     graph->GetYaxis()-> SetRangeUser(miny,maxy);
     graph->Draw("apl");
     if(line_bool){
-        TLine *lmin = new TLine (minLED, miny, minLED, maxy);
-        TLine *lmax = new TLine (maxLED, miny, maxLED, maxy);
+        TLine *lmin = new TLine (minLED_amp, miny, minLED_amp, maxy);
+        TLine *lmax = new TLine (maxLED_amp, miny, maxLED_amp, maxy);
         lmin->SetLineColor(kBlue);
         lmax->SetLineColor(kBlue);
         lmin->Draw("aplsame");
@@ -1051,10 +1065,10 @@ void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int 
     graph1->GetXaxis()->SetTitleOffset(1.2);
     graph1->GetYaxis()-> SetRangeUser(miny1,maxy1);
     graph1->Draw("apl");
-    graph1->SetEditable(kFALSE);
+    //graph1->SetEditable(kFALSE);
    if(line_bool){
-        TLine *lmin = new TLine (minLED, miny1, minLED, maxy1);
-        TLine *lmax = new TLine (maxLED, miny1, maxLED, maxy1);
+        TLine *lmin = new TLine (minLED_charge, miny1, minLED_charge, maxy1);
+        TLine *lmax = new TLine (maxLED_charge, miny1, maxLED_charge, maxy1);
         lmin->SetLineColor(kBlue);
         lmax->SetLineColor(kBlue);
         lmin->Draw("plsame");
@@ -1072,10 +1086,10 @@ void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int 
     graph2->GetXaxis()->SetTitleOffset(1.2);
     graph2->GetYaxis()-> SetRangeUser(miny2,maxy2);
     graph2->Draw("apl");
-    graph2->SetEditable(kFALSE);
+    //graph2->SetEditable(kFALSE);
 if(line_bool){
-        TLine *lmin = new TLine (minLED, miny2, minLED, maxy2);
-        TLine *lmax = new TLine (maxLED, miny2, maxLED, maxy2);
+        TLine *lmin = new TLine (minLED_charge, miny2, minLED_charge, maxy2);
+        TLine *lmax = new TLine (maxLED_charge, miny2, maxLED_charge, maxy2);
         lmin->SetLineColor(kBlue);
         lmax->SetLineColor(kBlue);
         lmin->Draw("plsame");
@@ -1102,7 +1116,7 @@ if(line_bool){
         graphPeaks->SetMarkerStyle(20);
         graphPeaks->SetMarkerColor(kRed);
         graphPeaks->Draw("psame");
-        graphPeaks->SetEditable(kFALSE);
+        //graphPeaks->SetEditable(kFALSE);
         
 
         //graphPeaks_DLED
@@ -1113,7 +1127,7 @@ if(line_bool){
         graphPeaks_DLED->SetMarkerStyle(20);
         graphPeaks_DLED->SetMarkerColor(kGreen+1);
         graphPeaks_DLED->Draw("psame");
-        graphPeaks_DLED->SetEditable(kFALSE);
+        //graphPeaks_DLED->SetEditable(kFALSE);
         
     }
     
@@ -1136,6 +1150,23 @@ if(line_bool){
         if(display_peaks_now){delete graphPeaks; delete graphPeaks_DLED;}
     }
 }
+
+//------------------------------------------------------------------------------
+void show_AVG_trace_window(TCanvas *c, float *tracet, float *tracev, int trace_length, bool delete_bool){
+	
+	if(reverse_bool){
+          for(int xx=0; xx<trace_length; xx++){
+            tracev[xx] = -tracev[xx];
+          }
+        }
+
+	c->cd();
+	TGraph *trace = new TGraph(trace_length, tracet, tracev);
+	trace->Draw("AL");
+	//if(delete_bool) delete trace;
+
+}
+
 
 //------------------------------------------------------------------------------
 void Get_DCR_temp_and_errDCR_temp(){
@@ -1429,6 +1460,20 @@ void find_charge_selected_window(int mintp, int maxtp){
     ptrHistCharge->Fill(charge);
 }
 
+//------------------------------------------------------------------------------
+void DLED_offset_remove(){
+    int index_peak_trace;
+    for(int i = 0; i<num_peaks; i++){ //loop over peaks
+        index_peak_trace = index_vect[i] + dleddt;
+        
+        for(int j=index_vect[i]; j<trace_DLED_length; j++){ //loop on trace_DLED
+            
+            trace_DLED[1][j] += trace_DLED[1][index_peak_trace] * ( TMath::Exp( ( j - dleddt - index_peak_trace) / tau ) - TMath::Exp( ( j - index_peak_trace) / tau ) );
+            
+        }
+    }
+}
+
 
 //------------------------------------------------------------------------------
 //------------------------------[   READ FILES   ]------------------------------
@@ -1620,6 +1665,7 @@ void ReadBin(string filename, int last_event_n, bool display){
    float bin_width[16][4][1024];
    int i, j, b, chn, n, chn_index, n_boards;
    float t1, t2, dt;
+   int count_peak_window = 0;
 
    float threshold;
    n_ev = 0;
@@ -1866,6 +1912,7 @@ void ReadBin(string filename, int last_event_n, bool display){
         }
         
         
+        
         if(find_peak_in_a_selected_window){
             float *peak = new float[2];
             mintp = (int)(1024*min_peak_window/trace[0][trace_length-1]);
@@ -1878,22 +1925,81 @@ void ReadBin(string filename, int last_event_n, bool display){
         }
         
 //***** PEAKS FINDING
+        fill_hist_peaks_when_found = false;
         if(find_peaks_bool){
             find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
         }
         
-//***** FIND OFFSET
-        if(find_offset_bool){
-            find_offset();
-            subtract_offset();
+//***** REMOVE OFFSET DLED
+        if(DLED_offset_remove_bool){
+            DLED_offset_remove();
         }
-        
-//***** FIND CHARGE
+
+        if(!fill_hist_peaks_when_found){
+            for(int i=0; i<num_peaks; i++){
+                ptrHistAllPeaks[nfile]->Fill(trace_DLED[1][index_vect[i]]);
+            }
+        }
+
+	//***** FIND CHARGE
         if(find_charge_window_bool){
-            mintp = (int)(1024*min_peak_window/trace[0][trace_length-1]);
-            maxtp = (int)(1024*max_peak_window/trace[0][trace_length-1]);
+            mintp = (int)(1024*minLED_charge/trace[0][trace_length-1]);
+            maxtp = (int)(1024*maxLED_charge/trace[0][trace_length-1]);
             find_charge_selected_window(mintp, maxtp);
         }
+
+//if(index_vect[1] > maxtp && ((trace[0][index_vect[1]] - trace[0][index_vect[0]]) > 20) && ((trace[1][index_vect[0]]-trace[1][minLED_charge]) > -22) && ((trace[1][index_vect[0]]-trace[1][minLED_charge]) < -18) && count_peak_window < 20)
+//&& (abs(trace[1][minLED_charge] - trace[1][index_vect[0]]) > 18) && (abs(trace[1][minLED_charge] - trace[1][index_vect[0]]) < 22)
+
+//cout << n_ev << endl;
+
+    if(find_1phe_bool){
+	if(index_vect[1] > maxtp && index_vect[0] > mintp && index_vect[0] < maxtp  && count_peak_window < 100 && ((trace[0][index_vect[1]+dleddt] - trace[0][index_vect[0]+dleddt]) > 20) && (abs(trace[1][mintp] - trace[1][index_vect[0]+dleddt]) > 18) && (abs(trace[1][mintp] - trace[1][index_vect[0]+dleddt]) < 22) ){
+
+	 if(count_peak_window==0){
+	
+	      AVG_trace_window = new float*[2];
+              for(int ii = 0; ii < 2; ii++) {
+                AVG_trace_window[ii] = new float[trace_window_length];
+              } // end for loop for AVG trace creation
+
+
+          for(int jj=0; jj < trace_window_length; jj++){
+             AVG_trace_window[0][jj]=trace[0][jj+mintp];
+             AVG_trace_window[1][jj]=0;
+          } // end for loop for AVG trace initialization
+         } // end if n_ev == 0
+
+// 	cout << "n_ev\t"<< n_ev << endl;
+// 	cout << " " << endl;
+// 	cout << "index_vect[0]+dleddt\t" <<index_vect[0]+dleddt << endl;
+// 	cout << "mintp\t"<<mintp << endl;
+// 	cout << "trace[0][index_vect[0]+dleddt]\t"<<trace[0][index_vect[0]+dleddt] << endl;
+// 	cout << "trace[1][mintp]\t"<<trace[1][mintp] << endl;
+// 	cout << "trace[1][index_vect[0]+dleddt]\t"<<trace[1][index_vect[0]+dleddt] << endl;
+// 	cout << "(trace[1][mintp+dleddt] - trace[1][index_vect[0]+dleddt])\t"<<(trace[1][mintp+dleddt] - trace[1][index_vect[0]+dleddt]) << endl;
+// 	cout << "(trace[1][mintp] - trace[1][index_vect[0]])\t"<<(trace[1][mintp] - trace[1][index_vect[0]]) << endl;
+// 	//cout <<  << endl;
+        
+
+	count_peak_window++;
+
+	 for (int kk=0; kk < trace_window_length; kk++){
+                AVG_trace_window[1][kk] += (trace[1][kk+index_vect[0]-dleddt]-trace[1][index_vect[0]-dleddt]);
+            } // end for loop a
+
+	if(count_peak_window == 100){
+
+	  for (int ww=0; ww < trace_window_length; ww++){
+             AVG_trace_window[1][ww] /= count_peak_window;
+          } // end for loop average
+	  show_AVG_trace_window(AVG_trace_canvas, AVG_trace_window[0], AVG_trace_window[1], trace_window_length, true); 
+	} // end if count == 20
+	
+
+	} //end if loop check 1phe waveform
+    }
+
         
 //***** AVERAGE
         if(average){
@@ -1947,6 +2053,21 @@ void ReadBin(string filename, int last_event_n, bool display){
   n_ev_tot = n_ev + 1;
   cout<<"Last event "<<n_ev_tot<<endl;
   fclose(f);
+
+  if(find_1phe_bool){
+  cout << "Number of traces with one peak within window: " << count_peak_window << endl;
+  cout << index_vect[1] << " " << mintp << " " << maxtp << endl;
+
+  if(count_peak_window < 100 && count_peak_window != 0){
+
+	cout << "Qui!" << endl;
+
+	  for (int zz=0; zz < trace_window_length; zz++){
+             AVG_trace_window[1][zz] /= count_peak_window;
+          }
+	  show_AVG_trace_window(AVG_trace_canvas, AVG_trace_window[0], AVG_trace_window[1], trace_window_length, true); 
+	}
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -2070,8 +2191,8 @@ void ReadRootFile(string filename, int last_event_n, bool display){
 
     //***** FIND CHARGE for LED
     if(find_charge_window_bool){
-      mintp = (int)(1024*minLED/trace[0][trace_length-1]);
-      maxtp = (int)(1024*maxLED/trace[0][trace_length-1]);
+      mintp = (int)(1024*minLED_charge/trace[0][trace_length-1]);
+      maxtp = (int)(1024*maxLED_charge/trace[0][trace_length-1]);
       find_charge_selected_window(mintp, maxtp);
     } // end if find charge
         
