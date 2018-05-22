@@ -296,6 +296,7 @@ int ev_to_display = 5;
 //------------------------------------------------------------------------------
 float **trace;
 float **trace_DLED;
+float **trace_DLED_temp;
 float **trace_AVG;
 float **AVG_trace_window;
 float **DCR;
@@ -389,6 +390,8 @@ bool remove_0_peak_bool = false;
 bool fill_hist = false;
 
 bool ptrAllTrace_bool = false;
+
+bool not_first_time_plot = false;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -1081,6 +1084,7 @@ void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int 
     graph2->GetYaxis()->SetTitle("Amplitude (mV)");
     graph2->GetYaxis()->SetTitleOffset(1.2);
     graph2->GetXaxis()->SetTitleOffset(1.2);
+    graph2->SetLineColor(kGreen+3);
     graph2->GetYaxis()-> SetRangeUser(miny2,maxy2);
     graph2->Draw("apl");
     //graph2->SetEditable(kFALSE);
@@ -1129,6 +1133,34 @@ if(line_bool){
     }
     
     canv->Update();
+    
+    TGraphErrors *graph_DLED_temp;
+    
+    if(DLED_offset_remove_bool){
+        c->cd(2);
+        TGraphErrors *graph_DLED_temp = new TGraphErrors(trace_DLED_length, trace_DLED_temp[0] , trace_DLED_temp[1],0,0);
+        graph_DLED_temp->SetName("graph_DLED_temp");
+        //graph_DLED_temp->SetTitle("Trace after DLED NOT OFFSET CORRECTED");
+        graph_DLED_temp->GetXaxis()->SetTitle("Time (ns)");
+        graph_DLED_temp->GetYaxis()->SetTitle("Amplitude (mV)");
+        graph_DLED_temp->SetLineColor(kBlack);
+        graph_DLED_temp->GetYaxis()->SetTitleOffset(1.2);
+        graph_DLED_temp->GetXaxis()->SetTitleOffset(1.2);
+        graph_DLED_temp->GetYaxis()-> SetRangeUser(miny1,maxy1);
+        graph_DLED_temp->Draw("plsame");
+        c->Update();
+        cout<<endl<<endl;
+        if(!not_first_time_plot){
+            cout<<"-------------------------------------------------"<<endl;
+            cout<<"Trace after DLED OFFSET CORRECTED:       kGreen+3"<<endl;
+            cout<<"Trace after DLED NOT OFFSET CORRECTED:   kBlack"<<endl;
+            cout<<"-------------------------------------------------"<<endl;
+            not_first_time_plot=true;
+        }
+
+    }
+    
+    
 
     // let the user to interact with the canvas, like zooming the axis
     // show next trace by pressing any key
@@ -1143,7 +1175,7 @@ if(line_bool){
     }
 
     if(delete_bool) {
-        delete graph1; delete graph2; 
+        delete graph1; delete graph2; delete graph_DLED_temp;
         if(display_peaks_now){delete graphPeaks; delete graphPeaks_DLED;}
     }
 }
@@ -1876,10 +1908,16 @@ void ReadBin(string filename, int last_event_n, bool display){
             }
         }
         trace_DLED_length = trace_length - dleddt;
+        
         //CREATE TRACE DLED
         trace_DLED = new float*[2];
         for(ii = 0; ii < 2; ii++) {
             trace_DLED[ii] = new float[trace_DLED_length];
+        }
+        
+        trace_DLED_temp = new float*[2];
+        for(ii = 0; ii < 2; ii++) {
+            trace_DLED_temp[ii] = new float[trace_DLED_length];
         }
     
         for(int k=0; k<trace_length; k++){
@@ -1938,6 +1976,11 @@ void ReadBin(string filename, int last_event_n, bool display){
         
 //***** REMOVE OFFSET DLED
         if(DLED_offset_remove_bool){
+            for(int i=0; i<trace_DLED_length; i++){
+                trace_DLED_temp[0][i] = trace_DLED[0][i];
+                trace_DLED_temp[1][i] = trace_DLED[1][i];
+            }
+            
             DLED_offset_remove();
         }
 
@@ -2037,6 +2080,7 @@ void ReadBin(string filename, int last_event_n, bool display){
                     show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_length, miny1, maxy1, miny2, maxy2, line_bool, false);
                 }
             }
+            
             
         }
         
