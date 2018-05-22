@@ -127,7 +127,7 @@ int find_peak_fix_time(int mintp, int maxtp);
 void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,int blind_gap, bool DCR_DELAYS_bool);
 void average_func(int trace_length);
 void fit_hist_del(float expDelLow, float expDelHigh);
-void fit_hist_all_peaks(TCanvas *c, TH1D *hist, float fit1Low, float fit1High, float fit2Low, float fit2High);
+void fit_hist_peaks(TCanvas *c, TH1D *hist);
 TGraphErrors* DCR_func(string file1, int last_event_n, int tot_files);
 void Get_DCR_temp_and_errDCR_temp();
 void show_trace(TCanvas* canv, float *x, float *y, int trace_length, float miny, float maxy, bool line_bool, bool delete_bool);
@@ -389,6 +389,7 @@ bool remove_0_peak_bool = false;
 bool fill_hist = false;
 
 bool ptrAllTrace_bool = false;
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -399,7 +400,7 @@ bool ptrAllTrace_bool = false;
 //--------------------[   GLOBAL HISTs, CANVs and FUNCs   ]---------------------
 //------------------------------------------------------------------------------
 
-TH1D *ptrHist = new TH1D("hist","",140,0,200);
+TH1D *ptrHistLED = new TH1D("histLED","",140,0,200);
 
 TH1F *ptrAll = new TH1F("histAll","",500,-100,100);
 TH1F *ptrAllTrace = new TH1F("histAllT","",86,-10.0,20.0);
@@ -638,7 +639,7 @@ void Ana1(string file1, int last_event_n, bool display_one_ev_param){
     TCanvas *chargehist = new TCanvas("chargehist", "chargehist", 5);
     chargehist->cd();
     ptrHistCharge->Draw();
-    ptrHist->Draw();
+    ptrHistLED->Draw();
    
     
     //Get DCR (only @ threshold, set in the 'SETTING GLOBAL VARIABLES' section)
@@ -680,9 +681,18 @@ void Ana_LED(string file1, int last_event_n){
     //Analysis
     Analysis(file1, last_event_n, false);
     
-    new TCanvas();
-    ptrHistCharge->Draw();
-    ptrHist->Draw();
+    TCanvas *canvLED = new TCanvas("canvLED", "canvLED", w,h);
+    canvLED->cd();
+    canvLED-> SetGrid();
+    ptrHistLED->GetXaxis()->SetTitle("mV");
+    ptrHistLED->GetYaxis()->SetTitle("Counts");
+    ptrHistLED->Draw();
+    canvLED->Update();
+    fit_hist_peaks(canvLED, ptrHistLED);
+    
+    
+//     new TCanvas();
+//     ptrHistCharge->Draw();
 }
 
 //------------------------------------------------------------------------------
@@ -769,20 +779,7 @@ void Analysis(string file, int last_event_n, bool display){
             cAllPeaks1->Update();
             
             if(fitHistAllPeaks){
-                if(file == "20180221_HD3-2_1_DARK_34_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_34_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_34_AS_2_01.txt")
-                {fit1Low = 12; fit1High = 26; fit2Low = 28; fit2High = 42;}else{
-                if(file == "20180221_HD3-2_1_DARK_35_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_35_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_35_AS_2_01.txt")
-                {fit1Low = 12; fit1High = 28; fit2Low = 32; fit2High = 46;}else{
-                if(file == "20180221_HD3-2_1_DARK_36_AS_2_01.txt" or file == "20180221_HD3-2_2_DARK_36_AS_2_02.txt" or file == "20180221_HD3-2_3_DARK_36_AS_2_01.txt")
-                {fit1Low = 12; fit1High = 28; fit2Low = 36; fit2High = 50;}else{
-                    cout<<"--------------------"<<endl;
-                    cout<<"File not recognized. Please enter:"<<endl;
-                    cout<<"fit1Low  "; if (scanf("%f", &fit1Low) == 1){;}
-                    cout<<"fit1High "; if (scanf("%f", &fit1High) == 1){;}
-                    cout<<"fit2Low  "; if (scanf("%f", &fit2Low) == 1){;}
-                    cout<<"fit2High "; if (scanf("%f", &fit2High) == 1){;}
-                }}}
-                fit_hist_all_peaks(cAllPeaks1, ptrHistAllPeaks[nfile], fit1Low, fit1High, fit2Low, fit2High);
+                fit_hist_peaks(cAllPeaks1, ptrHistAllPeaks[nfile]);
             }
             
         }
@@ -821,12 +818,12 @@ void Analysis(string file, int last_event_n, bool display){
         cHist->SetGrid();
         cHist->cd();
         if(SetLogyHist) cHist->SetLogy();
-        ptrHist->Draw("hist");
+        ptrHistLED->Draw("hist");
     }
     
     
         
-    if(!DO_NOT_DELETE_HIST_LED)delete ptrHist;
+    if(!DO_NOT_DELETE_HIST_LED)delete ptrHistLED;
     
     //since this function is called, I set first_time_main_called to false
     first_time_main_called = false;
@@ -1262,10 +1259,19 @@ void fit_hist_del(float expDelLow, float expDelHigh){ //fit hists filled with ti
 }
 
 //------------------------------------------------------------------------------
-void fit_hist_all_peaks(TCanvas *c, TH1D *hist, float fit1Low, float fit1High, float fit2Low, float fit2High){
+void fit_hist_peaks(TCanvas *c, TH1D *hist){
     
     float mean1, mean2;
     float errmean1, errmean2;
+    
+    float fit1Low, fit1High, fit2Low, fit2High;
+    
+    cout<<"--------------------"<<endl;
+    cout<<"Please enter:"<<endl;
+    cout<<"fit1Low  "; if (scanf("%f", &fit1Low) == 1){;}
+    cout<<"fit1High "; if (scanf("%f", &fit1High) == 1){;}
+    cout<<"fit2Low  "; if (scanf("%f", &fit2Low) == 1){;}
+    cout<<"fit2High "; if (scanf("%f", &fit2High) == 1){;}
     
     c->cd();
     
@@ -1594,7 +1600,7 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
             index_for_peak = find_peak_fix_time(mintp, maxtp);
             peak[0] = trace_DLED[0][index_for_peak];
             peak[1] = trace_DLED[1][index_for_peak];
-            ptrHist->Fill(peak[1]);
+            ptrHistLED->Fill(peak[1]);
             delete[] peak;
         }
         
@@ -1920,7 +1926,7 @@ void ReadBin(string filename, int last_event_n, bool display){
             index_for_peak = find_peak_fix_time(mintp, maxtp);
             peak[0] = trace_DLED[0][index_for_peak];
             peak[1] = trace_DLED[1][index_for_peak];
-            ptrHist->Fill(peak[1]);
+            ptrHistLED->Fill(peak[1]);
             delete[] peak;
         }
         
@@ -2169,7 +2175,7 @@ void ReadRootFile(string filename, int last_event_n, bool display){
       index_for_peak = find_peak_fix_time(mintp, maxtp);
       peak[0] = trace_DLED[0][index_for_peak];
       peak[1] = trace_DLED[1][index_for_peak];
-      ptrHist->Fill(peak[1]);
+      ptrHistLED->Fill(peak[1]);
       delete[] peak;
     } // end if find peak in selected window
         
