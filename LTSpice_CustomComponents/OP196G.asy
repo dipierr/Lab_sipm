@@ -15,7 +15,7 @@ WINDOW 0 16 -79 Bottom 2
 WINDOW 3 16 80 Top 2
 SYMATTR Value OP196G
 SYMATTR Prefix X
-SYMATTR ModelFile Z:<place_your_path>/op196g.cir
+SYMATTR ModelFile C:\place\here\your\path\op196g.cir
 PIN -48 32 NONE 8
 PINATTR PinName 1
 PINATTR SpiceOrder 1
