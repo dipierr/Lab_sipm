@@ -296,7 +296,6 @@ int ev_to_display = 5;
 //------------------------------------------------------------------------------
 float **trace;
 float **trace_DLED;
-float **trace_DLED_temp;
 float **trace_AVG;
 float **AVG_trace_window;
 float **DCR;
@@ -391,8 +390,6 @@ bool fill_hist = false;
 
 bool ptrAllTrace_bool = false;
 
-bool not_first_time_plot = false;
-
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -403,7 +400,7 @@ bool not_first_time_plot = false;
 //--------------------[   GLOBAL HISTs, CANVs and FUNCs   ]---------------------
 //------------------------------------------------------------------------------
 
-TH1D *ptrHistLED = new TH1D("histLED","",140,0,200);
+TH1D *ptrHistLED = new TH1D("histLED","",750,-50,700);//per i fit 140,-20,200
 
 TH1F *ptrAll = new TH1F("histAll","",500,-100,100);
 TH1F *ptrAllTrace = new TH1F("histAllT","",86,-10.0,20.0);
@@ -691,11 +688,12 @@ void Ana_LED(string file1, int last_event_n){
     ptrHistLED->GetYaxis()->SetTitle("Counts");
     ptrHistLED->Draw();
     canvLED->Update();
-    fit_hist_peaks(canvLED, ptrHistLED);
+    //fit_hist_peaks(canvLED, ptrHistLED);
     
     
 //     new TCanvas();
 //     ptrHistCharge->Draw();
+
 }
 
 //------------------------------------------------------------------------------
@@ -766,8 +764,17 @@ void Analysis(string file, int last_event_n, bool display){
         TCanvas *cAVG = new TCanvas("AVG","AVG");
         cAVG->SetGrid();
         miny = -100; maxy = 30;
-        show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_length, miny, maxy,true,false);
-       
+        show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_length, miny, maxy,true,false);       
+    }
+    
+//***** AVERAGE
+    if(average){
+        double sum=0;
+        for( int j=0; j<trace_length; j++){
+            sum+=trace_AVG[1][j];
+        }
+    
+        cout << "Integral of the average is: " << sum << endl;
     }
     
 //***** HIST ALL PEAKS
@@ -1084,7 +1091,6 @@ void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int 
     graph2->GetYaxis()->SetTitle("Amplitude (mV)");
     graph2->GetYaxis()->SetTitleOffset(1.2);
     graph2->GetXaxis()->SetTitleOffset(1.2);
-    graph2->SetLineColor(kGreen+3);
     graph2->GetYaxis()-> SetRangeUser(miny2,maxy2);
     graph2->Draw("apl");
     //graph2->SetEditable(kFALSE);
@@ -1133,34 +1139,6 @@ if(line_bool){
     }
     
     canv->Update();
-    
-    TGraphErrors *graph_DLED_temp;
-    
-    if(DLED_offset_remove_bool){
-        c->cd(2);
-        TGraphErrors *graph_DLED_temp = new TGraphErrors(trace_DLED_length, trace_DLED_temp[0] , trace_DLED_temp[1],0,0);
-        graph_DLED_temp->SetName("graph_DLED_temp");
-        //graph_DLED_temp->SetTitle("Trace after DLED NOT OFFSET CORRECTED");
-        graph_DLED_temp->GetXaxis()->SetTitle("Time (ns)");
-        graph_DLED_temp->GetYaxis()->SetTitle("Amplitude (mV)");
-        graph_DLED_temp->SetLineColor(kBlack);
-        graph_DLED_temp->GetYaxis()->SetTitleOffset(1.2);
-        graph_DLED_temp->GetXaxis()->SetTitleOffset(1.2);
-        graph_DLED_temp->GetYaxis()-> SetRangeUser(miny1,maxy1);
-        graph_DLED_temp->Draw("plsame");
-        c->Update();
-        cout<<endl<<endl;
-        if(!not_first_time_plot){
-            cout<<"-------------------------------------------------"<<endl;
-            cout<<"Trace after DLED OFFSET CORRECTED:       kGreen+3"<<endl;
-            cout<<"Trace after DLED NOT OFFSET CORRECTED:   kBlack"<<endl;
-            cout<<"-------------------------------------------------"<<endl;
-            not_first_time_plot=true;
-        }
-
-    }
-    
-    
 
     // let the user to interact with the canvas, like zooming the axis
     // show next trace by pressing any key
@@ -1175,7 +1153,7 @@ if(line_bool){
     }
 
     if(delete_bool) {
-        delete graph1; delete graph2; delete graph_DLED_temp;
+        delete graph1; delete graph2; 
         if(display_peaks_now){delete graphPeaks; delete graphPeaks_DLED;}
     }
 }
@@ -1193,7 +1171,7 @@ void show_AVG_trace_window(TCanvas *c, float *tracet, float *tracev, int trace_l
 	TGraph *trace = new TGraph(trace_length, tracet, tracev);
 	trace->Draw("AL");
 	//if(delete_bool) delete trace;
-
+        
 }
 
 
@@ -1908,16 +1886,10 @@ void ReadBin(string filename, int last_event_n, bool display){
             }
         }
         trace_DLED_length = trace_length - dleddt;
-        
         //CREATE TRACE DLED
         trace_DLED = new float*[2];
         for(ii = 0; ii < 2; ii++) {
             trace_DLED[ii] = new float[trace_DLED_length];
-        }
-        
-        trace_DLED_temp = new float*[2];
-        for(ii = 0; ii < 2; ii++) {
-            trace_DLED_temp[ii] = new float[trace_DLED_length];
         }
     
         for(int k=0; k<trace_length; k++){
@@ -1976,11 +1948,6 @@ void ReadBin(string filename, int last_event_n, bool display){
         
 //***** REMOVE OFFSET DLED
         if(DLED_offset_remove_bool){
-            for(int i=0; i<trace_DLED_length; i++){
-                trace_DLED_temp[0][i] = trace_DLED[0][i];
-                trace_DLED_temp[1][i] = trace_DLED[1][i];
-            }
-            
             DLED_offset_remove();
         }
 
@@ -2080,7 +2047,6 @@ void ReadBin(string filename, int last_event_n, bool display){
                     show_trace2(c, trace[0], trace[1], trace_DLED[0], trace_DLED[1], trace_length, trace_DLED_length, miny1, maxy1, miny2, maxy2, line_bool, false);
                 }
             }
-            
             
         }
         
