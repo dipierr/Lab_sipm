@@ -39,11 +39,18 @@ void DCR_CrossTalk(){
     
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-//  from files 20180305_HD3-2_1_DARK_34_AS_2_01, 20180305_HD3-2_1_DARK_35_AS_2_01, 20180305_HD3-2_1_DARK_36_AS_2_01:
-    double DCR1[] =         {15.4513, 17.2266, 18.7854};
-    double errDCR1[] =      {0.188006, 0.182623, 0.179374};
-    double CrossTalk1[] =   {0.341012, 0.359794, 0.402453};
-    double errCrossTalk1[] ={0.0263061, 0.0194315, 0.0155378};
+//  from files 20180305_HD3-2_1_DARK_34_AS_2_01, 20180305_HD3-2_1_DARK_35_AS_2_01, 20180305_HD3-2_1_DARK_36_AS_2_01, setting automatically pe_0_5 and pe_1_5:
+//     double DCR1[] =         {15.4513, 17.2266, 18.7854};
+//     double errDCR1[] =      {0.188006, 0.182623, 0.179374};
+//     double CrossTalk1[] =   {0.341012, 0.359794, 0.402453};
+//     double errCrossTalk1[] ={0.0263061, 0.0194315, 0.0155378};
+    
+//  from files 20180305_HD3-2_1_DARK_34_AS_2_01, 20180305_HD3-2_1_DARK_35_AS_2_01, 20180305_HD3-2_1_DARK_36_AS_2_01, setting manually pe_0_5 and pe_1_5:
+    double DCR1[] =         {15.4943, 17.5239, 19.4647};
+    double errDCR1[] =      {0.0596534, 0.0581081, 0.0571528};
+    double CrossTalk1[] =   {0.332033, 0.358656, 0.411316};
+    double errCrossTalk1[] ={0.00822453, 0.00584069, 0.00433039};
+
 
     
     
@@ -70,12 +77,17 @@ void DCR_CrossTalk(){
     
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-//  from files 20180305_HD3-2_2_DARK_34_AS_2_01, 20180305_HD3-2_2_DARK_35_AS_2_01, 20180305_HD3-2_2_DARK_36_AS_2_01:
-    double DCR2[] =         {15.5559, 17.9235, 20.4624};
-    double errDCR2[] =      {0.188033, 0.181892, 0.180436};
-    double CrossTalk2[] =   {0.316189, 0.36327, 0.367274};
-    double errCrossTalk2[] ={0.0260671, 0.0182476, 0.0137298};
-
+//  from files 20180305_HD3-2_2_DARK_34_AS_2_01, 20180305_HD3-2_2_DARK_35_AS_2_01, 20180305_HD3-2_2_DARK_36_AS_2_01, setting automatically pe_0_5 and pe_1_5::
+//     double DCR2[] =         {15.5559, 17.9235, 20.4624};
+//     double errDCR2[] =      {0.188033, 0.181892, 0.180436};
+//     double CrossTalk2[] =   {0.316189, 0.36327, 0.367274};
+//     double errCrossTalk2[] ={0.0260671, 0.0182476, 0.0137298};
+     
+//  from files 20180305_HD3-2_2_DARK_34_AS_2_01, 20180305_HD3-2_2_DARK_35_AS_2_01, 20180305_HD3-2_2_DARK_36_AS_2_01, setting manually pe_0_5 and pe_1_5::
+    double DCR2[] =         {15.4412, 17.8785, 20.1119};
+    double errDCR2[] =      {0.0595269, 0.0576375, 0.0569482};
+    double CrossTalk2[] =   {0.335797, 0.366711, 0.375398};
+    double errCrossTalk2[] ={0.00800791, 0.0057306, 0.0043311};
 
     
         
@@ -102,11 +114,17 @@ void DCR_CrossTalk(){
 //         double errCrossTalk3[] ={0.0130153, 0.00995042, 0.00793973};
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-//  from files 20180305_HD3-2_3_DARK_34_AS_2_01, 20180305_HD3-2_3_DARK_35_AS_2_01, 20180305_HD3-2_3_DARK_36_AS_2_01
-    double DCR3[] =         {18.7002, 21.3137, 23.7438};
-    double errDCR3[] =      {0.180412, 0.178593, 0.180637};
-    double CrossTalk3[] =   {0.313792, 0.343309, 0.362197};
-    double errCrossTalk3[] ={0.0183106, 0.0134591, 0.0106564};
+//  from files 20180305_HD3-2_3_DARK_34_AS_2_01, 20180305_HD3-2_3_DARK_35_AS_2_01, 20180305_HD3-2_3_DARK_36_AS_2_01, setting automatically pe_0_5 and pe_1_5:
+//     double DCR3[] =         {18.7002, 21.3137, 23.7438};
+//     double errDCR3[] =      {0.180412, 0.178593, 0.180637};
+//     double CrossTalk3[] =   {0.313792, 0.343309, 0.362197};
+//     double errCrossTalk3[] ={0.0183106, 0.0134591, 0.0106564};
+     
+//  from files 20180305_HD3-2_3_DARK_34_AS_2_01, 20180305_HD3-2_3_DARK_35_AS_2_01, 20180305_HD3-2_3_DARK_36_AS_2_01, setting manually pe_0_5 and pe_1_5:
+    double DCR3[] =         {18.5218, 20.9923, 23.328};
+    double errDCR3[] =      {0.0570749, 0.0563976, 0.0570021};
+    double CrossTalk3[] =   {0.317707, 0.346962, 0.375962};
+    double errCrossTalk3[] ={0.00579663, 0.00424867, 0.00324151};
 
     
     //------------------------------
@@ -137,13 +155,13 @@ void DCR_CrossTalk(){
     gCT_2->SetMarkerColor(kRed);
     gCT_3->SetMarkerColor(kMagenta);
     
-    gDCR_1->SetMarkerSize(2);
-    gDCR_2->SetMarkerSize(2);
-    gDCR_3->SetMarkerSize(2);
+    gDCR_1->SetMarkerSize(3);
+    gDCR_2->SetMarkerSize(3);
+    gDCR_3->SetMarkerSize(3);
     
-    gCT_1->SetMarkerSize(2);
-    gCT_2->SetMarkerSize(2);
-    gCT_3->SetMarkerSize(2);
+    gCT_1->SetMarkerSize(3);
+    gCT_2->SetMarkerSize(3);
+    gCT_3->SetMarkerSize(3);
     
     //------------------------------
     

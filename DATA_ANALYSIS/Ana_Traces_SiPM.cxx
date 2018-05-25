@@ -18,6 +18,7 @@
  *                    bool display_one_ev_param);                               *
  *                                                                              *
  *  Davide Depaoli 2018                                                         *
+ *  Alessio Berti  2018                                                         *
  *                                                                              *
  ********************************************************************************/
 
@@ -133,7 +134,8 @@ void Get_DCR_temp_and_errDCR_temp();
 void show_trace(TCanvas* canv, float *x, float *y, int trace_length, float miny, float maxy, bool line_bool, bool delete_bool);
 void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int trace_length1, int trace_length2, float miny1, float maxy1, float miny2, float maxy2, bool line_bool, bool delete_bool);
 void find_peaks_from_vector();
-void find_DCR_0_5_pe_and_1_5_pe();
+void find_DCR_0_5_pe_and_1_5_pe_auto();
+void find_DCR_0_5_pe_and_1_5_pe_manual();
 void find_offset();
 void find_offset_mod();
 void find_offset_mod_2();
@@ -180,6 +182,7 @@ bool DLED_offset_remove_bool = true;
 bool fill_hist_peaks_when_found = true;
 
 bool find_1phe_bool = false;
+bool automatic_find_thr_1pe_2pe = false;
 
 //-----------------
 //-----------------
@@ -215,6 +218,8 @@ float max_pe_0_5 = 15; //max value for 0.5pe threshold (mV)
 float min_pe_1_5 = 28; //min value for 1.5pe threshold (mV)
 float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
+float pe_0_5_vect[3] = {10.,10.,10.};
+float pe_1_5_vect[3] = {25.,27.5.,27.5};
 
 // ONLY for Ana1:
 float thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
@@ -312,9 +317,6 @@ float **errDCR_mean;
 TGraphErrors *gDCR_1;
 TGraphErrors *gDCR_2;
 TGraphErrors *gDCR_3;
-
-float pe_0_5_vect[3] = {1.,1.,1.};
-float pe_1_5_vect[3] = {1.,1.,1.};
 
 float DCR_temp[] = {0., 0., 0.}; //I consider 3 files
 float errDCR_temp[] = {0., 0., 0.};
@@ -599,13 +601,13 @@ void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_
     cout<<file1<<"   pe_0_5 = "<<pe_0_5_vect[0]<<" mV; pe_1_5 = "<<pe_1_5_vect[0]<<" mV"<<endl;
     cout<<file2<<"   pe_0_5 = "<<pe_0_5_vect[1]<<" mV; pe_1_5 = "<<pe_1_5_vect[1]<<" mV"<<endl;
     cout<<file3<<"   pe_0_5 = "<<pe_0_5_vect[2]<<" mV; pe_1_5 = "<<pe_1_5_vect[2]<<" mV"<<endl;
-    cout<<"float DCR[] =         {"<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
+    cout<<"double DCR[] =         {"<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
     
-    cout<<"float errDCR[] =      {"<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
+    cout<<"double errDCR[] =      {"<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
     
-    cout<<"float CrossTalk[] =   {"<<CrossTalk[0]<<", "<<CrossTalk[1]<<", "<<CrossTalk[2]<<"};"<<endl;
+    cout<<"double CrossTalk[] =   {"<<CrossTalk[0]<<", "<<CrossTalk[1]<<", "<<CrossTalk[2]<<"};"<<endl;
 
-    cout<<"float errCrossTalk[] ={"<<errCrossTalk[0]<<", "<<errCrossTalk[1]<<", "<<errCrossTalk[2]<<"};"<<endl;
+    cout<<"double errCrossTalk[] ={"<<errCrossTalk[0]<<", "<<errCrossTalk[1]<<", "<<errCrossTalk[2]<<"};"<<endl;
     
 }
 
@@ -899,7 +901,8 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files){
         h++;
     }
     
-    find_DCR_0_5_pe_and_1_5_pe();
+    if(automatic_find_thr_1pe_2pe)  find_DCR_0_5_pe_and_1_5_pe_auto();
+    else                            find_DCR_0_5_pe_and_1_5_pe_manual();
     
     
     
@@ -1181,9 +1184,31 @@ void Get_DCR_temp_and_errDCR_temp(){
     errDCR_temp[nfile] = expDel->GetParError(0)*TMath::Power(10,9);
 }
 
+//------------------------------------------------------------------------------
+void find_DCR_0_5_pe_and_1_5_pe_manual(){
+    
+    double delta = (pe_1_5_vect[nfile] - pe_0_5_vect[nfile])/n_DCR;
+    int index_0_5=0, index_1_5=0;
+    
+    for(int i=0; i<n_DCR; i++){
+        if((thr_to_find_peaks_vect[nfile][i] > pe_0_5_vect[nfile] - delta) and (thr_to_find_peaks_vect[nfile][i] < pe_0_5_vect[nfile] + delta))
+            index_0_5 = i;
+        if((thr_to_find_peaks_vect[nfile][i] > pe_1_5_vect[nfile] - delta) and (thr_to_find_peaks_vect[nfile][i] < pe_1_5_vect[nfile] + delta))
+            index_1_5 = i;
+    }
+    
+    //0.5pe
+    DCR_pe_0_5_vect[nfile] = DCR[nfile][index_0_5];
+    errDCR_pe_0_5_vect[nfile] = errDCR[nfile][index_0_5];
+   
+    //1.5pe
+    DCR_pe_1_5_vect[nfile] = DCR[nfile][index_1_5];
+    errDCR_pe_1_5_vect[nfile] = errDCR[nfile][index_1_5];
+}
+
 
 //------------------------------------------------------------------------------
-void find_DCR_0_5_pe_and_1_5_pe(){
+void find_DCR_0_5_pe_and_1_5_pe_auto(){
     float min_0_5=100000000;
     float min_1_5=100000000;
     int min_index_0_5 = 0;
