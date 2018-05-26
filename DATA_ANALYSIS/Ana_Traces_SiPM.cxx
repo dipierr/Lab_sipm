@@ -715,7 +715,9 @@ void Ana3(string file1, string file2, string file3, int last_event_n){
 
 
     // Draw peak distribution for 3 different HVs
-    cAllPeaks->cd();
+    TCanvas *cAllPeaks3 = new TCanvas("hist_All3","hist_All3",w,h);
+    cAllPeaks3->cd();
+    cAllPeaks3->SetGrid();
     ptrHistAllPeaks[1]->SetLineColor(kGreen+1);
     ptrHistAllPeaks[2]->SetLineColor(kRed+1);
 
