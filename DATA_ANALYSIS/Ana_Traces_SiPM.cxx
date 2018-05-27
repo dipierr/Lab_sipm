@@ -734,6 +734,11 @@ void Ana3(string file1, string file2, string file3, int last_event_n){
     legend->AddEntry(ptrHistAllPeaks[2],"HV = 36.00 V","l");
 
     legend->Draw();
+
+    // cout number of entries
+    cout<<"Number of entries hist 34 V: "<<ptrHistAllPeaks[0]->Integral()<<endl;
+    cout<<"Number of entries hist 35 V: "<<ptrHistAllPeaks[1]->Integral()<<endl;
+    cout<<"Number of entries hist 36 V: "<<ptrHistAllPeaks[2]->Integral()<<endl;
 }
 
 //------------------------------------------------------------------------------
