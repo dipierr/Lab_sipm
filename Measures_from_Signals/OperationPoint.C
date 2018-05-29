@@ -121,14 +121,10 @@ void OperationPoint(){
       // temp = TMath::Power(temp, 0.5);
       // temp *= 1/St_dev_hist_global[i];
       //
-      cout<<Mean_hist_St_dev[i]<<"\t"<<Mean_hist_global[i]<<"\t"<<St_dev_hist_global[i]<<"\t"<<endl;
+
 
     }
-
-    for (int j = 0; j < n_MEAN; j++) {
-      cout<<Mean_hist_St_dev[j]<<endl;
-    }
-
+    
     //------------------------------
     // Gain_Weighted
     //------------------------------
