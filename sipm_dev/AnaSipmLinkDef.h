@@ -6,6 +6,6 @@
 
 #pragma link C++ class Trace+;
 #pragma link C++ class TraceHeader+;
-#pragma link C++ class Sipm+;
+#pragma link C++ class AnaSipm+;
 
 #endif

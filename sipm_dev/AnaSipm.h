@@ -1,5 +1,5 @@
-#ifndef SIPM_H
-#define SIPM_H
+#ifndef ANASIPM_H
+#define ANASIPM_H
 
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
@@ -15,14 +15,13 @@
 class Trace : public TObject
 {
    private:
-      UInt_t       fId;                // id of the event
-      Int_t        fTrace_length;      // length of the trace
-      Float_t     *fAmplitude_Array;   //[fTrace_length]
-      Float_t     *fTime_Array;        //[fTrace_length]
+      UInt_t                  fId;                // id of the event
+      Int_t                   fTrace_length;      // length of the trace
+      std::vector<Float_t>    fAmplitude_Array;   // vector containing amplitudes
+      std::vector<Float_t>    fTime_Array;        // vector containing times
 
    public:
       Trace();
-      Trace(UInt_t id);
       ~Trace();
 
       void Build(UInt_t id, Float_t *amplitude_array, Float_t *time_array);
@@ -83,15 +82,15 @@ class TraceHeader : public TObject
       ClassDef(TraceHeader,1);
 };
 
-class Sipm : public TObject
+class AnaSipm : public TObject
 {
    public:
-      Sipm();
-      ~Sipm(); 
+      AnaSipm();
+      ~AnaSipm(); 
 
       Int_t Decode(Trace *trace, TraceHeader *trace_header, std::string filename, Int_t num_events);
 
-      ClassDef(Sipm,1);
+      ClassDef(AnaSipm,1);
 
 };
  

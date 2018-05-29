@@ -1,59 +1,45 @@
-#include "Sipm.h"
+#include "AnaSipm.h"
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <vector>
+#include <algorithm>
+#include <functional>
 #include "TFile.h"
 #include "TTree.h"
 
-//using namespace std;
-
 ClassImp(Trace);
 ClassImp(TraceHeader);
-ClassImp(Sipm);
+ClassImp(AnaSipm);
 
 //______________________________________________________________________________
-Trace::Trace() : fId(0), fTrace_length(1024), fAmplitude_Array(0), fTime_Array(0)
+Trace::Trace() : fId(0), fTrace_length(1024), fAmplitude_Array(fTrace_length, 0), fTime_Array(fTrace_length, 0)
 {
 
-}
-
-//______________________________________________________________________________
-Trace::Trace(UInt_t id): fId(id), fTrace_length(1024)
-{
-   fAmplitude_Array = new Float_t[fTrace_length];
-   fTime_Array      = new Float_t[fTrace_length];
 }
 
 //______________________________________________________________________________
 Trace::~Trace()
 {
 
-   if(fAmplitude_Array){
-      delete[] fAmplitude_Array;
-   }
-
-   fAmplitude_Array = 0;
-
-   if(fTime_Array){
-      delete[] fTime_Array;
-   }
-
-   fTime_Array = 0;
-
 }
 
 //______________________________________________________________________________
 void Trace::Build(UInt_t id, Float_t *amplitude_array, Float_t *time_array)
 {
+   // Fill the amplitude and time vectors starting from
+   // amplitude_array and time_array.
 
-   fId              = id;
+   fId = id;
 
-   for (Int_t i = 0; i < fTrace_length; ++i)
-   {
-      fAmplitude_Array[i] = amplitude_array[i];
-      fTime_Array[i]      = time_array[i];
-   }
+   fAmplitude_Array.clear();
+   fTime_Array.clear();
+
+   // fill vectors with assign() starting from C-style array instead of 
+   // using a for loop. Uses iterators (better: pointers as iterators)
+
+   fAmplitude_Array.assign(amplitude_array, amplitude_array + fTrace_length);
+   fAmplitude_Array.assign(time_array, time_array + fTrace_length);
 
 }
 
@@ -61,17 +47,15 @@ void Trace::Build(UInt_t id, Float_t *amplitude_array, Float_t *time_array)
 void Trace::Detail()
 {
    std::cout << "Trace ID number :\t" << fId << std::endl;
-   if(fAmplitude_Array)
-      std::cout << "Trace First voltage :\t" << fAmplitude_Array[0] << std::endl;
-   if(fTime_Array)
-      std::cout << "Trace First time :\t" << fTime_Array[0] << std::endl;
+   //std::cout << "Trace First voltage :\t" << fAmplitude_Array[0] << std::endl;
+   //std::cout << "Trace First time :\t" << fTime_Array[0] << std::endl;
 }
 
 //______________________________________________________________________________
 TraceHeader::TraceHeader() :  fDate(""), fSiBrand(""), fSiType(""), fIsDark(kTRUE), fAmplifier(""), fOut(2), 
                               fHVGen(""), fHV(0.0), fVoltagePulser(0.0)
 {
-
+   // Default constructor with only default values.
 }
 
 //______________________________________________________________________________
@@ -79,7 +63,7 @@ TraceHeader::TraceHeader(std::string &date, std::string &brand, std::string &typ
                         UInt_t chn, std::string &hvgen, Float_t hv, Float_t vpulser) :  fDate(date), 
                         fSiBrand(brand), fSiType(type), fIsDark(isdark), fAmplifier(amplifier), fOut(chn), fHVGen(hvgen), fHV(hv), fVoltagePulser(vpulser)
 {
-
+   // Specific constructor filling each class member.
 }
 
 //______________________________________________________________________________
@@ -91,6 +75,25 @@ TraceHeader::~TraceHeader()
 //______________________________________________________________________________
 void TraceHeader::Build(std::string &filename)
 {
+   // Fill TraceHeader members from file with name filename.
+   // 
+   // Filename is of the form:
+   // 
+   // DATE_SITYPE_MODE[_VPULSER]_HVGEN_HV_AMPLIFIER[_CHN]_NUMEVENTS_SUBRUN.dat
+   // 
+   // where:
+   // 
+   // DATE: date in the format YYYYMMDD
+   // SITYPE: type of silicon, from which brand can be inferred
+   // MODE: it can be DARK or LED
+   // VPULSER: voltage of the pulser; present only if MODE == LED, in the format FFFF (voltage * 1000)
+   // HVGEN: HV generator brand (e.g. AGILENT)
+   // HV: value of HV
+   // AMPLIFIER: brand of amplifier (e.g. AS for AdvanSid, PD for Padua)
+   // CHN: channel number; present only if AMPLIFIER == AS
+   // NUMEVENTS: number of events contained in the file
+   // SUBRUN: if more runs are taken with the same settings (HV, HVGEN, AMPLIFIER etc...), denotes the run number
+
    SetDate(filename.substr(0,8));
    
    if(filename.find("HD3") != filename.length()){
@@ -137,23 +140,25 @@ void TraceHeader::Build(std::string &filename)
 }
 
 //______________________________________________________________________________
-Sipm::Sipm()
+AnaSipm::AnaSipm()
 {
-
+   // Deafult constructor of AnaSipm class.
 }
 
 //______________________________________________________________________________
-Sipm::~Sipm()
+AnaSipm::~AnaSipm()
 {
 
 } 
 
 //______________________________________________________________________________
-Int_t Sipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filename, Int_t num_events)
+Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filename, Int_t num_events)
 {
 
    // Decode a number of events equal to num_events
-   // from file filename
+   // from file filename.
+   // 
+   // Adapted from read_binary.cpp inside DRS4 software package.
 
    struct FHEADER {
       char           tag[3];
@@ -205,13 +210,14 @@ Int_t Sipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filename
    unsigned int scaler;
    std::vector<unsigned short> voltage;
    voltage.resize(m_trace_length);
-   //unsigned short voltage[m_trace_length];
    float time[16][4][m_trace_length], waveform[16][4][m_trace_length];
    float bin_width[16][4][m_trace_length];
    int i, j, b, chn, n, chn_index, n_boards;
    int channel_no;
-   int channel_no_max = 4;
-   float t1, t2, dt;
+   int channel_no_max = 1;
+   //float t1, t2, dt;
+   Int_t ret_value = 0;
+   Int_t num_events_read = 0;
 
    std::string outfilename = filename;
    outfilename.replace(outfilename.end()-4, outfilename.end(), ".root", 5);
@@ -221,36 +227,35 @@ Int_t Sipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filename
    TTree *trace_tree        = new TTree("Trace", "Tree containing traces.");
 
    trace_header_tree->Branch("HeaderBranch", &trace_header);
-   trace_tree->Branch("TraceBranch", &trace);
+   trace_tree->Branch("TraceBranch", "Trace", &trace);
+
+   // fill TraceHeader object from filename and put into the tree
 
    trace_header->Build(filename);
 
    trace_header_tree->Fill();
 
-   // binary file reading
+   // binary file definition and opening
    std::ifstream binary_file;
 
    binary_file.open(filename, std::ifstream::binary);
 
-   // file_header reading 
+   // file_header reading
    binary_file.read((char *)&file_header, sizeof(FHEADER));
 
    if(!binary_file){
       std::cerr << "Error in reading file header from " << filename << ". Exiting." << std::endl;
-      binary_file.close();
-      return 0;
+      ret_value = 0;
    }
 
    if (file_header.tag[0] != 'D' || file_header.tag[1] != 'R' || file_header.tag[2] != 'S') {
       std::cerr << "Found invalid file header in file " << filename << ". Exiting." << std::endl;
-      binary_file.close();
-      return 0;
+      ret_value = 0;
    }
    
    if (file_header.version != '2') {
       std::cerr << "Found invalid file version in file " << filename << ". Exiting." << std::endl;
-      binary_file.close();
-      return 0;
+      ret_value = 0;
    }
 
    // time_header reading 
@@ -258,27 +263,23 @@ Int_t Sipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filename
 
    if(!binary_file){
       std::cerr << "Error in reading time header from " << filename << ". Exiting." << std::endl;
-      binary_file.close();
-      return 0;
+      ret_value = 0;
    }
 
    if (memcmp(time_header.time_header, "TIME", 4) != 0) {
       std::cerr << "Invalid time header in file " << filename << ". Exiting." <<  std::endl;
-      binary_file.close();
-      return 0;
+      ret_value = 0;
    }
 
    // board header reading
 
    for (b = 0 ; ; b++) {
       // read board header
-
       binary_file.read((char *)&board_header, sizeof(board_header));
 
       if(!binary_file){
          std::cerr << "Error in reading board header from " << filename << ". Exiting." << std::endl;
-         binary_file.close();
-         return 0;
+         ret_value = 0;
       }
 
       if (memcmp(board_header.bn, "B#", 2) != 0) {
@@ -292,12 +293,12 @@ Int_t Sipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filename
 
       for (channel_no = 0 ; channel_no < channel_no_max; channel_no++){
 
+         // read channel header
          binary_file.read((char *)&channel_header, sizeof(channel_header));
 
          if(!binary_file){
             std::cerr << "Error in reading channel header from " << filename << ". Exiting." << std::endl;
-            binary_file.close();
-            return 0;
+            ret_value = 0;
          }
 
          if (channel_header.c[0] != 'C') {
@@ -313,8 +314,7 @@ Int_t Sipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filename
 
          if(!binary_file){
             std::cerr << "Error in reading bin width from " << filename << ". Exiting." << std::endl;
-            binary_file.close();
-            return 0;
+            ret_value = 0;
          }
 
          // fix for 2048 bin mode: float channel
@@ -331,16 +331,14 @@ Int_t Sipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filename
    for(n=0 ; n < num_events; n++)
    {
       // read event header
-
       binary_file.read((char *)&event_header, sizeof(event_header));
 
       if(!binary_file){
          std::cerr << "Error in reading event header from " << filename << ". Exiting." << std::endl;
-         binary_file.close();
-         return 0;
+         ret_value = 0;
       }
       
-      std::cout << "Read ev\t" << n <<std::endl;
+      //std::cout << "Read ev\t" << n <<std::endl;
           
       //printf("Found event #%d %d %d\n", eh.event_serial_number, eh.second, eh.millisecond);
       
@@ -351,40 +349,35 @@ Int_t Sipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filename
 
          if(!binary_file){
             std::cerr << "Error in reading event header from " << filename << ". Exiting." << std::endl;
-            binary_file.close();
-            return 0;
+            ret_value = 0;
          }
          
          if (memcmp(board_header.bn, "B#", 2) != 0) {
-            //printf("Invalid board header in file \'%s\', aborting.\n", filename);
-//             return 0;
             std::cerr <<"Invalid board header in file"<<std::endl;
+            ret_value = 0;
          }
 
+         // read trigger cell header
          binary_file.read((char *)&trigger_cell_header, sizeof(trigger_cell_header));
 
          if(!binary_file){
             std::cerr << "Error in reading trigger cell header from " << filename << ". Exiting." << std::endl;
-            binary_file.close();
-            return 0;
+            ret_value = 0;
          }
          
          if (memcmp(trigger_cell_header.tc, "T#", 2) != 0) {
-            //printf("Invalid trigger cell header in file \'%s\', aborting.\n", filename);
             std::cerr<<"Invalid trigger cell header in file"<<std::endl;
-//             return 0;
+            ret_value = 0;
          }
 
          // reach channel data
-         for (chn=0 ; chn<4 ; chn++) {
+         for (chn=0 ; chn<1 ; chn++) {
             // read channel header
-
             binary_file.read((char *)&channel_header, sizeof(channel_header));
 
             if(!binary_file){
                std::cerr << "Error in reading channel header from " << filename << ". Exiting." << std::endl;
-               binary_file.close();
-               return 0;
+               ret_value = 0;
             }
 
             if (channel_header.c[0] != 'C') {
@@ -399,21 +392,20 @@ Int_t Sipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filename
 
             if(!binary_file){
                std::cerr << "Error in reading scaler from " << filename << ". Exiting." << std::endl;
-               binary_file.close();
-               return 0;
+               ret_value = 0;
             }
 
+            // read waveform from binary file
             binary_file.read((char *)voltage.data(), m_trace_length*sizeof(unsigned short ));
 
              if(!binary_file){
                std::cerr << "Error in reading trace from " << filename << ". Exiting." << std::endl;
-               binary_file.close();
-               return 0;
+               ret_value = 0;
             }
             
             for (i=0 ; i<m_trace_length ; i++) {
-               // convert data to volts
-               waveform[b][chn_index][i] = (voltage.at(i) / 65536. + event_header.range/1000.0 - 0.5);
+               // convert data to milli Volts
+               waveform[b][chn_index][i] = (voltage.at(i) / 65536. + event_header.range/1000.0 - 0.5)*1000.0;
                
                // calculate time for this cell
                for (j=0,time[b][chn_index][i]=0 ; j<i ; j++)
@@ -421,27 +413,41 @@ Int_t Sipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filename
             }
 
             trace->Build(n, waveform[b][chn_index], time[b][chn_index]);
-            trace->Detail();
+            
+            if(n % 5000 == 0){
+               trace->Detail();
+            }
+
             trace_tree->Fill();
+
+            ret_value = n;
+            num_events_read = n;
 
          }
          
          // align cell #0 of all channels
-         t1 = time[b][0][(m_trace_length-trigger_cell_header.trigger_cell) % m_trace_length];
-         for (chn=1 ; chn<4 ; chn++) {
-            t2 = time[b][chn][(m_trace_length-trigger_cell_header.trigger_cell) % m_trace_length];
-            dt = t1 - t2;
-            for (i=0 ; i<m_trace_length ; i++)
-               time[b][chn][i] += dt;
-         }
+         //t1 = time[b][0][(m_trace_length-trigger_cell_header.trigger_cell) % m_trace_length];
+         //for (chn=1 ; chn<4 ; chn++) {
+         //   t2 = time[b][chn][(m_trace_length-trigger_cell_header.trigger_cell) % m_trace_length];
+         //   dt = t1 - t2;
+         //   for (i=0 ; i<m_trace_length ; i++)
+         //      time[b][chn][i] += dt;
+         //}
       }
    }
 
-   trace_out->Write();
-   trace_header_tree->Print();
-   trace_tree->Print();
+   if(num_events_read != 0){
+      trace_out->Write(0,TObject::kOverwrite);
+      trace_header_tree->Print();
+      trace_tree->Print();
+      trace_out->ls();
+   }
+      
    trace_out->Close();
 
-   binary_file.close();
-   return num_events;
+   if(binary_file.is_open()){
+      binary_file.close();
+   }
+
+   return ret_value;
 }

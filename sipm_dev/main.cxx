@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 
-#include <Sipm.h>
+#include <AnaSipm.h>
 
 int main(int argc, char const *argv[])
 {
@@ -14,8 +14,8 @@ int main(int argc, char const *argv[])
    std::string filename(argv[1]);
    Int_t num_events = atoi(argv[2]);
 
-   Sipm ana_sipm;
-   Trace *trace = new Trace(0);
+   AnaSipm ana_sipm;
+   Trace *trace = new Trace();
    TraceHeader *trace_header = new TraceHeader();
 
    Int_t ret = ana_sipm.Decode(trace, trace_header, filename, num_events);
@@ -26,5 +26,6 @@ int main(int argc, char const *argv[])
    }
 
    delete trace;
+   delete trace_header;
    return 0;
 }

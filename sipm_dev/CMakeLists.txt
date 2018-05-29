@@ -1,6 +1,6 @@
 # CMakeLists.txt for event package. It creates a library with dictionary and a main program
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-project(sipm)
+project(AnaSipm)
 
 # You need to tell CMake where to find the ROOT installation. This can be done in a number of ways:
 #   - ROOT built with classic configure/make use the provided $ROOTSYS/etc/cmake/FindROOT.cmake
@@ -19,12 +19,12 @@ add_definitions(${ROOT_CXX_FLAGS})
 SET(GCC_COVERAGE_COMPILE_FLAGS "-std=c++11")
 SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
 
-ROOT_GENERATE_DICTIONARY(G__Sipm Sipm.h LINKDEF SipmLinkDef.h)
+ROOT_GENERATE_DICTIONARY(G__AnaSipm AnaSipm.h LINKDEF AnaSipmLinkDef.h)
 
 #---Create a shared library with geneated dictionary
-add_library(Sipm SHARED Sipm.cxx G__Sipm.cxx)
-target_link_libraries(Sipm ${ROOT_LIBRARIES})
+add_library(AnaSipm SHARED AnaSipm.cxx G__AnaSipm.cxx)
+target_link_libraries(AnaSipm ${ROOT_LIBRARIES})
 
 #---Create  a main program using the library
 add_executable(Main main.cxx)
-target_link_libraries(Main Sipm)
+target_link_libraries(Main AnaSipm)
