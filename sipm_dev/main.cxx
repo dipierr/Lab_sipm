@@ -2,6 +2,7 @@
 #include <cstdlib>
 
 #include <AnaSipm.h>
+#include "TTask.h"
 
 int main(int argc, char const *argv[])
 {
@@ -14,18 +15,12 @@ int main(int argc, char const *argv[])
    std::string filename(argv[1]);
    Int_t num_events = atoi(argv[2]);
 
-   AnaSipm ana_sipm;
-   Trace *trace = new Trace();
-   TraceHeader *trace_header = new TraceHeader();
+   TTask *anasipm = new RunSipm("anasipm", "Process data from SiPM.");
+   TTask *decode  = new Decode("decode", "Decode data from input file.", filename, num_events);
 
-   Int_t ret = ana_sipm.Decode(trace, trace_header, filename, num_events);
+   anasipm->Add(decode);
+   anasipm->ExecuteTask();
 
-   if (!ret)
-   {
-      std::cerr << "Problem in reading binary file." << std::endl;
-   }
-
-   delete trace;
-   delete trace_header;
+   delete anasipm;
    return 0;
 }

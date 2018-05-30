@@ -7,15 +7,17 @@
 #include <functional>
 #include "TFile.h"
 #include "TTree.h"
+#include "TTask.h"
 
 ClassImp(Trace);
 ClassImp(TraceHeader);
-ClassImp(AnaSipm);
+ClassImp(RunSipm);
+ClassImp(Decode);
 
 //______________________________________________________________________________
 Trace::Trace() : fId(0), fTrace_length(1024), fAmplitude_Array(fTrace_length, 0), fTime_Array(fTrace_length, 0)
 {
-
+   // Default constructor with only default values.
 }
 
 //______________________________________________________________________________
@@ -37,16 +39,17 @@ void Trace::Build(UInt_t id, Float_t *amplitude_array, Float_t *time_array)
 
    // fill vectors with assign() starting from C-style array instead of 
    // using a for loop. Uses iterators (better: pointers as iterators)
+   // from: https://stackoverflow.com/questions/2434196/how-to-initialize-stdvector-from-c-style-array
 
    fAmplitude_Array.assign(amplitude_array, amplitude_array + fTrace_length);
-   fAmplitude_Array.assign(time_array, time_array + fTrace_length);
+   fTime_Array.assign(time_array, time_array + fTrace_length);
 
 }
 
 //______________________________________________________________________________
 void Trace::Detail()
 {
-   std::cout << "Trace ID number :\t" << fId << std::endl;
+   std::cout << "\t* read event number :\t" << fId << std::endl;
    //std::cout << "Trace First voltage :\t" << fAmplitude_Array[0] << std::endl;
    //std::cout << "Trace First time :\t" << fTime_Array[0] << std::endl;
 }
@@ -140,20 +143,67 @@ void TraceHeader::Build(std::string &filename)
 }
 
 //______________________________________________________________________________
-AnaSipm::AnaSipm()
+RunSipm::RunSipm(const char *name, const char *title) : TTask(name,title)
 {
-   // Deafult constructor of AnaSipm class.
+
 }
 
 //______________________________________________________________________________
-AnaSipm::~AnaSipm()
+void RunSipm::Exec(Option_t * /*option*/)
 {
-
-} 
+   std::cout << "RunSipm task executing." << std::endl;
+}
 
 //______________________________________________________________________________
-Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filename, Int_t num_events)
+Decode::Decode(const char *name, const char *title, std::string &filename, Int_t num_events) : TTask(name,title), fOutfile(0), fTraceTree(0), fHeaderTree(0),
+                                                                                               fTrace(0), fTraceHeader(0), fFilename(filename), fNumevents(num_events)
 {
+
+}
+
+//______________________________________________________________________________
+Decode::~Decode()
+{
+   std::cout << "Deleting objects and closing." << std::endl;
+   if(fOutfile) { fOutfile->Close(); }
+   if(fTrace) { delete fTrace; fTrace = 0; }
+   if(fTraceHeader) { delete fTraceHeader; fTraceHeader = 0; }
+}
+
+//______________________________________________________________________________
+void Decode::DecodeInit()
+{
+
+   std::cout << "Initializing Decode Task ... " << std::endl;
+   std::cout << "\t * initializing output TFile, TTrees and Branches ... " << std::endl;
+
+   fTrace         = new Trace();
+   fTraceHeader   = new TraceHeader();
+   std::string outfilename = fFilename;
+   outfilename.replace(outfilename.end()-4, outfilename.end(), ".root", 5);
+   fOutfile       = new TFile(outfilename.c_str(), "RECREATE");
+   fHeaderTree     = new TTree("Trace_header", "Header containing info about the acquisition.");
+   fTraceTree    = new TTree("Trace", "Tree containing traces.");
+
+   fHeaderTree->Branch("HeaderBranch", &fTraceHeader);
+   fTraceTree->Branch("TraceBranch", &fTrace);
+
+   std::cout << "... initializing Decode Task done!" << std::endl;
+}
+
+//______________________________________________________________________________
+Int_t Decode::DecodeProcess()
+{
+
+   std::cout << "Processing Decode Task ... " << std::endl;
+
+   std::cout << "\t* filling trees ... " << std::endl;
+
+   // fill TraceHeader object from filename and put into the tree
+
+   fTraceHeader->Build(fFilename);
+
+   fHeaderTree->Fill();
 
    // Decode a number of events equal to num_events
    // from file filename.
@@ -205,7 +255,7 @@ Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filen
    TCHEADER trigger_cell_header;
    CHEADER  channel_header;
 
-   const Int_t m_trace_length = trace->Get_trace_length();
+   const Int_t m_trace_length = fTrace->Get_trace_length();
    
    unsigned int scaler;
    std::vector<unsigned short> voltage;
@@ -217,44 +267,27 @@ Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filen
    int channel_no_max = 1;
    //float t1, t2, dt;
    Int_t ret_value = 0;
-   Int_t num_events_read = 0;
-
-   std::string outfilename = filename;
-   outfilename.replace(outfilename.end()-4, outfilename.end(), ".root", 5);
-
-   TFile *trace_out         = new TFile(outfilename.c_str(), "recreate");
-   TTree *trace_header_tree = new TTree("Trace_header", "Header containing info about the acquisition.");
-   TTree *trace_tree        = new TTree("Trace", "Tree containing traces.");
-
-   trace_header_tree->Branch("HeaderBranch", &trace_header);
-   trace_tree->Branch("TraceBranch", "Trace", &trace);
-
-   // fill TraceHeader object from filename and put into the tree
-
-   trace_header->Build(filename);
-
-   trace_header_tree->Fill();
 
    // binary file definition and opening
    std::ifstream binary_file;
 
-   binary_file.open(filename, std::ifstream::binary);
+   binary_file.open(fFilename, std::ifstream::binary);
 
    // file_header reading
    binary_file.read((char *)&file_header, sizeof(FHEADER));
 
    if(!binary_file){
-      std::cerr << "Error in reading file header from " << filename << ". Exiting." << std::endl;
+      std::cerr << "\t* error in reading file header from " << fFilename << ". Exiting ... " << std::endl;
       ret_value = 0;
    }
 
    if (file_header.tag[0] != 'D' || file_header.tag[1] != 'R' || file_header.tag[2] != 'S') {
-      std::cerr << "Found invalid file header in file " << filename << ". Exiting." << std::endl;
+      std::cerr << "\t* found invalid file header in file " << fFilename << ". Exiting ... " << std::endl;
       ret_value = 0;
    }
    
    if (file_header.version != '2') {
-      std::cerr << "Found invalid file version in file " << filename << ". Exiting." << std::endl;
+      std::cerr << "\t* found invalid file version in file " << fFilename << ". Exiting ... " << std::endl;
       ret_value = 0;
    }
 
@@ -262,12 +295,12 @@ Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filen
    binary_file.read((char *)&time_header, sizeof(time_header));
 
    if(!binary_file){
-      std::cerr << "Error in reading time header from " << filename << ". Exiting." << std::endl;
+      std::cerr << "\t* error in reading time header from " << fFilename << ". Exiting ... " << std::endl;
       ret_value = 0;
    }
 
    if (memcmp(time_header.time_header, "TIME", 4) != 0) {
-      std::cerr << "Invalid time header in file " << filename << ". Exiting." <<  std::endl;
+      std::cerr << "\t* found invalid time header in file " << fFilename << ". Exiting ... " <<  std::endl;
       ret_value = 0;
    }
 
@@ -278,7 +311,7 @@ Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filen
       binary_file.read((char *)&board_header, sizeof(board_header));
 
       if(!binary_file){
-         std::cerr << "Error in reading board header from " << filename << ". Exiting." << std::endl;
+         std::cerr << "\t* error in reading board header from " << fFilename << ". Exiting ... " << std::endl;
          ret_value = 0;
       }
 
@@ -297,7 +330,7 @@ Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filen
          binary_file.read((char *)&channel_header, sizeof(channel_header));
 
          if(!binary_file){
-            std::cerr << "Error in reading channel header from " << filename << ". Exiting." << std::endl;
+            std::cerr << "\t* error in reading channel header from " << fFilename << ". Exiting ... " << std::endl;
             ret_value = 0;
          }
 
@@ -313,7 +346,7 @@ Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filen
          binary_file.read((char *)&bin_width[b][i][0], m_trace_length*sizeof(float));
 
          if(!binary_file){
-            std::cerr << "Error in reading bin width from " << filename << ". Exiting." << std::endl;
+            std::cerr << "\t* error in reading bin width from " << fFilename << ". Exiting ... " << std::endl;
             ret_value = 0;
          }
 
@@ -328,13 +361,13 @@ Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filen
    n_boards = b;
    
    // loop over all events in the data file
-   for(n=0 ; n < num_events; n++)
+   for(n=0 ; n < fNumevents; n++)
    {
       // read event header
       binary_file.read((char *)&event_header, sizeof(event_header));
 
       if(!binary_file){
-         std::cerr << "Error in reading event header from " << filename << ". Exiting." << std::endl;
+         std::cerr << "\t* error in reading event header from " << fFilename << ". Exiting ... " << std::endl;
          ret_value = 0;
       }
       
@@ -348,7 +381,7 @@ Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filen
          binary_file.read((char *)&board_header, sizeof(board_header));
 
          if(!binary_file){
-            std::cerr << "Error in reading event header from " << filename << ". Exiting." << std::endl;
+            std::cerr << "\t* error in reading event header from " << fFilename << ". Exiting ... " << std::endl;
             ret_value = 0;
          }
          
@@ -361,12 +394,12 @@ Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filen
          binary_file.read((char *)&trigger_cell_header, sizeof(trigger_cell_header));
 
          if(!binary_file){
-            std::cerr << "Error in reading trigger cell header from " << filename << ". Exiting." << std::endl;
+            std::cerr << "\t* error in reading trigger cell header from " << fFilename << ". Exiting ... " << std::endl;
             ret_value = 0;
          }
          
          if (memcmp(trigger_cell_header.tc, "T#", 2) != 0) {
-            std::cerr<<"Invalid trigger cell header in file"<<std::endl;
+            std::cerr<<"\t* found invalid trigger cell header in file"<<std::endl;
             ret_value = 0;
          }
 
@@ -376,7 +409,7 @@ Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filen
             binary_file.read((char *)&channel_header, sizeof(channel_header));
 
             if(!binary_file){
-               std::cerr << "Error in reading channel header from " << filename << ". Exiting." << std::endl;
+               std::cerr << "\t* error in reading channel header from " << fFilename << ". Exiting ... " << std::endl;
                ret_value = 0;
             }
 
@@ -391,7 +424,7 @@ Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filen
             binary_file.read((char *)&scaler, sizeof(int));
 
             if(!binary_file){
-               std::cerr << "Error in reading scaler from " << filename << ". Exiting." << std::endl;
+               std::cerr << "\t* error in reading scaler from " << fFilename << ". Exiting ... " << std::endl;
                ret_value = 0;
             }
 
@@ -399,7 +432,7 @@ Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filen
             binary_file.read((char *)voltage.data(), m_trace_length*sizeof(unsigned short ));
 
              if(!binary_file){
-               std::cerr << "Error in reading trace from " << filename << ". Exiting." << std::endl;
+               std::cerr << "\t* error in reading trace from " << fFilename << ". Exiting ... " << std::endl;
                ret_value = 0;
             }
             
@@ -412,16 +445,15 @@ Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filen
                   time[b][chn_index][i] += bin_width[b][chn_index][(j+trigger_cell_header.trigger_cell) % m_trace_length];
             }
 
-            trace->Build(n, waveform[b][chn_index], time[b][chn_index]);
+            fTrace->Build(n, waveform[b][chn_index], time[b][chn_index]);
             
             if(n % 5000 == 0){
-               trace->Detail();
+               fTrace->Detail();
             }
 
-            trace_tree->Fill();
+            fTraceTree->Fill();
 
             ret_value = n;
-            num_events_read = n;
 
          }
          
@@ -436,18 +468,57 @@ Int_t AnaSipm::Decode(Trace *trace, TraceHeader *trace_header, std::string filen
       }
    }
 
-   if(num_events_read != 0){
-      trace_out->Write(0,TObject::kOverwrite);
-      trace_header_tree->Print();
-      trace_tree->Print();
-      trace_out->ls();
-   }
-      
-   trace_out->Close();
-
    if(binary_file.is_open()){
+      std::cout << "\t* closing binary file ... " << std::endl;
       binary_file.close();
+      std::cout << "\t* binary file closed ... " << std::endl;
    }
+
+   std::cout << "... processing Decode Task done!" << std::endl;
 
    return ret_value;
+}
+
+//______________________________________________________________________________
+void Decode::DecodeTerminate(Int_t ret_value)
+{
+
+   std::cout << "Terminating Decode Task ... " << std::endl;
+
+   Int_t num_events_read = fTraceTree->GetEntries();
+
+   std::cout << "\t* " << num_events_read << " events read from " << fFilename << " ... " << std::endl;
+
+   if (!ret_value && num_events_read == 0)
+   {
+      std::cerr << "\t* problem in reading binary file ... " << std::endl;
+   }
+   else
+   {
+      std::cout << "\t* writing trees to file and closing ... " << std::endl;
+      fOutfile->Write(0,TObject::kOverwrite);
+      fHeaderTree->Print();
+      fTraceTree->Print();
+   }
+
+   fOutfile->Close();
+   delete fTrace;
+   fTrace = 0;
+   delete fTraceHeader;
+   fTraceHeader = 0;
+
+   std::cout << "\t* file closed and objects deleted ... " << std::endl;
+   std::cout << "... terminating Decode Task done!" << std::endl;
+
+   return;
+}
+
+//______________________________________________________________________________
+void Decode::Exec(Option_t * /*option*/)
+{
+   std::cout << "Executing Decode Task ... " << std::endl;
+   DecodeInit();
+   Int_t retvalue = DecodeProcess();
+   DecodeTerminate(retvalue);
+   std::cout << "... executing Decode Task done!" << std::endl;
 }

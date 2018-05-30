@@ -10,6 +10,9 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "TObject.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TTask.h"
 #include <string>
  
 class Trace : public TObject
@@ -82,16 +85,36 @@ class TraceHeader : public TObject
       ClassDef(TraceHeader,1);
 };
 
-class AnaSipm : public TObject
+class RunSipm : public TTask
 {
    public:
-      AnaSipm();
-      ~AnaSipm(); 
+      RunSipm() {;}
+      RunSipm(const char *name, const char *title);
+      virtual ~RunSipm() {;}
+      void Exec(Option_t *option="");
+      ClassDef(RunSipm,1);   // Run Reconstruction task
+};
 
-      Int_t Decode(Trace *trace, TraceHeader *trace_header, std::string filename, Int_t num_events);
+class Decode : public TTask {
 
-      ClassDef(AnaSipm,1);
+   private:            
+      TFile                *fOutfile;        // output TFile        
+      TTree                *fTraceTree;      // tree for traces
+      TTree                *fHeaderTree;     // tree for trace header
+      Trace                *fTrace;          // Trace object
+      TraceHeader          *fTraceHeader;    // TraceHeader object
+      std::string          fFilename;        // name of input file
+      Int_t                fNumevents;       /// number of events to read
 
+   public:
+      Decode() {;}
+      Decode(const char *name, const char *title, std::string &filename, Int_t num_events);
+      virtual ~Decode();
+      void Exec(Option_t *option="");
+      void DecodeInit();
+      Int_t DecodeProcess();
+      void DecodeTerminate(Int_t ret_value);
+      ClassDef(Decode,1);   // Geometry initialisation task
 };
  
 #endif
