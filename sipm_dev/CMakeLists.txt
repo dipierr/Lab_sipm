@@ -26,5 +26,5 @@ add_library(AnaSipm SHARED AnaSipm.cxx G__AnaSipm.cxx)
 target_link_libraries(AnaSipm ${ROOT_LIBRARIES})
 
 #---Create  a main program using the library
-add_executable(Main main.cxx)
-target_link_libraries(Main AnaSipm)
+add_executable(decode_file decode_file.cxx)
+target_link_libraries(decode_file AnaSipm)
