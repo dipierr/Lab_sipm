@@ -26,7 +26,6 @@
 
 #define n_GAIN 8    // for HV = 31 ... 36 V
 #define n_MEAN 10   // for HV = 29 ... 36 V
-#define pi TMath::Pi()
 
 
 #define h 600
@@ -40,10 +39,10 @@ void OperationPoint(){
     // Sigma_peak_0
     double Sigma_peak_0[] =      {1.74381e+00,2.19778e+00,2.18775e+00,2.35603,2.26689e+00,2.70367e+00,2.52442e+00,3.15461e+00};
     double errSigma_peak_0[] =   {5.65270e-02,5.09429e-02,5.55387e-02,7.16945e-02,6.32656e-02,7.25822e-02,7.36245e-02,1.07703e-01};
-
+    
     // H_peak_0
-    double H_peak_0[] =      {6.07830e+02,5.77600e+02,4.09345e+02,3.01941e+02,2.77368e+02,2.37400e+02,2.02501e+02,1.78218e+02};
-    double errH_peak_0[] =   {1.59584e+01,1.47746e+01,1.12338e+01,9.14552e+00,1.00393e+01,8.21615e+00,7.69205e+00,6.74606e+00};
+    double H_peak_0[] =      {6.33035e+02,5.32954e+02,3.69550e+02,2.88937e+02,2.53373e+02,2.14920e+02,1.90727e+02,1.63868e+02};
+    double errH_peak_0[] =   {1.11321e+01,1.05667e+01,9.97152e+00,8.50633e+00,1.00300e+01,7.77582e+00,7.84682e+00,5.80190e+00};
 
     // Sigma_peak_1
     double Sigma_peak_1[] =      {6.44109e+00,5.75964e+00,5.83062e+00,5.60473e+00,5.13521e+00,5.81193e+00,5.95813e+00,8.44510e+00};
@@ -52,10 +51,10 @@ void OperationPoint(){
     // Mean_peak_1
     double Mean_peak_1[] =      {1.49911e+01,1.53951e+01,1.75317e+01,1.88485e+01,2.01527e+01,2.04909e+01,2.16402e+01,2.29223e+01};
     double errMean_peak_1[] =   {3.37541e-01,2.48184e-01,1.22079e-01,1.09392e-01,8.35216e-02,1.58792e-01,1.43441e-01,3.58637e-01};
-
+    
     // H_peak_1
-    double H_peak_1[] =      {1.12467e+03,8.73634e+02,6.49625e+02,5.26045e+02,4.82465e+02,3.86648e+02,3.66794e+02,2.91477e+02};
-    double errH_peak_1[] =   {1.56013e+01,1.30989e+01,1.04565e+01,9.35813e+00,8.95096e+00,7.20171e+00,7.22092e+00,5.51893e+00};
+    double H_peak_1[] =      {7.34431e+02,5.64418e+02,4.44348e+02,3.83262e+02,3.53597e+02,2.61308e+02,2.62385e+02,1.83551e+02};
+    double errH_peak_1[] =   {1.26639e+01,1.18572e+01,9.87949e+00,8.95463e+00,8.27998e+00,6.51954e+00,6.88303e+00,4.89531e+00};
 
     // Mean_peak_2
     double Mean_peak_2[] =      {2.32595e+01,2.63210e+01,3.11680e+01,3.60932e+01,3.88570e+01,4.20238e+01,4.34901e+01,4.48226e+01};
@@ -76,6 +75,10 @@ void OperationPoint(){
      // Cross Talk
     double Cross_Talk[] =      {0.265269,0.293336,0.3389,0.352329,0.383516,0.4243,0.48297};
     double errCross_Talk[] =   {0.0229779,0.010678,0.00689956,0.00572358,0.00477179,0.00413051,0.00367729};
+    
+    // Entries
+    double Entries[] = {41288,39806,39756,32634,40183,39415,39799,37981};
+       
 
 
     double GAIN[n_GAIN];
@@ -102,6 +105,7 @@ void OperationPoint(){
     double errMu[n_GAIN];
     double Prob_Cross_Talk[n_GAIN];
     double errProb_Cross_Talk[n_GAIN];
+    double errEntries[n_GAIN];
 
 
     //------------------------------
@@ -130,28 +134,29 @@ void OperationPoint(){
         errIntegral_GAIN[i]=Integral[i]/(GAIN[i]*Cross_Talk[i])*TMath::Power(errGAIN[i]*errGAIN[i]/(GAIN[i]*GAIN[i])+errCross_Talk[i]*errCross_Talk[i]/(Cross_Talk[i]*Cross_Talk[i]),0.5);
         //Integral_GAIN[i]=TMath::Abs(Integral[i])/(GAIN[i]);
         //errIntegral_GAIN[i]=Integral[i]*errGAIN[i]/(GAIN[i]*GAIN[i]);
-
-        // CrossTalk from LED measures
-        Area0[i]=H_peak_0[i]*Sigma_peak_0[i]*TMath::Power(2*pi,0.5)/1;
-        Prob_0pe[i]=Area0[i]/49999;
+        
+        //Probabilità CrossTalk LED
+        errEntries[i]=TMath::Power(Entries[i],0.5);
+        Area0[i]=H_peak_0[i]*Sigma_peak_0[i]*TMath::Power(2*TMath::Pi(),0.5)/1;
+        Prob_0pe[i]=Area0[i]/Entries[i];
         Mu[i]=-TMath::Log(Prob_0pe[i]);
         Prob_1pe[i]=Mu[i]*TMath::Exp(-Mu[i]);
-        Area1[i]=H_peak_1[i]*Sigma_peak_1[i]*TMath::Power(2*pi,0.5)/1;
-        Prob_1peS[i]=Area1[i]/49999;
+        Area1[i]=H_peak_1[i]*Sigma_peak_1[i]*TMath::Power(2*TMath::Pi(),0.5)/1;
+        Prob_1peS[i]=Area1[i]/Entries[i];
         Prob_Cross_Talk[i]=1-(Prob_1peS[i]/Prob_1pe[i]);
-        // cout << "Cross Talk " << Prob_Cross_Talk[i] << endl;
+        cout << "Cross Talk " << Prob_Cross_Talk[i] << endl;
         cout << "Prob_1peS[i]/Prob_1pe[i]\t" << Prob_1peS[i]/Prob_1pe[i] << endl;
         cout << "p 0 \t" << Prob_0pe[i] << endl;
         cout << "p 1 s\t" << Prob_1peS[i] << endl;
         cout << "p 1\t" << Prob_1pe[i] << endl<<endl    ;
-
-
+    
+        
         errArea1[i]=Area1[i]*TMath::Power(TMath::Power(errH_peak_1[i]/H_peak_1[i],2)+TMath::Power(errSigma_peak_1[i]/Sigma_peak_1[i],2),0.5);
-        errProb_1peS[i]=errArea1[i]/49999;
-        errMu[i]=errArea0[i]/(Prob_0pe[i]*49999);
+        errProb_1peS[i]=errArea1[i]/Entries[i];
+        errMu[i]=errArea0[i]/(Prob_0pe[i]*Entries[i]);
         errProb_1pe[i]=TMath::Exp(-Mu[i])*TMath::Abs(1-Mu[i])*errMu[i];
         errArea0[i]=Area0[i]*TMath::Power(TMath::Power(errH_peak_0[i]/H_peak_0[i],2)+TMath::Power(errSigma_peak_0[i]/Sigma_peak_0[i],2),0.5);
-        errProb_0pe[i]=errArea0[i]/49999;
+        errProb_0pe[i]=errArea0[i]/Entries[i];
         errProb_Cross_Talk[i]=TMath::Power(TMath::Power(errProb_1peS[i]/Prob_1pe[i],2)+TMath::Power(Prob_1peS[i]*errProb_1pe[i]/Prob_1pe[i],2),0.5);
     }
     double temp;
@@ -169,7 +174,7 @@ void OperationPoint(){
 
 
     }
-
+    
     //------------------------------
     // Gain_Weighted
     //------------------------------
@@ -211,12 +216,14 @@ void OperationPoint(){
     TCanvas *cV_MS = new TCanvas("cV_MS", "cV_MS",w,h);
     cV_MS->SetGrid();
     gV_MS->Draw("AP");
-
-
+    
+    
     //------------------------------
     // Cross Talk
     //------------------------------
-
+    //for(int i=0; i<n_GAIN; i++){
+      //  cout<<HV_GAIN[i]<<"\t"<<Prob_Cross_Talk[i]<<endl;
+    //}
     TGraphErrors *gV_PCT  = new TGraphErrors(n_GAIN, HV_GAIN, Prob_Cross_Talk, errHV_GAIN, errProb_Cross_Talk);
 
 
@@ -271,11 +278,14 @@ void OperationPoint(){
 
 
 /******************************************************************************\
+ *
  *  REFERENCES
  *
- *  > Caccia Massimo - An Educational Kit Based on a Modular Silicon
- *    Photomultiplier System
  *  > Zorzi Filippo - Caratterizzazione di fotosensori al silicio per telescopi
  *    Cherenkov di nuova generazione
+ *
+ *
+ *
+ *
  *
  ******************************************************************************/
