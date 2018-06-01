@@ -8,6 +8,8 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TTask.h"
+#include "TVirtualGraphPainter.h"
+#include "TGraph.h"
 
 ClassImp(Trace);
 ClassImp(TraceHeader);
@@ -52,6 +54,15 @@ void Trace::Detail()
    std::cout << "\t* read event number :\t" << fId << std::endl;
    //std::cout << "Trace First voltage :\t" << fAmplitude_Array[0] << std::endl;
    //std::cout << "Trace First time :\t" << fTime_Array[0] << std::endl;
+}
+
+//______________________________________________________________________________
+void Trace::Paint(Option_t *option)
+{
+   TVirtualGraphPainter *painter = TVirtualGraphPainter::GetPainter();
+   TGraph *trace_graph = new TGraph(fTrace_length, fTime_Array.data(), fAmplitude_Array.data());
+   if(painter) painter->PaintHelper(trace_graph, option);
+   delete trace_graph;
 }
 
 //______________________________________________________________________________

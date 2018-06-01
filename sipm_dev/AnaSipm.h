@@ -29,6 +29,7 @@ class Trace : public TObject
 
       void Build(UInt_t id, Float_t *amplitude_array, Float_t *time_array);
       void Detail();
+      void Paint(Option_t *option);
 
       int Get_trace_length() { return fTrace_length; }
 
