@@ -772,7 +772,7 @@ void Ana_LED(string file1, int last_event_n){
     //fit_hist_peaks(canvLED, ptrHistLED);
 
 
-//     new TCanvas();
+//   new TCanvas();
 //     ptrHistCharge->Draw();
 
 }
@@ -848,7 +848,7 @@ void Analysis(string file, int last_event_n, bool display){
         show_trace(cAVG,trace_AVG[0], trace_AVG[1], trace_length, miny, maxy,true,false);
     }
 
-//***** AVERAGE
+//***** AVERAGE INTEGRAL
     if(average){
         double sum=0;
         for( int j=0; j<trace_length; j++){
@@ -1006,19 +1006,40 @@ void DLED(int trace_length, int dleddt){
         trace_DLED[1][ii] = trace[1][ii + dleddt]-trace[1][ii];
     }
 }
-
 //------------------------------------------------------------------------------
 int find_peak_fix_time(int mintp, int maxtp){
     max_func = -10000;
-    index_func=0;
+    index_func=-1;
     for( ii=mintp; ii<maxtp; ii++){
         //cout<<mintp<<"\t"<<maxtp<<endl;
         if(trace_DLED[1][ii]>max_func){
             max_func=trace_DLED[1][ii];
             index_func=ii;
         }
+        
+          
     }
-    return index_func;
+ 
+     if(trace_DLED[1][index_func]<thr_to_find_peaks){
+          return index_func;
+    }
+    else{
+        if(trace_DLED[1][mintp-1]<max_func &&
+           trace_DLED[1][mintp-2]<max_func &&
+           trace_DLED[1][mintp-3]<max_func &&
+           trace_DLED[1][maxtp+1]<max_func &&
+           trace_DLED[1][maxtp+2]<max_func &&
+           trace_DLED[1][mintp+3]<max_func 
+           
+           
+        )
+        {
+           return index_func; 
+        }
+        else{
+            return -1;
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -1710,14 +1731,15 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
         }
 
         if(find_peak_in_a_selected_window){
+            
             float *peak = new float[2];
             index_for_peak = find_peak_fix_time(mintp, maxtp);
             peak[0] = trace_DLED[0][index_for_peak];
             peak[1] = trace_DLED[1][index_for_peak];
             ptrHistLED->Fill(peak[1]);
-            delete[] peak;
-        }
-
+                delete[] peak;
+            }
+            
 //***** DCR
         if(DCR_DELAYS_bool){
            find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
@@ -2038,9 +2060,10 @@ void ReadBin(string filename, int last_event_n, bool display){
             mintp = (int)(1024*min_peak_window/trace[0][trace_length-1]);
             maxtp = (int)(1024*max_peak_window/trace[0][trace_length-1]);
             index_for_peak = find_peak_fix_time(mintp, maxtp);
+            if(index_for_peak>-1){
             peak[0] = trace_DLED[0][index_for_peak];
             peak[1] = trace_DLED[1][index_for_peak];
-            ptrHistLED->Fill(peak[1]);
+            ptrHistLED->Fill(peak[1]);}
             delete[] peak;
         }
 
