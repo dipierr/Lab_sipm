@@ -28,7 +28,6 @@ class Trace : public TObject
       ~Trace();
 
       void Build(UInt_t id, Float_t *amplitude_array, Float_t *time_array);
-      void Detail();
       void Paint(Option_t *option);
 
       int Get_trace_length() { return fTrace_length; }
@@ -105,7 +104,7 @@ class Decode : public TTask {
       Trace                *fTrace;          // Trace object
       TraceHeader          *fTraceHeader;    // TraceHeader object
       std::string          fFilename;        // name of input file
-      Int_t                fNumevents;       /// number of events to read
+      Int_t                fNumevents;       // number of events to read
 
    public:
       Decode() {;}
