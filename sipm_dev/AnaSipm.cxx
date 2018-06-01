@@ -49,14 +49,6 @@ void Trace::Build(UInt_t id, Float_t *amplitude_array, Float_t *time_array)
 }
 
 //______________________________________________________________________________
-void Trace::Detail()
-{
-   std::cout << "\t* read event number :\t" << fId << std::endl;
-   //std::cout << "Trace First voltage :\t" << fAmplitude_Array[0] << std::endl;
-   //std::cout << "Trace First time :\t" << fTime_Array[0] << std::endl;
-}
-
-//______________________________________________________________________________
 void Trace::Paint(Option_t *option)
 {
    TVirtualGraphPainter *painter = TVirtualGraphPainter::GetPainter();
@@ -275,8 +267,9 @@ Int_t Decode::DecodeProcess()
    float bin_width[16][4][m_trace_length];
    int i, j, b, chn, n, chn_index, n_boards;
    int channel_no;
-   int channel_no_max = 1;
-   //float t1, t2, dt;
+   int channel_max = 4;
+   int channels_acquired = 0;
+   float t1 = 0, t2 = 0, dt = 0;
    Int_t ret_value = 0;
 
    // binary file definition and opening
@@ -333,9 +326,9 @@ Int_t Decode::DecodeProcess()
       }
       
       // read time bin widths
-      memset(bin_width[b], sizeof(bin_width[0]), 0);
+      memset(bin_width[b], 0, sizeof(float)*16*4*m_trace_length);
 
-      for (channel_no = 0 ; channel_no < channel_no_max; channel_no++){
+      for (channel_no = 0 ; channel_no < channel_max; channel_no++){
 
          // read channel header
          binary_file.read((char *)&channel_header, sizeof(channel_header));
@@ -350,6 +343,8 @@ Int_t Decode::DecodeProcess()
             binary_file.seekg(-sizeof(channel_header), std::ios::cur);
             break;
          }
+
+         channels_acquired++;
 
          i = channel_header.cn[2] - '0' - 1;
          //printf("Found timing calibration for channel #%d\n", i+1);
@@ -369,6 +364,8 @@ Int_t Decode::DecodeProcess()
       }
    }
 
+   std::cout << "\t* number of DRS4 channels acquired: " << channels_acquired << std::endl;
+
    n_boards = b;
    
    // loop over all events in the data file
@@ -379,7 +376,10 @@ Int_t Decode::DecodeProcess()
 
       if(!binary_file){
          std::cerr << "\t* error in reading event header from " << fFilename << ". Exiting ... " << std::endl;
+         std::cerr << "\t* probably you are trying to read more events than the ones contained in the file ... " << std::endl;
          ret_value = 0;
+         n--;
+         break;
       }
       
       //std::cout << "Read ev\t" << n <<std::endl;
@@ -415,7 +415,7 @@ Int_t Decode::DecodeProcess()
          }
 
          // reach channel data
-         for (chn=0 ; chn<1 ; chn++) {
+         for (chn=0 ; chn<channels_acquired ; chn++) {
             // read channel header
             binary_file.read((char *)&channel_header, sizeof(channel_header));
 
@@ -442,7 +442,7 @@ Int_t Decode::DecodeProcess()
             // read waveform from binary file
             binary_file.read((char *)voltage.data(), m_trace_length*sizeof(unsigned short ));
 
-             if(!binary_file){
+            if(!binary_file){
                std::cerr << "\t* error in reading trace from " << fFilename << ". Exiting ... " << std::endl;
                ret_value = 0;
             }
@@ -456,28 +456,35 @@ Int_t Decode::DecodeProcess()
                   time[b][chn_index][i] += bin_width[b][chn_index][(j+trigger_cell_header.trigger_cell) % m_trace_length];
             }
 
-            fTrace->Build(n, waveform[b][chn_index], time[b][chn_index]);
-            
-            if(n % 5000 == 0){
-               fTrace->Detail();
-            }
-
-            fTraceTree->Fill();
-
-            ret_value = n;
-
-         }
+         } // end for loop on DRS channels
          
-         // align cell #0 of all channels
-         //t1 = time[b][0][(m_trace_length-trigger_cell_header.trigger_cell) % m_trace_length];
-         //for (chn=1 ; chn<4 ; chn++) {
-         //   t2 = time[b][chn][(m_trace_length-trigger_cell_header.trigger_cell) % m_trace_length];
-         //   dt = t1 - t2;
-         //   for (i=0 ; i<m_trace_length ; i++)
-         //      time[b][chn][i] += dt;
-         //}
-      }
-   }
+         // if more than 1 DRS4 channels was acquired, align cell #0 of all the other channels
+         if(channels_acquired > 1)
+         {
+            t1 = time[b][0][(m_trace_length-trigger_cell_header.trigger_cell) % m_trace_length];
+            for (chn=1 ; chn<channels_acquired ; chn++) {
+               t2 = time[b][chn][(m_trace_length-trigger_cell_header.trigger_cell) % m_trace_length];
+               dt = t1 - t2;
+               for (i=0 ; i<m_trace_length ; i++)
+                  time[b][chn][i] += dt;
+            } 
+         }
+
+         // fill the tree
+         for (chn = 0; chn < channels_acquired; ++chn)
+         {
+            fTrace->Build(n, waveform[b][chn], time[b][chn]);
+            fTraceTree->Fill();
+         }
+
+         if(n % 5000 == 0){
+            std::cout << "\t* read event # " << n << std::endl;
+         }
+
+         ret_value = n;
+
+      } // end for loop on boards (if more than one)
+   } // end for loop on number of events
 
    if(binary_file.is_open()){
       std::cout << "\t* closing binary file ... " << std::endl;
