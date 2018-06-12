@@ -226,8 +226,8 @@ float pe_1_5_vect[3] = {25.,27.5,27.5};
 float thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
 
 // ONLY for LED measures
-int minLED_amp = 112;//160; // window: min time for peak (ns)
-int maxLED_amp = 127;//175; // window: max time for peak (ns)
+int minLED_amp = 110;//160; // window: min time for peak (ns)
+int maxLED_amp = 125;//175; // window: max time for peak (ns)
 int min_time_offset = 20; //min time for offset (ns)
 int max_time_offset = 40; //max time for offset (ns)
 
@@ -399,6 +399,8 @@ bool fill_hist = false;
 bool ptrAllTrace_bool = false;
 
 bool show_peak_LED_bool = false;
+
+bool peak_rejected = false;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -1255,7 +1257,7 @@ if(line_bool){
 
     }
 
-    if(show_peak_LED_bool){
+    if(show_peak_LED_bool && !peak_rejected){
       // On trace
       float x_g[1], y_g[1];
       x_g[0] = trace[0][index_peak_LED+dleddt];
@@ -2139,11 +2141,27 @@ void ReadBin(string filename, int last_event_n, bool display){
             // cout<<"trace_DLED[0][0] "<<trace_DLED[0][0]<<endl;
             index_for_peak = find_peak_fix_time(mintp, maxtp);
             index_peak_LED = index_for_peak;
-            if(index_for_peak>-1){
+            peak_rejected = true;
+            if(index_for_peak>-1){ // peak rejected or not
+              if(trace_DLED[1][index_for_peak]<thr_to_find_peaks){ // 0pe
+                  peak_rejected = false;
+              } // end 0pe
+              else{ // 1pe or more
+                  if(  trace_DLED[1][index_for_peak]>trace_DLED[1][mintp-2] && trace_DLED[1][index_for_peak]>trace_DLED[1][mintp-1] && trace_DLED[1][index_for_peak]>trace_DLED[1][mintp]){ // check mintp
+                    if(trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp+2] && trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp+1] && trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp]){ // check maxtp
+                      peak_rejected = false;
+                    } // end check maxtp
+                  } // end check mintp
+              } // end 1pe or more
+            }// end peak rejected or not
+
+            // peak OK
+            if(!peak_rejected){
               peak_LED[0] = trace_DLED[0][index_for_peak];
               peak_LED[1] = trace_DLED[1][index_for_peak];
               ptrHistLED->Fill(peak_LED[1]);
-            }
+            } // end peak OK
+
         } // end FIND PEAKS LED
 
 //***** PEAKS FINDING
