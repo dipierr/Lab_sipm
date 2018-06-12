@@ -10,6 +10,7 @@
 #include "TTask.h"
 #include "TVirtualGraphPainter.h"
 #include "TGraph.h"
+#include "TSpectrum.h"
 
 ClassImp(Trace);
 ClassImp(TraceHeader);
@@ -47,6 +48,83 @@ void Trace::Build(UInt_t id, Float_t *amplitude_array, Float_t *time_array)
    fTime_Array.assign(time_array, time_array + fTrace_length);
 
 }
+
+//______________________________________________________________________________
+void Trace::Negate()
+{
+   // Reverse the amplitude trace, if any
+
+   if(!fAmplitude_Array.empty()){
+      auto last_write = std::transform(fAmplitude_Array.begin(), fAmplitude_Array.end(), fAmplitude_Array.begin(), std::negate<Float_t>());
+   }
+}
+
+//______________________________________________________________________________
+std::vector<Float_t> Trace::GetAmplitudeArray()
+{
+   return fAmplitude_Array;
+}
+
+//______________________________________________________________________________
+std::vector<Float_t> Trace::GetTimeArray()
+{
+   return fTime_Array;
+}
+
+//______________________________________________________________________________
+std::vector<Float_t> Trace::AmplitudeDLED(Int_t dt)
+{
+   Int_t trace_dled_length = fTrace_length - dt;
+   std::vector<Float_t> trace_dled;
+   trace_dled.reserve(trace_dled_length);
+
+   for (int i = 0; i < trace_dled_length; ++i)
+   {
+      trace_dled.push_back(fAmplitude_Array.at(i+dt) - fAmplitude_Array.at(i));
+   }
+
+   return trace_dled;
+}
+
+//______________________________________________________________________________
+std::vector<Float_t> Trace::TimeDLED(Int_t dt)
+{
+   Int_t trace_dled_length = fTrace_length - dt;
+   std::vector<Float_t> time_dled;
+   time_dled.reserve(trace_dled_length);
+
+   for (int i = 0; i < trace_dled_length; ++i)
+   {
+      time_dled.push_back(fTime_Array.at(i+dt));
+   }
+
+   return time_dled;
+}
+
+//______________________________________________________________________________
+//void Trace::FindPeaks()
+//{
+//   // Find peaks of the trace
+//
+//   TCanvas *c1 = new TCanvas("c1","c1",10,10,1000,900);
+//
+//   TH1F *traceh = new TH1F("Traceh", "Trace;Time [ns];Amplitude [mV]", fTrace_length - 1, fTime_Array.data());
+//   for (int i = 0; i < fTrace_length - 1; ++i)
+//   {
+//      traceh->Fill(fTime_Array,fAmplitude_Array);
+//   }
+//
+//   traceh->Draw();
+//
+//   TSpectrum *s = new TSpectrum(100);
+//   Int_t nfound = s->Search(traceh,2);
+//   TH1 *tracehb = s->Background(traceh);
+//
+//   if (tracehb) c1->Update();
+//
+//
+//
+//}
 
 //______________________________________________________________________________
 void Trace::Paint(Option_t *option)

@@ -28,7 +28,15 @@ class Trace : public TObject
       ~Trace();
 
       void Build(UInt_t id, Float_t *amplitude_array, Float_t *time_array);
+      void Negate();
+      //void FindPeaks();
       void Paint(Option_t *option);
+
+      std::vector<Float_t> GetAmplitudeArray();
+      std::vector<Float_t> GetTimeArray();
+
+      std::vector<Float_t> AmplitudeDLED(Int_t dt);
+      std::vector<Float_t> TimeDLED(Int_t dt);
 
       int Get_trace_length() { return fTrace_length; }
 
