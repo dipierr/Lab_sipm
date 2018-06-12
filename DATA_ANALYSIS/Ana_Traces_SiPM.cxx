@@ -205,7 +205,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
+int dleddt = 5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 20; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
@@ -226,8 +226,8 @@ float pe_1_5_vect[3] = {25.,27.5,27.5};
 float thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
 
 // ONLY for LED measures
-int minLED_amp = 160; //charge window: min time for peak (ns)
-int maxLED_amp = 175; //charge window: max time for peak (ns)
+int minLED_amp = 112;//160; // window: min time for peak (ns)
+int maxLED_amp = 127;//175; // window: max time for peak (ns)
 int min_time_offset = 20; //min time for offset (ns)
 int max_time_offset = 40; //max time for offset (ns)
 
@@ -427,7 +427,7 @@ TF1 *expDel = new TF1("expDel","[1]*TMath::Exp(-[0]*x)",expDelLow_max,expDelHigh
 TF1 *gausFit1 = new TF1("gausFit1","gaus",-100,100);
 TF1 *gausFit2 = new TF1("gausFit2","gaus",-100,100);
 
-//I want to create ONLY one time the Canvas below... this is not the smartest way but it shuold work...
+//I want to create ONLY one time the Canvas below... this is not the smartest way but it should work...
 TCanvas *c = new TCanvas("Trace","Trace",w,h);
 TCanvas *cDCR = new TCanvas("hist_DCR","hist_DCR",w,h);
 TCanvas *cAllPeaks = new TCanvas("AllPeaks","AllPeaks",w,h);
@@ -763,11 +763,9 @@ void Ana_LED(string file1, int last_event_n){
     min_peak_window = minLED_amp;
     max_peak_window = maxLED_amp;
 
-    min_line = min_peak_window;
-    max_line = max_peak_window;
 
     // temp:
-    bool display_trace_LED = true;
+    bool display_trace_LED = false;
     display_peaks_now = true;
     display_peaks = true;
     show_peak_LED_bool = true;
@@ -1178,7 +1176,6 @@ void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int 
         y1[ii] = -y1[ii];
       }
     }
-
     canv->cd(1);
     TGraphErrors *graph1 = new TGraphErrors(trace_length1,x1,y1,0,0);
     graph1->SetName("graph1");
@@ -1224,6 +1221,7 @@ if(line_bool){
     TGraphErrors *graphPeaks = nullptr;
     TGraphErrors *graphPeaks_DLED = nullptr;
     TGraphErrors *graphPeak_LED = nullptr;
+    TGraphErrors *graphPeak_LED_DLED = nullptr;
 
     if(display_peaks_now){
         float x_peaks[num_peaks], y_peaks[num_peaks], x_peaks_DLED[num_peaks], y_peaks_DLED[num_peaks];
@@ -1258,14 +1256,25 @@ if(line_bool){
     }
 
     if(show_peak_LED_bool){
+      // On trace
       float x_g[1], y_g[1];
-      x_g[0] = trace_DLED[0][index_peak_LED];
-      y_g[0] = trace_DLED[1][index_peak_LED];
-      c->cd(2);
+      x_g[0] = trace[0][index_peak_LED+dleddt];
+      y_g[0] = trace[1][index_peak_LED+dleddt];
+      c->cd(1);
       graphPeak_LED = new TGraphErrors(1,x_g,y_g,0,0);
       graphPeak_LED->SetMarkerStyle(20);
       graphPeak_LED->SetMarkerColor(kBlue);
       graphPeak_LED->Draw("psame");
+
+      // On trace_DLED
+      float x_g_DLED[1], y_g_DLED[1];
+      x_g_DLED[0] = trace_DLED[0][index_peak_LED];
+      y_g_DLED[0] = trace_DLED[1][index_peak_LED];
+      c->cd(2);
+      graphPeak_LED_DLED = new TGraphErrors(1,x_g_DLED,y_g_DLED,0,0);
+      graphPeak_LED_DLED->SetMarkerStyle(20);
+      graphPeak_LED_DLED->SetMarkerColor(kBlue);
+      graphPeak_LED_DLED->Draw("psame");
     }
 
     canv->Update();
@@ -2049,16 +2058,21 @@ void ReadBin(string filename, int last_event_n, bool display){
 
         peak_LED = new float[2];
 
+        // cout<<endl<<"trace[0][k]"<<endl;
         for(int k=0; k<trace_length; k++){
              trace[0][k] = time[0][0][k];
              if(reverse_bool) trace[1][k] = -waveform[0][0][k]*1000; //to convert in mV
              else trace[1][k] = waveform[0][0][k]*1000;
+
+             // if(k<10)cout<<trace[0][k]<<"\t";
         }
+        // cout<<endl;
 
         if(display){
             if(!display_one_ev) display_peaks_now = display_peaks;
             if(display_one_ev and (n_ev==ev_to_display)) display_peaks_now = display_peaks;
         }
+
 
         // FIND OFFSET
   /* if(find_offset_bool){
@@ -2087,15 +2101,50 @@ void ReadBin(string filename, int last_event_n, bool display){
 
         // FIND PEAKS LED
         if(find_peak_in_a_selected_window){
-            mintp = (int)(1024*min_peak_window/trace[0][trace_length-1]) - dleddt;
-            maxtp = (int)(1024*max_peak_window/trace[0][trace_length-1]) - dleddt;
+            // min and max value search
+            bool found_min = false;
+            bool found_max = false;
+            // mintp = (int)(1024*min_peak_window/trace[0][trace_length-1] - dleddt);
+            // maxtp = (int)(1024*max_peak_window/trace[0][trace_length-1] - dleddt);
+            for(int i=dleddt; i<max_peak_window*2; i++){
+              if((trace[0][i]>min_peak_window) && !found_min){
+                mintp = i-dleddt;
+                found_min = true;
+              }
+              if((trace[0][i]>max_peak_window) && !found_max){
+                maxtp = i-dleddt;
+                found_max = true;
+              }
+            } // end for
+            if(!found_min) {
+              mintp = min_peak_window - dleddt;
+              cerr << "################################################################################"<<endl;
+              cerr << "ERROR: min_peak_window out of value" << endl;
+              cerr << "################################################################################"<<endl;
+            }
+            if(!found_max){
+              mintp = max_peak_window - dleddt;
+              cerr << "################################################################################"<<endl;
+              cerr << "ERROR: max_peak_window out of value" << endl;
+              cerr << "################################################################################"<<endl;
+            }
+
+            // cout << "trace_DLED[0][mintp]\t" << trace_DLED[0][mintp] << endl;
+            // cout << "trace_DLED[0][maxtp]\t" << trace_DLED[0][maxtp] << endl;
+
+            min_line = trace_DLED[0][mintp];
+            max_line = trace_DLED[0][maxtp];
+            // cout<<"mintp "<<mintp<<"\t"<<"maxtp "<<maxtp<<"\t";
+            // cout<<"min_line "<<min_line<<"\t"<<"max_line "<<max_line<<"\t";
+            // cout<<"trace_DLED[0][0] "<<trace_DLED[0][0]<<endl;
             index_for_peak = find_peak_fix_time(mintp, maxtp);
             index_peak_LED = index_for_peak;
             if(index_for_peak>-1){
-            peak_LED[0] = trace_DLED[0][index_for_peak];
-            peak_LED[1] = trace_DLED[1][index_for_peak];
-            ptrHistLED->Fill(peak_LED[1]);}
-        }
+              peak_LED[0] = trace_DLED[0][index_for_peak];
+              peak_LED[1] = trace_DLED[1][index_for_peak];
+              ptrHistLED->Fill(peak_LED[1]);
+            }
+        } // end FIND PEAKS LED
 
 //***** PEAKS FINDING
         fill_hist_peaks_when_found = false;
