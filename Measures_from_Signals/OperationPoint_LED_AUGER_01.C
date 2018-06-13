@@ -87,6 +87,24 @@ void OperationPoint_LED_AUGER_01(){
 
 
     // HV = 31 V
+    H_peak_0[0]		= 548.556;
+    errH_peak_0[0]		= 12.7617;
+    Sigma_peak_0[0]		= 2.19856;
+    errSigma_peak_0[0]	= 0.0461278;
+    H_peak_1[0]		= 967.574;
+    errH_peak_1[0]		= 15.4229;
+    Sigma_peak_1[0]		= 3.3765;
+    errSigma_peak_1[0]	= 0.0809846;
+    Mean_peak_1[0]		= 13.754;
+    errMean_peak_1[0]	= 0.0836035;
+    Mean_peak_2[0]		= 23.8791;
+    errMean_peak_2[0]	= 0.152962;
+    Mean_hg[0]		= 32.6272;
+    errMean_hg[0]		= 0.0870777;
+    Std_hg[0]		= 18.5324;
+    errStd_hg[0]		= 0.0615732;
+    Entries[0]		= 45295;
+
 
     // HV = 32 V
     H_peak_0[1]		= 483.012;
@@ -188,20 +206,38 @@ void OperationPoint_LED_AUGER_01(){
     Entries[5]		= 42371;
 
     // HV = 35.5 V
+    H_peak_0[6]		= 242.803;
+    errH_peak_0[6]		= 8.09327;
+    Sigma_peak_0[6]		= 2.79065;
+    errSigma_peak_0[6]	= 0.0647025;
+    H_peak_1[6]		= 323.747;
+    errH_peak_1[6]		= 7.98278;
+    Sigma_peak_1[6]		= 4.10116;
+    errSigma_peak_1[6]	= 0.0838668;
+    Mean_peak_1[6]		= 22.4535;
+    errMean_peak_1[6]	= 0.0801244;
+    Mean_peak_2[6]		= 44.7902;
+    errMean_peak_2[6]	= 0.240814;
+    Mean_hg[6]		= 95.2705;
+    errMean_hg[6]		= 0.281311;
+    Std_hg[6]		= 58.7469;
+    errStd_hg[6]		= 0.198917;
+    Entries[6]		= 43611;
+
 
     // HV = 36 V
     H_peak_0[7]		= 181.508;
     errH_peak_0[7]		= 6.38476;
     Sigma_peak_0[7]		= 3.3331;
     errSigma_peak_0[7]	= 0.0834515;
-    H_peak_1[7]		= 212.15;
-    errH_peak_1[7]		= 6.31485;
-    Sigma_peak_1[7]		= 4.8398;
-    errSigma_peak_1[7]	= 0.162162;
-    Mean_peak_1[7]		= 23.2879;
-    errMean_peak_1[7]	= 0.148448;
-    Mean_peak_2[7]		= 134.372;
-    errMean_peak_2[7]	= 8.71474;
+    H_peak_1[7]		= 206.852;
+    errH_peak_1[7]		= 5.94343;
+    Sigma_peak_1[7]		= 5.10523;
+    errSigma_peak_1[7]	= 0.135809;
+    Mean_peak_1[7]		= 23.5037;
+    errMean_peak_1[7]	= 0.122086;
+    Mean_peak_2[7]		= 46.2825;
+    errMean_peak_2[7]	= 0.339862;
     Mean_hg[7]		= 105.433;
     errMean_hg[7]		= 0.335317;
     Std_hg[7]		= 65.5628;
