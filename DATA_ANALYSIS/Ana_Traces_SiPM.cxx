@@ -127,6 +127,7 @@ void Analysis(string file, int last_event_n, bool display);
 void DLED(int trace_length, int dleddt);
 int find_peak_fix_time(int mintp, int maxtp);
 void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,int blind_gap, bool DCR_DELAYS_bool);
+void fit_hist_peaks_0pe_1pe_2pe(TCanvas *c, TH1D *hist);
 void average_func(int trace_length);
 void fit_hist_del(float expDelLow, float expDelHigh);
 void fit_hist_peaks(TCanvas *c, TH1D *hist);
@@ -223,11 +224,19 @@ float pe_0_5_vect[3] = {10.,10.,10.};
 float pe_1_5_vect[3] = {25.,27.5,27.5};
 
 // ONLY for Ana1:
-float thr_to_find_peaks = 10; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
+float thr_to_find_peaks = 7; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
 
 // ONLY for LED measures
-int minLED_amp = 110;//160; // window: min time for peak (ns)
+int minLED_amp = 115;//160; // window: min time for peak (ns)
 int maxLED_amp = 125;//175; // window: max time for peak (ns)
+
+float range1_low_low_mV   = 5;//5;  // 0 high, 1 low
+float range1_low_high_mV  = 15;//20; // 0 high, 1 low
+float range2_low_low_mV   = 15;//20; // 1 high, 2 low
+float range2_low_high_mV  = 25;//30; // 2 high, 2 low
+float range2_high_low_mV  = 30;//40; // 2 high
+float range2_high_high_mV = 40;//50; // 2 high
+
 int min_time_offset = 20; //min time for offset (ns)
 int max_time_offset = 40; //max time for offset (ns)
 
@@ -345,10 +354,6 @@ float peaks_all_delay[2][max_peaks];
 int ind_peaks_all_delay = 0;
 int n_ev_tot = 0;
 
-float fit1Low = 0;
-float fit1High = 0;
-float fit2Low = 0;
-float fit2High = 0;
 
 float offset = 0.; float charge = 0.;
 
@@ -358,6 +363,16 @@ int min_line = 0;
 int max_line = 0;
 
 double min_peak_window, max_peak_window;
+
+float fit0Low, fit0High, fit1Low, fit1High, fit2Low, fit2High;
+
+int range1_low_low_bin = 0;
+int range1_low_high_bin = 0;
+int range2_low_low_bin = 0;
+int range2_low_high_bin = 0;
+int range2_high_low_bin = 0;
+int range2_high_high_bin = 0;
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -412,7 +427,10 @@ bool peak_rejected = false;
 //--------------------[   GLOBAL HISTs, CANVs and FUNCs   ]---------------------
 //------------------------------------------------------------------------------
 
-TH1D *ptrHistLED = new TH1D("histLED","",750,-50,700);//per i fit 140,-20,200
+int histLED_low = -50;
+int histLED_high = 700;
+int histLED_nbins = 750;
+TH1D *ptrHistLED = new TH1D("histLED","",histLED_nbins, histLED_low, histLED_high);//per i fit 140,-20,200
 
 TH1F *ptrAll = new TH1F("histAll","",500,-100,100);
 TH1F *ptrAllTrace = new TH1F("histAllT","",86,-10.0,20.0);
@@ -426,6 +444,7 @@ TH1D *ptrHistDCRthr[nfilemax];
 TH1D *ptrHistDelays[nfilemax];
 
 TF1 *expDel = new TF1("expDel","[1]*TMath::Exp(-[0]*x)",expDelLow_max,expDelHigh_max);
+TF1 *gausFit0 = new TF1("gausFit0","gaus",-100,100);
 TF1 *gausFit1 = new TF1("gausFit1","gaus",-100,100);
 TF1 *gausFit2 = new TF1("gausFit2","gaus",-100,100);
 
@@ -786,11 +805,9 @@ void Ana_LED(string file1, int last_event_n){
     ptrHistLED->GetYaxis()->SetTitle("Counts");
     ptrHistLED->Draw();
     canvLED->Update();
-    //fit_hist_peaks(canvLED, ptrHistLED);
 
-
-//   new TCanvas();
-//     ptrHistCharge->Draw();
+    // fit hist LED
+    fit_hist_peaks_0pe_1pe_2pe(canvLED, ptrHistLED);
 
 }
 
@@ -1473,6 +1490,215 @@ void fit_hist_peaks(TCanvas *c, TH1D *hist){
 }
 
 //------------------------------------------------------------------------------
+void fit_hist_peaks_0pe_1pe_2pe(TCanvas *c, TH1D *hist){
+
+  float Mean_peak_0, Mean_peak_1, Mean_peak_2;
+  float errMean_peak_0, errMean_peak_1, errMean_peak_2;
+
+  float Sigma_peak_0, Sigma_peak_1, Sigma_peak_2;
+  float errSigma_peak_0, errSigma_peak_1, errSigma_peak_2;
+
+  float H_peak_0, H_peak_1, H_peak_2;
+  float errH_peak_0, errH_peak_1, errH_peak_2;
+
+  float Mean_hg, errMean_hg, Std_hg, errStd_hg;
+
+  int Entries;
+
+  // find range values to find fit fit ranges
+  bool range1_low_low_found = false;
+  bool range1_low_high_found = false;
+  bool range2_low_low_found = false;
+  bool range2_low_high_found = false;
+  bool range2_high_low_found = false;
+  bool range2_high_high_found = false;
+
+
+  for(i=0; i<histLED_nbins; i++){
+    if((hist->GetBinCenter(i) > range1_low_low_mV) && !range1_low_low_found){
+      range1_low_low_bin = i;
+      range1_low_low_found = true;
+    }
+    if((hist->GetBinCenter(i) > range1_low_high_mV) && !range1_low_high_found){
+      range1_low_high_bin = i;
+      range1_low_high_found = true;
+    }
+    if((hist->GetBinCenter(i) > range2_low_low_mV) && !range2_low_low_found){
+      range2_low_low_bin = i;
+      range2_low_low_found = true;
+    }
+    if((hist->GetBinCenter(i) > range2_low_high_mV) && !range2_low_high_found){
+      range2_low_high_bin = i;
+      range2_low_high_found = true;
+    }
+    if((hist->GetBinCenter(i) > range2_high_low_mV) && !range2_high_low_found){
+      range2_high_low_bin = i;
+      range2_high_low_found = true;
+    }
+    if((hist->GetBinCenter(i) > range2_high_high_mV) && !range2_high_high_found){
+      range2_high_high_bin = i;
+      range2_high_high_found = true;
+    }
+  }
+  cout<<"0 high, 1 low\t"<<ptrHistLED->GetBinCenter(range1_low_low_bin)<<endl;
+  cout<<"0 high, 1 low\t"<<ptrHistLED->GetBinCenter(range1_low_high_bin)<<endl;
+  cout<<"1 high, 2 low\t"<<ptrHistLED->GetBinCenter(range2_low_low_bin)<<endl;
+  cout<<"1 high, 2 low\t"<<ptrHistLED->GetBinCenter(range2_low_high_bin)<<endl;
+  cout<<"2 high       \t"<<ptrHistLED->GetBinCenter(range2_high_low_bin)<<endl;
+  cout<<"2 high       \t"<<ptrHistLED->GetBinCenter(range2_high_high_bin)<<endl;
+
+  // find fit ranges
+  fit0Low   = -20;
+  fit0High  = 0;
+  fit1Low   = 0;
+  fit1High  = 0;
+  fit2Low   = 0;
+  fit2High  = 0;
+
+  int min;
+
+  // find fit0High and fit1Low
+  min = 100000;
+  for(int i=range1_low_low_bin; i<range1_low_high_bin; i++){
+    if(hist->GetBinContent(i) < min){
+      min = hist->GetBinContent(i);
+      fit0High = (int)(hist->GetBinCenter(i));
+    }
+  }
+  fit1Low = fit0High;
+
+  // find fit1High and fit2Low
+  min = 100000;
+  for(int i=range2_low_low_bin; i<range2_low_high_bin; i++){
+    if(hist->GetBinContent(i) < min){
+      min = hist->GetBinContent(i);
+      fit1High = (int)(hist->GetBinCenter(i));
+    }
+  }
+  fit2Low = fit1High;
+
+  // find fit2High
+  min = 100000;
+  for(int i=range2_high_low_bin; i<range2_high_high_bin; i++){
+    if(hist->GetBinContent(i) < min){
+      min = hist->GetBinContent(i);
+      fit2High = (int)(hist->GetBinCenter(i));
+    }
+  }
+
+  cout<<endl;
+  cout<<"fit0High\t"<<fit0High<<endl;
+  cout<<"fit1Low\t\t"<<fit1Low<<endl;
+  cout<<"fit1High\t"<<fit1High<<endl;
+  cout<<"fit2Low\t\t"<<fit2Low<<endl;
+  cout<<"fit2High\t"<<fit2High<<endl;
+  cout<<endl;
+
+  c->cd();
+
+  //-------------
+  //---[ 0pe ]---
+  //-------------
+  hist -> Fit("gausFit0", "+", "", fit0Low, fit0High); //gaus fit of the 1st peak
+  H_peak_0   = gausFit0->GetParameter(0);
+  errH_peak_0= gausFit0->GetParError(0);
+  Mean_peak_0     = gausFit0->GetParameter(1);
+  errMean_peak_0  = gausFit0->GetParError(1);
+  Sigma_peak_0     = gausFit0->GetParameter(2);
+  errSigma_peak_0  = gausFit0->GetParError(2);
+  gausFit0->Draw("same");
+
+  //-------------
+  //---[ 1pe ]---
+  //-------------
+  hist -> Fit("gausFit1", "+", "", fit1Low, fit1High); //gaus fit of the 1st peak
+  H_peak_1   = gausFit1->GetParameter(0);
+  errH_peak_1= gausFit1->GetParError(0);
+  Mean_peak_1     = gausFit1->GetParameter(1);
+  errMean_peak_1  = gausFit1->GetParError(1);
+  Sigma_peak_1     = gausFit1->GetParameter(2);
+  errSigma_peak_1  = gausFit1->GetParError(2);
+  gausFit1->Draw("same");
+
+  //-------------
+  //---[ 2pe ]---
+  //-------------
+  hist -> Fit("gausFit2", "+", "", fit2Low, fit2High); //gaus fit of the 2st peak
+  H_peak_2    = gausFit2->GetParameter(0);
+  errH_peak_2 = gausFit2->GetParError(0);
+  Mean_peak_2      = gausFit2->GetParameter(1);
+  errMean_peak_2   = gausFit2->GetParError(1);
+  Sigma_peak_2     = gausFit2->GetParameter(2);
+  errSigma_peak_2  = gausFit2->GetParError(2);
+  gausFit2->Draw("same");
+
+  gain = Mean_peak_2 - Mean_peak_1; //gain is the difference between 1pe peak and 2pe peak
+  errgain = TMath::Sqrt( errMean_peak_1*errMean_peak_1 + errMean_peak_2*errMean_peak_2 ); //error propagation
+
+  //---------------------
+  //---[ GLOBAL HIST ]---
+  //---------------------
+  Entries = hist->GetEntries();
+  Mean_hg = hist->GetMean();
+  errMean_hg = hist->GetMeanError();
+  Std_hg  = hist->GetStdDev();
+  errStd_hg = hist->GetStdDevError();
+
+
+  // CROSS TALK from LED
+  double Area0 = H_peak_0*Sigma_peak_0*TMath::Power(2*TMath::Pi(),0.5)/1;
+  double Prob_0pe = Area0/Entries;
+  double Mu = -TMath::Log(Prob_0pe);
+  double Prob_1pe = Mu*TMath::Exp(-Mu);
+  double Area1 = H_peak_1*Sigma_peak_1*TMath::Power(2*TMath::Pi(),0.5)/1;
+  double Prob_1peS = Area1/Entries;
+  double Prob_Cross_Talk = 1-(Prob_1peS/Prob_1pe);
+
+
+
+  //-----------------
+  //---[ RESULTS ]---
+  //-----------------
+  int index = 0;
+  cout<<endl;
+  cout<<"Enter vector index:"<<endl;
+  cin>>index;
+
+  cout<<"//-------------------------------------------------"<<endl;
+
+  // peak 0
+  cout<<"H_peak_0["<<index<<"]\t\t= "<<H_peak_0<<";"<<endl;
+  cout<<"errH_peak_0["<<index<<"]\t\t= "<<errH_peak_0<<";"<<endl;
+  cout<<"Sigma_peak_0["<<index<<"]\t\t= "<<Sigma_peak_0<<";"<<endl;
+  cout<<"errSigma_peak_0["<<index<<"]\t= "<<errSigma_peak_0<<";"<<endl;
+
+  // peak 1
+  cout<<"H_peak_1["<<index<<"]\t\t= "<<H_peak_1<<";"<<endl;
+  cout<<"errH_peak_1["<<index<<"]\t\t= "<<errH_peak_1<<";"<<endl;
+  cout<<"Sigma_peak_1["<<index<<"]\t\t= "<<Sigma_peak_1<<";"<<endl;
+  cout<<"errSigma_peak_1["<<index<<"]\t= "<<errSigma_peak_1<<";"<<endl;
+  cout<<"Mean_peak_1["<<index<<"]\t\t= "<<Mean_peak_1<<";"<<endl;
+  cout<<"errMean_peak_1["<<index<<"]\t= "<<errMean_peak_1<<";"<<endl;
+
+  // peak 2
+  cout<<"Mean_peak_2["<<index<<"]\t\t= "<<Mean_peak_2<<";"<<endl;
+  cout<<"errMean_peak_2["<<index<<"]\t= "<<errMean_peak_2<<";"<<endl;
+
+  // GLOBAL HIST
+  cout<<"Mean_hg["<<index<<"]\t\t= "<<Mean_hg<<";"<<endl;
+  cout<<"errMean_hg["<<index<<"]\t\t= "<<errMean_hg<<";"<<endl;
+  cout<<"Std_hg["<<index<<"]\t\t= "<<Std_hg<<";"<<endl;
+  cout<<"errStd_hg["<<index<<"]\t\t= "<<errStd_hg<<";"<<endl;
+  cout<<"Entries["<<index<<"]\t\t= "<<Entries<<";"<<endl;
+
+
+  // Cross Talk
+  cout<<endl;
+  cout << "Cross Talk\t\t= " << Prob_Cross_Talk*100 <<" \%" << endl;
+
+}
+
+//------------------------------------------------------------------------------
 void find_offset(){
     offset = 0.;
     int last_n, first_n;
@@ -1511,6 +1737,7 @@ void find_offset_mod(){  // USING TSpectrum
 
   // update trace
   for(ii=x_low; ii<x_up; ii++){
+        trace[0][ii] = trace_histo->GetBinCenter(ii) - bin_width/2.;
         trace[0][ii] = trace_histo->GetBinCenter(ii) - bin_width/2.;
         trace[1][ii] = trace_histo->GetBinContent(ii);
         //ptrAllTrace->Fill(trace[1][ii]);
@@ -2147,8 +2374,8 @@ void ReadBin(string filename, int last_event_n, bool display){
                   peak_rejected = false;
               } // end 0pe
               else{ // 1pe or more
-                  if(  trace_DLED[1][index_for_peak]>trace_DLED[1][mintp-2] && trace_DLED[1][index_for_peak]>trace_DLED[1][mintp-1] && trace_DLED[1][index_for_peak]>trace_DLED[1][mintp]){ // check mintp
-                    if(trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp+2] && trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp+1] && trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp]){ // check maxtp
+                  if(  trace_DLED[1][index_for_peak]>trace_DLED[1][mintp] && trace_DLED[1][index_for_peak]>trace_DLED[1][mintp-1]){ // check mintp
+                    if(trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp] && trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp+1]){ // check maxtp
                       peak_rejected = false;
                     } // end check maxtp
                   } // end check mintp
