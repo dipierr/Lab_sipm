@@ -227,15 +227,18 @@ float pe_1_5_vect[3] = {25.,27.5,27.5};
 float thr_to_find_peaks = 7; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
 
 // ONLY for LED measures
-int minLED_amp = 115;//160; // window: min time for peak (ns)
-int maxLED_amp = 125;//175; // window: max time for peak (ns)
+int minLED_amp = 168;//115;  // window: min time for peak (ns)
+int maxLED_amp = 176;//125;  // window: max time for peak (ns)
 
-float range1_low_low_mV   = 5;//5;  // 5;  //5;    // 0 high, 1 low
-float range1_low_high_mV  = 20;//25; // 25; //15;   // 0 high, 1 low
-float range2_low_low_mV   = 15;//25; // 25; //15;   // 1 high, 2 low
-float range2_low_high_mV  = 25;//40; // 30; //25;   // 2 high, 2 low
-float range2_high_low_mV  = 25;//50; // 40; //30;   // 2 high
-float range2_high_high_mV = 30;//60; // 50; //40;   // 2 high
+// 0 high, 1 low
+float range1_low_low_mV   = 5;//5;  // 5;  //5;
+float range1_low_high_mV  = 20;//25; // 25; //15;
+// 1 high, 2 low
+float range2_low_low_mV   = 20;//25; // 25; //15;
+float range2_low_high_mV  = 40;//40; // 30; //25;
+// 2 high
+float range2_high_low_mV  = 40;//50; // 40; //30;
+float range2_high_high_mV = 60;//60; // 50; //40;
 
 int min_time_offset = 20; //min time for offset (ns)
 int max_time_offset = 40; //max time for offset (ns)
@@ -1661,10 +1664,11 @@ void fit_hist_peaks_0pe_1pe_2pe(TCanvas *c, TH1D *hist){
   //-----------------
   int index = 0;
   cout<<endl;
-  // cout<<"Enter vector index:"<<endl;
-  // cin>>index;
+  cout<<"Enter vector index:"<<endl;
+  cin>>index;
 
-  cout<<"//-------------------------------------------------"<<endl;
+  cout<<endl;
+  cout<<"// Window for LED peak: "<<"("<<minLED_amp<<", "<<maxLED_amp<<") ns"<<"  (minLED_amp, maxLED_amp)"<<endl;
 
   // peak 0
   cout<<"H_peak_0["<<index<<"]\t\t= "<<H_peak_0<<";"<<endl;
