@@ -235,10 +235,10 @@ float range1_low_low_mV   = 5;//5;  // 5;  //5;
 float range1_low_high_mV  = 20;//25; // 25; //15;
 // 1 high, 2 low
 float range2_low_low_mV   = 20;//25; // 25; //15;
-float range2_low_high_mV  = 40;//40; // 30; //25;
+float range2_low_high_mV  = 30;//40; // 30; //25;
 // 2 high
-float range2_high_low_mV  = 40;//50; // 40; //30;
-float range2_high_high_mV = 60;//60; // 50; //40;
+float range2_high_low_mV  = 30;//50; // 40; //30;
+float range2_high_high_mV = 43;//60; // 50; //40;
 
 int min_time_offset = 20; //min time for offset (ns)
 int max_time_offset = 40; //max time for offset (ns)
@@ -1689,10 +1689,10 @@ void fit_hist_peaks_0pe_1pe_2pe(TCanvas *c, TH1D *hist){
   cout<<"errMean_peak_2["<<index<<"]\t= "<<errMean_peak_2<<";"<<endl;
 
   // GLOBAL HIST
-  cout<<"Mean_hg["<<index<<"]\t\t= "<<Mean_hg<<";"<<endl;
-  cout<<"errMean_hg["<<index<<"]\t\t= "<<errMean_hg<<";"<<endl;
-  cout<<"Std_hg["<<index<<"]\t\t= "<<Std_hg<<";"<<endl;
-  cout<<"errStd_hg["<<index<<"]\t\t= "<<errStd_hg<<";"<<endl;
+  cout<<"Mean_hg["<<index+2<<"]\t\t= "<<Mean_hg<<";"<<endl;
+  cout<<"errMean_hg["<<index+2<<"]\t\t= "<<errMean_hg<<";"<<endl;
+  cout<<"Std_hg["<<index+2<<"]\t\t= "<<Std_hg<<";"<<endl;
+  cout<<"errStd_hg["<<index+2<<"]\t\t= "<<errStd_hg<<";"<<endl;
   cout<<"Entries["<<index<<"]\t\t= "<<Entries<<";"<<endl;
 
 

@@ -55,12 +55,12 @@ void OperationPoint_LASER_PLS_01(){
 
     // GLOBAL HIST
     // Mean hist global
-    double Mean_hg[n_GAIN];
-    double errMean_hg[n_GAIN];
+    double Mean_hg[n_MEAN];
+    double errMean_hg[n_MEAN];
 
     // Standard_dev_hist_global
-    double Std_hg[n_GAIN];
-    double errStd_hg[n_GAIN];
+    double Std_hg[n_MEAN];
+    double errStd_hg[n_MEAN];
 
      // Integral of the average
     double Integral[n_GAIN];
@@ -68,6 +68,22 @@ void OperationPoint_LASER_PLS_01(){
 
     // Entries
     double Entries[n_GAIN];
+
+
+
+    // HV = 29 V
+    // Window for LED peak: (168, 176) ns  (minLED_amp, maxLED_amp)
+    Mean_hg[0]		= 11.0454;
+    errMean_hg[0]		= 0.0349697;
+    Std_hg[0]		= 7.19416;
+    errStd_hg[0]		= 0.0247273;
+
+    // HV = 30 V
+    // Window for LED peak: (168, 176) ns  (minLED_amp, maxLED_amp)
+    Mean_hg[1]		= 17.2405;
+    errMean_hg[1]		= 0.0579644;
+    Std_hg[1]		= 11.6465;
+    errStd_hg[1]		= 0.040987;
 
 
     // HV = 31 V
@@ -84,10 +100,10 @@ void OperationPoint_LASER_PLS_01(){
     errMean_peak_1[0]	= 0.0599376;
     Mean_peak_2[0]		= 23.3496;
     errMean_peak_2[0]	= 0.0948799;
-    Mean_hg[0]		= 24.5025;
-    errMean_hg[0]		= 0.0817773;
-    Std_hg[0]		= 16.7689;
-    errStd_hg[0]		= 0.0578253;
+    Mean_hg[2]		= 24.5025;
+    errMean_hg[2]		= 0.0817773;
+    Std_hg[2]		= 16.7689;
+    errStd_hg[2]		= 0.0578253;
     Entries[0]		= 42048;
 
     // HV = 32 V
@@ -104,32 +120,32 @@ void OperationPoint_LASER_PLS_01(){
     errMean_peak_1[1]	= 0.0551003;
     Mean_peak_2[1]		= 28.1085;
     errMean_peak_2[1]	= 0.0799129;
-    Mean_hg[1]		= 33.1871;
-    errMean_hg[1]		= 0.111983;
-    Std_hg[1]		= 23.0281;
-    errStd_hg[1]		= 0.0791843;
+    Mean_hg[3]		= 33.1871;
+    errMean_hg[3]		= 0.111983;
+    Std_hg[3]		= 23.0281;
+    errStd_hg[3]		= 0.0791843;
     Entries[1]		= 42287;
 
 
     // HV = 33 V
-    // Window for LED peak: (168, 176) ns  (minLED_amp, maxLED_amp)
-    H_peak_0[2]		= 717.832;
-    errH_peak_0[2]		= 12.9964;
-    Sigma_peak_0[2]		= 3.03046;
-    errSigma_peak_0[2]	= 0.0397511;
-    H_peak_1[2]		= 804.851;
-    errH_peak_1[2]		= 12.9464;
-    Sigma_peak_1[2]		= 3.66071;
-    errSigma_peak_1[2]	= 0.0581329;
-    Mean_peak_1[2]		= 17.6834;
-    errMean_peak_1[2]	= 0.0607547;
-    Mean_peak_2[2]		= 33.0705;
-    errMean_peak_2[2]	= 0.151684;
-    Mean_hg[2]		= 43.0989;
-    errMean_hg[2]		= 0.14868;
-    Std_hg[2]		= 30.536;
-    errStd_hg[2]		= 0.105133;
-    Entries[2]		= 42181;
+    // Window for LED peak: (168, 175) ns  (minLED_amp, maxLED_amp)
+    H_peak_0[2]		= 732.923;
+    errH_peak_0[2]		= 12.7591;
+    Sigma_peak_0[2]		= 3.19265;
+    errSigma_peak_0[2]	= 0.0401622;
+    H_peak_1[2]		= 727.838;
+    errH_peak_1[2]		= 11.9388;
+    Sigma_peak_1[2]		= 3.95479;
+    errSigma_peak_1[2]	= 0.0581263;
+    Mean_peak_1[2]		= 17.9306;
+    errMean_peak_1[2]	= 0.059057;
+    Mean_peak_2[2]		= 32.9408;
+    errMean_peak_2[2]	= 0.0795371;
+    Mean_hg[4]		= 42.3227;
+    errMean_hg[4]		= 0.154986;
+    Std_hg[4]		= 31.0046;
+    errStd_hg[4]		= 0.109592;
+    Entries[2]		= 40019;
 
 
 
@@ -147,10 +163,10 @@ void OperationPoint_LASER_PLS_01(){
     errMean_peak_1[3]	= 0.063687;
     Mean_peak_2[3]		= 37.7005;
     errMean_peak_2[3]	= 0.0987244;
-    Mean_hg[3]		= 54.2596;
-    errMean_hg[3]		= 0.190426;
-    Std_hg[3]		= 38.901;
-    errStd_hg[3]		= 0.134651;
+    Mean_hg[5]		= 54.2596;
+    errMean_hg[5]		= 0.190426;
+    Std_hg[5]		= 38.901;
+    errStd_hg[5]		= 0.134651;
     Entries[3]		= 41732;
 
 
@@ -169,10 +185,10 @@ void OperationPoint_LASER_PLS_01(){
     errMean_peak_1[4]	= 0.0694128;
     Mean_peak_2[4]		= 39.6444;
     errMean_peak_2[4]	= 0.110517;
-    Mean_hg[4]		= 59.8421;
-    errMean_hg[4]		= 0.218923;
-    Std_hg[4]		= 43.4229;
-    errStd_hg[4]		= 0.154802;
+    Mean_hg[6]		= 59.8421;
+    errMean_hg[6]		= 0.218923;
+    Std_hg[6]		= 43.4229;
+    errStd_hg[6]		= 0.154802;
     Entries[4]		= 39342;
 
 
@@ -191,10 +207,10 @@ void OperationPoint_LASER_PLS_01(){
     errMean_peak_1[5]	= 0.0792882;
     Mean_peak_2[5]		= 42.0863;
     errMean_peak_2[5]	= 0.128901;
-    Mean_hg[5]		= 66.1856;
-    errMean_hg[5]		= 0.239378;
-    Std_hg[5]		= 48.1251;
-    errStd_hg[5]		= 0.169266;
+    Mean_hg[7]		= 66.1856;
+    errMean_hg[7]		= 0.239378;
+    Std_hg[7]		= 48.1251;
+    errStd_hg[7]		= 0.169266;
     Entries[5]		= 40418;
 
 
@@ -213,10 +229,10 @@ void OperationPoint_LASER_PLS_01(){
     errMean_peak_1[6]	= 0.0784199;
     Mean_peak_2[6]		= 44.2131;
     errMean_peak_2[6]	= 0.122782;
-    Mean_hg[6]		= 73.7344;
-    errMean_hg[6]		= 0.272271;
-    Std_hg[6]		= 53.9193;
-    errStd_hg[6]		= 0.192525;
+    Mean_hg[8]		= 73.7344;
+    errMean_hg[8]		= 0.272271;
+    Std_hg[8]		= 53.9193;
+    errStd_hg[8]		= 0.192525;
     Entries[6]		= 39218;
 
 
@@ -235,15 +251,11 @@ void OperationPoint_LASER_PLS_01(){
     errMean_peak_1[7]	= 0.0995025;
     Mean_peak_2[7]		= 46.0661;
     errMean_peak_2[7]	= 0.148843;
-    Mean_hg[7]		= 80.0673;
-    errMean_hg[7]		= 0.294391;
-    Std_hg[7]		= 58.7329;
-    errStd_hg[7]		= 0.208166;
+    Mean_hg[9]		= 80.0673;
+    errMean_hg[9]		= 0.294391;
+    Std_hg[9]		= 58.7329;
+    errStd_hg[9]		= 0.208166;
     Entries[7]		= 39803;
-
-
-
-
 
 
 
