@@ -128,24 +128,25 @@ void OperationPoint_LASER_PLS_01(){
 
 
     // HV = 33 V
-    // Window for LED peak: (168, 175) ns  (minLED_amp, maxLED_amp)
-    H_peak_0[2]		= 732.923;
-    errH_peak_0[2]		= 12.7591;
-    Sigma_peak_0[2]		= 3.19265;
-    errSigma_peak_0[2]	= 0.0401622;
-    H_peak_1[2]		= 727.838;
-    errH_peak_1[2]		= 11.9388;
-    Sigma_peak_1[2]		= 3.95479;
-    errSigma_peak_1[2]	= 0.0581263;
-    Mean_peak_1[2]		= 17.9306;
-    errMean_peak_1[2]	= 0.059057;
-    Mean_peak_2[2]		= 32.9408;
-    errMean_peak_2[2]	= 0.0795371;
-    Mean_hg[4]		= 42.3227;
-    errMean_hg[4]		= 0.154986;
-    Std_hg[4]		= 31.0046;
-    errStd_hg[4]		= 0.109592;
-    Entries[2]		= 40019;
+    // Window for LED peak: (168, 176) ns  (minLED_amp, maxLED_amp)
+    H_peak_0[2]		= 751.372;
+    errH_peak_0[2]		= 14.3412;
+    Sigma_peak_0[2]		= 2.64121;
+    errSigma_peak_0[2]	= 0.0357337;
+    H_peak_1[2]		= 826.58;
+    errH_peak_1[2]		= 13.444;
+    Sigma_peak_1[2]		= 3.38943;
+    errSigma_peak_1[2]	= 0.0458594;
+    Mean_peak_1[2]		= 17.9284;
+    errMean_peak_1[2]	= 0.0483072;
+    Mean_peak_2[2]		= 33.2002;
+    errMean_peak_2[2]	= 0.0768053;
+    Mean_hg[4]		= 44.4914;
+    errMean_hg[4]		= 0.151745;
+    Std_hg[4]		= 30.9359;
+    errStd_hg[4]		= 0.1073;
+    Entries[2]		= 41562;
+
 
 
 

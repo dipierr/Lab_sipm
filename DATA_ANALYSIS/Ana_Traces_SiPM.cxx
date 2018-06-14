@@ -128,6 +128,7 @@ void DLED(int trace_length, int dleddt);
 int find_peak_fix_time(int mintp, int maxtp);
 void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,int blind_gap, bool DCR_DELAYS_bool);
 void fit_hist_peaks_0pe_1pe_2pe(TCanvas *c, TH1D *hist);
+void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist);
 void average_func(int trace_length);
 void fit_hist_del(float expDelLow, float expDelHigh);
 void fit_hist_peaks(TCanvas *c, TH1D *hist);
@@ -238,7 +239,7 @@ float range2_low_low_mV   = 20;//25; // 25; //15;
 float range2_low_high_mV  = 30;//40; // 30; //25;
 // 2 high
 float range2_high_low_mV  = 30;//50; // 40; //30;
-float range2_high_high_mV = 43;//60; // 50; //40;
+float range2_high_high_mV = 50;//60; // 50; //40;
 
 int min_time_offset = 20; //min time for offset (ns)
 int max_time_offset = 40; //max time for offset (ns)
@@ -450,6 +451,10 @@ TF1 *expDel = new TF1("expDel","[1]*TMath::Exp(-[0]*x)",expDelLow_max,expDelHigh
 TF1 *gausFit0 = new TF1("gausFit0","gaus",-100,100);
 TF1 *gausFit1 = new TF1("gausFit1","gaus",-100,100);
 TF1 *gausFit2 = new TF1("gausFit2","gaus",-100,100);
+
+TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[6])*(x-[6])/( 2*[4]*[4] ) ) + [1]*TMath::Exp( - (x-[6]-[3])*(x-[6]-[3])/( 2*([4]*[4] + [5]*[5] )) ) + [2]*TMath::Exp( - (x-[6]-2*[3])*(x-[6]-2*[3])/( 2*([4]*[4] + 4*[5]*[5] ) ) )" ,-20,60);
+
+
 
 //I want to create ONLY one time the Canvas below... this is not the smartest way but it should work...
 TCanvas *c = new TCanvas("Trace","Trace",w,h);
@@ -811,6 +816,7 @@ void Ana_LED(string file1, int last_event_n){
 
     // fit hist LED
     fit_hist_peaks_0pe_1pe_2pe(canvLED, ptrHistLED);
+    // fit_hist_peaks_gaus_sum_012(canvLED, ptrHistLED);
 
 }
 
@@ -1701,6 +1707,148 @@ void fit_hist_peaks_0pe_1pe_2pe(TCanvas *c, TH1D *hist){
   cout << "Cross Talk\t\t= " << Prob_Cross_Talk*100 <<" \%" << endl;
 
 }
+
+
+
+//------------------------------------------------------------------------------
+void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist){
+
+  float Mean_peak_0, Mean_peak_1, Mean_peak_2;
+  float errMean_peak_0, errMean_peak_1, errMean_peak_2;
+
+  float Sigma_peak_0, Sigma_peak_1, Sigma_peak_2;
+  float errSigma_peak_0, errSigma_peak_1, errSigma_peak_2;
+
+  float H_peak_0, H_peak_1, H_peak_2;
+  float errH_peak_0, errH_peak_1, errH_peak_2;
+
+  float Gain, errGain, Sigma_add, errSigma_add;
+
+  float Mean_hg, errMean_hg, Std_hg, errStd_hg;
+
+  int Entries;
+
+
+  c->cd();
+
+  gaus_sum_012->SetParName(0, "H0");
+  gaus_sum_012->SetParName(1, "H1");
+  gaus_sum_012->SetParName(2, "H2");
+  gaus_sum_012->SetParName(3, "g");
+  gaus_sum_012->SetParName(4, "s0");
+  gaus_sum_012->SetParName(5, "sadd");
+  gaus_sum_012->SetParName(6, "V0");
+
+  hist -> Fit("gaus_sum_012", "+", "", -20, 60);
+
+  // gain
+  Gain              = gaus_sum_012->GetParameter(3);
+  errGain           = gaus_sum_012->GetParError(3);
+
+  // sigma
+  Sigma_add        = gaus_sum_012->GetParameter(5);
+  errSigma_add     = gaus_sum_012->GetParError(5);
+
+
+  //--------------
+  //---[ 0pe ]---
+  //-------------
+  H_peak_0          = gaus_sum_012->GetParameter(0);
+  errH_peak_0       = gaus_sum_012->GetParError(0);
+  Mean_peak_0       = gaus_sum_012->GetParameter(6);
+  errMean_peak_0    = gaus_sum_012->GetParError(6);
+  Sigma_peak_0      = gaus_sum_012->GetParameter(4);
+  errSigma_peak_0   = gaus_sum_012->GetParError(4);
+
+
+  //--------------
+  //---[ 1pe ]---
+  //-------------
+  H_peak_1          = gaus_sum_012->GetParameter(1);
+  errH_peak_1       = gaus_sum_012->GetParError(1);
+  Mean_peak_1       = Mean_peak_0 + Gain;
+  errMean_peak_1    = TMath::Sqrt( errMean_peak_0*errMean_peak_0 + errGain*errGain );
+  Sigma_peak_1      = TMath::Sqrt( Sigma_peak_0*Sigma_peak_0 + Sigma_add*Sigma_add );
+  errSigma_peak_1   = TMath::Sqrt( (Sigma_peak_0*Sigma_peak_0*errSigma_peak_0*errSigma_peak_0 + Sigma_add*Sigma_add*errSigma_add*errSigma_add) / ( Sigma_peak_0*Sigma_peak_0 + Sigma_add*Sigma_add ) );
+
+
+  //--------------
+  //---[ 2pe ]---
+  //-------------
+  H_peak_2          = gaus_sum_012->GetParameter(2);
+  errH_peak_2       = gaus_sum_012->GetParError(2);
+  Mean_peak_2       = Mean_peak_0 + 2*Gain;
+  errMean_peak_2    = TMath::Sqrt( errMean_peak_0*errMean_peak_0 + 4*errGain*errGain );
+  Sigma_peak_2      = TMath::Sqrt( Sigma_peak_0*Sigma_peak_0 + 4*Sigma_add*Sigma_add );
+  errSigma_peak_2   = TMath::Sqrt( (Sigma_peak_0*Sigma_peak_0*errSigma_peak_0*errSigma_peak_0 + 4*4*Sigma_add*Sigma_add*errSigma_add*errSigma_add) / ( Sigma_peak_0*Sigma_peak_0 + 4*Sigma_add*Sigma_add ) );
+
+
+  gaus_sum_012->Draw("same");
+
+  //---------------------
+  //---[ GLOBAL HIST ]---
+  //---------------------
+  Entries = hist->GetEntries();
+  Mean_hg = hist->GetMean();
+  errMean_hg = hist->GetMeanError();
+  Std_hg  = hist->GetStdDev();
+  errStd_hg = hist->GetStdDevError();
+
+  //-----------------------------
+  //---[ CROSS TALK from LED ]---
+  //-----------------------------
+  double Area0 = H_peak_0*Sigma_peak_0*TMath::Power(2*TMath::Pi(),0.5)/1;
+  double Prob_0pe = Area0/Entries;
+  double Mu = -TMath::Log(Prob_0pe);
+  double Prob_1pe = Mu*TMath::Exp(-Mu);
+  double Area1 = H_peak_1*Sigma_peak_1*TMath::Power(2*TMath::Pi(),0.5)/1;
+  double Prob_1peS = Area1/Entries;
+  double Prob_Cross_Talk = 1-(Prob_1peS/Prob_1pe);
+
+
+  //-----------------
+  //---[ RESULTS ]---
+  //-----------------
+  int index = 0;
+  cout<<endl;
+  // cout<<"Enter vector index:"<<endl;
+  // cin>>index;
+
+  cout<<endl;
+  cout<<"// Window for LED peak: "<<"("<<minLED_amp<<", "<<maxLED_amp<<") ns"<<"  (minLED_amp, maxLED_amp)"<<endl;
+
+  // peak 0
+  cout<<"H_peak_0["<<index<<"]\t\t= "<<H_peak_0<<";"<<endl;
+  cout<<"errH_peak_0["<<index<<"]\t\t= "<<errH_peak_0<<";"<<endl;
+  cout<<"Sigma_peak_0["<<index<<"]\t\t= "<<Sigma_peak_0<<";"<<endl;
+  cout<<"errSigma_peak_0["<<index<<"]\t= "<<errSigma_peak_0<<";"<<endl;
+
+  // peak 1
+  cout<<"H_peak_1["<<index<<"]\t\t= "<<H_peak_1<<";"<<endl;
+  cout<<"errH_peak_1["<<index<<"]\t\t= "<<errH_peak_1<<";"<<endl;
+  cout<<"Sigma_peak_1["<<index<<"]\t\t= "<<Sigma_peak_1<<";"<<endl;
+  cout<<"errSigma_peak_1["<<index<<"]\t= "<<errSigma_peak_1<<";"<<endl;
+  cout<<"Mean_peak_1["<<index<<"]\t\t= "<<Mean_peak_1<<";"<<endl;
+  cout<<"errMean_peak_1["<<index<<"]\t= "<<errMean_peak_1<<";"<<endl;
+
+  // peak 2
+  cout<<"Mean_peak_2["<<index<<"]\t\t= "<<Mean_peak_2<<";"<<endl;
+  cout<<"errMean_peak_2["<<index<<"]\t= "<<errMean_peak_2<<";"<<endl;
+
+  // GLOBAL HIST
+  cout<<"Mean_hg["<<index+2<<"]\t\t= "<<Mean_hg<<";"<<endl;
+  cout<<"errMean_hg["<<index+2<<"]\t\t= "<<errMean_hg<<";"<<endl;
+  cout<<"Std_hg["<<index+2<<"]\t\t= "<<Std_hg<<";"<<endl;
+  cout<<"errStd_hg["<<index+2<<"]\t\t= "<<errStd_hg<<";"<<endl;
+  cout<<"Entries["<<index<<"]\t\t= "<<Entries<<";"<<endl;
+
+
+  // Cross Talk
+  cout<<endl;
+  cout << "Cross Talk\t\t= " << Prob_Cross_Talk*100 <<" \%" << endl;
+
+}
+
 
 //------------------------------------------------------------------------------
 void find_offset(){
