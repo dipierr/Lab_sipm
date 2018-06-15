@@ -1751,15 +1751,15 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist){
   gaus_sum_012->SetParameter(1, 800);  // H1
   gaus_sum_012->SetParameter(2, 800);  // H2
   gaus_sum_012->SetParameter(3, 800);  // H3
-  gaus_sum_012->SetParameter(4, 18);   // g
+  gaus_sum_012->SetParameter(4, 15);   // g
   gaus_sum_012->SetParameter(5, 2);    // s0
   gaus_sum_012->SetParameter(6, 1);    // sadd
   gaus_sum_012->SetParameter(7, 1);    // V0
-  gaus_sum_012->SetParameter(8, 0);    // dg01
+  gaus_sum_012->SetParameter(8, 0.1);    // dg01
 
   // Fit Range
   float fit_low  = -10;
-  float fit_high = 50;
+  float fit_high = 55;
 
 
   // FIT
