@@ -54,6 +54,8 @@
 #include "TTree.h"
 #include "TSystem.h"
 
+using namespace std;
+
 #define nfilemax 3
 #define max_peak_num 50
 #define max_peaks 5000000
@@ -433,7 +435,8 @@ bool peak_rejected = false;
 
 int histLED_low = -50;
 int histLED_high = 700;
-int histLED_nbins = 750;
+float histLED_binw = 1.4; //mV
+int histLED_nbins = (int)(((float)histLED_high-(float)histLED_low)/histLED_binw);//750;
 TH1D *ptrHistLED = new TH1D("histLED","",histLED_nbins, histLED_low, histLED_high);//per i fit 140,-20,200
 
 TH1F *ptrAll = new TH1F("histAll","",500,-100,100);
@@ -452,7 +455,8 @@ TF1 *gausFit0 = new TF1("gausFit0","gaus",-100,100);
 TF1 *gausFit1 = new TF1("gausFit1","gaus",-100,100);
 TF1 *gausFit2 = new TF1("gausFit2","gaus",-100,100);
 
-TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[6])*(x-[6])/( 2*[4]*[4] ) ) + [1]*TMath::Exp( - (x-[6]-[3])*(x-[6]-[3])/( 2*([4]*[4] + [5]*[5] )) ) + [2]*TMath::Exp( - (x-[6]-2*[3])*(x-[6]-2*[3])/( 2*([4]*[4] + 4*[5]*[5] ) ) )" ,-20,60);
+TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[7])*(x-[7])/( 2*[5]*[5] ) ) + [1]*TMath::Exp( - (x-[7]-[4]-[8])*(x-[7]-[4]-[8])/( 2*([5]*[5] + [6]*[6] )) ) + [2]*TMath::Exp( - (x-[7]-2*[4])*(x-[7]-2*[4])/( 2*([5]*[5] + 4*[6]*[6] ) ) ) + [3]*TMath::Exp( - (x-[7]-3*[4])*(x-[7]-3*[4])/( 2*([5]*[5] + 9*[6]*[6]) ) )" ,-100,100);
+//[H0]*TMath::Exp( - (x-[V0])*(x-[V0])/( 2*[s0]*[s0] ) ) + [H1]*TMath::Exp( - (x-[V0]-[gain])*(x-[V0]-[gain])/( 2*([s0]*[s0] + [sadd]*[sadd] )) ) + [H2]*TMath::Exp( - (x-[V0]-2*[gain])*(x-[V0]-2*[gain])/( 2*([s0]*[s0] + 4*[sadd]*[sadd] ) ) ) + [H3]*TMath::Exp( - (x-[V0]-3*[gain])*(x-[V0]-3*[gain])/( 2*([s0]*[s0] + 9*[sadd]*[sadd]) ) )
 
 
 
@@ -815,8 +819,8 @@ void Ana_LED(string file1, int last_event_n){
     canvLED->Update();
 
     // fit hist LED
-    fit_hist_peaks_0pe_1pe_2pe(canvLED, ptrHistLED);
-    // fit_hist_peaks_gaus_sum_012(canvLED, ptrHistLED);
+    // fit_hist_peaks_0pe_1pe_2pe(canvLED, ptrHistLED);
+    fit_hist_peaks_gaus_sum_012(canvLED, ptrHistLED);
 
 }
 
@@ -1722,7 +1726,7 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist){
   float H_peak_0, H_peak_1, H_peak_2;
   float errH_peak_0, errH_peak_1, errH_peak_2;
 
-  float Gain, errGain, Sigma_add, errSigma_add;
+  float Gain, errGain, Sigma_add, errSigma_add, Diff_Gain_0_1, errDiff_Gain_0_1;
 
   float Mean_hg, errMean_hg, Std_hg, errStd_hg;
 
@@ -1731,23 +1735,46 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist){
 
   c->cd();
 
+  // Set Name
   gaus_sum_012->SetParName(0, "H0");
   gaus_sum_012->SetParName(1, "H1");
   gaus_sum_012->SetParName(2, "H2");
-  gaus_sum_012->SetParName(3, "g");
-  gaus_sum_012->SetParName(4, "s0");
-  gaus_sum_012->SetParName(5, "sadd");
-  gaus_sum_012->SetParName(6, "V0");
+  gaus_sum_012->SetParName(3, "H3");
+  gaus_sum_012->SetParName(4, "gain");
+  gaus_sum_012->SetParName(5, "s0");
+  gaus_sum_012->SetParName(6, "sadd");
+  gaus_sum_012->SetParName(7, "V0");
+  gaus_sum_012->SetParName(8, "dg01");
 
-  hist -> Fit("gaus_sum_012", "+", "", -20, 60);
+  // Initialize Parameters
+  gaus_sum_012->SetParameter(0, 800);  // H0
+  gaus_sum_012->SetParameter(1, 800);  // H1
+  gaus_sum_012->SetParameter(2, 800);  // H2
+  gaus_sum_012->SetParameter(3, 800);  // H3
+  gaus_sum_012->SetParameter(4, 18);   // g
+  gaus_sum_012->SetParameter(5, 2);    // s0
+  gaus_sum_012->SetParameter(6, 1);    // sadd
+  gaus_sum_012->SetParameter(7, 1);    // V0
+  gaus_sum_012->SetParameter(8, 0);    // dg01
+
+  // Fit Range
+  float fit_low  = -10;
+  float fit_high = 50;
+
+
+  // FIT
+  gaus_sum_012->SetRange(fit_low, fit_high);
+  hist -> Fit("gaus_sum_012", "+", "", fit_low, fit_high);
 
   // gain
-  Gain              = gaus_sum_012->GetParameter(3);
-  errGain           = gaus_sum_012->GetParError(3);
+  Gain              = gaus_sum_012->GetParameter(4);
+  errGain           = gaus_sum_012->GetParError(4);
+  Diff_Gain_0_1     = gaus_sum_012->GetParameter(8);
+  errDiff_Gain_0_1  = gaus_sum_012->GetParError(8);
 
   // sigma
-  Sigma_add        = gaus_sum_012->GetParameter(5);
-  errSigma_add     = gaus_sum_012->GetParError(5);
+  Sigma_add        = gaus_sum_012->GetParameter(6);
+  errSigma_add     = gaus_sum_012->GetParError(6);
 
 
   //--------------
@@ -1755,10 +1782,10 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist){
   //-------------
   H_peak_0          = gaus_sum_012->GetParameter(0);
   errH_peak_0       = gaus_sum_012->GetParError(0);
-  Mean_peak_0       = gaus_sum_012->GetParameter(6);
-  errMean_peak_0    = gaus_sum_012->GetParError(6);
-  Sigma_peak_0      = gaus_sum_012->GetParameter(4);
-  errSigma_peak_0   = gaus_sum_012->GetParError(4);
+  Mean_peak_0       = gaus_sum_012->GetParameter(7);
+  errMean_peak_0    = gaus_sum_012->GetParError(7);
+  Sigma_peak_0      = gaus_sum_012->GetParameter(5);
+  errSigma_peak_0   = gaus_sum_012->GetParError(5);
 
 
   //--------------
@@ -1766,8 +1793,8 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist){
   //-------------
   H_peak_1          = gaus_sum_012->GetParameter(1);
   errH_peak_1       = gaus_sum_012->GetParError(1);
-  Mean_peak_1       = Mean_peak_0 + Gain;
-  errMean_peak_1    = TMath::Sqrt( errMean_peak_0*errMean_peak_0 + errGain*errGain );
+  Mean_peak_1       = Mean_peak_0 + Gain + Diff_Gain_0_1;
+  errMean_peak_1    = TMath::Sqrt( errMean_peak_0*errMean_peak_0 + errGain*errGain + errDiff_Gain_0_1*errDiff_Gain_0_1);
   Sigma_peak_1      = TMath::Sqrt( Sigma_peak_0*Sigma_peak_0 + Sigma_add*Sigma_add );
   errSigma_peak_1   = TMath::Sqrt( (Sigma_peak_0*Sigma_peak_0*errSigma_peak_0*errSigma_peak_0 + Sigma_add*Sigma_add*errSigma_add*errSigma_add) / ( Sigma_peak_0*Sigma_peak_0 + Sigma_add*Sigma_add ) );
 
@@ -1777,8 +1804,8 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist){
   //-------------
   H_peak_2          = gaus_sum_012->GetParameter(2);
   errH_peak_2       = gaus_sum_012->GetParError(2);
-  Mean_peak_2       = Mean_peak_0 + 2*Gain;
-  errMean_peak_2    = TMath::Sqrt( errMean_peak_0*errMean_peak_0 + 4*errGain*errGain );
+  Mean_peak_2       = Mean_peak_1 + Gain;
+  errMean_peak_2    = TMath::Sqrt( errMean_peak_1*errMean_peak_1 + errGain*errGain );
   Sigma_peak_2      = TMath::Sqrt( Sigma_peak_0*Sigma_peak_0 + 4*Sigma_add*Sigma_add );
   errSigma_peak_2   = TMath::Sqrt( (Sigma_peak_0*Sigma_peak_0*errSigma_peak_0*errSigma_peak_0 + 4*4*Sigma_add*Sigma_add*errSigma_add*errSigma_add) / ( Sigma_peak_0*Sigma_peak_0 + 4*Sigma_add*Sigma_add ) );
 
@@ -1811,41 +1838,51 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist){
   //-----------------
   int index = 0;
   cout<<endl;
-  // cout<<"Enter vector index:"<<endl;
-  // cin>>index;
+  cout<<"Enter vector index:"<<endl;
+  cin>>index;
 
   cout<<endl;
   cout<<"// Window for LED peak: "<<"("<<minLED_amp<<", "<<maxLED_amp<<") ns"<<"  (minLED_amp, maxLED_amp)"<<endl;
 
   // peak 0
-  cout<<"H_peak_0["<<index<<"]\t\t= "<<H_peak_0<<";"<<endl;
-  cout<<"errH_peak_0["<<index<<"]\t\t= "<<errH_peak_0<<";"<<endl;
-  cout<<"Sigma_peak_0["<<index<<"]\t\t= "<<Sigma_peak_0<<";"<<endl;
-  cout<<"errSigma_peak_0["<<index<<"]\t= "<<errSigma_peak_0<<";"<<endl;
+  cout<<"H_peak_0["<<index<<"]          = "<<H_peak_0<<";"<<endl;
+  cout<<"errH_peak_0["<<index<<"]       = "<<errH_peak_0<<";"<<endl;
+  cout<<"Sigma_peak_0["<<index<<"]      = "<<Sigma_peak_0<<";"<<endl;
+  cout<<"errSigma_peak_0["<<index<<"]   = "<<errSigma_peak_0<<";"<<endl;
 
   // peak 1
-  cout<<"H_peak_1["<<index<<"]\t\t= "<<H_peak_1<<";"<<endl;
-  cout<<"errH_peak_1["<<index<<"]\t\t= "<<errH_peak_1<<";"<<endl;
-  cout<<"Sigma_peak_1["<<index<<"]\t\t= "<<Sigma_peak_1<<";"<<endl;
-  cout<<"errSigma_peak_1["<<index<<"]\t= "<<errSigma_peak_1<<";"<<endl;
-  cout<<"Mean_peak_1["<<index<<"]\t\t= "<<Mean_peak_1<<";"<<endl;
-  cout<<"errMean_peak_1["<<index<<"]\t= "<<errMean_peak_1<<";"<<endl;
+  cout<<"H_peak_1["<<index<<"]          = "<<H_peak_1<<";"<<endl;
+  cout<<"errH_peak_1["<<index<<"]       = "<<errH_peak_1<<";"<<endl;
+  cout<<"Sigma_peak_1["<<index<<"]      = "<<Sigma_peak_1<<";"<<endl;
+  cout<<"errSigma_peak_1["<<index<<"]   = "<<errSigma_peak_1<<";"<<endl;
+  cout<<"Mean_peak_1["<<index<<"]       = "<<Mean_peak_1<<";"<<endl;
+  cout<<"errMean_peak_1["<<index<<"]    = "<<errMean_peak_1<<";"<<endl;
 
   // peak 2
-  cout<<"Mean_peak_2["<<index<<"]\t\t= "<<Mean_peak_2<<";"<<endl;
-  cout<<"errMean_peak_2["<<index<<"]\t= "<<errMean_peak_2<<";"<<endl;
+  cout<<"Mean_peak_2["<<index<<"]       = "<<Mean_peak_2<<";"<<endl;
+  cout<<"errMean_peak_2["<<index<<"]    = "<<errMean_peak_2<<";"<<endl;
+
+  // GAIN
+  cout<<"GAIN["<<index<<"]              = "<<Gain<<";"<<endl;
+  cout<<"errGAIN["<<index<<"]           = "<<errGain<<";"<<endl;
 
   // GLOBAL HIST
-  cout<<"Mean_hg["<<index+2<<"]\t\t= "<<Mean_hg<<";"<<endl;
-  cout<<"errMean_hg["<<index+2<<"]\t\t= "<<errMean_hg<<";"<<endl;
-  cout<<"Std_hg["<<index+2<<"]\t\t= "<<Std_hg<<";"<<endl;
-  cout<<"errStd_hg["<<index+2<<"]\t\t= "<<errStd_hg<<";"<<endl;
-  cout<<"Entries["<<index<<"]\t\t= "<<Entries<<";"<<endl;
+  cout<<"Mean_hg["<<index+2<<"]           = "<<Mean_hg<<";"<<endl;
+  cout<<"errMean_hg["<<index+2<<"]        = "<<errMean_hg<<";"<<endl;
+  cout<<"Std_hg["<<index+2<<"]            = "<<Std_hg<<";"<<endl;
+  cout<<"errStd_hg["<<index+2<<"]         = "<<errStd_hg<<";"<<endl;
+  cout<<"Entries["<<index<<"]           = "<<Entries<<";"<<endl;
 
+  // Info
+  cout<<endl;
+  cout<<"// Fit based on the function reported in: "<<endl;
+  cout<<"//       Mallamaci Manuela, Mariotti Mosé - Report SiPM tests"<<endl;
 
   // Cross Talk
   cout<<endl;
-  cout << "Cross Talk\t\t= " << Prob_Cross_Talk*100 <<" \%" << endl;
+  cout << "Cross Talk           = " << Prob_Cross_Talk*100 <<" \%" << endl;
+
+
 
 }
 
