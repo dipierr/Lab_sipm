@@ -38,7 +38,12 @@ class Trace : public TObject
       std::vector<Float_t> AmplitudeDLED(Int_t dt);
       std::vector<Float_t> TimeDLED(Int_t dt);
 
-      int Get_trace_length() { return fTrace_length; }
+      Float_t GetMean(std::vector<Float_t> vec);
+      Float_t GetStdDev(std::vector<Float_t> vec);
+
+      std::vector<Int_t> FindPeaks(std::vector<Float_t> vec, Bool_t dled_bool = kFALSE, Int_t dt = 0);     
+
+      Int_t Get_trace_length() { return fTrace_length; }
 
       ClassDef(Trace,1);
 };
@@ -98,7 +103,7 @@ class RunSipm : public TTask
    public:
       RunSipm() {;}
       RunSipm(const char *name, const char *title);
-      virtual ~RunSipm() {;}
+      virtual ~RunSipm();
       void Exec(Option_t *option="");
       ClassDef(RunSipm,1);   // Run Reconstruction task
 };
@@ -124,5 +129,59 @@ class Decode : public TTask {
       void DecodeTerminate(Int_t ret_value);
       ClassDef(Decode,1);   // Geometry initialisation task
 };
+
+class CharacterizeSipm : public TTask {
+
+   private:
+      TFile                *fInfile;         // TFile to open
+      TTree                *fTraceTree;      // tree for traces
+      TTree                *fHeaderTree;     // tree for trace header
+      Trace                *fTrace;          // Trace object
+      TraceHeader          *fTraceHeader;    // TraceHeader object
+      std::string          fFilename;        // name of input file
+
+   public:
+      CharacterizeSipm() {;}
+      CharacterizeSipm(const char *name, const char *title, std::string &filename);
+      virtual ~CharacterizeSipm();
+      void Exec(Option_t *option="");
+      void CharacterizeSipmInit();
+      void CharacterizeSipmProcess(Option_t *option="");
+      void CharacterizeSipmTerminate();
+      ClassDef(CharacterizeSipm,1);
+};
+
+//class HistoManager {
+//
+//private:
+//   TH1F  *fNtrack;
+//   TH1F  *fNseg;
+//   TH1F  *fTemperature;
+//   TH1F  *fPx;
+//   TH1F  *fPy;
+//   TH1F  *fPz;
+//   TH1F  *fRandom;
+//   TH1F  *fMass2;
+//   TH1F  *fBx;
+//   TH1F  *fBy;
+//   TH1F  *fMeanCharge;
+//   TH1F  *fXfirst;
+//   TH1F  *fXlast;
+//   TH1F  *fYfirst;
+//   TH1F  *fYlast;
+//   TH1F  *fZfirst;
+//   TH1F  *fZlast;
+//   TH1F  *fCharge;
+//   TH1F  *fNpoint;
+//   TH1F  *fValid;
+//
+//public:
+//   HistogramManager(TDirectory *dir);
+//   virtual ~HistogramManager();
+//
+//   void Hfill(Event *event);
+//
+//   ClassDef(HistogramManager,1)  //Manages all histograms
+//};
  
 #endif
