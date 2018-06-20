@@ -8,5 +8,6 @@
 #pragma link C++ class TraceHeader+;
 #pragma link C++ class RunSipm+;
 #pragma link C++ class Decode+;
+#pragma link C++ class CharacterizeSipm+;
 
 #endif
