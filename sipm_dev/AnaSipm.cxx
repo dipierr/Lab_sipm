@@ -11,11 +11,17 @@
 #include "TVirtualGraphPainter.h"
 #include "TGraph.h"
 #include "TSpectrum.h"
+#include "TCanvas.h"
+#include "TSystem.h"
+#include "TGaxis.h"
+#include "TROOT.h"
+#include "TString.h"
 
 ClassImp(Trace);
 ClassImp(TraceHeader);
 ClassImp(RunSipm);
 ClassImp(Decode);
+ClassImp(CharacterizeSipm);
 
 //______________________________________________________________________________
 Trace::Trace() : fId(0), fTrace_length(1024), fAmplitude_Array(fTrace_length, 0), fTime_Array(fTrace_length, 0)
@@ -53,10 +59,7 @@ void Trace::Build(UInt_t id, Float_t *amplitude_array, Float_t *time_array)
 void Trace::Negate()
 {
    // Reverse the amplitude trace, if any
-
-   if(!fAmplitude_Array.empty()){
-      auto last_write = std::transform(fAmplitude_Array.begin(), fAmplitude_Array.end(), fAmplitude_Array.begin(), std::negate<Float_t>());
-   }
+   std::transform(fAmplitude_Array.begin(), fAmplitude_Array.end(), fAmplitude_Array.begin(), std::negate<Float_t>());
 }
 
 //______________________________________________________________________________
@@ -99,6 +102,122 @@ std::vector<Float_t> Trace::TimeDLED(Int_t dt)
    }
 
    return time_dled;
+}
+
+Float_t Trace::GetMean(std::vector<Float_t> vec)
+{
+   // Compute mean of a vector.
+   // From: https://stackoverflow.com/questions/7616511/calculate-mean-and-standard-deviation-from-a-vector-of-samples-in-c-using-boos/12405793#12405793
+
+   Float_t sum = std::accumulate(vec.begin(), vec.end(), 0.0);
+
+   return (sum / vec.size());
+}
+
+Float_t Trace::GetStdDev(std::vector<Float_t> vec)
+{
+   // Compute standard deviation of a vector.
+   // From: https://stackoverflow.com/questions/7616511/calculate-mean-and-standard-deviation-from-a-vector-of-samples-in-c-using-boos/12405793#12405793
+
+   Float_t accum = 0.0;
+   Float_t m = GetMean(vec);
+   std::for_each (vec.begin(), vec.end(), [&](const Float_t d) {
+    accum += (d - m) * (d - m);
+   });
+
+   return (sqrt(accum / (vec.size()-1)));
+}
+
+std::vector<Int_t> Trace::FindPeaks(std::vector<Float_t> vec, Bool_t dled_bool, Int_t dt)
+{   
+   // Routine to find peaks. Code adapted from:
+   // https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/46956908#46956908
+   // (original Q/A: https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data)
+
+   //lag 5 for the smoothing functions
+   UInt_t lag = 20;
+   //3.5 standard deviations for signal
+   Float_t threshold = 1;
+   //between 0 and 1, where 1 is normal influence, 0.5 is half
+   Float_t influence = 1.;
+
+   if (vec.size() <= lag + 2)
+   {
+      std::vector<Int_t> emptyVec;
+      return emptyVec;
+   }
+
+   // DLED stuff
+
+   UInt_t blind_gap = 0;
+
+   if(dled_bool){
+      blind_gap = 2*dt;
+   }
+
+   //Initialise variables
+   std::vector<Int_t> signals(vec.size(), 0.0);
+   std::vector<Float_t> filteredY(vec.size(), 0.0);
+   std::vector<Float_t> avgFilter(vec.size(), 0.0);
+   std::vector<Float_t> stdFilter(vec.size(), 0.0);
+   std::vector<Float_t> subVecStart(vec.begin(), vec.begin() + lag);
+
+   avgFilter[lag] = GetMean(subVecStart);
+   stdFilter[lag] = GetStdDev(subVecStart);
+
+   UInt_t old_peak = 0;
+
+   for (size_t i = lag + 1; i < vec.size()-2; i++)
+   {
+      if (std::abs(vec[i] - avgFilter[i - 1]) > threshold * stdFilter[i - 1])
+      {
+         if (vec[i] > avgFilter[i - 1])
+         {
+            if ((vec[i-2] < vec[i]) && (vec[i-1] < vec[i]) && (vec[i+1] < vec[i]) && (vec[i+2] < vec[i]))
+            {
+               if (i - old_peak > blind_gap)
+               {
+                  signals[i] = 1; //# Positive signal
+                  old_peak = i;
+               }
+               else
+               {
+                  signals[i] = 0;
+               }
+               
+            }
+            else
+            {
+               signals[i] = 0;
+            }
+         }
+         else
+         {
+            if ((vec[i-2] > vec[i]) && (vec[i-1] > vec[i]) && (vec[i+1] > vec[i]) && (vec[i+2] > vec[i]))
+            {
+               signals[i] = -1; //# Negative signal
+            }
+            else
+            {
+               signals[i] = 0;
+            }
+         }
+         //Make influence lower
+         filteredY[i] = influence* vec[i] + (1 - influence) * filteredY[i - 1];
+      }
+      else
+      {
+         signals[i] = 0; //# No signal
+         filteredY[i] = vec[i];
+      }
+
+      //Adjust the filters
+      std::vector<Float_t> subVec(filteredY.begin() + i - lag, filteredY.begin() + i);
+      avgFilter[i] = GetMean(subVec);
+      stdFilter[i] = GetStdDev(subVec);
+   }
+
+   return signals;
 }
 
 //______________________________________________________________________________
@@ -227,6 +346,12 @@ void TraceHeader::Build(std::string &filename)
 RunSipm::RunSipm(const char *name, const char *title) : TTask(name,title)
 {
 
+}
+
+//______________________________________________________________________________
+RunSipm::~RunSipm()
+{
+   std::cout << "RunSipm task terminating." << std::endl;
 }
 
 //______________________________________________________________________________
@@ -617,4 +742,246 @@ void Decode::Exec(Option_t * /*option*/)
    Int_t retvalue = DecodeProcess();
    DecodeTerminate(retvalue);
    std::cout << "... executing Decode Task done!" << std::endl;
+}
+
+//______________________________________________________________________________
+CharacterizeSipm::CharacterizeSipm(const char *name, const char *title, std::string &filename) : TTask(name,title), fInfile(0), fTraceTree(0), fHeaderTree(0),
+                                                                                                 fTrace(0), fTraceHeader(0), fFilename(filename)
+{
+
+}
+
+//______________________________________________________________________________
+CharacterizeSipm::~CharacterizeSipm()
+{
+   std::cout << "Deleting objects and closing." << std::endl;
+   if(fInfile) { fInfile->Close(); }
+   if(fTrace) { delete fTrace; fTrace = 0; }
+   if(fTraceHeader) { delete fTraceHeader; fTraceHeader = 0; }
+}
+
+//______________________________________________________________________________
+void CharacterizeSipm::CharacterizeSipmInit()
+{
+
+   std::cout << "Initializing CharacterizeSipm Task ... " << std::endl;
+   std::cout << "\t * initializing output TFile, TTrees and Branches ... " << std::endl;
+
+   // fTrace and fTraceHeader are not initialized with new operator since they will be filled
+   // when looping through the TTree entries. So their initial value should be 0, as in the constructor
+
+   fInfile        = TFile::Open(fFilename.c_str());
+   fHeaderTree    = (TTree *)fInfile->Get("Trace_header");
+   fTraceTree     = (TTree *)fInfile->Get("Trace");
+
+   fHeaderTree->SetBranchAddress("HeaderBranch", &fTraceHeader);
+   fTraceTree->SetBranchAddress("TraceBranch", &fTrace);
+
+   std::cout << "... initializing CharacterizeSipm Task done!" << std::endl;
+}
+
+//______________________________________________________________________________
+void CharacterizeSipm::CharacterizeSipmProcess(Option_t * option)
+{
+   TString opt = option;
+
+   if (opt.Contains("NB")){
+      gROOT->SetBatch(kFALSE);
+   }
+   else
+   {
+      gROOT->SetBatch(); 
+   }
+
+   gROOT->IsBatch();
+
+   std::cout << "Processing CharacterizeSipm Task ... " << std::endl;
+
+   fHeaderTree->GetEntry(); // fTraceHeader is now filled
+
+   Bool_t dled_bool     = kFALSE;
+   Bool_t reverse_bool  = kFALSE;
+
+   std::string amplifier = fTraceHeader->GetAmplifier();
+
+   if (amplifier.compare("AS") == 0)
+   {
+      dled_bool = kTRUE;
+      reverse_bool = kTRUE;
+   }
+
+   if (dled_bool)
+   {
+      std::cout << "\t * DLED will be used on traces ... " << std::endl;
+   }
+
+   if (reverse_bool)
+   {
+      std::cout << "\t * traces will be reversed ... " << std::endl;
+   }
+
+   Int_t nentries = fTraceTree->GetEntries();
+
+   std::cout << "\t * going to read " << nentries << " entries ... " << std::endl;
+
+   std::vector<Float_t> amplitude;
+   std::vector<Float_t> timet;
+   std::vector<Float_t> dled_trace;
+   std::vector<Float_t> dled_time;
+
+   std::vector<Int_t> peak_pos;
+   std::vector<Float_t> peak_x;
+   std::vector<Float_t> peak_y;
+
+   //Int_t trace_length = 1024;
+
+   // find minimum and maximu of times and amplitudes
+
+   //fTraceTree->SetEstimate(nentries*1024 + 1);
+//
+   //fTraceTree->Draw("fAmplitude_Array", "", "goff");
+   //std::vector<Double_t> all_amplitudes;
+   //all_amplitudes.assign(fTraceTree->GetV1(), fTraceTree->GetV1() + fTraceTree->GetSelectedRows());
+   //Float_t min_amplitude = *std::min_element(all_amplitudes.begin(), all_amplitudes.end());
+   //Float_t max_amplitude = *std::max_element(all_amplitudes.begin(), all_amplitudes.end());
+//
+   //fTraceTree->Draw("fTime_Array", "", "goff");
+   //std::vector<Double_t> all_times;
+   //all_times.assign(fTraceTree->GetV1(), fTraceTree->GetV1() + fTraceTree->GetSelectedRows());
+   //Float_t min_time = *std::min_element(all_times.begin(), all_times.end());
+   //Float_t max_time = *std::max_element(all_times.begin(), all_times.end());
+//
+   //std::cout << min_amplitude << " " << max_amplitude << std::endl;
+   //std::cout << min_time << " " << max_time << std::endl;
+
+   TCanvas *c1 = new TCanvas("c1", "c1", 5);
+   c1->Divide(1,2);
+   TGraph  trace_graph;
+   TGraph  dled_graph;
+   TGraph  peaks;
+
+   //TGaxis xaxis_low(0.1, 0.1, 0.9, 0.1, min_time, max_time);
+   //TGaxis xaxis_up(0.1, 0.9, 0.9, 0.9, min_time, max_time, 510, "U-");
+   //TGaxis yaxis_left(0.1, 0.1, 0.1, 0.9, min_amplitude, max_amplitude);
+   //TGaxis yaxis_right(0.9, 0.1, 0.9, 0.9, min_amplitude, max_amplitude, 510, "U+");
+//
+   //c1->cd(1);
+   //xaxis_low.Draw();
+   //xaxis_up.Draw();
+   //yaxis_left.Draw();
+   //yaxis_right.Draw();
+   //c1->cd(2);
+   //xaxis_low.Draw();
+   //xaxis_up.Draw();
+   //yaxis_left.Draw();
+   //yaxis_right.Draw();
+
+   // loop over Trace TTree
+
+   for (Int_t j = 0; j < nentries; ++j)
+   {
+      if (j%1000 == 0)
+      {
+         std::cout << "\t * processing " << j << "th event ... " << std::endl;
+      }
+      
+      fTraceTree->GetEntry(j);
+
+      // reverse trace if needed e.g. if amplifier is AdvanSid
+
+      if (reverse_bool)
+      {
+         fTrace->Negate();
+      }
+
+      amplitude = fTrace->GetAmplitudeArray();
+      timet     = fTrace->GetTimeArray();
+
+      // apply DLED to trace if needed e.g. if amplifier is AdvanSid
+      // also, find peaks
+      
+      if (dled_bool)
+      {
+         dled_trace = fTrace->AmplitudeDLED(9);
+         dled_time  = fTrace->TimeDLED(9);
+         peak_pos   = fTrace->FindPeaks(dled_trace,kTRUE,9);
+      }
+      else
+      {
+         peak_pos = fTrace->FindPeaks(amplitude);
+      }
+
+      // get only positive peaks and create two vector containing the
+      // times and amplitudes of the peaks
+
+      for(UInt_t i = 0; i < peak_pos.size(); i++){
+         if(peak_pos[i] != 1){
+            continue;
+         }
+         else
+         {         
+            dled_bool ? peak_x.push_back(dled_time[i])  : peak_x.push_back(timet[i]);
+            dled_bool ? peak_y.push_back(dled_trace[i]) : peak_y.push_back(amplitude[i]);
+         }
+      }
+
+      trace_graph = TGraph(amplitude.size(), timet.data(), amplitude.data());
+      dled_graph  = TGraph(dled_trace.size(), dled_time.data(), dled_trace.data());
+      peaks       = TGraph(peak_x.size(), peak_x.data(), peak_y.data());
+
+      peaks.SetMarkerStyle(22);
+      peaks.SetMarkerColor(kRed);
+
+      c1->Clear("D");
+      c1->cd(1);
+      trace_graph.Draw("ALP");
+      c1->cd(2);
+      dled_graph.Draw("ALP");
+      peaks.Draw("Psame");
+      c1->Update();
+
+      while(!gSystem->ProcessEvents()) {
+         if (c1->WaitPrimitive()==0)
+         {
+            break;
+         }
+      }
+
+      peak_x.clear();
+      peak_y.clear();
+   } 
+
+   delete c1;
+
+   return;
+
+}
+
+//______________________________________________________________________________
+void CharacterizeSipm::CharacterizeSipmTerminate()
+{
+   std::cout << "Terminating CharacterizeSipm Task ... " << std::endl;
+
+   std::cout << "\t* closing file ... " << std::endl;
+
+   fInfile->Close();
+   delete fTrace;
+   fTrace = 0;
+   delete fTraceHeader;
+   fTraceHeader = 0;
+
+   std::cout << "\t* file closed and objects deleted ... " << std::endl;
+   std::cout << "... terminating CharacterizeSipm Task done!" << std::endl;
+
+   return;
+}
+
+//______________________________________________________________________________
+void CharacterizeSipm::Exec(Option_t * option)
+{
+   std::cout << "Executing CharacterizeSipm Task ... " << std::endl;
+   CharacterizeSipmInit();
+   CharacterizeSipmProcess(option);
+   CharacterizeSipmTerminate();
+   std::cout << "... executing CharacterizeSipm Task done!" << std::endl;
 }
