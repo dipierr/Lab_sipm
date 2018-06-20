@@ -27,4 +27,6 @@ target_link_libraries(AnaSipm ${ROOT_LIBRARIES})
 
 #---Create  a main program using the library
 add_executable(decode_file decode_file.cxx)
+add_executable(characterize_sipm characterize_sipm.cxx)
 target_link_libraries(decode_file AnaSipm)
+target_link_libraries(characterize_sipm AnaSipm)
