@@ -185,25 +185,26 @@ void OperationPoint_LASER_PLS_FitGausSum_02(){
 
     // ../../Data_DRS/20180626/20180626_HD3-2_2_LASER_PLS_75_PAPER_AGILENT_33_AS_2_50000_01.dat
     // Window for LED peak: (177, 184) ns  (minLED_amp, maxLED_amp)
-    H_peak_0[2]          = 679.723;
-    errH_peak_0[2]       = 17.3937;
-    Sigma_peak_0[2]      = 2.4195;
-    errSigma_peak_0[2]   = 0.0417604;
-    H_peak_1[2]          = 684.609;
-    errH_peak_1[2]       = 13.0383;
-    Sigma_peak_1[2]      = 3.0766;
-    errSigma_peak_1[2]   = 0.0421667;
-    Mean_peak_1[2]       = 14.89;
-    errMean_peak_1[2]    = 0.0964008;
-    Mean_peak_2[2]       = 28.8386;
-    errMean_peak_2[2]    = 0.107269;
-    GAIN[2]              = 13.9486;
-    errGAIN[2]           = 0.0470471;
+    H_peak_0[2]          = 684.712;
+    errH_peak_0[2]       = 17.4843;
+    Sigma_peak_0[2]      = 2.4051;
+    errSigma_peak_0[2]   = 0.0413805;
+    H_peak_1[2]          = 679.662;
+    errH_peak_1[2]       = 13.4237;
+    Sigma_peak_1[2]      = 3.03755;
+    errSigma_peak_1[2]   = 0.0424157;
+    Mean_peak_1[2]       = 14.7919;
+    errMean_peak_1[2]    = 0.104666;
+    Mean_peak_2[2]       = 28.4178;
+    errMean_peak_2[2]    = 0.119372;
+    GAIN[2]              = 13.6259;
+    errGAIN[2]           = 0.0574007;
     Mean_hg[4]           = 45.5606;
     errMean_hg[4]        = 0.176687;
     Std_hg[4]            = 31.3325;
     errStd_hg[4]         = 0.124937;
     Entries[2]           = 31447;
+
 
 
 
