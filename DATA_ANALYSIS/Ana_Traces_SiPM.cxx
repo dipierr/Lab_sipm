@@ -230,8 +230,8 @@ float pe_1_5_vect[3] = {25.,27.5,27.5};
 float thr_to_find_peaks = 7; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
 
 // ONLY for LED measures
-int minLED_amp = 168;//115;  // window: min time for peak (ns) for LED
-int maxLED_amp = 176;//125;  // window: max time for peak (ns) for LED
+int minLED_amp = 177;//168;//115;  // window: min time for peak (ns) for LED
+int maxLED_amp = 183;//176;//125;  // window: max time for peak (ns) for LED
 int dcr_mintp  = minLED_amp + 200;
 int dcr_maxtp  = maxLED_amp + 200;
 
