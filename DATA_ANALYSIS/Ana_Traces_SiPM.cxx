@@ -130,7 +130,7 @@ void DLED(int trace_length, int dleddt);
 int find_peak_fix_time(int mintp, int maxtp);
 void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,int blind_gap, bool DCR_DELAYS_bool);
 void fit_hist_peaks_0pe_1pe_2pe(TCanvas *c, TH1D *hist);
-void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist);
+void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist, bool evaluate_cross_talk);
 void average_func(int trace_length);
 void fit_hist_del(float expDelLow, float expDelHigh);
 void fit_hist_peaks(TCanvas *c, TH1D *hist);
@@ -209,7 +209,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
+int dleddt = 9;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 20; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
@@ -230,8 +230,10 @@ float pe_1_5_vect[3] = {25.,27.5,27.5};
 float thr_to_find_peaks = 7; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
 
 // ONLY for LED measures
-int minLED_amp = 168;//115;  // window: min time for peak (ns)
-int maxLED_amp = 176;//125;  // window: max time for peak (ns)
+int minLED_amp = 168;//115;  // window: min time for peak (ns) for LED
+int maxLED_amp = 176;//125;  // window: max time for peak (ns) for LED
+int dcr_mintp  = minLED_amp + 200;
+int dcr_maxtp  = maxLED_amp + 200;
 
 // 0 high, 1 low
 float range1_low_low_mV   = 5;//5;  // 5;  //5;
@@ -368,7 +370,7 @@ int max_bin, n_offset;
 int min_line = 0;
 int max_line = 0;
 
-double min_peak_window, max_peak_window;
+double min_peak_window[2], max_peak_window[2];
 
 float fit0Low, fit0High, fit1Low, fit1High, fit2Low, fit2High;
 
@@ -423,6 +425,8 @@ bool show_peak_LED_bool = false;
 
 bool peak_rejected = false;
 
+bool led_and_dcr_0pe = false;
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -437,7 +441,9 @@ int histLED_low = -50;
 int histLED_high = 700;
 float histLED_binw = 1.4; //mV
 int histLED_nbins = (int)(((float)histLED_high-(float)histLED_low)/histLED_binw);//750;
-TH1D *ptrHistLED = new TH1D("histLED","",histLED_nbins, histLED_low, histLED_high);//per i fit 140,-20,200
+TH1D *ptrHistLED = new TH1D("histLED","",histLED_nbins, histLED_low, histLED_high);
+TH1D *ptrHistDCR_window = new TH1D("HistDCR_window","",histLED_nbins, histLED_low, histLED_high);
+
 
 TH1F *ptrAll = new TH1F("histAll","",500,-100,100);
 TH1F *ptrAllTrace = new TH1F("histAllT","",86,-10.0,20.0);
@@ -667,7 +673,7 @@ void Ana1(string file1, int last_event_n, bool display_one_ev_param){
     find_offset_bool = true;
 
     //Charge:
-    line_bool = true;
+    line_bool = false;
     find_charge_window_bool = true;
 
     nfile = 0; //I only consider 1 file
@@ -793,11 +799,16 @@ void Ana_LED(string file1, int last_event_n){
 
     find_charge_window_bool = true;
 
-    min_peak_window = minLED_amp;
-    max_peak_window = maxLED_amp;
+    led_and_dcr_0pe = true;
+
+    min_peak_window[0] = minLED_amp;
+    max_peak_window[0] = maxLED_amp;
+
+    min_peak_window[1] = dcr_mintp;
+    max_peak_window[1] = dcr_maxtp;
 
 
-    // temp:
+    // DISPLAY
     bool display_trace_LED = false;
     display_peaks_now = true;
     display_peaks = true;
@@ -810,6 +821,7 @@ void Ana_LED(string file1, int last_event_n){
     //Analysis
     Analysis(file1, last_event_n, display_trace_LED);
 
+    // LED
     TCanvas *canvLED = new TCanvas("canvLED", "canvLED", w,h);
     canvLED->cd();
     canvLED-> SetGrid();
@@ -819,8 +831,36 @@ void Ana_LED(string file1, int last_event_n){
     canvLED->Update();
 
     // fit hist LED
+    bool evaluate_cross_talk = true;
     // fit_hist_peaks_0pe_1pe_2pe(canvLED, ptrHistLED);
-    fit_hist_peaks_gaus_sum_012(canvLED, ptrHistLED);
+    cout<<endl;
+    cout<<"-------------"<<endl;
+    cout<<"---[ LED ]---"<<endl;
+    cout<<"-------------"<<endl;
+    fit_hist_peaks_gaus_sum_012(canvLED, ptrHistLED, evaluate_cross_talk);
+    cout<<"---------------------------------------------------------------------"<<endl;
+
+    if(led_and_dcr_0pe){
+      // DCR from WINDOW
+      TCanvas *canvDCR_window = new TCanvas("canvDCR_window", "canvDCR_window", w,h);
+      canvDCR_window->cd();
+      canvDCR_window-> SetGrid();
+      ptrHistDCR_window->GetXaxis()->SetTitle("mV");
+      ptrHistDCR_window->GetYaxis()->SetTitle("Counts");
+      ptrHistDCR_window->Draw();
+      canvDCR_window->Update();
+
+      // fit hist ptrHistDCR_window
+      evaluate_cross_talk = false;
+      cout<<endl;
+      cout<<"--------------"<<endl;
+      cout<<"---[ DARK ]---"<<endl;
+      cout<<"--------------"<<endl;
+      fit_hist_peaks_gaus_sum_012(canvDCR_window, ptrHistDCR_window, evaluate_cross_talk);
+      cout<<"---------------------------------------------------------------------"<<endl;
+
+    }
+
 
 }
 
@@ -837,8 +877,8 @@ void Ana_Ped(string file1, int last_event_n){
 
     //Charge Pedestal:
     find_charge_window_bool = true;
-    min_peak_window = 200; //ns
-    max_peak_window = 250; //ns
+    min_peak_window[0] = 200; //ns
+    max_peak_window[0] = 250; //ns
 
 
 
@@ -1674,8 +1714,8 @@ void fit_hist_peaks_0pe_1pe_2pe(TCanvas *c, TH1D *hist){
   //-----------------
   int index = 0;
   cout<<endl;
-  cout<<"Enter vector index:"<<endl;
-  cin>>index;
+  // cout<<"Enter vector index:"<<endl;
+  // cin>>index;
 
   cout<<endl;
   cout<<"// Window for LED peak: "<<"("<<minLED_amp<<", "<<maxLED_amp<<") ns"<<"  (minLED_amp, maxLED_amp)"<<endl;
@@ -1715,7 +1755,7 @@ void fit_hist_peaks_0pe_1pe_2pe(TCanvas *c, TH1D *hist){
 
 
 //------------------------------------------------------------------------------
-void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist){
+void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist, bool evaluate_cross_talk){
 
   float Mean_peak_0, Mean_peak_1, Mean_peak_2;
   float errMean_peak_0, errMean_peak_1, errMean_peak_2;
@@ -1755,7 +1795,7 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist){
   gaus_sum_012->SetParameter(5, 2);    // s0
   gaus_sum_012->SetParameter(6, 1);    // sadd
   gaus_sum_012->SetParameter(7, 1);    // V0
-  gaus_sum_012->SetParameter(8, 0.1);    // dg01
+  gaus_sum_012->SetParameter(8, 0.1);  // dg01
 
   // Fit Range
   float fit_low  = -10;
@@ -1810,7 +1850,7 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist){
   errSigma_peak_2   = TMath::Sqrt( (Sigma_peak_0*Sigma_peak_0*errSigma_peak_0*errSigma_peak_0 + 4*4*Sigma_add*Sigma_add*errSigma_add*errSigma_add) / ( Sigma_peak_0*Sigma_peak_0 + 4*Sigma_add*Sigma_add ) );
 
 
-  gaus_sum_012->Draw("same");
+  //gaus_sum_012->Draw("same");
 
   //---------------------
   //---[ GLOBAL HIST ]---
@@ -1838,8 +1878,8 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist){
   //-----------------
   int index = 0;
   cout<<endl;
-  cout<<"Enter vector index:"<<endl;
-  cin>>index;
+  // cout<<"Enter vector index:"<<endl;
+  // cin>>index;
 
   cout<<endl;
   cout<<"// Window for LED peak: "<<"("<<minLED_amp<<", "<<maxLED_amp<<") ns"<<"  (minLED_amp, maxLED_amp)"<<endl;
@@ -1879,8 +1919,11 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist){
   cout<<"//       Mallamaci Manuela, Mariotti Mosé - Report SiPM tests"<<endl;
 
   // Cross Talk
-  cout<<endl;
-  cout << "Cross Talk           = " << Prob_Cross_Talk*100 <<" \%" << endl;
+  if(evaluate_cross_talk){
+    cout<<endl;
+    cout << "Cross Talk           = " << Prob_Cross_Talk*100 <<" \%" << endl;
+  }
+
 
 
 
@@ -2518,67 +2561,112 @@ void ReadBin(string filename, int last_event_n, bool display){
 
 
         // FIND PEAKS LED
+
         if(find_peak_in_a_selected_window){
-            // min and max value search
-            bool found_min = false;
-            bool found_max = false;
-            // mintp = (int)(1024*min_peak_window/trace[0][trace_length-1] - dleddt);
-            // maxtp = (int)(1024*max_peak_window/trace[0][trace_length-1] - dleddt);
-            for(int i=dleddt; i<max_peak_window*2; i++){
-              if((trace[0][i]>min_peak_window) && !found_min){
-                mintp = i-dleddt;
-                found_min = true;
-              }
-              if((trace[0][i]>max_peak_window) && !found_max){
-                maxtp = i-dleddt;
-                found_max = true;
-              }
-            } // end for
-            if(!found_min) {
-              mintp = min_peak_window - dleddt;
-              cerr << "################################################################################"<<endl;
-              cerr << "ERROR: min_peak_window out of value" << endl;
-              cerr << "################################################################################"<<endl;
-            }
-            if(!found_max){
-              mintp = max_peak_window - dleddt;
-              cerr << "################################################################################"<<endl;
-              cerr << "ERROR: max_peak_window out of value" << endl;
-              cerr << "################################################################################"<<endl;
-            }
 
-            // cout << "trace_DLED[0][mintp]\t" << trace_DLED[0][mintp] << endl;
-            // cout << "trace_DLED[0][maxtp]\t" << trace_DLED[0][maxtp] << endl;
+          int led_mintp;
+          int led_maxtp;
+          int num_windows = 1;
 
-            min_line = trace_DLED[0][mintp];
-            max_line = trace_DLED[0][maxtp];
-            // cout<<"mintp "<<mintp<<"\t"<<"maxtp "<<maxtp<<"\t";
-            // cout<<"min_line "<<min_line<<"\t"<<"max_line "<<max_line<<"\t";
-            // cout<<"trace_DLED[0][0] "<<trace_DLED[0][0]<<endl;
-            index_for_peak = find_peak_fix_time(mintp, maxtp);
-            index_peak_LED = index_for_peak;
-            peak_rejected = true;
-            if(index_for_peak>-1){ // peak rejected or not
-              if(trace_DLED[1][index_for_peak]<thr_to_find_peaks){ // 0pe
-                  peak_rejected = false;
-              } // end 0pe
-              else{ // 1pe or more
-                  if(  trace_DLED[1][index_for_peak]>trace_DLED[1][mintp] && trace_DLED[1][index_for_peak]>trace_DLED[1][mintp-1]){ // check mintp
-                    if(trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp] && trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp+1]){ // check maxtp
-                      peak_rejected = false;
-                    } // end check maxtp
-                  } // end check mintp
-              } // end 1pe or more
-            }// end peak rejected or not
+          if(led_and_dcr_0pe) {
+            num_windows = 2;
+          }
+          else {
+            num_windows = 1;
+          }
 
-            // peak OK
-            if(!peak_rejected){
-              peak_LED[0] = trace_DLED[0][index_for_peak];
-              peak_LED[1] = trace_DLED[1][index_for_peak];
-              ptrHistLED->Fill(peak_LED[1]);
-            } // end peak OK
+            for(int jj = 0; jj < num_windows; jj++){ // LOOP ON NUM WINDOWS (ONE FOR LED, TWO FOR LED AND DCR)
+
+                    // min and max value search
+                    bool found_min = false;
+                    bool found_max = false;
+                    // mintp = (int)(1024*min_peak_window/trace[0][trace_length-1] - dleddt);
+                    // maxtp = (int)(1024*max_peak_window/trace[0][trace_length-1] - dleddt);
+                    for(int i=dleddt; i<max_peak_window[jj]*2; i++){
+                      if((trace[0][i]>min_peak_window[jj]) && !found_min){
+                        mintp = i-dleddt;
+                        found_min = true;
+                      }
+                      if((trace[0][i]>max_peak_window[jj]) && !found_max){
+                        maxtp = i-dleddt;
+                        found_max = true;
+                      }
+                    } // end for
+                    if(!found_min) {
+                      mintp = min_peak_window[jj] - dleddt;
+                      cerr << "################################################################################"<<endl;
+                      cerr << "ERROR: min_peak_window out of value" << endl;
+                      cerr << "################################################################################"<<endl;
+                    }
+                    if(!found_max){
+                      mintp = max_peak_window[jj] - dleddt;
+                      cerr << "################################################################################"<<endl;
+                      cerr << "ERROR: max_peak_window out of value" << endl;
+                      cerr << "################################################################################"<<endl;
+                    }
+
+                    if(jj==0){
+                      led_mintp = mintp;
+                      led_maxtp = maxtp;
+                    }
+
+
+                    // cout << "trace_DLED[0][mintp]\t" << trace_DLED[0][mintp] << endl;
+                    // cout << "trace_DLED[0][maxtp]\t" << trace_DLED[0][maxtp] << endl;
+
+                    if(jj==0){
+                      min_line = trace_DLED[0][mintp];
+                      max_line = trace_DLED[0][maxtp];
+                    }
+                    // cout<<"mintp "<<mintp<<"\t"<<"maxtp "<<maxtp<<"\t";
+                    // cout<<"min_line "<<min_line<<"\t"<<"max_line "<<max_line<<"\t";
+                    // cout<<"trace_DLED[0][0] "<<trace_DLED[0][0]<<endl;
+                    index_for_peak = find_peak_fix_time(mintp, maxtp);
+                    if(jj==0){
+                      index_peak_LED = index_for_peak;
+                    }
+                    peak_rejected = true;
+                    if(index_for_peak>-1){ // peak rejected or not
+                      if(trace_DLED[1][index_for_peak]<thr_to_find_peaks){ // 0pe
+                          peak_rejected = false;
+                      } // end 0pe
+                      else{ // 1pe or more
+                          if(  trace_DLED[1][index_for_peak]>trace_DLED[1][mintp] && trace_DLED[1][index_for_peak]>trace_DLED[1][mintp-1]){ // check mintp
+                            if(trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp] && trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp+1]){ // check maxtp
+                              peak_rejected = false;
+                            } // end check maxtp
+                          } // end check mintp
+                      } // end 1pe or more
+                    }// end peak rejected or not
+
+                    // peak OK
+                    if(!peak_rejected){
+                      peak_LED[0] = trace_DLED[0][index_for_peak];
+                      peak_LED[1] = trace_DLED[1][index_for_peak];
+                      if(jj==0) {
+                        // cout<<mintp<<"\t"<<maxtp<<endl;
+                        ptrHistLED->Fill(peak_LED[1]);
+                      }
+                      if(jj==1){
+                        // cout<<mintp<<"\t"<<maxtp<<endl;
+                        ptrHistDCR_window->Fill(peak_LED[1]);
+                      }
+                    } // end peak OK
+
+
+                } // END LOOP ON NUM WINDOWS
+
+                // reuse the old values: (for LED)
+                mintp = led_mintp;
+                maxtp = led_maxtp;
+
 
         } // end FIND PEAKS LED
+
+
+
+
+
 
 //***** PEAKS FINDING
         fill_hist_peaks_when_found = false;
