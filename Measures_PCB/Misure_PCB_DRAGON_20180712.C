@@ -389,6 +389,10 @@ void Misure_PCB_DRAGON_20180712(){
     TH1D* ptrhistK_MAXi      = new TH1D("histK_MAXi", "", nbins_K, min_K, max_K);
     TH1D* ptrhistK_SuperMAXi = new TH1D("histK_SuperMAXi", "", nbins_K, min_K, max_K);
 
+
+    //-----------------------------------
+    //---------- FROM 26 TO 40 ----------
+    //-----------------------------------
     double K_SuperMINi[n_used], K_MINi[n_used], K_MAXi[n_used], K_SuperMAXi[n_used];
     double V_out_SuperMINi_used[n_used], V_out_MINi_used[n_used], V_out_MAXi_used[n_used], V_out_SuperMAXi_used[n_used];
     double errV_out_SuperMINi_used[n_used], errV_out_MINi_used[n_used], errV_out_MAXi_used[n_used], errV_out_SuperMAXi_used[n_used];
@@ -475,13 +479,103 @@ void Misure_PCB_DRAGON_20180712(){
     gK_SuperMAXi->SetLineColor(kOrange+2);
 
 
-    TMultiGraph *K_graph = new TMultiGraph("V_K", ";V_out (V); V_out/V_mon (adim)");
+    TMultiGraph *K_graph = new TMultiGraph("V_K", ";Vout (V); Vout/Vmon (adim)");
     K_graph->Add(gK_SuperMINi);
     K_graph->Add(gK_MINi);
     K_graph->Add(gK_MAXi);
     K_graph->Add(gK_SuperMAXi);
 
     K_graph->Draw("APL");
+
+
+
+
+    //-------------------------
+    //---------- ALL ----------
+    //-------------------------
+
+
+    double K_SuperMINi_all[n_measured], K_MINi_all[n_measured ], K_MAXi_all[n_measured ], K_SuperMAXi_all[n_measured];
+
+    TH1D* ptrhistK_all           = new TH1D("histK", "", nbins_K, min_K, max_K);
+    TH1D* ptrhistK_SuperMINi_all = new TH1D("histK_SuperMINi", "", nbins_K, min_K, max_K);
+    TH1D* ptrhistK_MINi_all      = new TH1D("histK_MINi", "", nbins_K, min_K, max_K);
+    TH1D* ptrhistK_MAXi_all      = new TH1D("histK_MAXi", "", nbins_K, min_K, max_K);
+    TH1D* ptrhistK_SuperMAXi_all = new TH1D("histK_SuperMAXi", "", nbins_K, min_K, max_K);
+
+    for(int i=0; i<n_measured; i++){
+
+
+      K_SuperMINi_all[i] = V_out_SuperMINi[i]/V_vmon_SuperMINi[i];
+      K_MINi_all[i]      = V_out_MINi[i]/V_vmon_MINi[i];
+      K_MAXi_all[i]      = V_out_MAXi[i]/V_vmon_MAXi[i];
+      K_SuperMAXi_all[i] = V_out_SuperMAXi[i]*TMath::Power(V_vmon_SuperMAXi[i],-1);
+
+      cout<<i<<"\t"<<K_SuperMINi_all[i]<<" \t"<<K_MINi_all[i]<<" \t"<<K_MAXi_all[i]<<" \t"<<K_SuperMAXi_all[i]<<endl;
+
+      ptrhistK_all->Fill(K_SuperMINi_all[i]);
+      ptrhistK_all->Fill(K_MINi_all[i]);
+      ptrhistK_all->Fill(K_MAXi_all[i]);
+      ptrhistK_all->Fill(K_SuperMAXi_all[i]);
+
+      ptrhistK_SuperMINi_all->Fill(K_SuperMINi_all[i]);
+      ptrhistK_MINi_all->Fill(K_MINi_all[i]);
+      ptrhistK_MAXi_all->Fill(K_MAXi_all[i]);
+      ptrhistK_SuperMAXi_all->Fill(K_SuperMAXi_all[i]);
+
+    }
+
+
+    TCanvas *chistK_all = new TCanvas("chistK_all", "chistK_all");
+
+    ptrhistK->SetLineColor(kBlack);
+    ptrhistK_SuperMINi_all->SetLineColor(kGreen);
+    ptrhistK_MINi_all->SetLineColor(kBlue);
+    ptrhistK_MAXi_all->SetLineColor(kOrange);
+    ptrhistK_SuperMAXi_all->SetLineColor(kRed);
+
+    ptrhistK_SuperMINi_all->SetFillColorAlpha(kGreen, 0.15);
+    ptrhistK_MINi_all->SetFillColorAlpha(kBlue, 0.15);
+    ptrhistK_MAXi_all->SetFillColorAlpha(kOrange, 0.15);
+    ptrhistK_SuperMAXi_all->SetFillColorAlpha(kRed, 0.15);
+
+    ptrhistK->Draw();
+    ptrhistK_SuperMINi_all->Draw("same");
+    ptrhistK_MINi_all->Draw("same");
+    ptrhistK_MAXi_all->Draw("same");
+    ptrhistK_SuperMAXi_all->Draw("same");
+
+    TCanvas *cK_all = new TCanvas("cK_all", "cK_all");
+
+    TGraphErrors *gK_SuperMINi_all  = new TGraphErrors(n_measured, V_out_SuperMINi, K_SuperMINi_all, errV_out_SuperMINi, 0);
+    TGraphErrors *gK_MINi_all  = new TGraphErrors(n_measured, V_out_MINi, K_MINi_all, errV_out_MINi, 0);
+    TGraphErrors *gK_MAXi_all  = new TGraphErrors(n_measured, V_out_MAXi, K_MAXi_all, errV_out_MAXi, 0);
+    TGraphErrors *gK_SuperMAXi_all  = new TGraphErrors(n_measured, V_out_SuperMAXi, K_SuperMAXi_all, errV_out_SuperMAXi, 0);
+
+
+    gK_SuperMINi_all->SetMarkerSize(3);
+    gK_MINi_all->SetMarkerSize(3);
+    gK_MAXi_all->SetMarkerSize(3);
+    gK_SuperMAXi_all->SetMarkerSize(3);
+
+    gK_SuperMINi_all->SetMarkerColor(kOrange-1);
+    gK_MINi_all->SetMarkerColor(kOrange);
+    gK_MAXi_all->SetMarkerColor(kOrange+1);
+    gK_SuperMAXi_all->SetMarkerColor(kOrange+2);
+
+    gK_SuperMINi_all->SetLineColor(kOrange-1);
+    gK_MINi_all->SetLineColor(kOrange);
+    gK_MAXi_all->SetLineColor(kOrange+1);
+    gK_SuperMAXi_all->SetLineColor(kOrange+2);
+
+
+    TMultiGraph *K_graph_all = new TMultiGraph("V_K_all", ";Vout (V); Vout/Vmon (adim)");
+    K_graph_all->Add(gK_SuperMINi_all);
+    K_graph_all->Add(gK_MINi_all);
+    K_graph_all->Add(gK_MAXi_all);
+    K_graph_all->Add(gK_SuperMAXi_all);
+
+    K_graph_all->Draw("APL");
 
     return;
 
