@@ -36,6 +36,12 @@
 
 #define n 6
 
+
+void fit_linear(TGraphErrors *g, TCanvas *c1, TCanvas *c2);
+void Misure_PCB_DRAGON_20180711();
+
+double m_V_out, errm_V_out, q_V_out, errq_V_out;
+
 void Misure_PCB_DRAGON_20180711(){
     // HV_set (NOT TRIMMER as before); the voltage of the pin 38 is about 30 - 35 mV more than HV_set[i]
     // from Terminal: $ ApplyHV 192.168.1.5 HV_set[i]
@@ -128,6 +134,8 @@ void Misure_PCB_DRAGON_20180711(){
     gV_imon_SuperMAXi->SetTitle();
 
 
+    //------------------------------
+    //----------- GRAPHS -----------
     //------------------------------
 
     TCanvas *cV_out_MAXi = new TCanvas("cV_out_MAXi", "cV_out_MAXi");
@@ -224,6 +232,7 @@ void Misure_PCB_DRAGON_20180711(){
     //------------------------------
     //------ TEST_Z and cout -------
     //------------------------------
+    /*
     double TEST_Z;
     bool OK;
 
@@ -259,5 +268,56 @@ void Misure_PCB_DRAGON_20180711(){
     for(int i=0; i<n; i++){
         printf("%.3lf +- %.3lf\t | %.2lf +- %.2lf   | %.2lf +- %.2lf\n", HV_set[i], errHV_set[i], V_imon_MINi[i], errV_imon_MINi[i], V_imon_MAXi[i], errV_imon_MAXi[i]);
     }
+    */
+
+    //------------------------------
+    //------------ FIT -------------
+    //------------------------------
+
+    m_V_out = errm_V_out = q_V_out = errq_V_out = 0.;
+    int n_mean;
+
+    cout<<endl;
+    cout<<"///// V_out /////"<<endl;
+    n_mean = 3;
+    fit_linear(gV_out_MINi, cV_out, cV_out_MINi);
+    fit_linear(gV_out_MAXi, cV_out, cV_out_MAXi);
+    fit_linear(gV_out_SuperMAXi, cV_out, cV_out_SuperMAXi);
+
+    q_V_out /= n_mean;
+    m_V_out /= n_mean;
+    errq_V_out = TMath::Sqrt(errq_V_out) / n_mean;
+    errm_V_out = TMath::Sqrt(errm_V_out) / n_mean;
+
+    printf("V_out = (%lf +- %lf) * HV_set + (%lf +- %lf)\n",  m_V_out, errm_V_out, q_V_out, errq_V_out);
+
+
+}
+
+void fit_linear(TGraphErrors *g, TCanvas *c1, TCanvas *c2){
+  // Fit
+  TF1 *line = new TF1("line","[1]*x+[0]");
+  g->Fit("line", "q");
+  c1->cd();
+  g->Draw("same");
+  c2->cd();
+  g->Draw("same");
+
+  // Get Parameters
+  double m, q, errm, errq; // y = m x + q
+  q = line->GetParameter(0);
+  errq = line->GetParError(0);
+  m = line->GetParameter(1);
+  errm = line->GetParError(1);
+
+  // printf("V_out = (%lf +- %lf) * HV_set + (%lf +- %lf)\n",  m, errm, q, errq);
+
+  // for the mean
+  q_V_out += q;
+  m_V_out += m;
+
+  errq_V_out += errq*errq;
+  errm_V_out += errm*errm;
+
 
 }
