@@ -34,7 +34,16 @@
  *
 \******************************************************************************/
 
-#define n 6
+#include "TMath.h"
+#include "TGraphErrors.h"
+#include "TGraph.h"
+#include "TF1.h"
+#include "TMultiGraph.h"
+#include "TCanvas.h"
+#include "TAxis.h"
+#include "TLegend.h"
+
+#define n_meas 6
 
 
 void fit_linear(TGraphErrors *g, TCanvas *c1, TCanvas *c2);
@@ -74,17 +83,17 @@ void Misure_PCB_DRAGON_20180711(){
 
     //------------------------------
 
-    TGraphErrors *gV_out_MAXi  = new TGraphErrors(n, HV_set, V_out_MAXi, errHV_set, errV_out_MAXi );
-    TGraphErrors *gV_vmon_MAXi = new TGraphErrors(n, HV_set, V_vmon_MAXi,errHV_set, errV_vmon_MAXi);
-    TGraphErrors *gV_imon_MAXi = new TGraphErrors(n, HV_set, V_imon_MAXi,errHV_set, errV_imon_MAXi);
+    TGraphErrors *gV_out_MAXi  = new TGraphErrors(n_meas, HV_set, V_out_MAXi, errHV_set, errV_out_MAXi );
+    TGraphErrors *gV_vmon_MAXi = new TGraphErrors(n_meas, HV_set, V_vmon_MAXi,errHV_set, errV_vmon_MAXi);
+    TGraphErrors *gV_imon_MAXi = new TGraphErrors(n_meas, HV_set, V_imon_MAXi,errHV_set, errV_imon_MAXi);
 
-    TGraphErrors *gV_out_MINi  = new TGraphErrors(n, HV_set, V_out_MINi, errHV_set, errV_out_MINi );
-    TGraphErrors *gV_vmon_MINi = new TGraphErrors(n, HV_set, V_vmon_MINi,errHV_set, errV_vmon_MINi);
-    TGraphErrors *gV_imon_MINi = new TGraphErrors(n, HV_set, V_imon_MINi,errHV_set, errV_imon_MINi);
+    TGraphErrors *gV_out_MINi  = new TGraphErrors(n_meas, HV_set, V_out_MINi, errHV_set, errV_out_MINi );
+    TGraphErrors *gV_vmon_MINi = new TGraphErrors(n_meas, HV_set, V_vmon_MINi,errHV_set, errV_vmon_MINi);
+    TGraphErrors *gV_imon_MINi = new TGraphErrors(n_meas, HV_set, V_imon_MINi,errHV_set, errV_imon_MINi);
 
-    TGraphErrors *gV_out_SuperMAXi  = new TGraphErrors(n, HV_set, V_out_SuperMAXi, errHV_set, errV_out_SuperMAXi );
-    TGraphErrors *gV_vmon_SuperMAXi = new TGraphErrors(n, HV_set, V_vmon_SuperMAXi,errHV_set, errV_vmon_SuperMAXi);
-    TGraphErrors *gV_imon_SuperMAXi = new TGraphErrors(n, HV_set, V_imon_SuperMAXi,errHV_set, errV_imon_SuperMAXi);
+    TGraphErrors *gV_out_SuperMAXi  = new TGraphErrors(n_meas, HV_set, V_out_SuperMAXi, errHV_set, errV_out_SuperMAXi );
+    TGraphErrors *gV_vmon_SuperMAXi = new TGraphErrors(n_meas, HV_set, V_vmon_SuperMAXi,errHV_set, errV_vmon_SuperMAXi);
+    TGraphErrors *gV_imon_SuperMAXi = new TGraphErrors(n_meas, HV_set, V_imon_SuperMAXi,errHV_set, errV_imon_SuperMAXi);
 
     //------------------------------
 
@@ -274,6 +283,7 @@ void Misure_PCB_DRAGON_20180711(){
     //------------ FIT -------------
     //------------------------------
 
+    //----------- V_out ------------
     m_V_out = errm_V_out = q_V_out = errq_V_out = 0.;
     int n_mean;
 
@@ -284,19 +294,47 @@ void Misure_PCB_DRAGON_20180711(){
     fit_linear(gV_out_MAXi, cV_out, cV_out_MAXi);
     fit_linear(gV_out_SuperMAXi, cV_out, cV_out_SuperMAXi);
 
+    // mean values
     q_V_out /= n_mean;
     m_V_out /= n_mean;
     errq_V_out = TMath::Sqrt(errq_V_out) / n_mean;
     errm_V_out = TMath::Sqrt(errm_V_out) / n_mean;
-
     printf("V_out = (%lf +- %lf) * HV_set + (%lf +- %lf)\n",  m_V_out, errm_V_out, q_V_out, errq_V_out);
+
+    // err on V_out
+    int n_est = 1500;
+    double V_out_est[n_est], errV_out_est[n_est], HV_set_est[n_est], errHV_set_est[n_est];
+    double HV_set_est_min, HV_set_est_max, binw;
+    HV_set_est_min = 0;
+    HV_set_est_max = 1500;
+    binw = (HV_set_est_max-HV_set_est_min)/n_est;
+    for(int i=0; i<n_est; i++){
+      HV_set_est[i] = HV_set_est_min + i * binw;
+      errHV_set_est[i] = 1;
+    }
+    for(int i=0; i<n_est; i++){
+      V_out_est[i] = m_V_out * HV_set_est[i] + q_V_out;
+      errV_out_est[i] = TMath::Sqrt( HV_set_est[i]*HV_set_est[i]*errm_V_out*errm_V_out + m_V_out*m_V_out*errHV_set_est[i]*errHV_set_est[i] + errq_V_out*errq_V_out );
+      errV_out_est[i] *= 1000; // in mV
+    }
+    TCanvas *cerrV_out_est = new TCanvas("cerrV_out_est", "cerrV_out_est");
+    TGraph* gerrV_out_est = new TGraph(n_est,V_out_est,errV_out_est);
+    gerrV_out_est->SetTitle();
+    gerrV_out_est->GetXaxis()->SetTitle("V_out [V]");
+    gerrV_out_est->GetYaxis()->SetTitle("errV_out [mV]");
+    gerrV_out_est->Draw("AL");
+
+
+
+    return;
 
 
 }
 
 void fit_linear(TGraphErrors *g, TCanvas *c1, TCanvas *c2){
   // Fit
-  TF1 *line = new TF1("line","[1]*x+[0]");
+  TF1 *line = new TF1("line","[0]*x+[1]");
+
   g->Fit("line", "q");
   c1->cd();
   g->Draw("same");
@@ -305,12 +343,15 @@ void fit_linear(TGraphErrors *g, TCanvas *c1, TCanvas *c2){
 
   // Get Parameters
   double m, q, errm, errq; // y = m x + q
-  q = line->GetParameter(0);
-  errq = line->GetParError(0);
-  m = line->GetParameter(1);
-  errm = line->GetParError(1);
+  q = line->GetParameter(1);
+  errq = line->GetParError(1);
+  q=0; errq=0;
+  // m = line->GetParameter(1);
+  // errm = line->GetParError(1);
+  m = line->GetParameter(0);
+  errm = line->GetParError(0);
 
-  // printf("V_out = (%lf +- %lf) * HV_set + (%lf +- %lf)\n",  m, errm, q, errq);
+  printf("V_out = (%lf +- %lf) * HV_set + (%lf +- %lf)\n",  m, errm, q, errq);
 
   // for the mean
   q_V_out += q;
