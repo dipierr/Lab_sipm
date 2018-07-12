@@ -389,7 +389,7 @@ void Misure_PCB_DRAGON_20180712(){
     TH1D* ptrhistK_MAXi      = new TH1D("histK_MAXi", "", nbins_K, min_K, max_K);
     TH1D* ptrhistK_SuperMAXi = new TH1D("histK_SuperMAXi", "", nbins_K, min_K, max_K);
 
-    double K_SuperMINi[n_mean], K_MINi[n_mean], K_MAXi[n_mean], K_SuperMAXi[n_mean];
+    double K_SuperMINi[n_used], K_MINi[n_used], K_MAXi[n_used], K_SuperMAXi[n_used];
     double V_out_SuperMINi_used[n_used], V_out_MINi_used[n_used], V_out_MAXi_used[n_used], V_out_SuperMAXi_used[n_used];
     double errV_out_SuperMINi_used[n_used], errV_out_MINi_used[n_used], errV_out_MAXi_used[n_used], errV_out_SuperMAXi_used[n_used];
 
@@ -399,7 +399,6 @@ void Misure_PCB_DRAGON_20180712(){
     for(int i=start; i<n_measured; i++){
 
       index=i-start;
-      cout<<index<<endl;
 
       K_SuperMINi[index] = V_out_SuperMINi[i]/V_vmon_SuperMINi[i];
       K_MINi[index]      = V_out_MINi[i]/V_vmon_MINi[i];
@@ -432,6 +431,7 @@ void Misure_PCB_DRAGON_20180712(){
 
     }
 
+
     TCanvas *chistK = new TCanvas("chistK", "chistK");
 
     ptrhistK->SetLineColor(kBlack);
@@ -458,6 +458,7 @@ void Misure_PCB_DRAGON_20180712(){
     TGraphErrors *gK_MAXi  = new TGraphErrors(n_used, V_out_MAXi_used, K_MAXi, errV_out_MAXi_used, 0);
     TGraphErrors *gK_SuperMAXi  = new TGraphErrors(n_used, V_out_SuperMAXi_used, K_SuperMAXi, errV_out_SuperMAXi_used, 0);
 
+
     gK_SuperMINi->SetMarkerSize(3);
     gK_MINi->SetMarkerSize(3);
     gK_MAXi->SetMarkerSize(3);
@@ -474,7 +475,7 @@ void Misure_PCB_DRAGON_20180712(){
     gK_SuperMAXi->SetLineColor(kOrange+2);
 
 
-    TMultiGraph *K_graph = new TMultiGraph("V_K", ";V_out (V); K (adim)");
+    TMultiGraph *K_graph = new TMultiGraph("V_K", ";V_out (V); V_out/V_mon (adim)");
     K_graph->Add(gK_SuperMINi);
     K_graph->Add(gK_MINi);
     K_graph->Add(gK_MAXi);
