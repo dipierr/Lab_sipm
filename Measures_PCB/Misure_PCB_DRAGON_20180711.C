@@ -54,32 +54,30 @@ double m_V_out, errm_V_out, q_V_out, errq_V_out;
 void Misure_PCB_DRAGON_20180711(){
     // HV_set (NOT TRIMMER as before); the voltage of the pin 38 is about 30 - 35 mV more than HV_set[i]
     // from Terminal: $ ApplyHV 192.168.1.5 HV_set[i]
-    double HV_set[] =                {1000,    1100,     1200,   1300,   1400,   1500};
-    double errHV_set[] =             {1,       1,        1,      1,      1,      1   };
-
+    double HV_set[] =                {1000,   1100,     1200,   1300,   1400,   1500};
     // LOAD: 39 kOhm
-    double V_out_MAXi[] =            {26.23,   28.85,    31.48,  34.11,  36.74,  39.36};
-    double errV_out_MAXi[] =         {0.01,0.01,0.01,0.01,0.01,0.01};
-    double V_vmon_MAXi[] =           {-0.927,  -1.023,   -1.119, -1.215, -1.311, -1.407};
-    double errV_vmon_MAXi[] =        {0.001,0.001,0.001,0.001,0.001,0.001};
-    double V_imon_MAXi[] =           {-0.36,  -0.39,   -0.42, -0.45, -0.49, -0.53};
-    double errV_imon_MAXi[] =        {0.01,0.01,0.01,0.01,0.01,0.01};
+    double V_out_MAXi[] =            {26.23,  28.85,   31.48,  34.11,  36.74,  39.36};
+    double V_vmon_MAXi[] =           {-0.927, -1.023,  -1.119, -1.215, -1.311, -1.407};
+    double V_imon_MAXi[] =           {-0.36,  -0.39,   -0.42,  -0.45,  -0.49,  -0.53};
 
     // LOAD: 224 (220 kOhm)
-    double V_out_MINi[] =            {26.23,   28.86,    31.49,  34.11,  36.74,  39.37};
-    double errV_out_MINi[] =         {0.01,0.01,0.01,0.01,0.01,0.01};
-    double V_vmon_MINi[] =           {-0.927,  -1.024,   -1.120, -1.215, -1.312, -1.408};
-    double errV_vmon_MINi[] =        {0.001,0.001,0.001,0.001,0.001,0.001};
-    double V_imon_MINi[] =           {-0.11,  -0.12,   -0.13, -0.13, -0.14, -0.15};
-    double errV_imon_MINi[] =        {0.01,0.01,0.01,0.01,0.01,0.01};
+    double V_out_MINi[] =            {26.23,  28.86,   31.49,  34.11,  36.74,  39.37};
+    double V_vmon_MINi[] =           {-0.927, -1.024,  -1.120, -1.215, -1.312, -1.408};
+    double V_imon_MINi[] =           {-0.11,  -0.12,   -0.13,  -0.13,  -0.14,  -0.15};
 
     // LOAD: 223 (22 kOhm)
-    double V_out_SuperMAXi[] =       {26.22,   28.85,    31.47,  34.10,  36.72,  39.35};
-    double errV_out_SuperMAXi[] =    {0.01,0.01,0.01,0.01,0.01,0.01};
-    double V_vmon_SuperMAXi[] =      {-0.925,  -1.021,   -1.116, -1.212, -1.309, -1.405};
-    double errV_vmon_SuperMAXi[] =   {0.001,0.001,0.001,0.001,0.001,0.001};
-    double V_imon_SuperMAXi[] =      {-0.60,  -0.66,   -0.72, -0.78, -0.83, -0.89};
-    double errV_imon_SuperMAXi[] =   {0.01,0.01,0.01,0.01,0.01,0.01};
+    double V_out_SuperMAXi[] =       {26.22,  28.85,   31.47,  34.10,  36.72,  39.35};
+    double V_vmon_SuperMAXi[] =      {-0.925, -1.021,  -1.116, -1.212, -1.309, -1.405};
+    double V_imon_SuperMAXi[] =      {-0.60,  -0.66,   -0.72,  -0.78,  -0.83,  -0.89};
+
+    // errors: always the same:
+    double errHV_set[n_meas], errV_out_MAXi[n_meas], errV_vmon_MAXi[n_meas], errV_imon_MAXi[n_meas], errV_out_MINi[n_meas], errV_vmon_MINi[n_meas], errV_imon_MINi[n_meas], errV_out_SuperMAXi[n_meas], errV_vmon_SuperMAXi[n_meas], errV_imon_SuperMAXi[n_meas];
+    for(int i=0; i<n_meas; i++){
+      errHV_set[i] = 1;
+      errV_out_MAXi[i] = errV_out_MINi[i] = errV_out_SuperMAXi[i] = 0.01;
+      errV_vmon_MAXi[i] = errV_vmon_MINi[i] = errV_vmon_SuperMAXi[i] = 0.001;
+      errV_imon_MAXi[i] = errV_imon_MINi[i] = errV_imon_SuperMAXi[i] = 0.01;
+    }
 
     //------------------------------
 
@@ -282,7 +280,7 @@ void Misure_PCB_DRAGON_20180711(){
     //------------------------------
     //------------ FIT -------------
     //------------------------------
-
+/*
     //----------- V_out ------------
     m_V_out = errm_V_out = q_V_out = errq_V_out = 0.;
     int n_mean;
@@ -324,6 +322,28 @@ void Misure_PCB_DRAGON_20180711(){
     gerrV_out_est->GetYaxis()->SetTitle("errV_out [mV]");
     gerrV_out_est->Draw("AL");
 
+*/
+
+    //------------------------------
+    //---------- CONSTANT ----------
+    //------------------------------
+    double min_K = -29;
+    double max_K = -27;
+    double binw_K = 0.1;
+    int nbins_K;
+
+    nbins_K = (int)((max_K-min_K)/binw_K);
+
+    TH1* ptrhistK = new TH1I("histK", "", nbins_K, min_K, max_K);
+
+    for (int i=0; i<n_meas; i++){
+      ptrhistK->Fill(V_out_MINi[i]/V_vmon_MINi[i]);
+      ptrhistK->Fill(V_out_MAXi[i]/V_vmon_MAXi[i]);
+      ptrhistK->Fill(V_out_SuperMAXi[i]/V_vmon_SuperMAXi[i]);
+    }
+
+    TCanvas *chistK = new TCanvas("chistK", "chistK");
+    ptrhistK->Draw();
 
 
     return;
@@ -334,6 +354,8 @@ void Misure_PCB_DRAGON_20180711(){
 void fit_linear(TGraphErrors *g, TCanvas *c1, TCanvas *c2){
   // Fit
   TF1 *line = new TF1("line","[0]*x+[1]");
+  // TF1 *line = new TF1("line","[0]*x");
+
 
   g->Fit("line", "q");
   c1->cd();
@@ -345,9 +367,7 @@ void fit_linear(TGraphErrors *g, TCanvas *c1, TCanvas *c2){
   double m, q, errm, errq; // y = m x + q
   q = line->GetParameter(1);
   errq = line->GetParError(1);
-  q=0; errq=0;
-  // m = line->GetParameter(1);
-  // errm = line->GetParError(1);
+  // q=0; errq=0;
   m = line->GetParameter(0);
   errm = line->GetParError(0);
 
