@@ -152,6 +152,7 @@ void remove_peak_0_all();
 void find_charge_selected_window(int mintp, int maxtp);
 void show_AVG_trace_window(TCanvas *c, float *tracet, float *tracev, int trace_length, bool delete_bool);
 void DLED_offset_remove();
+void smoot_trace();
 
 //READ FILE
 void Read_Agilent_CAEN(string file, int last_event_n, bool display);
@@ -189,15 +190,18 @@ bool fill_hist_peaks_when_found = true;
 bool find_1phe_bool = false;
 bool automatic_find_thr_1pe_2pe = false;
 
+bool smooth_trace_bool = true;
+
 //-----------------
 //-----------------
 
 
-//-------------------------
-//---[ TRACE SELECTION ]---
-//-------------------------
+//---------------
+//---[ TRACE ]---
+//---------------
 int start_blind_gap = 20;
 int end_bling_gap = 100;
+int n_smooth_trace = 2;
 
 //--------------
 //---[ GSPS ]---
@@ -209,13 +213,13 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 9;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
+int dleddt = 5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 20; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
 
 // ONLY for DCR_CT_1SiPM_1HV and DCR_CT_1SiPM_3HVs:
-float min_thr_to_find_peaks = 6;  //first thr value in the DCR vs thr plot (mV)
+float min_thr_to_find_peaks = 8;  //first thr value in the DCR vs thr plot (mV)
 float max_thr_to_find_peaks = 50; //last thr value in the DCR vs thr plot (mV)
 float gap_between_thr = 0.1; //gap between thresholds in the DCR vs thr plot (mV)
 float min_pe_0_5 = 7;  //min value for 0.5pe threshold (mV)
@@ -224,7 +228,7 @@ float min_pe_1_5 = 28; //min value for 1.5pe threshold (mV)
 float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 float pe_0_5_vect[3] = {10.,10.,10.};
-float pe_1_5_vect[3] = {25.,27.5,27.5};
+float pe_1_5_vect[3] = {29,29,30};
 
 // ONLY for Ana1:
 float thr_to_find_peaks = 7; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
@@ -2114,6 +2118,28 @@ void DLED_offset_remove(){
     }
 }
 
+//------------------------------------------------------------------------------
+void smoot_trace(){ // smooth the trace before DLED
+  for(int i=0; i<trace_length; i+=n_smooth_trace){
+
+    // sum on n_smooth_trace
+    for(int j=i+1; j<i+n_smooth_trace; j++){
+      trace[0][i] += trace[0][j];
+      trace[1][i] += trace[1][j];
+    }
+
+    // divide for n_smooth_trace
+    trace[0][i] /= n_smooth_trace;
+    trace[1][i] /= n_smooth_trace;
+
+    // all the values of the trace from i to i+n_smooth_trace are set equal
+    for(int j=i+1; j<i+n_smooth_trace; j++){
+      trace[0][j] = trace[0][i];
+      trace[1][j] = trace[1][i];
+    }
+  }
+}
+
 
 //------------------------------------------------------------------------------
 //------------------------------[   READ FILES   ]------------------------------
@@ -2542,11 +2568,15 @@ void ReadBin(string filename, int last_event_n, bool display){
     } // end if offset
 */
 
-    if(ptrAllTrace_bool){
-    for(int i=start_blind_gap; i<trace_length-end_bling_gap; i++){
-        ptrAllTrace->Fill(trace[1][i]);
-    }
-    }
+      if(ptrAllTrace_bool){
+      for(int i=start_blind_gap; i<trace_length-end_bling_gap; i++){
+          ptrAllTrace->Fill(trace[1][i]);
+      }
+      }
+
+      if(smooth_trace_bool){
+        smoot_trace();
+      }
 
 //***** DLED
         if(DLED_bool){
