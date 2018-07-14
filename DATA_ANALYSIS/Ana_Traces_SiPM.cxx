@@ -56,6 +56,8 @@
 
 using namespace std;
 
+
+
 #define nfilemax 3
 #define max_peak_num 50
 #define max_peaks 5000000
@@ -131,7 +133,6 @@ int find_peak_fix_time(int mintp, int maxtp);
 void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,int blind_gap, bool DCR_DELAYS_bool);
 void fit_hist_peaks_0pe_1pe_2pe(TCanvas *c, TH1D *hist);
 void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist, bool evaluate_cross_talk);
-void average_func(int trace_length);
 void fit_hist_del(float expDelLow, float expDelHigh);
 void fit_hist_peaks(TCanvas *c, TH1D *hist);
 TGraphErrors* DCR_func(string file1, int last_event_n, int tot_files);
@@ -142,7 +143,6 @@ void find_peaks_from_vector();
 void find_DCR_0_5_pe_and_1_5_pe_auto();
 void find_DCR_0_5_pe_and_1_5_pe_manual();
 void find_offset();
-void find_offset_mod();
 void find_offset_mod_2();
 void find_offset_mod_3();
 void find_offset_mod_4();
@@ -229,7 +229,7 @@ float min_pe_1_5 = 28; //min value for 1.5pe threshold (mV)
 float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 float pe_0_5_vect[3] = {10.,10.,10.};
-float pe_1_5_vect[3] = {29,29,30};
+float pe_1_5_vect[3] = {26.,28.,30.};
 
 // ONLY for Ana1:
 float thr_to_find_peaks = 7; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
@@ -483,6 +483,7 @@ TCanvas *AVG_trace_canvas = new TCanvas("AVG_trace_canvas", "AVG_trace_canvas", 
 
 
 
+
 //------------------------------------------------------------------------------
 //-------------------------[   PREDEFINED FUNCTIONS   ]-------------------------
 //------------------------------------------------------------------------------
@@ -649,10 +650,10 @@ void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_
         errCrossTalk[i]= CrossTalk[i] * TMath::Sqrt( (errDCR_pe_0_5_vect[i]/DCR_pe_0_5_vect[i])*(errDCR_pe_0_5_vect[i]/DCR_pe_0_5_vect[i]) + (errDCR_pe_1_5_vect[i]/DCR_pe_1_5_vect[i])*(errDCR_pe_1_5_vect[i]/DCR_pe_1_5_vect[i]) );
     }
 
-    cout<<"Files analyzed:"<<endl;
-    cout<<file1<<"   pe_0_5 = "<<pe_0_5_vect[0]<<" mV; pe_1_5 = "<<pe_1_5_vect[0]<<" mV"<<endl;
-    cout<<file2<<"   pe_0_5 = "<<pe_0_5_vect[1]<<" mV; pe_1_5 = "<<pe_1_5_vect[1]<<" mV"<<endl;
-    cout<<file3<<"   pe_0_5 = "<<pe_0_5_vect[2]<<" mV; pe_1_5 = "<<pe_1_5_vect[2]<<" mV"<<endl;
+    cout<<"// "<<"Files analyzed:"<<endl;
+    cout<<"// "<<file1<<"   pe_0_5 = "<<pe_0_5_vect[0]<<" mV; pe_1_5 = "<<pe_1_5_vect[0]<<" mV"<<endl;
+    cout<<"// "<<file2<<"   pe_0_5 = "<<pe_0_5_vect[1]<<" mV; pe_1_5 = "<<pe_1_5_vect[1]<<" mV"<<endl;
+    cout<<"// "<<file3<<"   pe_0_5 = "<<pe_0_5_vect[2]<<" mV; pe_1_5 = "<<pe_1_5_vect[2]<<" mV"<<endl;
     cout<<"double DCR[] =         {"<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
 
     cout<<"double errDCR[] =      {"<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
@@ -1949,42 +1950,42 @@ void find_offset(){
 
 
 //------------------------------------------------------------------------------
-void find_offset_mod(){  // USING TSpectrum
-
-  float bin_width = (trace[0][1023] - trace[0][0])/1024;
-  float x_low = trace[0][0] - bin_width/2.;
-  float x_up = trace[0][1023] + bin_width/2.;
-  float n_bin = x_up - x_low;
-
-  // trace hist
-  TH1F *trace_histo = new TH1F("histTrace","",n_bin,x_low,x_up);
-
-  // filling trace hist:
-  for(ii=x_low; ii<x_up; ii++){
-        trace_histo->Fill(trace[0][ii], trace[1][ii]);
-  }
-
-  TSpectrum *s = new TSpectrum();
-
-  //find BACKGROUND:
-  TH1 *bckg = s->Background(trace_histo,100);
-
-  //subtract BACKGROUND:
-  trace_histo->Add(bckg,trace_histo,-1,1);
-
-  // update trace
-  for(ii=x_low; ii<x_up; ii++){
-        trace[0][ii] = trace_histo->GetBinCenter(ii) - bin_width/2.;
-        trace[0][ii] = trace_histo->GetBinCenter(ii) - bin_width/2.;
-        trace[1][ii] = trace_histo->GetBinContent(ii);
-        //ptrAllTrace->Fill(trace[1][ii]);
-  }
-
-  delete trace_histo;
-  delete s;
-  delete bckg;
-
-}
+// void find_offset_mod(){  // USING TSpectrum
+//
+//   float bin_width = (trace[0][1023] - trace[0][0])/1024;
+//   float x_low = trace[0][0] - bin_width/2.;
+//   float x_up = trace[0][1023] + bin_width/2.;
+//   float n_bin = x_up - x_low;
+//
+//   // trace hist
+//   TH1F *trace_histo = new TH1F("histTrace","",n_bin,x_low,x_up);
+//
+//   // filling trace hist:
+//   for(ii=x_low; ii<x_up; ii++){
+//         trace_histo->Fill(trace[0][ii], trace[1][ii]);
+//   }
+//
+//   TSpectrum *s = new TSpectrum();
+//
+//   //find BACKGROUND:
+//   TH1 *bckg = s->Background(trace_histo,100);
+//
+//   //subtract BACKGROUND:
+//   trace_histo->Add(bckg,trace_histo,-1,1);
+//
+//   // update trace
+//   for(ii=x_low; ii<x_up; ii++){
+//         trace[0][ii] = trace_histo->GetBinCenter(ii) - bin_width/2.;
+//         trace[0][ii] = trace_histo->GetBinCenter(ii) - bin_width/2.;
+//         trace[1][ii] = trace_histo->GetBinContent(ii);
+//         //ptrAllTrace->Fill(trace[1][ii]);
+//   }
+//
+//   delete trace_histo;
+//   delete s;
+//   delete bckg;
+//
+// }
 
 //------------------------------------------------------------------------------
 void find_offset_mod_2(){
@@ -2279,7 +2280,6 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
                     trace_AVG[1][i]=0;
                 }
             }
-            average_func(trace_length);
         }
 
         if(display){
@@ -3091,3 +3091,13 @@ void help(){
     cout<<"Davide Depaoli 2018"<<endl;
     cout<<endl;
 }
+
+
+
+# ifndef __CINT__
+int main()
+{
+  cout<<"main"<<endl;
+  return 0;
+}
+# endif
