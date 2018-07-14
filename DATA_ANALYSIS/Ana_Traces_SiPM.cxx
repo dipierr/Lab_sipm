@@ -152,7 +152,8 @@ void remove_peak_0_all();
 void find_charge_selected_window(int mintp, int maxtp);
 void show_AVG_trace_window(TCanvas *c, float *tracet, float *tracev, int trace_length, bool delete_bool);
 void DLED_offset_remove();
-void smoot_trace();
+void smoot_trace_step();
+void smoot_trace_3();
 
 //READ FILE
 void Read_Agilent_CAEN(string file, int last_event_n, bool display);
@@ -2119,7 +2120,7 @@ void DLED_offset_remove(){
 }
 
 //------------------------------------------------------------------------------
-void smoot_trace(){ // smooth the trace before DLED
+void smoot_trace_step(){ // smooth the trace before DLED
   for(int i=0; i<trace_length; i+=n_smooth_trace){
 
     // sum on n_smooth_trace
@@ -2136,6 +2137,37 @@ void smoot_trace(){ // smooth the trace before DLED
     for(int j=i+1; j<i+n_smooth_trace; j++){
       trace[0][j] = trace[0][i];
       trace[1][j] = trace[1][i];
+    }
+  }
+}
+
+
+//------------------------------------------------------------------------------
+void smoot_trace_3(){ // smooth the trace before DLED
+  for(int i=0; i<trace_length; i+=3){
+
+    // sum on 3
+    for(int j=1; j<3; j++){
+      trace[1][i] += trace[1][i+j];
+    }
+
+    // divide for 3
+    trace[1][i]   /= 3;
+    for(int j=1; j<3; j++){
+      trace[1][i+j] = trace[1][i];
+    }
+
+    // now I have something like:
+    //
+    //                    [ i ] [i+1] [i+2]
+    //  [i-3] [i-2] [i-1]
+    //
+
+    // I change the values of [ i ] and [i-1] in order to smooth the trace
+    if(i!=0){
+      double gap = trace[1][i] - trace[1][i-1];
+      trace[1][i-1] += gap/3;
+      trace[1][i]   -= gap/3;
     }
   }
 }
@@ -2575,7 +2607,8 @@ void ReadBin(string filename, int last_event_n, bool display){
       }
 
       if(smooth_trace_bool){
-        smoot_trace();
+        // smoot_trace_step();
+        smoot_trace_3();
       }
 
 //***** DLED
