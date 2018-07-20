@@ -150,6 +150,7 @@ void subtract_offset();
 void remove_peak_0_half();
 void remove_peak_0_all();
 void find_charge_selected_window(int mintp, int maxtp);
+double find_area_trace(double center, double low, double high);
 void show_AVG_trace_window(TCanvas *c, float *tracet, float *tracev, int trace_length, bool delete_bool);
 void DLED_offset_remove();
 void smoot_trace_step();
@@ -191,7 +192,7 @@ bool fill_hist_peaks_when_found = true;
 bool find_1phe_bool = false;
 bool automatic_find_thr_1pe_2pe = false;
 
-bool smooth_trace_bool = true;
+bool smooth_trace_bool = false;
 
 //-----------------
 //-----------------
@@ -214,7 +215,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
+int dleddt = 10;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 20; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
@@ -228,15 +229,17 @@ float max_pe_0_5 = 15; //max value for 0.5pe threshold (mV)
 float min_pe_1_5 = 28; //min value for 1.5pe threshold (mV)
 float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
-float pe_0_5_vect[3] = {10.,10.,10.};
-float pe_1_5_vect[3] = {26.,28.,30.};
+float pe_0_5_vect[3] = {2.,10.,10.};
+float pe_1_5_vect[3] = {4.,28.,30.};
 
 // ONLY for Ana1:
-float thr_to_find_peaks = 7; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
+float thr_to_find_peaks = 12; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
 
 // ONLY for LED measures
-int minLED_amp = 177;//168;//115;  // window: min time for peak (ns) for LED
-int maxLED_amp = 183;//176;//125;  // window: max time for peak (ns) for LED
+int minLED_amp = 290;//168;//115;  // window: min time for peak (ns) for LED
+int maxLED_amp = 305;//176;//125;  // window: max time for peak (ns) for LED
+double time_area_low = 30;  // time for the area before the LED peak (ns)
+double time_area_high = 200; // time for the area after the LED peak (ns)
 int dcr_mintp  = minLED_amp + 200;
 int dcr_maxtp  = maxLED_amp + 200;
 
@@ -432,6 +435,8 @@ bool peak_rejected = false;
 
 bool led_and_dcr_0pe = false;
 
+bool find_area_trace_bool = false;
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -444,9 +449,10 @@ bool led_and_dcr_0pe = false;
 
 int histLED_low = -50;
 int histLED_high = 700;
-float histLED_binw = 1.4; //mV
+float histLED_binw = 0.3; //mV
 int histLED_nbins = (int)(((float)histLED_high-(float)histLED_low)/histLED_binw);//750;
 TH1D *ptrHistLED = new TH1D("histLED","",histLED_nbins, histLED_low, histLED_high);
+TH1D *ptrHistArea = new TH1D("histArea","",700, 0, 7000);
 TH1D *ptrHistDCR_window = new TH1D("HistDCR_window","",histLED_nbins, histLED_low, histLED_high);
 
 
@@ -670,7 +676,7 @@ void Ana1(string file1, int last_event_n, bool display_one_ev_param){
     //TRUE:
     find_peaks_bool = true;
     drawHistAllPeaks = true; // to draw hist of all peaks in traces
-    fitHistAllPeaks = true; // fit hist of all peaks -> for GAIN
+    fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
     DCR_DELAYS_bool = true; //DCR from delays
     show_hists_DCR_DELAYS  = true;
     display_one_ev = display_one_ev_param;
@@ -813,6 +819,8 @@ void Ana_LED(string file1, int last_event_n){
     min_peak_window[1] = dcr_mintp;
     max_peak_window[1] = dcr_maxtp;
 
+    find_area_trace_bool = true;
+
 
     // DISPLAY
     bool display_trace_LED = false;
@@ -867,6 +875,10 @@ void Ana_LED(string file1, int last_event_n){
 
     }
 
+
+    // Area LED
+    TCanvas *canvArea = new TCanvas("canvArea", "canvArea", w,h);
+    ptrHistArea->Draw();
 
 }
 
@@ -2107,6 +2119,45 @@ void find_charge_selected_window(int mintp, int maxtp){
 }
 
 //------------------------------------------------------------------------------
+double find_area_trace(double center, double low, double high){
+    double area = 0;
+    double center_index = 0, low_index = 0, high_index = 0;
+
+    bool found_center = false;
+    bool found_low = false;
+    bool found_high = false;
+
+    // find center
+    for(int i=0; i<trace_length; i++){ // loop on the trace (NOT DLED)
+
+      // the first time that time > low
+      if((trace[0][i]>low) && !found_low){
+          low_index = i; // index corresponding to low
+          found_low = true;
+      }
+
+      // the first time that time > center
+      if((trace[0][i]>center) && !found_center){
+          center_index = i; // index corresponding to center
+          found_center = true;
+      }
+
+      // the first time that time > high
+      if((trace[0][i]>high) && !found_high){
+          high_index = i; // index corresponding to high
+          found_high = true;
+      }
+    }
+
+    // sum all the voltage values times delta_temp
+    for(int i=low_index; i<high_index; i++){
+      area += trace[1][i]*(trace[0][i+1]-trace[0][i]); // area of the small rectangle (amplitude x delta_temp)
+    }
+
+    return area;
+}
+
+//------------------------------------------------------------------------------
 void DLED_offset_remove(){
     int index_peak_trace;
     for(int i = 0; i<num_peaks; i++){ //loop over peaks
@@ -2617,8 +2668,8 @@ void ReadBin(string filename, int last_event_n, bool display){
             //Now: trace_DLED
         }else{
             for(ii=0; ii<trace_DLED_length; ii++){
-                trace_DLED[0][ii] = trace[0][ii];
-                trace_DLED[1][ii] = trace[1][ii];
+                trace_DLED[0][ii] = trace[0][ii+dleddt];
+                trace_DLED[1][ii] = trace[1][ii+dleddt];
             }
         }
 
@@ -2727,6 +2778,13 @@ void ReadBin(string filename, int last_event_n, bool display){
         } // end FIND PEAKS LED
 
 
+        /////////////////////////
+        ///   FIND AREA LED   ///
+        /////////////////////////
+        if(find_area_trace_bool){
+          ptrHistArea->Fill(find_area_trace(peak_LED[0], peak_LED[0]-time_area_low, peak_LED[0]+time_area_high));
+          // cout<<find_area_trace(peak_LED[0], peak_LED[0]-time_area_low, peak_LED[0]+time_area_high)<<endl;
+        }
 
 
 
@@ -2854,6 +2912,7 @@ void ReadBin(string filename, int last_event_n, bool display){
 // Please do not modify below, until the end of the function
 
       }//end loop boards
+
 
    if(n_ev==last_event_n-1)
           break;
