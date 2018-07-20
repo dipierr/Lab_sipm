@@ -1156,11 +1156,14 @@ void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,
     int peak_width = max_peak_width;
     num_peaks=0;
     for(int i=0; i<max_peak_num; i++)index_vect[i]=0;
+
     while(ii<trace_DLED_length){//I find peaks after the DLED procedure
-        if((trace_DLED[1][ii]>thr_to_find_peaks) and (trace_DLED[1][ii-before_ind]<thr_to_find_peaks) and (ii+max_peak_width<trace_DLED_length)){//I only consider points above thr_to_find_peaks on the rising edge
+
+        //I only consider points above thr_to_find_peaks on the rising edge
+        if((trace_DLED[1][ii]>thr_to_find_peaks) and (trace_DLED[1][ii-before_ind]<thr_to_find_peaks) and (ii+max_peak_width<trace_DLED_length)){ // loop > thr and rising edge
             DCR_cnt_temp++; //I've seen a peak; if I'm in dark mode it's DCR
 
-            //Now I want to see the peak amplitude.
+            //Now I want to see the peak width
             for(int k=ii+min_peak_width; (k<ii+max_peak_width); k++){//I open a window and look for a point below thr
                 if(trace_DLED[1][k]<thr_to_find_peaks){
                     peak_width = k-ii;
@@ -1170,35 +1173,43 @@ void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,
 
             //Now I look for the peak in that window
             if(ii+peak_width<trace_DLED_length)
-                index_peak = find_peak_fix_time(ii, ii+peak_width);
+                index_new = find_peak_fix_time(ii, ii+peak_width);
             else
-                index_peak = find_peak_fix_time(ii, trace_DLED_length);
+                index_new = find_peak_fix_time(ii, trace_DLED_length);
 
-            if((index_peak-index_old)>blind_gap){
-                index_new=index_peak;
-                //DCR from the delay (Itzler Mark - Dark Count Rate Measure (pag 5 ss))
+            if((index_new-index_old)>blind_gap){ // start loop blind_gap
+                // I fill the hist of all the peaks
+                if(fill_hist_peaks_when_found){
+                    ptrHistAllPeaks[nfile]->Fill(trace_DLED[1][index_new]);
+                }
+
+                // DCR from the delay (Itzler Mark - Dark Count Rate Measure (pag 5 ss))
                 if(DCR_DELAYS_bool){
-                    //I fill the hist with delays between 1 pe peaks (or higher):
+                    // I fill the hist with delays between 1 pe peaks (or higher):
                     if(index_old>0){
                         ptrHistDelays[nfile] -> Fill(index_new - index_old);
-                        peaks_all_delay[0][ind_peaks_all_delay] = index_peak;
-                        peaks_all_delay[1][ind_peaks_all_delay] = trace_DLED[1][index_peak];
+                        peaks_all_delay[0][ind_peaks_all_delay] = index_new;
+                        peaks_all_delay[1][ind_peaks_all_delay] = trace_DLED[1][index_new];
                         ind_peaks_all_delay++;
                     }
                 }
+
+                // now index_new will be index_old, for the following loop cycle
                 index_old = index_new;
-                if(fill_hist_peaks_when_found) ptrHistAllPeaks[nfile]->Fill(trace_DLED[1][index_peak]);
+
                 if(num_peaks<max_peak_num){
-                    index_vect[num_peaks] = index_peak;
+                    index_vect[num_peaks] = index_new;
                     num_peaks++;
                 }
+
                 ii=ii+peak_width;
-            }else{
+            }else{ // I'm in the blind_gap
+                index_old = index_new;
                 ii++;
-            }
-            }else{
+            } // end loop blind_gap
+        }else{ // point NOT > thr and rising edge
                 ii++;
-        }
+        } // end loop > thr and rising edge
     }
     peaks_all_delay[0][ind_peaks_all_delay] = -1;
     peaks_all_delay[1][ind_peaks_all_delay] = -1;
