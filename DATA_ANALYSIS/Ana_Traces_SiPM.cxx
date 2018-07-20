@@ -220,7 +220,7 @@ int max_peak_width = 20; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
 
 // ONLY for DCR_CT_1SiPM_1HV and DCR_CT_1SiPM_3HVs:
-float min_thr_to_find_peaks = 8;  //first thr value in the DCR vs thr plot (mV)
+float min_thr_to_find_peaks = 7;  //first thr value in the DCR vs thr plot (mV)
 float max_thr_to_find_peaks = 50; //last thr value in the DCR vs thr plot (mV)
 float gap_between_thr = 0.1; //gap between thresholds in the DCR vs thr plot (mV)
 float min_pe_0_5 = 7;  //min value for 0.5pe threshold (mV)
@@ -229,7 +229,7 @@ float min_pe_1_5 = 28; //min value for 1.5pe threshold (mV)
 float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 float pe_0_5_vect[3] = {8.,8.,8.};
-float pe_1_5_vect[3] = {27.,28.,30.};
+float pe_1_5_vect[3] = {20.,20.,25.};
 
 // ONLY for Ana1:
 float thr_to_find_peaks = 8; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
