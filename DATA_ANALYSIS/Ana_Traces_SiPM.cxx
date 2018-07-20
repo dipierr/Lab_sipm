@@ -191,7 +191,7 @@ bool fill_hist_peaks_when_found = true;
 
 bool automatic_find_thr_1pe_2pe = false;
 
-bool smooth_trace_bool = false;
+bool smooth_trace_bool = true;
 
 //-----------------
 //-----------------
@@ -216,7 +216,7 @@ double GSPS = 1;
 // DLED and PEAKS FINDING
 int dleddt = 10;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
 int blind_gap = 2*dleddt; //ns
-int max_peak_width = 20; //used for find_peaks
+int max_peak_width = 40; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
 
 // ONLY for DCR_CT_1SiPM_1HV and DCR_CT_1SiPM_3HVs:
@@ -229,7 +229,7 @@ float min_pe_1_5 = 28; //min value for 1.5pe threshold (mV)
 float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 float pe_0_5_vect[3] = {8.,8.,8.};
-float pe_1_5_vect[3] = {27.,28.,30.};
+float pe_1_5_vect[3] = {20.,21.,25.};
 
 // ONLY for Ana1:
 float thr_to_find_peaks = 8; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
