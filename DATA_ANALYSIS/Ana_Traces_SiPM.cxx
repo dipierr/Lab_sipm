@@ -127,15 +127,15 @@ void Ana_LED(string file1, int last_event_n);
 void Ana_Ped(string file1, int last_event_n);
 
 //SECONDARY
-void Analysis(string file, int last_event_n, bool display);
+void Analysis(string file, int last_event_n, bool display, TCanvas *c);
 void DLED(int trace_length, int dleddt);
 int find_peak_fix_time(int mintp, int maxtp);
 void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,int blind_gap, bool DCR_DELAYS_bool);
-void fit_hist_peaks_0pe_1pe_2pe(TCanvas *c, TH1D *hist);
-void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist, bool evaluate_cross_talk);
+void fit_hist_peaks_0pe_1pe_2pe(TCanvas *canv, TH1D *hist);
+void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_talk);
 void fit_hist_del(float expDelLow, float expDelHigh);
-void fit_hist_peaks(TCanvas *c, TH1D *hist);
-TGraphErrors* DCR_func(string file1, int last_event_n, int tot_files);
+void fit_hist_peaks(TCanvas *canv, TH1D *hist);
+TGraphErrors* DCR_func(string file1, int last_event_n, int tot_files, TCanvas *c);
 void Get_DCR_temp_and_errDCR_temp();
 void show_trace(TCanvas* canv, float *x, float *y, int trace_length, float miny, float maxy, bool line_bool, bool delete_bool);
 void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int trace_length1, int trace_length2, float miny1, float maxy1, float miny2, float maxy2, bool line_bool, bool delete_bool);
@@ -157,9 +157,9 @@ void smoot_trace_step();
 void smoot_trace_3();
 
 //READ FILE
-void Read_Agilent_CAEN(string file, int last_event_n, bool display);
-void ReadBin(string filename, int last_event_n, bool display);
-void ReadRootFile(string filename, int last_event_n, bool display);
+void Read_Agilent_CAEN(string file, int last_event_n, bool display, TCanvas *c);
+void ReadBin(string filename, int last_event_n, bool display, TCanvas *c);
+void ReadRootFile(string filename, int last_event_n, bool display, TCanvas *canv);
 
 
 //HELP
@@ -189,7 +189,6 @@ bool DLED_bool = true; //true to use the DLED technique
 bool DLED_offset_remove_bool = false;
 bool fill_hist_peaks_when_found = true;
 
-bool find_1phe_bool = false;
 bool automatic_find_thr_1pe_2pe = false;
 
 bool smooth_trace_bool = false;
@@ -229,11 +228,11 @@ float max_pe_0_5 = 15; //max value for 0.5pe threshold (mV)
 float min_pe_1_5 = 28; //min value for 1.5pe threshold (mV)
 float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
-float pe_0_5_vect[3] = {2.,10.,10.};
-float pe_1_5_vect[3] = {4.,28.,30.};
+float pe_0_5_vect[3] = {8.,8.,8.};
+float pe_1_5_vect[3] = {27.,28.,30.};
 
 // ONLY for Ana1:
-float thr_to_find_peaks = 12; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
+float thr_to_find_peaks = 8; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5. Only Ana1 does NOT change this values
 
 // ONLY for LED measures
 int minLED_amp = 290;//168;//115;  // window: min time for peak (ns) for LED
@@ -406,7 +405,7 @@ bool CROSS_TALK_bool = false; //DCR must be true
 
 bool drawHistAllPeaks = false; // to draw hist of all peaks in traces
 bool fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
-bool drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
+// bool drawHistAllPeaksAll = false; // to draw hist of all peaks in traces for the 3 files (superimpose)
 bool show_hists_DCR_DELAYS  = false;
 bool showHist_bool = false;
 bool SetLogyHist = false;
@@ -436,6 +435,9 @@ bool peak_rejected = false;
 bool led_and_dcr_0pe = false;
 
 bool find_area_trace_bool = false;
+
+bool find_1phe_bool = false;
+
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -478,10 +480,9 @@ TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[7])*(x-[7])/(
 
 
 //I want to create ONLY one time the Canvas below... this is not the smartest way but it should work...
-TCanvas *c = new TCanvas("Trace","Trace",w,h);
-TCanvas *cDCR = new TCanvas("hist_DCR","hist_DCR",w,h);
-TCanvas *cAllPeaks = new TCanvas("AllPeaks","AllPeaks",w,h);
-TCanvas *AVG_trace_canvas = new TCanvas("AVG_trace_canvas", "AVG_trace_canvas", 5);
+// TCanvas *c = new TCanvas("Trace","Trace",w,h);
+// TCanvas *cDCR = new TCanvas("hist_DCR","hist_DCR",w,h);
+// TCanvas *cAllPeaks = new TCanvas("AllPeaks","AllPeaks",w,h);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -508,8 +509,11 @@ void DCR_CT_1SiPM_1HV(string file1, int last_event_n){
     ptrHistAllPeaks[0]  = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
     ptrHistDCRthr[0]    = new TH1D("histDCRthr","",bins_DCR,0,maxyhistDCR);
 
+    TCanvas *c = new TCanvas("Trace","Trace",w,h);
+
+
     // DCR_func
-    gDCR_1 = DCR_func(file1,last_event_n, 1);
+    gDCR_1 = DCR_func(file1,last_event_n, 1, c);
 
     TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
     DCR_mg->Add(gDCR_1);
@@ -578,6 +582,8 @@ void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_
     //I have 3 files
     nfiletot = 3;
 
+    TCanvas *c = new TCanvas("Trace","Trace",w,h);
+
 
     for(int k=0; k<nfiletot; k++){
         //In order to set 3 different titles:
@@ -604,7 +610,7 @@ void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_
     ind_peaks_all_delay = 0;
     for(int i=0; i<max_peaks; i++){peaks_all_delay[0][i] = 0; peaks_all_delay[1][i] = 0;}
     // DCR_func
-    gDCR_1 = DCR_func(file1,last_event_n, 3);
+    gDCR_1 = DCR_func(file1,last_event_n, 3, c);
 
 
     //file2:
@@ -613,7 +619,7 @@ void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_
     ind_peaks_all_delay = 0;
     for(int i=0; i<max_peaks; i++){peaks_all_delay[0][i] = 0; peaks_all_delay[1][i] = 0;}
     // DCR_func
-    gDCR_2 = DCR_func(file2,last_event_n, 3);
+    gDCR_2 = DCR_func(file2,last_event_n, 3, c);
 
 
     //file3:
@@ -622,7 +628,7 @@ void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_
     ind_peaks_all_delay = 0;
     for(int i=0; i<max_peaks; i++){peaks_all_delay[0][i] = 0; peaks_all_delay[1][i] = 0;}
     // DCR_func
-    gDCR_3 = DCR_func(file3,last_event_n, 3);
+    gDCR_3 = DCR_func(file3,last_event_n, 3, c);
 
     // graph DCR vs threshold evaluated at 3 different HVs
     TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
@@ -694,8 +700,10 @@ void Ana1(string file1, int last_event_n, bool display_one_ev_param){
     ptrHistDelays[0]    = new TH1D("histDelays","",bins_Delays,0,maxyhistDelays);
     ptrHistDCRthr[0]    = new TH1D("histDCRthr","",bins_DCR,0,maxyhistDCR);
 
+    TCanvas *c = new TCanvas("Trace","Trace",w,h);
+
     //Analysis
-    Analysis(file1, last_event_n, true);
+    Analysis(file1, last_event_n, true, c);
 
     TCanvas *chargehist = new TCanvas("chargehist", "chargehist", 5);
     chargehist->cd();
@@ -735,6 +743,8 @@ void Ana3(string file1, string file2, string file3, int last_event_n){
     //I have 3 files
     nfiletot = 3;
 
+    TCanvas *c = new TCanvas("Trace","Trace",w,h);
+
 
     for(int k=0; k<nfiletot; k++){
         //In order to set 3 different titles:
@@ -758,18 +768,18 @@ void Ana3(string file1, string file2, string file3, int last_event_n){
     //file1:
     nfile = 0;
     first_time_main_called=true;
-    Analysis(file1, last_event_n, false);
+    Analysis(file1, last_event_n, false, c);
 
 
     //file2:
     nfile = 1;
     first_time_main_called=true;
-    Analysis(file2, last_event_n, false);
+    Analysis(file2, last_event_n, false, c);
 
     //file3:
     nfile = 2;
     first_time_main_called=true;
-    Analysis(file3, last_event_n, false);
+    Analysis(file3, last_event_n, false, c);
 
 
     // Draw peak distribution for 3 different HVs
@@ -822,6 +832,7 @@ void Ana_LED(string file1, int last_event_n){
     find_area_trace_bool = true;
 
 
+
     // DISPLAY
     bool display_trace_LED = false;
     display_peaks_now = true;
@@ -832,8 +843,11 @@ void Ana_LED(string file1, int last_event_n){
     nfile = 0; //I only consider 1 file
     ptrHistAllPeaks[0]  = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
 
+    TCanvas *c = new TCanvas("Trace","Trace",w,h);
+
+
     //Analysis
-    Analysis(file1, last_event_n, display_trace_LED);
+    Analysis(file1, last_event_n, display_trace_LED, c);
 
     // LED
     TCanvas *canvLED = new TCanvas("canvLED", "canvLED", w,h);
@@ -902,8 +916,10 @@ void Ana_Ped(string file1, int last_event_n){
 
     nfile = 0; //I only consider 1 file
 
+    TCanvas *c = new TCanvas("Trace","Trace",w,h);
+
     //Analysis
-    Analysis(file1, last_event_n, false);
+    Analysis(file1, last_event_n, false, c);
 
     new TCanvas();
     ptrAllTrace->Draw();
@@ -925,16 +941,16 @@ void Ana_Ped(string file1, int last_event_n){
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void Analysis(string file, int last_event_n, bool display){
+void Analysis(string file, int last_event_n, bool display, TCanvas *c){
     gROOT->Reset();
 
     if(first_time_main_called){
         if(Agilent_MSO6054A or Digitizer_CAEN)
-            Read_Agilent_CAEN(file, last_event_n, display);
+            Read_Agilent_CAEN(file, last_event_n, display, c);
         if(DRS4_Evaluation_Board)
-            ReadBin(file, last_event_n, display);
+            ReadBin(file, last_event_n, display, c);
         if(DRS4_Evaluation_Board_Mod)
-          ReadRootFile(file, last_event_n, display);
+          ReadRootFile(file, last_event_n, display, c);
     }else{ //in order to speed up when I want to find peaks at different thresholds: I read the file only one time
         find_peaks_from_vector();
     }
@@ -979,21 +995,21 @@ void Analysis(string file, int last_event_n, bool display){
             }
 
         }
-        if(drawHistAllPeaksAll){
-            cAllPeaks->cd();
-
-            if(nfile==1) ptrHistAllPeaks[nfile]->SetLineColor(kGreen+1);
-            if(nfile==2) ptrHistAllPeaks[nfile]->SetLineColor(kRed+1);
-            ptrHistAllPeaks[nfile]->Draw("histsame");
-
-            auto legend = new TLegend(0.7,0.7,0.9,0.9);
-            for(int k=0; k<nfilemax; k++){
-                if(nfile==0) legend->AddEntry(ptrHistDCRthr[nfile],"HV = 34.00 V","l");
-                if(nfile==1) legend->AddEntry(ptrHistDCRthr[nfile],"HV = 35.00 V","l");
-                if(nfile==2) legend->AddEntry(ptrHistDCRthr[nfile],"HV = 36.00 V","l");
-            }
-            legend->Draw();
-        }
+        // if(drawHistAllPeaksAll){
+        //     cAllPeaks->cd();
+        //
+        //     if(nfile==1) ptrHistAllPeaks[nfile]->SetLineColor(kGreen+1);
+        //     if(nfile==2) ptrHistAllPeaks[nfile]->SetLineColor(kRed+1);
+        //     ptrHistAllPeaks[nfile]->Draw("histsame");
+        //
+        //     auto legend = new TLegend(0.7,0.7,0.9,0.9);
+        //     for(int k=0; k<nfilemax; k++){
+        //         if(nfile==0) legend->AddEntry(ptrHistDCRthr[nfile],"HV = 34.00 V","l");
+        //         if(nfile==1) legend->AddEntry(ptrHistDCRthr[nfile],"HV = 35.00 V","l");
+        //         if(nfile==2) legend->AddEntry(ptrHistDCRthr[nfile],"HV = 36.00 V","l");
+        //     }
+        //     legend->Draw();
+        // }
     }
 
 //***** DCR from DELAYS
@@ -1027,7 +1043,7 @@ void Analysis(string file, int last_event_n, bool display){
 }
 
 //------------------------------------------------------------------------------
-TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files){
+TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files, TCanvas *c){
 
     bool display = false;
 
@@ -1074,7 +1090,7 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files){
     float *DCR_thr = new float[n_DCR];
 
     while(thr_to_find_peaks <= max_thr_to_find_peaks){ // loop for DCR vs thresholds graph
-        Analysis(file1,last_event_n,display);
+        Analysis(file1,last_event_n,display, c);
         Get_DCR_temp_and_errDCR_temp();
         ptrHistDelays[nfile]->Reset();
         DCR_thr[h] = thr_to_find_peaks; //mV
@@ -1334,7 +1350,7 @@ if(line_bool){
         }
 
         //graphPeaks
-        c->cd(1);
+        canv->cd(1);
         graphPeaks = new TGraphErrors(num_peaks,x_peaks,y_peaks,0,0);
         graphPeaks->SetName("graphPeaks");
         graphPeaks->SetTitle("graphPeaks");
@@ -1345,7 +1361,7 @@ if(line_bool){
 
 
         //graphPeaks_DLED
-        c->cd(2);
+        canv->cd(2);
         graphPeaks_DLED = new TGraphErrors(num_peaks,x_peaks_DLED, y_peaks_DLED,0,0);
         graphPeaks_DLED->SetName("graphPeaks_DLED");
         graphPeaks_DLED->SetTitle("graphPeaks_DLED");
@@ -1361,7 +1377,7 @@ if(line_bool){
       float x_g[1], y_g[1];
       x_g[0] = trace[0][index_peak_LED+dleddt];
       y_g[0] = trace[1][index_peak_LED+dleddt];
-      c->cd(1);
+      canv->cd(1);
       graphPeak_LED = new TGraphErrors(1,x_g,y_g,0,0);
       graphPeak_LED->SetMarkerStyle(20);
       graphPeak_LED->SetMarkerColor(kBlue);
@@ -1371,7 +1387,7 @@ if(line_bool){
       float x_g_DLED[1], y_g_DLED[1];
       x_g_DLED[0] = trace_DLED[0][index_peak_LED];
       y_g_DLED[0] = trace_DLED[1][index_peak_LED];
-      c->cd(2);
+      canv->cd(2);
       graphPeak_LED_DLED = new TGraphErrors(1,x_g_DLED,y_g_DLED,0,0);
       graphPeak_LED_DLED->SetMarkerStyle(20);
       graphPeak_LED_DLED->SetMarkerColor(kBlue);
@@ -1385,7 +1401,7 @@ if(line_bool){
 
     if(!running_graph){
       while(!gSystem->ProcessEvents()) {
-         if (c->WaitPrimitive()==0)
+         if (canv->WaitPrimitive()==0)
          {
             break;
          }
@@ -1401,7 +1417,7 @@ if(line_bool){
 
 
 //------------------------------------------------------------------------------
-void show_AVG_trace_window(TCanvas *c, float *tracet, float *tracev, int trace_length, bool delete_bool){
+void show_AVG_trace_window(TCanvas *canv, float *tracet, float *tracev, int trace_length, bool delete_bool){
 
 	if(reverse_bool){
           for(int xx=0; xx<trace_length; xx++){
@@ -1409,7 +1425,7 @@ void show_AVG_trace_window(TCanvas *c, float *tracet, float *tracev, int trace_l
           }
         }
 
-	c->cd();
+	canv->cd();
 	TGraph *trace = new TGraph(trace_length, tracet, tracev);
 	trace->Draw("AL");
 	//if(delete_bool) delete trace;
@@ -1533,7 +1549,7 @@ void fit_hist_del(float expDelLow, float expDelHigh){ //fit hists filled with ti
 }
 
 //------------------------------------------------------------------------------
-void fit_hist_peaks(TCanvas *c, TH1D *hist){
+void fit_hist_peaks(TCanvas *canv, TH1D *hist){
 
     float mean1, mean2;
     float errmean1, errmean2;
@@ -1547,7 +1563,7 @@ void fit_hist_peaks(TCanvas *c, TH1D *hist){
     cout<<"fit2Low  "; if (scanf("%f", &fit2Low) == 1){;}
     cout<<"fit2High "; if (scanf("%f", &fit2High) == 1){;}
 
-    c->cd();
+    canv->cd();
 
     //1st
     hist -> Fit("gausFit1", "+", "", fit1Low, fit1High); //gaus fit of the 1st peak
@@ -1572,7 +1588,7 @@ void fit_hist_peaks(TCanvas *c, TH1D *hist){
 }
 
 //------------------------------------------------------------------------------
-void fit_hist_peaks_0pe_1pe_2pe(TCanvas *c, TH1D *hist){
+void fit_hist_peaks_0pe_1pe_2pe(TCanvas *canv, TH1D *hist){
 
   float Mean_peak_0, Mean_peak_1, Mean_peak_2;
   float errMean_peak_0, errMean_peak_1, errMean_peak_2;
@@ -1676,7 +1692,7 @@ void fit_hist_peaks_0pe_1pe_2pe(TCanvas *c, TH1D *hist){
   cout<<"fit2High\t"<<fit2High<<endl;
   cout<<endl;
 
-  c->cd();
+  canv->cd();
 
   //-------------
   //---[ 0pe ]---
@@ -1784,7 +1800,7 @@ void fit_hist_peaks_0pe_1pe_2pe(TCanvas *c, TH1D *hist){
 
 
 //------------------------------------------------------------------------------
-void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist, bool evaluate_cross_talk){
+void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_talk){
 
   float Mean_peak_0, Mean_peak_1, Mean_peak_2;
   float errMean_peak_0, errMean_peak_1, errMean_peak_2;
@@ -1802,7 +1818,7 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *c, TH1D *hist, bool evaluate_cross_tal
   int Entries;
 
 
-  c->cd();
+  canv->cd();
 
   // Set Name
   gaus_sum_012->SetParName(0, "H0");
@@ -2241,7 +2257,8 @@ void smoot_trace_3(){ // smooth the trace before DLED
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void Read_Agilent_CAEN(string file, int last_event_n, bool display){
+void Read_Agilent_CAEN(string file, int last_event_n, bool display, TCanvas *c){
+
     ifstream OpenFile (file.c_str());
     reading = true;
 
@@ -2408,7 +2425,7 @@ void Read_Agilent_CAEN(string file, int last_event_n, bool display){
 }
 
 //------------------------------------------------------------------------------
-void ReadBin(string filename, int last_event_n, bool display){
+void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
 // from read_binary.cpp, created by Stefan Ritt
 // use it to read binary from DRS4 Evaluation Board
 // please do not modify until the end of this section (until the first "===" row)
@@ -2616,6 +2633,8 @@ void ReadBin(string filename, int last_event_n, bool display){
 // now you can modify
 
          trace_length = 1024;
+
+
 
 //***** CREATE TRACE
         //trace
@@ -2829,52 +2848,53 @@ void ReadBin(string filename, int last_event_n, bool display){
 
 //cout << n_ev << endl;
 
-    if(find_1phe_bool){
-	if(index_vect[1] > maxtp && index_vect[0] > mintp && index_vect[0] < maxtp  && count_peak_window < 100 && ((trace[0][index_vect[1]+dleddt] - trace[0][index_vect[0]+dleddt]) > 20) && (abs(trace[1][mintp] - trace[1][index_vect[0]+dleddt]) > 18) && (abs(trace[1][mintp] - trace[1][index_vect[0]+dleddt]) < 22) ){
-
-	 if(count_peak_window==0){
-
-	      AVG_trace_window = new float*[2];
-              for(int ii = 0; ii < 2; ii++) {
-                AVG_trace_window[ii] = new float[trace_window_length];
-              } // end for loop for AVG trace creation
-
-
-          for(int jj=0; jj < trace_window_length; jj++){
-             AVG_trace_window[0][jj]=trace[0][jj+mintp];
-             AVG_trace_window[1][jj]=0;
-          } // end for loop for AVG trace initialization
-         } // end if n_ev == 0
-
-// 	cout << "n_ev\t"<< n_ev << endl;
-// 	cout << " " << endl;
-// 	cout << "index_vect[0]+dleddt\t" <<index_vect[0]+dleddt << endl;
-// 	cout << "mintp\t"<<mintp << endl;
-// 	cout << "trace[0][index_vect[0]+dleddt]\t"<<trace[0][index_vect[0]+dleddt] << endl;
-// 	cout << "trace[1][mintp]\t"<<trace[1][mintp] << endl;
-// 	cout << "trace[1][index_vect[0]+dleddt]\t"<<trace[1][index_vect[0]+dleddt] << endl;
-// 	cout << "(trace[1][mintp+dleddt] - trace[1][index_vect[0]+dleddt])\t"<<(trace[1][mintp+dleddt] - trace[1][index_vect[0]+dleddt]) << endl;
-// 	cout << "(trace[1][mintp] - trace[1][index_vect[0]])\t"<<(trace[1][mintp] - trace[1][index_vect[0]]) << endl;
-// 	//cout <<  << endl;
-
-
-	count_peak_window++;
-
-	 for (int kk=0; kk < trace_window_length; kk++){
-                AVG_trace_window[1][kk] += (trace[1][kk+index_vect[0]-dleddt]-trace[1][index_vect[0]-dleddt]);
-            } // end for loop a
-
-	if(count_peak_window == 100){
-
-	  for (int ww=0; ww < trace_window_length; ww++){
-             AVG_trace_window[1][ww] /= count_peak_window;
-          } // end for loop average
-	  show_AVG_trace_window(AVG_trace_canvas, AVG_trace_window[0], AVG_trace_window[1], trace_window_length, true);
-	} // end if count == 20
-
-
-	} //end if loop check 1phe waveform
-    }
+//     if(find_1phe_bool){ // if find_1phe_bool
+// 	if(index_vect[1] > maxtp && index_vect[0] > mintp && index_vect[0] < maxtp  && count_peak_window < 100 && ((trace[0][index_vect[1]+dleddt] - trace[0][index_vect[0]+dleddt]) > 20) && (abs(trace[1][mintp] - trace[1][index_vect[0]+dleddt]) > 18) && (abs(trace[1][mintp] - trace[1][index_vect[0]+dleddt]) < 22) ){
+//
+// 	 if(count_peak_window==0){
+//
+// 	      AVG_trace_window = new float*[2];
+//               for(int ii = 0; ii < 2; ii++) {
+//                 AVG_trace_window[ii] = new float[trace_window_length];
+//               } // end for loop for AVG trace creation
+//
+//
+//           for(int jj=0; jj < trace_window_length; jj++){
+//              AVG_trace_window[0][jj]=trace[0][jj+mintp];
+//              AVG_trace_window[1][jj]=0;
+//           } // end for loop for AVG trace initialization
+//          } // end if n_ev == 0
+//
+// // 	cout << "n_ev\t"<< n_ev << endl;
+// // 	cout << " " << endl;
+// // 	cout << "index_vect[0]+dleddt\t" <<index_vect[0]+dleddt << endl;
+// // 	cout << "mintp\t"<<mintp << endl;
+// // 	cout << "trace[0][index_vect[0]+dleddt]\t"<<trace[0][index_vect[0]+dleddt] << endl;
+// // 	cout << "trace[1][mintp]\t"<<trace[1][mintp] << endl;
+// // 	cout << "trace[1][index_vect[0]+dleddt]\t"<<trace[1][index_vect[0]+dleddt] << endl;
+// // 	cout << "(trace[1][mintp+dleddt] - trace[1][index_vect[0]+dleddt])\t"<<(trace[1][mintp+dleddt] - trace[1][index_vect[0]+dleddt]) << endl;
+// // 	cout << "(trace[1][mintp] - trace[1][index_vect[0]])\t"<<(trace[1][mintp] - trace[1][index_vect[0]]) << endl;
+// // 	//cout <<  << endl;
+//
+//
+// 	count_peak_window++;
+//
+// 	 for (int kk=0; kk < trace_window_length; kk++){
+//                 AVG_trace_window[1][kk] += (trace[1][kk+index_vect[0]-dleddt]-trace[1][index_vect[0]-dleddt]);
+//             } // end for loop a
+//
+// 	if(count_peak_window == 100){
+//
+// 	  for (int ww=0; ww < trace_window_length; ww++){
+//              AVG_trace_window[1][ww] /= count_peak_window;
+//           } // end for loop average
+//       TCanvas *AVG_trace_canvas = new TCanvas("AVG_trace_canvas", "AVG_trace_canvas", 5);
+// 	  show_AVG_trace_window(AVG_trace_canvas, AVG_trace_window[0], AVG_trace_window[1], trace_window_length, true);
+// 	} // end if count == 20
+//
+//
+// 	} //end if loop check 1phe waveform
+// } // end if find_1phe_bool
 
 
 //***** AVERAGE
@@ -2933,24 +2953,26 @@ void ReadBin(string filename, int last_event_n, bool display){
   cout<<"Last event "<<n_ev_tot<<endl;
   fclose(f);
 
-  if(find_1phe_bool){
-  cout << "Number of traces with one peak within window: " << count_peak_window << endl;
-  cout << index_vect[1] << " " << mintp << " " << maxtp << endl;
+//   if(find_1phe_bool){ // if find_1phe_bool
+//   cout << "Number of traces with one peak within window: " << count_peak_window << endl;
+//   cout << index_vect[1] << " " << mintp << " " << maxtp << endl;
+//
+//   if(count_peak_window < 100 && count_peak_window != 0){
+//
+// 	cout << "Qui!" << endl;
+//
+// 	  for (int zz=0; zz < trace_window_length; zz++){
+//              AVG_trace_window[1][zz] /= count_peak_window;
+//           }
+//
+// 	  show_AVG_trace_window(AVG_trace_canvas, AVG_trace_window[0], AVG_trace_window[1], trace_window_length, true);
+// 	}
+// } // end if find_1phe_bool
 
-  if(count_peak_window < 100 && count_peak_window != 0){
-
-	cout << "Qui!" << endl;
-
-	  for (int zz=0; zz < trace_window_length; zz++){
-             AVG_trace_window[1][zz] /= count_peak_window;
-          }
-	  show_AVG_trace_window(AVG_trace_canvas, AVG_trace_window[0], AVG_trace_window[1], trace_window_length, true);
-	}
-  }
 }
 
 //------------------------------------------------------------------------------
-void ReadRootFile(string filename, int last_event_n, bool display){
+void ReadRootFile(string filename, int last_event_n, bool display, TCanvas *c){
 
   TFile *file_root = TFile::Open(filename.c_str());
   TTree *wave      = (TTree *)file_root->Get("Waveforms");
