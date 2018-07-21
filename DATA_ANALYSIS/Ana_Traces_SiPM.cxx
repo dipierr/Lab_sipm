@@ -1,26 +1,26 @@
 //Ana_Traces_SiPM.cxx
 
-/********************************************************************************
- *  Ana_Traces_SiPM.cxx                                                         *
- *                                                                              *
- *  Read Ana_Traces_SiPM_ReadMe.md and/or the code before use.                  *
- *                                                                              *
- *  Key points:                                                                 *
- *  (1) Open root:                                                              *
- *          $ root -l                                                           *
- *  (2) Compile the macro:                                                      *
- *          root[0] .L Ana_Traces_SiPM.cxx++                                    *
- *  (3) Run the desired function:                                               *
- *          root [1] DCR_CT_1SiPM_1HV(string file1, int last_event_n);          *
- *          root [1] DCR_CT_1SiPM_3HVs(string file1, string file2, string file3,*
- *                    int last_event_n)                                         *
- *          root [1] Ana1(string file1, int last_event_n,                       *
- *                    bool display_one_ev_param);                               *
- *                                                                              *
- *  Davide Depaoli 2018                                                         *
- *  Alessio Berti  2018                                                         *
- *                                                                              *
- ********************************************************************************/
+/******************************************************************************
+ *  Ana_Traces_SiPM.cxx                                                       *
+ *                                                                            *
+ *  Read Ana_Traces_SiPM_ReadMe.md and/or the code before use.                *
+ *                                                                            *
+ *  Key points:                                                               *
+ *  (1) Open root:                                                            *
+ *          $ root -l                                                         *
+ *  (2) Compile the macro:                                                    *
+ *          root[0] .L Ana_Traces_SiPM.cxx++                                  *
+ *  (3) Run the desired function:                                             *
+ *          root [1] DCR_CT_1SiPM_1HV(string file1, int last_event_n);        *
+ *          root [1] DCR_CT_1SiPM_3HVs(string file1, string file2,            *
+ *                    string file3, int last_event_n)                         *
+ *          root [1] Ana1(string file1, int last_event_n,                     *
+ *                    bool display_one_ev_param);                             *
+ *                                                                            *
+ *  Davide Depaoli 2018                                                       *
+ *  Alessio Berti  2018                                                       *
+ *                                                                            *
+ ******************************************************************************/
 
 
 #include <cstdlib>
@@ -125,6 +125,7 @@ void Ana1(string file1, int last_event_n, bool display_one_ev_param);
 void Ana3(string file1, string file2, string file3, int last_event_n);
 void Ana_LED(string file1, int last_event_n);
 void Ana_Ped(string file1, int last_event_n);
+void DCR_discriminator(string file1, int last_event_n, int thr_to_find_peaks);
 
 //SECONDARY
 void Analysis(string file, int last_event_n, bool display, TCanvas *c);
@@ -136,6 +137,7 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
 void fit_hist_del(float expDelLow, float expDelHigh);
 void fit_hist_peaks(TCanvas *canv, TH1D *hist);
 TGraphErrors* DCR_func(string file1, int last_event_n, int tot_files, TCanvas *c);
+void discriminator(double thr, float **t, double length);
 void Get_DCR_temp_and_errDCR_temp();
 void show_trace(TCanvas* canv, float *x, float *y, int trace_length, float miny, float maxy, bool line_bool, bool delete_bool);
 void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int trace_length1, int trace_length2, float miny1, float maxy1, float miny2, float maxy2, bool line_bool, bool delete_bool);
@@ -169,9 +171,9 @@ void help();
 
 
 
-//-------------------------------------------------------------------------------
-//-----------------------[   SETTING GLOBAL VARIABLES   ]------------------------
-//-------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//----------------------[   SETTING GLOBAL VARIABLES   ]-----------------------
+//-----------------------------------------------------------------------------
 
 //-----------------
 //---[ OPTIONS ]---
@@ -351,10 +353,10 @@ float DCR_pe_1_5_vect[] = {0., 0., 0.};
 float errDCR_pe_0_5_vect[] = {0., 0., 0.};
 float errDCR_pe_1_5_vect[] = {0., 0., 0.};
 
-int trace_DLED_length; int ii=0; int i=0; int index_func = 0; int nfile = 0; int n_DCR = 0; int DCR_cnt = 0; int trace_length = 0; int n_ev, index_for_peak; int one_window=0;
+int trace_DLED_length; int ii=0; int i=0; int index_func = 0; int nfile = 0; int n_DCR = 0; int DCR_cnt = 0; int discriminator_cnt = 0; int trace_length = 0; int n_ev, index_for_peak; int one_window=0;
 int nfiletot = 1; int n_smooth = 0;
 
-float miny=0; float maxy=0; float miny1=0; float maxy1=0; float miny2=0; float maxy2=0; float gain, errgain; float DCR_time = 0.; float DCR_from_cnt = 0.; float max_func;
+float miny=0; float maxy=0; float miny1=0; float maxy1=0; float miny2=0; float maxy2=0; float gain, errgain; float DCR_time = 0.; float DCR_from_discriminator = 0.; float max_func;
 
 bool first_time_main_called = true; bool reading = true; bool last_event_flag = false;
 bool first_time_DCR_called = true;
@@ -438,6 +440,7 @@ bool find_area_trace_bool = false;
 
 bool find_1phe_bool = false;
 
+bool find_peaks_discriminator_bool = false;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -932,7 +935,23 @@ void Ana_Ped(string file1, int last_event_n){
 
 }
 
+//------------------------------------------------------------------------------
+void DCR_discriminator(string file1, int last_event_n, int thr_to_find_peaks){
+    // TRUE:
+    find_peaks_discriminator_bool = true;
 
+    TCanvas *c = new TCanvas("Trace","Trace",w,h);
+
+    //Analysis
+    Analysis(file1, last_event_n, false, c);
+
+    delete c;
+
+    cout<<endl;
+    cout<<"// File analyzed: "<<file1<<endl;
+    cout<<"// threshold = "<<thr_to_find_peaks<<endl;
+    cout<<"DCR = "<< DCR_from_discriminator*TMath::Power(10,-6) <<" MHz"<<endl;
+}
 
 
 
@@ -1119,6 +1138,45 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files, TCanvas *c
     return gDCR;
 
 }
+
+
+//------------------------------------------------------------------------------
+void discriminator(double thr, float **t, double length){
+    int i = 0;
+    bool find_new_peak = true;
+    discriminator_cnt = 0;
+    while(i<length-4){ // loop on trace t
+
+        if(find_new_peak){ // find a new peak
+            if(t[1][i] > thr){ // loop > thr
+                if((t[1][i]<t[1][i+1]) and (t[1][i+1]<t[1][i+2])){ // rising edge
+                    discriminator_cnt ++;
+                    i+=2;
+                    find_new_peak = false;
+                }
+                else{
+                    i++;
+                } // end rising edge
+
+            }else{
+                i++;
+            } // end loop > thr
+        } // end find a new peak
+        else{ // wait until the peak ends
+            if((t[1][i]>t[1][i+1]) and (t[1][i+1]>t[1][i+2])){ // falling edge
+                find_new_peak = true;
+                i++;
+            } // end falling edge
+            else{
+                i++;
+            }
+        } //end wait until the peak ends
+
+
+
+    } // end loop on trace t
+}
+
 
 //------------------------------------------------------------------------------
 void DLED(int trace_length, int dleddt){
@@ -2703,6 +2761,14 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
             }
         }
 
+        //--------------------------------------
+        //---[ FIND PEAKS DISCRIMINATOR WAY ]---
+        //--------------------------------------
+        if(find_peaks_discriminator_bool){
+            discriminator(thr_to_find_peaks, trace_DLED, trace_DLED_length);
+            DCR_from_discriminator += (double)discriminator_cnt / (trace[0][trace_length-1]*TMath::Power(10,-9)); // time in trace is in ns
+        }
+
 
         // FIND PEAKS LED
 
@@ -2952,6 +3018,8 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
   n_ev_tot = n_ev + 1;
   cout<<"Last event "<<n_ev_tot<<endl;
   fclose(f);
+
+  DCR_from_discriminator = DCR_from_discriminator / (double)n_ev_tot;
 
 //   if(find_1phe_bool){ // if find_1phe_bool
 //   cout << "Number of traces with one peak within window: " << count_peak_window << endl;
