@@ -140,7 +140,7 @@ void Analysis(string file, int last_event_n, bool display, TCanvas *c);
 void DLED(int trace_length, int dleddt);
 int find_peak_fix_time(int mintp, int maxtp);
 void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,int blind_gap, bool DCR_DELAYS_bool);
-void find_peaks_02(double thr, float **t, double length, int max_peak_width);
+void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_width, int rising_points, int falling_points);
 void FindPeakPositions(float* vector, Bool_t dled_bool, Int_t dt);
 void FindPeaksFromPositions();
 void fit_hist_peaks_0pe_1pe_2pe(TCanvas *canv, TH1D *hist);
@@ -1319,7 +1319,7 @@ void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,
 }
 
 //------------------------------------------------------------------------------
-void find_peaks_02(double thr, float **t, double length, int max_peak_width){
+void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_width, int rising_points, int falling_points){
     int i=1;
     int index_old = -1;
     int index_new = -1;
@@ -1328,6 +1328,11 @@ void find_peaks_02(double thr, float **t, double length, int max_peak_width){
     int peak_width = max_peak_width;
     double time_delay = 0;
     num_peaks=0;
+    bool rising = true;
+    bool falling = true;
+    int half_rising_points = 0;
+    int half_falling_points = 0;
+
     for(int i=0; i<max_peak_num; i++) index_vect[i]=0;
 
     // cout<<(double)DCR_cnt / (trace_time * n_ev) * TMath::Power(10,-6)<<endl;
@@ -1338,7 +1343,17 @@ void find_peaks_02(double thr, float **t, double length, int max_peak_width){
 
         if(find_rising_edge){ // find rising edge
             if(t[1][i] > thr){ // loop > thr
-                if((t[1][i-1]<t[1][i]) and (t[1][i]<t[1][i+1])){ // rising edge
+
+                // find if rising edge or not
+                rising = true;
+                half_rising_points = (int)(rising_points/2);
+                for(int j=i-half_rising_points; j<i+half_rising_points-1; j++){ // rising?
+                    if( t[1][j] >= t[1][j+1] ){
+                        rising = false;
+                    }
+                } // end rising?
+
+                if(rising){ // rising edge
                     peak_start = i-1;
                     i++;
                     find_rising_edge = false;
@@ -1352,7 +1367,17 @@ void find_peaks_02(double thr, float **t, double length, int max_peak_width){
             } // end loop > thr
         } // end find rising edge
         else{ // wait until the peak ends
-            if((t[1][i-1]>t[1][i]) and (t[1][i]>t[1][i+1])){ // falling edge
+
+            // find if falling edge or not
+            falling = true;
+            half_falling_points = (int)(falling_points/2);
+            for(int j=i-half_falling_points; j<i+half_falling_points-1; j++){ // falling?
+                if( t[1][j] <= t[1][j+1] ){
+                    falling = false;
+                }
+            } // end falling?
+
+            if(falling){ // falling edge
                 peak_end = i+1;
                 peak_width = peak_end-peak_start;
                 // I have found a falling edge. The following time I will look for a new peak:
@@ -3268,7 +3293,7 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
         if(find_peaks_bool){
             // find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
 
-            find_peaks_02(thr_to_find_peaks, trace_DLED, trace_DLED_length, max_peak_width);
+            FindPeaksRisingFalling(thr_to_find_peaks, trace_DLED, trace_DLED_length, max_peak_width,3,3);
 
 
             // FindPeakPositions(trace_DLED[1], DLED_bool, dleddt);
