@@ -237,6 +237,7 @@ int blind_gap = 2*dleddt; //ns
 int max_peak_width = 50; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
 int gap_between_peaks = 10;
+int rise_time = dleddt;
 
 // ONLY for DCR_CT_1SiPM_1HV and DCR_CT_1SiPM_3HVs:
 float min_thr_to_find_peaks = 8;  //first thr value in the DCR vs thr plot (mV)
@@ -3311,7 +3312,7 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
                 trace_time = 0;
             }
 
-            trace_time += ( trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0] - DCR_cnt_temp * 2 * dleddt - dleddt ) * TMath::Power(10,-9); // time in trace is in ns
+            trace_time += ( trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0] - DCR_cnt_temp * 2 * dleddt - rise_time ) * TMath::Power(10,-9); // time in trace is in ns
 
 
             // FindPeakPositions(trace_DLED[1], DLED_bool, dleddt);
