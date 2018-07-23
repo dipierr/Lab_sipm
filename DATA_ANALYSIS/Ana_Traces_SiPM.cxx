@@ -309,8 +309,8 @@ int bins_Charge = 100;
 //-------------
 
 // DELAYS distribution
-float expDelLow_max= 20.;
-float expDelHigh_max = 200.;
+float expDelLow_max= 40.;
+float expDelHigh_max = 160.;
 
 //-------------
 //-------------
@@ -759,6 +759,21 @@ void Ana1(string file1, int last_event_n, float thr, bool display_one_ev_param){
     cout<<"   DCR at "<<thr<<" mV = "<<endl;
     cout<<"         ("<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<") MHz, from exp fit"<<endl;
     cout<<"         ("<<DCR_from_cnt*TMath::Power(10,-6)<<" +- "<<errDCR_from_cnt*TMath::Power(10,-6)<<") MHz, from cnt"<<endl;
+
+    //////////////
+    /// TEST Z ///
+    //////////////
+
+    double test_z_DCR;
+    test_z_DCR = TMath::Abs(DCR_pe_0_5_vect[0] - DCR_from_cnt) / TMath::Sqrt( errDCR_pe_0_5_vect[0]*errDCR_pe_0_5_vect[0] + errDCR_from_cnt*errDCR_from_cnt );
+
+    if(test_z_DCR<=1.96){
+        cout<<"DCR are COMPATIBLE, z = "<<test_z_DCR<<endl;
+    }else{
+        cout<<"DCR are *NOT* COMPATIBLE, z = "<<test_z_DCR<<endl;
+    }
+
+    cout<<"*************************"<<endl;
 
 }
 
@@ -3004,15 +3019,19 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
 
    // loop over all events in the data file
    for (n=0 ; ; n++) {
+
+       n_ev = n;
+
+       if(n_ev==last_event_n-1)
+              break;
+
       // read event header
       i = (int)fread(&eh, sizeof(eh), 1, f);
       if (i < 1)
          break;
 
-      n_ev = n;
 
-      if(n_ev==last_event_n)
-             break;
+
 
       if(n_ev%1000==0)
             cout<<"Read ev\t"<<n_ev<<endl;
@@ -3300,8 +3319,9 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
         /////////////////////
         /// PEAKS FINDING ///
         /////////////////////
+
         // if(n_ev==0)  {
-        //     trace_time = ( trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0] ) * TMath::Power(10,-9); // time in trace is in ns
+        //     trace_time = ( trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0] ); // time in trace is in ns
         // }
         fill_hist_peaks_when_found = false;
         if(find_peaks_bool){
@@ -3313,7 +3333,7 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
                 trace_time = 0;
             }
 
-            trace_time += ( trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0] - DCR_cnt_temp * 2 * dleddt - rise_time ) * TMath::Power(10,-9); // time in trace is in ns
+            trace_time += ( trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0] - DCR_cnt_temp * 2 * dleddt - rise_time ); // time in trace is in ns
 
 
             // FindPeakPositions(trace_DLED[1], DLED_bool, dleddt);
@@ -3445,20 +3465,25 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
   cout<<"Last event "<<n_ev_tot<<endl;
   fclose(f);
 
-  double err_DCR_cnt = 0;
+  double err_DCR_cnt = 0.;
+  double err_trace_time = 0.;
 
   DCR_from_discriminator = DCR_from_discriminator / (double)n_ev_tot;
 
   if(find_peaks_bool){
+      // DCR from cnt
+      trace_time *= TMath::Power(10,-9); // trace time is in ns
       trace_time /= n_ev_tot;
+      DCR_from_cnt = (double)DCR_cnt / (trace_time * n_ev_tot);
+
+      // errors
+      err_trace_time = TMath::Sqrt( (5*n_ev_tot) * TMath::Power(10,-9) * TMath::Power(10,-9) );
       err_DCR_cnt = TMath::Sqrt((double)DCR_cnt);
-      errDCR_from_cnt = TMath::Sqrt((double)DCR_cnt) / (trace_time * n_ev_tot);
+      errDCR_from_cnt = TMath::Sqrt( TMath::Power( err_DCR_cnt / (trace_time * n_ev_tot), 2) + TMath::Power( (double)DCR_cnt*err_trace_time / ( trace_time * n_ev_tot * trace_time * n_ev_tot ), 2) );
       // errDCR_from_cnt /= trace_time;
       // errDCR_from_cnt /= n_ev_tot;
-      DCR_from_cnt = (double)DCR_cnt / (trace_time * n_ev_tot);
+
   }
-
-
 
 //   if(find_1phe_bool){ // if find_1phe_bool
 //   cout << "Number of traces with one peak within window: " << count_peak_window << endl;
