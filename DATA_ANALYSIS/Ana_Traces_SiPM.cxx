@@ -1,4 +1,4 @@
-//Ana_Traces_SiPM.cxx
+// Ana_Traces_SiPM.cxx
 
 /******************************************************************************
  *  Ana_Traces_SiPM.cxx                                                       *
@@ -168,6 +168,7 @@ void show_AVG_trace_window(TCanvas *c, float *tracet, float *tracev, int trace_l
 void DLED_offset_remove();
 void smoot_trace_step();
 void smoot_trace_3();
+void smoot_trace_4();
 void smoot_trace_5();
 Float_t GetMean(std::vector<Float_t> vec);
 Float_t GetStdDev(std::vector<Float_t> vec);
@@ -2573,6 +2574,40 @@ void smoot_trace_3(){ // smooth the trace before DLED
     }
   }
 }
+
+
+//------------------------------------------------------------------------------
+void smoot_trace_4(){ // smooth the trace before DLED
+  for(int i=0; i<trace_length; i+=4){
+
+    // sum on 4
+    for(int j=1; j<4; j++){
+      trace[1][i] += trace[1][i+j];
+    }
+
+    // divide for 4
+    trace[1][i]   /= 4;
+    for(int j=1; j<4; j++){
+      trace[1][i+j] = trace[1][i];
+    }
+
+    // now I have something like:
+    //
+    //                         [ i ] [i+1] [i+2] [i+3]
+    //  [i-4] [i-3] [i-2] [i-1]
+    //
+
+    // I change the values of [i-2], [i-1], [i] and [i+1] in order to smooth the trace
+    if(i!=0){
+      double gap = (double)trace[1][i+2] - (double)trace[1][i-2];
+      trace[1][i-2] += gap/5;
+      trace[1][i-1] += gap/5*2;
+      trace[1][i]   -= gap/5*2;
+      trace[1][i+1] -= gap/5;
+    }
+  }
+}
+
 
 
 //------------------------------------------------------------------------------
