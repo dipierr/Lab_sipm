@@ -1348,15 +1348,15 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
                 rising = true;
                 half_rising_points = (int)(rising_points/2);
                 diff = rising_points%2;
-                cout<<"rising_points = "<<rising_points<<", i = "<<i<<endl;
+                // cout<<endl<<"rising_points = "<<rising_points<<", i = "<<i<<endl;
                 for(int j=i-half_rising_points; j<i+half_rising_points+diff; j++){ // rising?
-                    cout<<j<<", ";
+                    // cout<<j<<", ";
                     if( t[1][j] >= t[1][j+1] ){
                         rising = false;
                     }
                 } // end rising?
 
-                getchar();
+                // getchar();
 
                 if(rising){ // rising edge
                     peak_start = i-1;
@@ -1377,9 +1377,9 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
             falling = true;
             half_falling_points = (int)(falling_points/2);
             diff = falling_points%2;
-            cout<<"falling_points = "<<falling_points<<endl;
-            for(int j=i-half_falling_points; j<i+half_falling_points-diff; j++){ // falling?
-                cout<<j<<", ";
+            // cout<<endl<<"falling_points = "<<falling_points<<", i = "<<i<<endl;
+            for(int j=i-half_falling_points; j<i+half_falling_points+diff; j++){ // falling?
+                // cout<<j<<", ";
                 if( t[1][j] <= t[1][j+1] ){
                     falling = false;
                 }
@@ -3302,7 +3302,7 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
         if(find_peaks_bool){
             // find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
 
-            FindPeaksRisingFalling(thr_to_find_peaks, trace_DLED, trace_DLED_length, max_peak_width,3,4);
+            FindPeaksRisingFalling(thr_to_find_peaks, trace_DLED, trace_DLED_length, max_peak_width,2,2);
 
 
             // FindPeakPositions(trace_DLED[1], DLED_bool, dleddt);
