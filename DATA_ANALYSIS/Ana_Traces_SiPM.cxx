@@ -227,7 +227,7 @@ int n_smooth_trace = 2;
 //--------------
 double GSPS = 1;
 
-//--------------- 
+//---------------
 //---[ PEAKS ]---
 //---------------
 
@@ -753,9 +753,10 @@ void Ana1(string file1, int last_event_n, float thr, bool display_one_ev_param){
     cout<<"-------------------------"<<endl<<endl;
 
     cout<<"File analyzed: "<<file1<<endl;
-    cout<<"Fit range for GAIN: fit1Low = "<<fit1Low<<"; fit1High = "<<fit1High<<"; fit2Low = "<<fit2Low<<"; fit2High = "<<fit2High<<";"<<endl;
-    cout<<"   GAIN = ("<<gain<<" +- "<<errgain<<") mV"<<endl;
-    cout<<"   DCR at 0.5 pe = "<<endl;
+    // cout<<"Fit range for GAIN: fit1Low = "<<fit1Low<<"; fit1High = "<<fit1High<<"; fit2Low = "<<fit2Low<<"; fit2High = "<<fit2High<<";"<<endl;
+    // cout<<"   GAIN = ("<<gain<<" +- "<<errgain<<") mV"<<endl;
+    // cout<<"   DCR at 0.5 pe = "<<endl;
+    cout<<"   DCR at "<<thr<<" mV = "<<endl;
     cout<<"         ("<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<") MHz, from exp fit"<<endl;
     cout<<"         ("<<DCR_from_cnt*TMath::Power(10,-6)<<" +- "<<errDCR_from_cnt*TMath::Power(10,-6)<<") MHz, from cnt"<<endl;
 
