@@ -764,14 +764,14 @@ void Ana1(string file1, int last_event_n, float thr, bool display_one_ev_param){
     /// TEST Z ///
     //////////////
 
-    double test_z_DCR;
-    test_z_DCR = TMath::Abs(DCR_pe_0_5_vect[0] - DCR_from_cnt) / TMath::Sqrt( errDCR_pe_0_5_vect[0]*errDCR_pe_0_5_vect[0] + errDCR_from_cnt*errDCR_from_cnt );
-
-    if(test_z_DCR<=1.96){
-        cout<<"DCR are COMPATIBLE, z = "<<test_z_DCR<<endl;
-    }else{
-        cout<<"DCR are *NOT* COMPATIBLE, z = "<<test_z_DCR<<endl;
-    }
+    // double test_z_DCR;
+    // test_z_DCR = TMath::Abs(DCR_pe_0_5_vect[0] - DCR_from_cnt) / TMath::Sqrt( errDCR_pe_0_5_vect[0]*errDCR_pe_0_5_vect[0] + errDCR_from_cnt*errDCR_from_cnt );
+    //
+    // if(test_z_DCR<=1.96){
+    //     cout<<"DCR are COMPATIBLE, z = "<<test_z_DCR<<endl;
+    // }else{
+    //     cout<<"DCR are *NOT* COMPATIBLE, z = "<<test_z_DCR<<endl;
+    // }
 
     cout<<"*************************"<<endl;
 
