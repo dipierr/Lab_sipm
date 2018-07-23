@@ -256,7 +256,7 @@ float min_pe_1_5 = 28; //min value for 1.5pe threshold (mV)
 float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 float pe_0_5_vect[3] = {10.,10.,10.};
-float pe_1_5_vect[3] = {25.,27.,30.};
+float pe_1_5_vect[3] = {23.,25.,28.};
 
 // ONLY for LED measures
 int minLED_amp = 290;//168;//115;  // window: min time for peak (ns) for LED
@@ -1241,13 +1241,13 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     cout<<"// "<<file1<<"   pe_0_5 = "<<pe_0_5_vect[0]<<" mV; pe_1_5 = "<<pe_1_5_vect[0]<<" mV"<<endl;
     cout<<"// "<<file2<<"   pe_0_5 = "<<pe_0_5_vect[1]<<" mV; pe_1_5 = "<<pe_1_5_vect[1]<<" mV"<<endl;
     cout<<"// "<<file3<<"   pe_0_5 = "<<pe_0_5_vect[2]<<" mV; pe_1_5 = "<<pe_1_5_vect[2]<<" mV"<<endl;
-    cout<<"double DCR[] =         {"<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
+    cout<<"double DCR[] =          {"<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
 
-    cout<<"double errDCR[] =      {"<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
+    cout<<"double errDCR[] =       {"<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
 
-    cout<<"double CrossTalk[] =   {"<<CT[0][0]<<", "<<CT[1][0]<<", "<<CT[2][0]<<"};"<<endl;
+    cout<<"double CrossTalk[] =    {"<<CT[0][0]<<", "<<CT[1][0]<<", "<<CT[2][0]<<"};"<<endl;
 
-    cout<<"double errCrossTalk[] ={"<<CT[0][1]<<", "<<CT[1][1]<<", "<<CT[2][1]<<"};"<<endl;
+    cout<<"double errCrossTalk[] = {"<<CT[0][1]<<", "<<CT[1][1]<<", "<<CT[2][1]<<"};"<<endl;
 
 }
 
