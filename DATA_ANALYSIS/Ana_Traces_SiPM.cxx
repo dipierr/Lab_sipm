@@ -232,11 +232,11 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 9;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
+int dleddt = 7;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 50; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
-int gap_between_peaks = 1;
+int gap_between_peaks = 10;
 
 // ONLY for DCR_CT_1SiPM_1HV and DCR_CT_1SiPM_3HVs:
 float min_thr_to_find_peaks = 8;  //first thr value in the DCR vs thr plot (mV)
@@ -308,7 +308,7 @@ int bins_Charge = 100;
 //-------------
 
 // DELAYS distribution
-float expDelLow_max= 20.;
+float expDelLow_max= 10.;
 float expDelHigh_max = 200.;
 
 //-------------
@@ -1330,6 +1330,8 @@ void find_peaks_02(double thr, float **t, double length, int max_peak_width){
     num_peaks=0;
     for(int i=0; i<max_peak_num; i++) index_vect[i]=0;
 
+    // cout<<(double)DCR_cnt / (trace_time * n_ev) * TMath::Power(10,-6)<<endl;
+
     bool find_rising_edge = true;
 
     while(i<length-1){ // loop on trace t
@@ -1375,10 +1377,12 @@ void find_peaks_02(double thr, float **t, double length, int max_peak_width){
                         // I fill the hist with delays between 1 pe peaks (or higher):
                         if(index_old>0){
                             time_delay = t[0][index_new] - t[0][index_old];
-                            ptrHistDelays[nfile] -> Fill(time_delay);
-                            peaks_all_delay[0][ind_peaks_all_delay] = t[0][index_new];
-                            peaks_all_delay[1][ind_peaks_all_delay] = t[1][index_new];
-                            ind_peaks_all_delay++;
+                            if( (time_delay>expDelLow_max) and (time_delay<expDelHigh_max) and (t[0][index_new]>2*expDelLow_max) and (index_new<900) ){
+                                ptrHistDelays[nfile] -> Fill(time_delay);
+                                peaks_all_delay[0][ind_peaks_all_delay] = t[0][index_new];
+                                peaks_all_delay[1][ind_peaks_all_delay] = t[1][index_new];
+                                ind_peaks_all_delay++;
+                            }
                         }
                     } // end DCR from delays
 
@@ -3060,6 +3064,8 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
 
 
 
+
+
 //***** CREATE TRACE
         //trace
         trace = new float*[2];
@@ -3114,7 +3120,8 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
       if(smooth_trace_bool){
         // smoot_trace_step();
         // smoot_trace_3();
-        smoot_trace_5();
+        // smoot_trace_5();
+        smoot_trace_4();
       }
 
 //***** DLED
@@ -3397,6 +3404,8 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
 
   double err_DCR_cnt = TMath::Sqrt((double)DCR_cnt);
   errDCR_from_cnt = TMath::Sqrt((double)DCR_cnt) / (trace_time * n_ev_tot);
+  // errDCR_from_cnt /= trace_time;
+  // errDCR_from_cnt /= n_ev_tot;
   DCR_from_cnt = (double)DCR_cnt / (trace_time * n_ev_tot);
 
 
