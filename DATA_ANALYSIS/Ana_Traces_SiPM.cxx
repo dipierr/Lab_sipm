@@ -134,6 +134,7 @@ void Ana3(string file1, string file2, string file3, int last_event_n);
 void Ana_LED(string file1, int last_event_n);
 void Ana_Ped(string file1, int last_event_n);
 void DCR_discriminator(string file1, int last_event_n, int thr_to_find_peaks);
+void DCR_CT_No_Stair(string file1, int last_event_n, float thr_0_5_pe, float thr_1_5_pe);
 
 //SECONDARY
 void Analysis(string file, int last_event_n, bool display, TCanvas *c);
@@ -773,7 +774,7 @@ void Ana1(string file1, int last_event_n, float thr, bool display_one_ev_param){
     //     cout<<"DCR are *NOT* COMPATIBLE, z = "<<test_z_DCR<<endl;
     // }
 
-    cout<<"*************************"<<endl;
+    cout<<"*****************************"<<endl;
 
 }
 
@@ -996,6 +997,42 @@ void DCR_discriminator(string file1, int last_event_n, int thr_to_find_peaks){
     cout<<"// File analyzed: "<<file1<<endl;
     cout<<"// threshold = "<<thr_to_find_peaks<<endl;
     cout<<"DCR = "<< DCR_from_discriminator*TMath::Power(10,-6) <<" MHz"<<endl;
+}
+
+//------------------------------------------------------------------------------
+void DCR_CT_No_Stair(string file1, int last_event_n, float thr_0_5_pe, float thr_1_5_pe){
+    //VARIABLES:
+    //TRUE:
+    find_peaks_bool = true;
+    DCR_DELAYS_bool = true; //DCR from delays
+
+    nfile = 0; //I only consider 1 file
+
+    ptrHistAllPeaks[0]  = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
+    ptrHistDelays[0]    = new TH1D("histDelays","",bins_Delays,0,maxyhistDelays);
+    ptrHistDCRthr[0]    = new TH1D("histDCRthr","",bins_DCR,0,maxyhistDCR);
+
+    TCanvas *c = new TCanvas("Trace","Trace",w,h);
+
+    //Analysis
+    thr_to_find_peaks = thr_0_5_pe;
+    Analysis(file1, last_event_n, false, c);
+
+    delete c;
+
+    Get_DCR_temp_and_errDCR_temp();
+    DCR_pe_0_5_vect[nfile] = DCR_temp[nfile];
+    errDCR_pe_0_5_vect[nfile] = errDCR_temp[nfile];
+
+    cout<<endl<<endl;
+    cout<<"-------------------------"<<endl;
+    cout<<"-------[ RESULTS ]-------"<<endl;
+    cout<<"-------------------------"<<endl<<endl;
+
+    cout<<"File analyzed: "<<file1<<endl;
+    cout<<"   DCR at "<<thr_0_5_pe<<" mV = "<<endl;
+    cout<<"         ("<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<") MHz, from exp fit"<<endl;
+    cout<<"         ("<<DCR_from_cnt*TMath::Power(10,-6)<<" +- "<<errDCR_from_cnt*TMath::Power(10,-6)<<") MHz, from cnt"<<endl;
 }
 
 
