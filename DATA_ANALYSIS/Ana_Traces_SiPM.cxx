@@ -166,10 +166,10 @@ void find_charge_selected_window(int mintp, int maxtp);
 double find_area_trace(double center, double low, double high);
 void show_AVG_trace_window(TCanvas *c, float *tracet, float *tracev, int trace_length, bool delete_bool);
 void DLED_offset_remove();
-void smoot_trace_step();
-void smoot_trace_3();
-void smoot_trace_4();
-void smoot_trace_5();
+void smooth_trace_step();
+void smooth_trace_3();
+void smooth_trace_4();
+void smooth_trace_5();
 Float_t GetMean(std::vector<Float_t> vec);
 Float_t GetStdDev(std::vector<Float_t> vec);
 
@@ -372,7 +372,7 @@ float DCR_pe_1_5_vect[] = {0., 0., 0.};
 float errDCR_pe_0_5_vect[] = {0., 0., 0.};
 float errDCR_pe_1_5_vect[] = {0., 0., 0.};
 
-int trace_DLED_length; int ii=0; int i=0; int index_func = 0; int nfile = 0; int n_DCR = 0; int DCR_cnt = 0; int discriminator_cnt = 0; int trace_length = 0; int n_ev, index_for_peak; int one_window=0;
+int trace_DLED_length; int ii=0; int i=0; int index_func = 0; int nfile = 0; int n_DCR = 0; int DCR_cnt = 0; int DCR_cnt_temp = 0; int discriminator_cnt = 0; int trace_length = 0; int n_ev, index_for_peak; int one_window=0;
 int nfiletot = 1; int n_smooth = 0;
 
 float miny=0; float maxy=0; float miny1=0; float maxy1=0; float miny2=0; float maxy2=0; float gain, errgain; float DCR_time = 0.; float DCR_from_discriminator = 0.; float max_func;
@@ -1252,7 +1252,7 @@ void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,
     ii=2*GSPS;
     int before_ind = (int)2*GSPS;
     int index_peak;
-    int DCR_cnt_temp = 0;
+    DCR_cnt_temp = 0;
     int index_old = 0;
     int index_new = 0;
     int peak_width = max_peak_width;
@@ -1338,6 +1338,7 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
 
     bool find_rising_edge = true;
 
+    DCR_cnt_temp = 0;
 
     while(i<length-1){ // loop on trace t
 
@@ -1397,6 +1398,7 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
                 if(peak_width < max_peak_width){ // peak_width < max_peak_width
                     // I have found a new peak
                     DCR_cnt++;
+                    DCR_cnt_temp++;
 
                     //Now I look for the maximum value in that window
                     index_new = find_peak_fix_time(peak_start, peak_end);
@@ -1411,7 +1413,8 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
                         // I fill the hist with delays between 1 pe peaks (or higher):
                         if(index_old>0){
                             time_delay = t[0][index_new] - t[0][index_old];
-                            if( (time_delay>expDelLow_max) and (time_delay<expDelHigh_max) and (t[0][index_new]>2*expDelLow_max) and (index_new<900) ){
+                            // if( (time_delay>expDelLow_max) and (time_delay<expDelHigh_max) and (t[0][index_new]>2*expDelLow_max) and (index_new<900) ){
+                            if( (time_delay>expDelLow_max) and (time_delay<expDelHigh_max) ){
                                 ptrHistDelays[nfile] -> Fill(time_delay);
                                 peaks_all_delay[0][ind_peaks_all_delay] = t[0][index_new];
                                 peaks_all_delay[1][ind_peaks_all_delay] = t[1][index_new];
@@ -2561,7 +2564,7 @@ void DLED_offset_remove(){
 }
 
 //------------------------------------------------------------------------------
-void smoot_trace_step(){ // smooth the trace before DLED
+void smooth_trace_step(){ // smooth the trace before DLED
   for(int i=0; i<trace_length; i+=n_smooth_trace){
 
     // sum on n_smooth_trace
@@ -2584,7 +2587,7 @@ void smoot_trace_step(){ // smooth the trace before DLED
 
 
 //------------------------------------------------------------------------------
-void smoot_trace_3(){ // smooth the trace before DLED
+void smooth_trace_3(){ // smooth the trace before DLED
   for(int i=0; i<trace_length; i+=3){
 
     // sum on 3
@@ -2615,7 +2618,7 @@ void smoot_trace_3(){ // smooth the trace before DLED
 
 
 //------------------------------------------------------------------------------
-void smoot_trace_4(){ // smooth the trace before DLED
+void smooth_trace_4(){ // smooth the trace before DLED
   for(int i=0; i<trace_length; i+=4){
 
     // sum on 4
@@ -2649,7 +2652,7 @@ void smoot_trace_4(){ // smooth the trace before DLED
 
 
 //------------------------------------------------------------------------------
-void smoot_trace_5(){ // smooth the trace before DLED
+void smooth_trace_5(){ // smooth the trace before DLED
   for(int i=0; i<trace_length; i+=5){
 
     // sum on 5
@@ -3152,10 +3155,10 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
       }
 
       if(smooth_trace_bool){
-        // smoot_trace_step();
-        // smoot_trace_3();
-        // smoot_trace_5();
-        smoot_trace_4();
+        // smooth_trace_step();
+        // smooth_trace_3();
+        smooth_trace_4();
+        // smooth_trace_5();
       }
 
 //***** DLED
@@ -3295,14 +3298,20 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
         /////////////////////
         /// PEAKS FINDING ///
         /////////////////////
-        if(n_ev==0)  {
-            trace_time = ( trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0] ) * TMath::Power(10,-9); // time in trace is in ns
-        }
+        // if(n_ev==0)  {
+        //     trace_time = ( trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0] ) * TMath::Power(10,-9); // time in trace is in ns
+        // }
         fill_hist_peaks_when_found = false;
         if(find_peaks_bool){
             // find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
 
-                FindPeaksRisingFalling(thr_to_find_peaks, trace_DLED, trace_DLED_length, max_peak_width,2,2);
+            FindPeaksRisingFalling(thr_to_find_peaks, trace_DLED, trace_DLED_length, max_peak_width,2,4);
+
+            if(n_ev==0){
+                trace_time = 0;
+            }
+
+            trace_time += ( trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0] - DCR_cnt_temp * 2 * dleddt - dleddt ) * TMath::Power(10,-9); // time in trace is in ns
 
 
             // FindPeakPositions(trace_DLED[1], DLED_bool, dleddt);
@@ -3434,13 +3443,19 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
   cout<<"Last event "<<n_ev_tot<<endl;
   fclose(f);
 
+  double err_DCR_cnt = 0;
+
   DCR_from_discriminator = DCR_from_discriminator / (double)n_ev_tot;
 
-  double err_DCR_cnt = TMath::Sqrt((double)DCR_cnt);
-  errDCR_from_cnt = TMath::Sqrt((double)DCR_cnt) / (trace_time * n_ev_tot);
-  // errDCR_from_cnt /= trace_time;
-  // errDCR_from_cnt /= n_ev_tot;
-  DCR_from_cnt = (double)DCR_cnt / (trace_time * n_ev_tot);
+  if(find_peaks_bool){
+      trace_time /= n_ev_tot;
+      err_DCR_cnt = TMath::Sqrt((double)DCR_cnt);
+      errDCR_from_cnt = TMath::Sqrt((double)DCR_cnt) / (trace_time * n_ev_tot);
+      // errDCR_from_cnt /= trace_time;
+      // errDCR_from_cnt /= n_ev_tot;
+      DCR_from_cnt = (double)DCR_cnt / (trace_time * n_ev_tot);
+  }
+
 
 
 //   if(find_1phe_bool){ // if find_1phe_bool
