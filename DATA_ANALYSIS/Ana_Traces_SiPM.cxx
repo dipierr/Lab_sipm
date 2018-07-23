@@ -3302,7 +3302,7 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
         if(find_peaks_bool){
             // find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
 
-            FindPeaksRisingFalling(thr_to_find_peaks, trace_DLED, trace_DLED_length, max_peak_width,2,2);
+                FindPeaksRisingFalling(thr_to_find_peaks, trace_DLED, trace_DLED_length, max_peak_width,2,2);
 
 
             // FindPeakPositions(trace_DLED[1], DLED_bool, dleddt);
