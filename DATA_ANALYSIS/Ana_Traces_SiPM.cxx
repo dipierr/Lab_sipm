@@ -248,7 +248,7 @@ int rise_time = dleddt;
 
 // ONLY for DCR_CT_1SiPM_1HV and DCR_CT_1SiPM_3HVs:
 float min_thr_to_find_peaks = 8;  //first thr value in the DCR vs thr plot (mV)
-float max_thr_to_find_peaks = 50; //last thr value in the DCR vs thr plot (mV)
+float max_thr_to_find_peaks = 100; //last thr value in the DCR vs thr plot (mV)
 float gap_between_thr = 0.1; //gap between thresholds in the DCR vs thr plot (mV)
 float min_pe_0_5 = 8;  //min value for 0.5pe threshold (mV)
 float max_pe_0_5 = 15; //max value for 0.5pe threshold (mV)
