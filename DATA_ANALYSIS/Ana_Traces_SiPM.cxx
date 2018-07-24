@@ -177,6 +177,8 @@ void smooth_trace_step();
 void smooth_trace_3();
 void smooth_trace_4();
 void smooth_trace_5();
+void SmoothTraceMarkov(int window);
+void SmoothTraceN(int n);
 Float_t GetMean(std::vector<Float_t> vec);
 Float_t GetStdDev(std::vector<Float_t> vec);
 void EvaluateCrossTalk(double DCR_0_5, double errDCR_0_5, double DCR_1_5, double errDCR_1_5, double* CT);
@@ -241,7 +243,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 9;//8;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
+int dleddt = 23;//8;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 50; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
@@ -250,7 +252,7 @@ int rise_time = dleddt;
 
 // ONLY for DCR_CT_1SiPM_1HV and DCR_CT_1SiPM_3HVs:
 float min_thr_to_find_peaks = 8;  //first thr value in the DCR vs thr plot (mV)
-float max_thr_to_find_peaks = 40; //last thr value in the DCR vs thr plot (mV)
+float max_thr_to_find_peaks = 150; //last thr value in the DCR vs thr plot (mV)
 float gap_between_thr = 0.1; //gap between thresholds in the DCR vs thr plot (mV)
 float min_pe_0_5 = 8;  //min value for 0.5pe threshold (mV)
 float max_pe_0_5 = 15; //max value for 0.5pe threshold (mV)
@@ -3142,6 +3144,7 @@ void smooth_trace_3(){ // smooth the trace before DLED
       trace[1][i-1] += gap/3;
       trace[1][i]   -= gap/3;
     }
+    // cout<<i<<endl;
   }
 }
 
@@ -3212,6 +3215,67 @@ void smooth_trace_5(){ // smooth the trace before DLED
   }
 }
 
+
+//------------------------------------------------------------------------------
+void SmoothTraceMarkov(int window){
+
+    double temp[trace_length];
+    double diff = 1000.0;
+    TSpectrum *s = new TSpectrum();
+    for(int i=0; i<trace_length; i++){
+       temp[i] = (double)trace[1][i] + diff;
+    }
+    s->SmoothMarkov(temp, trace_length, window);
+    for (int i=0; i<trace_length; i++) {
+       trace[1][i] = (float)temp[i] - diff;
+    }
+    delete s;
+
+}
+
+//------------------------------------------------------------------------------
+void SmoothTraceN(int n){
+    int max_k = n - n%2;
+    double den = n + 1 - n%2;
+
+    // cout<<max_k<<" "<<den<<endl;
+    // getchar();
+
+    for(int i=0; i<trace_length; i+=n){
+
+        // sum on n
+        for(int j=1; j<n; j++){
+          trace[1][i] += trace[1][i+j];
+        }
+
+        // divide for n
+        trace[1][i]   /= n;
+        for(int j=1; j<n; j++){
+          trace[1][i+j] = trace[1][i];
+        }
+
+        if(i!=0){
+            int diff = -(int)n/2;
+            double gap = (double)trace[1][i] - (double)trace[1][i-1];
+            double mult = 0;
+            // cout<<diff<<endl;
+            for(int k=0; k<max_k; k++){
+                if(diff<0){
+                    mult+=1;
+                    // cout<<gap<<" "<<den<<" "<<mult<<" "<<gap/den*mult<<endl;
+                    trace[1][i+diff] += gap/den*mult;
+                }else{
+                    trace[1][i+diff] -= gap/den*mult;
+                    mult-=1;
+                }
+                diff+=1;
+            }
+            // cout<<diff<<" "<<den<<" "<<mult<<endl;
+            // cout<<i<<endl;
+        }
+    }
+    // getchar();
+}
 
 //------------------------------------------------------------------------------
 Float_t GetMean(std::vector<Float_t> vec)
@@ -3693,10 +3757,27 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
       }
 
       if(smooth_trace_bool){
+          SmoothTraceN(4);
+
         // smooth_trace_step();
         // smooth_trace_3();
-        smooth_trace_4();
+        // smooth_trace_4();
         // smooth_trace_5();
+        // SmoothTraceMarkov(4);
+
+        // //////////////////////////
+        // ///   D_E_B_U_G
+        // //////////////////////////
+        // float temp[1024], temp1[1024];
+        // for(int k=0; k<1024; k++) temp[k] = trace[1][k];  // dummmy, the original trace
+        // SmoothTraceN(3);
+        // for(int k=0; k<1024; k++) temp1[k] = trace[1][k]; // temp1 is trace from smooth_trace_4
+        // for(int k=0; k<1024; k++) trace[1][k] = temp[k];  // reset trace
+        // smooth_trace_3();
+        // for(int k=0; k<1024; k++){
+        //     cout<<-trace[1][k]+temp1[k]<<endl;
+        // }
+        // getchar();
       }
 
 //***** DLED
