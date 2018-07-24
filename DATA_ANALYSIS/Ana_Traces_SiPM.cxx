@@ -241,7 +241,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 9,//8;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
+int dleddt = 9;//8;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 50; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
