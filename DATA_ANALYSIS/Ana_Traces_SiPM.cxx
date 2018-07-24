@@ -1220,9 +1220,12 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     DCR_mg->Draw("A3L");
 
     auto legendDCR_loop = new TLegend(0.75,0.75,0.9,0.9);
-    legendDCR_loop->AddEntry(gDCR_1,"DCR file 1","l");
-    legendDCR_loop->AddEntry(gDCR_2,"DCR file 2","l");
-    legendDCR_loop->AddEntry(gDCR_3,"DCR file 3","l");
+    // legendDCR_loop->AddEntry(gDCR_1,"DCR file 1","l");
+    // legendDCR_loop->AddEntry(gDCR_2,"DCR file 2","l");
+    // legendDCR_loop->AddEntry(gDCR_3,"DCR file 3","l");
+    legendDCR_loop->AddEntry(gDCR_1,"HV = 34.00 V","l");
+    legendDCR_loop->AddEntry(gDCR_2,"HV = 35.00 V","l");
+    legendDCR_loop->AddEntry(gDCR_3,"HV = 36.00 V","l");
     legendDCR_loop->Draw();
 
     cout<<endl<<endl;
