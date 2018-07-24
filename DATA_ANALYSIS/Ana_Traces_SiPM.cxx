@@ -431,6 +431,14 @@ int range2_high_high_bin = 0;
 double trace_time = 0;
 double trace_time_raw = 0;
 
+auto color_file_1 = kBlue+1;
+auto color_file_2 = kBlue+1;
+auto color_file_3 = kBlue+1;
+auto color_file_4 = kBlue+1;
+auto color_file_5 = kBlue+1;
+
+double opacity = 0.3;
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -1292,6 +1300,15 @@ void DCR_CT_1SiPM_5HVs_NO_Delays(string file1, string file2, string file3, strin
         ptrHistDCRthr[k]   = new TH1D(strcat(h3,k_temp),"",bins_DCR,0,maxyhistDCR);
     }
 
+    // colors:
+    color_file_1 = kGreen;
+    color_file_2 = kGreen+1;
+    color_file_3 = kBlue;
+    color_file_4 = kRed;
+    color_file_5 = kRed+1;
+
+    opacity = 0.3;
+
     //file1:
     nfile = 0;
     first_time_main_called = true; //will be set to false after the Analysis function is called
@@ -1635,9 +1652,12 @@ TGraphErrors *DCR_func_NO_Delays(string file1, int last_event_n, int tot_files, 
 
      gDCR->SetLineWidth(2);
 
-    if(nfile==0){gDCR->SetLineColor(kGreen+1);gDCR->SetFillColorAlpha(kGreen+1, 0.3);}
-    if(nfile==1){gDCR->SetLineColor(kBlue);   gDCR->SetFillColorAlpha(kBlue, 0.3);   }
-    if(nfile==2){gDCR->SetLineColor(kRed+1);  gDCR->SetFillColorAlpha(kRed+1, 0.3);  }
+
+    if(nfile==0){gDCR->SetLineColor(color_file_1);gDCR->SetFillColorAlpha(color_file_1, opacity);}
+    if(nfile==1){gDCR->SetLineColor(color_file_2);   gDCR->SetFillColorAlpha(color_file_2, opacity);   }
+    if(nfile==2){gDCR->SetLineColor(color_file_3);  gDCR->SetFillColorAlpha(color_file_3, opacity);  }
+    if(nfile==3){gDCR->SetLineColor(color_file_4);   gDCR->SetFillColorAlpha(color_file_4, opacity);   }
+    if(nfile==4){gDCR->SetLineColor(color_file_5);  gDCR->SetFillColorAlpha(color_file_5, opacity);  }
 
     cout<<endl<<endl;
 
