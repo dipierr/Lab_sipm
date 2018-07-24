@@ -66,7 +66,7 @@ using namespace std;
 
 
 
-#define nfilemax 3
+#define nfilemax 5
 #define max_peak_num 50
 #define max_peaks 5000000
 
@@ -257,8 +257,8 @@ float max_pe_0_5 = 15; //max value for 0.5pe threshold (mV)
 float min_pe_1_5 = 28; //min value for 1.5pe threshold (mV)
 float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
-float pe_0_5_vect[3] = {10.,10.,10.};
-float pe_1_5_vect[3] = {23.,25.,28.};
+float pe_0_5_vect[5] = {10., 10., 10., 10., 10.};
+float pe_1_5_vect[5] = {23., 25., 28., 30., 30.};
 
 // ONLY for LED measures
 int minLED_amp = 290;//168;//115;  // window: min time for peak (ns) for LED
@@ -374,13 +374,17 @@ std::vector<Int_t> peak_pos;
 TGraphErrors *gDCR_1;
 TGraphErrors *gDCR_2;
 TGraphErrors *gDCR_3;
+TGraphErrors *gDCR_4;
+TGraphErrors *gDCR_5;
 
-float DCR_temp[] = {0., 0., 0.}; //I consider 3 files
-float errDCR_temp[] = {0., 0., 0.};
-float DCR_pe_0_5_vect[] = {0., 0., 0.};
-float DCR_pe_1_5_vect[] = {0., 0., 0.};
-float errDCR_pe_0_5_vect[] = {0., 0., 0.};
-float errDCR_pe_1_5_vect[] = {0., 0., 0.};
+
+double DCR_temp[nfilemax];
+double errDCR_temp[nfilemax];
+double DCR_pe_0_5_vect[nfilemax];
+double DCR_pe_1_5_vect[nfilemax];
+double errDCR_pe_0_5_vect[nfilemax];
+double errDCR_pe_1_5_vect[nfilemax];
+
 
 int trace_DLED_length; int ii=0; int i=0; int index_func = 0; int nfile = 0; int n_DCR = 0; int DCR_cnt = 0; int DCR_cnt_temp = 0; int discriminator_cnt = 0; int trace_length = 0; int n_ev, index_for_peak; int one_window=0;
 int nfiletot = 1; int n_smooth = 0;
@@ -1192,7 +1196,7 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     ind_peaks_all = 0;
     for(int i=0; i<max_peaks; i++){peaks_all[i] = 0;}
     // DCR_func
-    gDCR_1 = DCR_func_NO_Delays(file1,last_event_n, 3, c);
+    gDCR_1 = DCR_func_NO_Delays(file1,last_event_n, nfiletot, c);
 
     //file2:
     nfile = 1;
@@ -1200,7 +1204,7 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     ind_peaks_all = 0;
     for(int i=0; i<max_peaks; i++){peaks_all[i] = 0;}
     // DCR_func
-    gDCR_2 = DCR_func_NO_Delays(file2,last_event_n, 3, c);
+    gDCR_2 = DCR_func_NO_Delays(file2,last_event_n, nfiletot, c);
 
     //file3:
     nfile = 2;
@@ -1208,7 +1212,7 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     ind_peaks_all = 0;
     for(int i=0; i<max_peaks; i++){peaks_all[i] = 0;}
     // DCR_func
-    gDCR_3 = DCR_func_NO_Delays(file3,last_event_n, 3, c);
+    gDCR_3 = DCR_func_NO_Delays(file3,last_event_n, nfiletot, c);
 
     TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
     DCR_mg->Add(gDCR_1);
@@ -1253,6 +1257,126 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     cout<<"double CrossTalk[] =    {"<<CT[0][0]<<", "<<CT[1][0]<<", "<<CT[2][0]<<"};"<<endl;
 
     cout<<"double errCrossTalk[] = {"<<CT[0][1]<<", "<<CT[1][1]<<", "<<CT[2][1]<<"};"<<endl;
+
+}
+
+
+//------------------------------------------------------------------------------
+void DCR_CT_1SiPM_5HVs_NO_Delays(string file1, string file2, string file3, string file4, string file5, int last_event_n){
+    //TRUE:
+    find_peaks_bool = true;
+    DCR_from_cnt_bool = true;
+    DO_NOT_DELETE_HIST_LED = true;
+
+    //I have 3 files
+    nfiletot = 5;
+
+    TCanvas *c = new TCanvas("Trace","Trace",w,h);
+
+    for(int k=0; k<nfiletot; k++){
+        //In order to set 3 different titles:
+        char h1[20], h2[20], h3[20];
+        char k_temp[2];
+        sprintf(h1, "histDelays");
+        sprintf(h2, "histAllPeaks");
+        sprintf(h3, "histDCRthr");
+        sprintf(k_temp, "%d", k);
+
+        strcat(h1,k_temp);
+        strcat(h2,k_temp);
+        strcat(h3,k_temp);
+
+        //new hists:
+        ptrHistDelays[k]   = new TH1D(strcat(h1,k_temp),"",bins_Delays,0,maxyhistDelays);
+        ptrHistAllPeaks[k] = new TH1D(strcat(h2,k_temp),"",bins_DCR,0,maxyhistAllPeaks);
+        ptrHistDCRthr[k]   = new TH1D(strcat(h3,k_temp),"",bins_DCR,0,maxyhistDCR);
+    }
+
+    //file1:
+    nfile = 0;
+    first_time_main_called = true; //will be set to false after the Analysis function is called
+    ind_peaks_all = 0;
+    for(int i=0; i<max_peaks; i++){peaks_all[i] = 0;}
+    // DCR_func
+    gDCR_1 = DCR_func_NO_Delays(file1,last_event_n, nfiletot, c);
+
+    //file2:
+    nfile = 1;
+    first_time_main_called = true; //will be set to false after the Analysis function is called
+    ind_peaks_all = 0;
+    for(int i=0; i<max_peaks; i++){peaks_all[i] = 0;}
+    // DCR_func
+    gDCR_2 = DCR_func_NO_Delays(file2,last_event_n, nfiletot, c);
+
+    //file3:
+    nfile = 2;
+    first_time_main_called = true; //will be set to false after the Analysis function is called
+    ind_peaks_all = 0;
+    for(int i=0; i<max_peaks; i++){peaks_all[i] = 0;}
+    // DCR_func
+    gDCR_3 = DCR_func_NO_Delays(file3,last_event_n, nfiletot, c);
+
+    //file4:
+    nfile = 3;
+    first_time_main_called = true; //will be set to false after the Analysis function is called
+    ind_peaks_all = 0;
+    for(int i=0; i<max_peaks; i++){peaks_all[i] = 0;}
+    // DCR_func
+    gDCR_4 = DCR_func_NO_Delays(file4,last_event_n, nfiletot, c);
+
+    //file5:
+    nfile = 4;
+    first_time_main_called = true; //will be set to false after the Analysis function is called
+    ind_peaks_all = 0;
+    for(int i=0; i<max_peaks; i++){peaks_all[i] = 0;}
+    // DCR_func
+    gDCR_5 = DCR_func_NO_Delays(file5,last_event_n, nfiletot, c);
+
+    TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
+    DCR_mg->Add(gDCR_1);
+    DCR_mg->Add(gDCR_2);
+    DCR_mg->Add(gDCR_3);
+    DCR_mg->Add(gDCR_4);
+    DCR_mg->Add(gDCR_5);
+
+    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop");
+
+    cDCR_loop->SetGrid();
+    cDCR_loop->SetLogy();
+    DCR_mg->Draw("A3L");
+
+    auto legendDCR_loop = new TLegend(0.75,0.75,0.9,0.9);
+    legendDCR_loop->AddEntry(gDCR_1,"DCR file 1","l");
+    legendDCR_loop->AddEntry(gDCR_2,"DCR file 2","l");
+    legendDCR_loop->AddEntry(gDCR_3,"DCR file 3","l");
+    legendDCR_loop->AddEntry(gDCR_4,"DCR file 4","l");
+    legendDCR_loop->AddEntry(gDCR_5,"DCR file 5","l");
+
+    legendDCR_loop->Draw();
+
+    // cout<<endl<<endl;
+    // cout<<"-------------------------"<<endl;
+    // cout<<"-------[ RESULTS ]-------"<<endl;
+    // cout<<"-------------------------"<<endl<<endl;
+    //
+    //
+    // // CROSS TALK
+    // double CT[3][2];   // CT[nfile][0] = CrossTalk, CT[nfile][1] = errCrossTalk
+    // for(int i=0; i<nfiletot; i++){
+    //     EvaluateCrossTalk(DCR_pe_0_5_vect[i], errDCR_pe_0_5_vect[i], DCR_pe_1_5_vect[i], errDCR_pe_1_5_vect[i], CT[i]);
+    // }
+    //
+    // cout<<"// "<<"Files analyzed:"<<endl;
+    // cout<<"// "<<file1<<"   pe_0_5 = "<<pe_0_5_vect[0]<<" mV; pe_1_5 = "<<pe_1_5_vect[0]<<" mV"<<endl;
+    // cout<<"// "<<file2<<"   pe_0_5 = "<<pe_0_5_vect[1]<<" mV; pe_1_5 = "<<pe_1_5_vect[1]<<" mV"<<endl;
+    // cout<<"// "<<file3<<"   pe_0_5 = "<<pe_0_5_vect[2]<<" mV; pe_1_5 = "<<pe_1_5_vect[2]<<" mV"<<endl;
+    // cout<<"double DCR[] =          {"<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<DCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
+    //
+    // cout<<"double errDCR[] =       {"<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[1]*TMath::Power(10,-6)<<", "<<errDCR_pe_0_5_vect[2]*TMath::Power(10,-6)<<"};"<<endl;
+    //
+    // cout<<"double CrossTalk[] =    {"<<CT[0][0]<<", "<<CT[1][0]<<", "<<CT[2][0]<<"};"<<endl;
+    //
+    // cout<<"double errCrossTalk[] = {"<<CT[0][1]<<", "<<CT[1][1]<<", "<<CT[2][1]<<"};"<<endl;
 
 }
 
