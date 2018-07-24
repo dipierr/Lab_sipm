@@ -1265,7 +1265,7 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     cout<<"double CrossTalk[] =    {"<<CT[0][0]<<", "<<CT[1][0]<<", "<<CT[2][0]<<"};"<<endl;
 
     cout<<"double errCrossTalk[] = {"<<CT[0][1]<<", "<<CT[1][1]<<", "<<CT[2][1]<<"};"<<endl;
- //
+
 }
 
 
