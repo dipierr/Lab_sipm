@@ -137,6 +137,8 @@ void DCR_discriminator(string file1, int last_event_n, int thr_to_find_peaks);
 void DCR_CT_No_Stair(string file1, int last_event_n, float thr_0_5_pe, float thr_1_5_pe);
 void DCR_CT_1SiPM_1HV_NO_Delays(string file1, int last_event_n);
 void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int last_event_n);
+void DCR_CT_1SiPM_5HVs_NO_Delays(string file1, string file2, string file3, string file4, string file5, int last_event_n);
+
 
 //SECONDARY
 void Analysis(string file, int last_event_n, bool display, TCanvas *c);
@@ -248,7 +250,7 @@ int rise_time = dleddt;
 
 // ONLY for DCR_CT_1SiPM_1HV and DCR_CT_1SiPM_3HVs:
 float min_thr_to_find_peaks = 8;  //first thr value in the DCR vs thr plot (mV)
-float max_thr_to_find_peaks = 100; //last thr value in the DCR vs thr plot (mV)
+float max_thr_to_find_peaks = 40; //last thr value in the DCR vs thr plot (mV)
 float gap_between_thr = 0.1; //gap between thresholds in the DCR vs thr plot (mV)
 float min_pe_0_5 = 8;  //min value for 0.5pe threshold (mV)
 float max_pe_0_5 = 15; //max value for 0.5pe threshold (mV)
@@ -1220,12 +1222,12 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     DCR_mg->Draw("A3L");
 
     auto legendDCR_loop = new TLegend(0.75,0.75,0.9,0.9);
-    // legendDCR_loop->AddEntry(gDCR_1,"DCR file 1","l");
-    // legendDCR_loop->AddEntry(gDCR_2,"DCR file 2","l");
-    // legendDCR_loop->AddEntry(gDCR_3,"DCR file 3","l");
-    legendDCR_loop->AddEntry(gDCR_1,"HV = 34.00 V","l");
-    legendDCR_loop->AddEntry(gDCR_2,"HV = 35.00 V","l");
-    legendDCR_loop->AddEntry(gDCR_3,"HV = 36.00 V","l");
+    legendDCR_loop->AddEntry(gDCR_1,"DCR file 1","l");
+    legendDCR_loop->AddEntry(gDCR_2,"DCR file 2","l");
+    legendDCR_loop->AddEntry(gDCR_3,"DCR file 3","l");
+    // legendDCR_loop->AddEntry(gDCR_1,"HV = 34.00 V","l");
+    // legendDCR_loop->AddEntry(gDCR_2,"HV = 35.00 V","l");
+    // legendDCR_loop->AddEntry(gDCR_3,"HV = 36.00 V","l");
     legendDCR_loop->Draw();
 
     cout<<endl<<endl;
