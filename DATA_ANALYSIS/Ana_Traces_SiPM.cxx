@@ -220,8 +220,6 @@ bool fill_hist_peaks_when_found = true;
 
 bool automatic_find_thr_1pe_2pe = false;
 
-bool smooth_trace_bool = true;
-
 //-----------------
 //-----------------
 
@@ -489,6 +487,9 @@ bool find_1phe_bool = false;
 bool find_peaks_discriminator_bool = false;
 bool DCR_from_cnt_bool = false;
 
+bool smooth_trace_bool = false;
+
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -552,6 +553,8 @@ void DCR_CT_1SiPM_1HV(string file1, int last_event_n){
     DCR_DELAYS_bool = true; //DCR from delays
     CROSS_TALK_bool = true; //DCR must be true
     DO_NOT_DELETE_HIST_LED = true;
+
+    smooth_trace_bool = true;
 
     nfile = 0; //I only consider 1 file
 
@@ -628,6 +631,8 @@ void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_
     DCR_DELAYS_bool = true; //DCR from delays
     CROSS_TALK_bool = true; //DCR must be true
     DO_NOT_DELETE_HIST_LED = true;
+
+    smooth_trace_bool = true;
 
     //I have 3 files
     nfiletot = 3;
@@ -744,6 +749,8 @@ void Ana1(string file1, int last_event_n, float thr, bool display_one_ev_param){
     find_offset_bool = true;
     DCR_from_cnt_bool = true;
 
+    smooth_trace_bool = false;
+
     //Charge:
     line_bool = false;
     find_charge_window_bool = true;
@@ -812,6 +819,8 @@ void Ana3(string file1, string file2, string file3, int last_event_n){
     DCR_DELAYS_bool = true; //DCR from delays
     CROSS_TALK_bool = true; //DCR must be true
     DO_NOT_DELETE_HIST_LED = true;
+
+    smooth_trace_bool = true;
 
 
     //I have 3 files
@@ -897,6 +906,8 @@ void Ana_LED(string file1, int last_event_n){
 
     led_and_dcr_0pe = true;
 
+    smooth_trace_bool = true;
+
     min_peak_window[0] = minLED_amp;
     max_peak_window[0] = maxLED_amp;
 
@@ -981,6 +992,8 @@ void Ana_Ped(string file1, int last_event_n){
     fill_hist = false;
     remove_0_peak_bool = false;
 
+    smooth_trace_bool = true;
+
     //Charge Pedestal:
     find_charge_window_bool = true;
     min_peak_window[0] = 200; //ns
@@ -1011,6 +1024,8 @@ void DCR_discriminator(string file1, int last_event_n, int thr_to_find_peaks){
     // TRUE:
     find_peaks_discriminator_bool = true;
 
+    smooth_trace_bool = true;
+
     TCanvas *c = new TCanvas("Trace","Trace",w,h);
 
     //Analysis
@@ -1032,6 +1047,8 @@ void DCR_CT_No_Stair(string file1, int last_event_n, float thr_0_5_pe, float thr
     DCR_DELAYS_bool = true; //DCR from delays
     DO_NOT_DELETE_HIST_LED = true;
     DCR_from_cnt_bool = true;
+
+    smooth_trace_bool = true;
 
 
     nfile = 0; //I only consider 1 file
@@ -1130,6 +1147,7 @@ void DCR_CT_1SiPM_1HV_NO_Delays(string file1, int last_event_n){
     DCR_from_cnt_bool = true;
     DO_NOT_DELETE_HIST_LED = true;
 
+    smooth_trace_bool = true;
 
     nfile = 0; //I only consider 1 file
 
@@ -1181,6 +1199,8 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     find_peaks_bool = true;
     DCR_from_cnt_bool = true;
     DO_NOT_DELETE_HIST_LED = true;
+
+    smooth_trace_bool = true;
 
     //I have 3 files
     nfiletot = 3;
@@ -1290,6 +1310,8 @@ void DCR_CT_1SiPM_5HVs_NO_Delays(string file1, string file2, string file3, strin
     find_peaks_bool = true;
     DCR_from_cnt_bool = true;
     DO_NOT_DELETE_HIST_LED = true;
+
+    smooth_trace_bool = true;
 
     //I have 3 files
     nfiletot = 5;
@@ -3771,7 +3793,9 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
       }
 
       if(smooth_trace_bool){
+          int n_SmootTraceN = 4;
           SmoothTraceN(4);
+          // cout<<"Smooth trace "<<n_SmootTraceN<<" points"<<endl;
 
         // smooth_trace_step();
         // smooth_trace_3();
