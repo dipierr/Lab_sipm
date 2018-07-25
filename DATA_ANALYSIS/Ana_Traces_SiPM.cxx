@@ -252,7 +252,7 @@ int rise_time = dleddt;
 
 // ONLY for DCR_CT_1SiPM_1HV and DCR_CT_1SiPM_3HVs:
 float min_thr_to_find_peaks = 8;  //first thr value in the DCR vs thr plot (mV)
-float max_thr_to_find_peaks = 150; //last thr value in the DCR vs thr plot (mV)
+float max_thr_to_find_peaks = 80; //last thr value in the DCR vs thr plot (mV)
 float gap_between_thr = 0.1; //gap between thresholds in the DCR vs thr plot (mV)
 float min_pe_0_5 = 8;  //min value for 0.5pe threshold (mV)
 float max_pe_0_5 = 15; //max value for 0.5pe threshold (mV)
@@ -272,6 +272,8 @@ int dcr_maxtp  = maxLED_amp + 200;
 
 // threshold
 float thr_to_find_peaks = 8; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5.
+
+double min_thr_to_find_peaks_vect[] = { 8., 8., 10., 10., 10.};
 
 // 0 high, 1 low
 float range1_low_low_mV   = 5;//5;  // 5;  //5;
@@ -629,6 +631,10 @@ void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_
 
     //I have 3 files
     nfiletot = 3;
+
+    color_file_1 = kGreen+1;
+    color_file_2 = kBlue;
+    color_file_3 = kRed;
 
     TCanvas *c = new TCanvas("Trace","Trace",w,h);
 
@@ -1179,6 +1185,10 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     //I have 3 files
     nfiletot = 3;
 
+    color_file_1 = kGreen+1;
+    color_file_2 = kBlue;
+    color_file_3 = kRed;
+
     TCanvas *c = new TCanvas("Trace","Trace",w,h);
 
     for(int k=0; k<nfiletot; k++){
@@ -1205,6 +1215,7 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     first_time_main_called = true; //will be set to false after the Analysis function is called
     ind_peaks_all = 0;
     for(int i=0; i<max_peaks; i++){peaks_all[i] = 0;}
+    min_thr_to_find_peaks = min_thr_to_find_peaks_vect[0];
     // DCR_func
     gDCR_1 = DCR_func_NO_Delays(file1,last_event_n, nfiletot, c);
 
@@ -1213,6 +1224,7 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     first_time_main_called = true; //will be set to false after the Analysis function is called
     ind_peaks_all = 0;
     for(int i=0; i<max_peaks; i++){peaks_all[i] = 0;}
+    min_thr_to_find_peaks = min_thr_to_find_peaks_vect[1];
     // DCR_func
     gDCR_2 = DCR_func_NO_Delays(file2,last_event_n, nfiletot, c);
 
@@ -1221,6 +1233,7 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     first_time_main_called = true; //will be set to false after the Analysis function is called
     ind_peaks_all = 0;
     for(int i=0; i<max_peaks; i++){peaks_all[i] = 0;}
+    min_thr_to_find_peaks = min_thr_to_find_peaks_vect[2];
     // DCR_func
     gDCR_3 = DCR_func_NO_Delays(file3,last_event_n, nfiletot, c);
 
@@ -1574,9 +1587,10 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files, TCanvas *c
 
      gDCR->SetLineWidth(2);
 
-    if(nfile==0){gDCR->SetLineColor(kGreen+1);gDCR->SetFillColorAlpha(kGreen+1, 0.3);}
-    if(nfile==1){gDCR->SetLineColor(kBlue);   gDCR->SetFillColorAlpha(kBlue, 0.3);   }
-    if(nfile==2){gDCR->SetLineColor(kRed+1);  gDCR->SetFillColorAlpha(kRed+1, 0.3);  }
+
+    if(nfile==0){gDCR->SetLineColor(color_file_1);  gDCR->SetFillColorAlpha(color_file_1, opacity);}
+    if(nfile==1){gDCR->SetLineColor(color_file_2);  gDCR->SetFillColorAlpha(color_file_2, opacity);   }
+    if(nfile==2){gDCR->SetLineColor(color_file_3);  gDCR->SetFillColorAlpha(color_file_3, opacity);  }
 
     cout<<endl<<endl;
 
@@ -1655,7 +1669,7 @@ TGraphErrors *DCR_func_NO_Delays(string file1, int last_event_n, int tot_files, 
      gDCR->SetLineWidth(2);
 
 
-    if(nfile==0){gDCR->SetLineColor(color_file_1);gDCR->SetFillColorAlpha(color_file_1, opacity);}
+    if(nfile==0){gDCR->SetLineColor(color_file_1);  gDCR->SetFillColorAlpha(color_file_1, opacity);}
     if(nfile==1){gDCR->SetLineColor(color_file_2);   gDCR->SetFillColorAlpha(color_file_2, opacity);   }
     if(nfile==2){gDCR->SetLineColor(color_file_3);  gDCR->SetFillColorAlpha(color_file_3, opacity);  }
     if(nfile==3){gDCR->SetLineColor(color_file_4);   gDCR->SetFillColorAlpha(color_file_4, opacity);   }
