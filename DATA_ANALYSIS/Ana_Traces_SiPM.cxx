@@ -133,7 +133,7 @@ void Ana1(string file1, int last_event_n, float threshold, bool display_one_ev_p
 void Ana3(string file1, string file2, string file3, int last_event_n);
 void Ana_LED(string file1, int last_event_n);
 void Ana_Ped(string file1, int last_event_n);
-void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int nfile, int nfile_in_list, int last_event_n);
+void DCR_CT_1SiPM_nHVs(string filelist, int nfile, int nfile_in_list, int last_event_n);
 
 //SECONDARY
 void Analysis(string file, int last_event_n, bool display, TCanvas *c);
@@ -1031,7 +1031,7 @@ void Ana_Ped(string file1, int last_event_n){
 }
 
 //------------------------------------------------------------------------------
-void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int nfile_in_list, int last_event_n){
+void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
     //TRUE:
     find_peaks_bool = true;
     DCR_from_cnt_bool = true;
