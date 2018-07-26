@@ -137,7 +137,8 @@ void DCR_discriminator(string file1, int last_event_n, int thr_to_find_peaks);
 void DCR_CT_No_Stair(string file1, int last_event_n, float thr_0_5_pe, float thr_1_5_pe);
 void DCR_CT_1SiPM_1HV_NO_Delays(string file1, int last_event_n);
 void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int last_event_n);
-void DCR_CT_1SiPM_5HVs_NO_Delays(string file1, string file2, string file3, string file4, string file5, int last_event_n);
+void DCR_CT_1SiPM_5HVs_NO_Delays(string filelist, int last_event_n);
+
 
 
 //SECONDARY
@@ -271,7 +272,7 @@ int dcr_maxtp  = maxLED_amp + 200;
 // threshold
 float thr_to_find_peaks = 8; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5.
 
-double min_thr_to_find_peaks_vect[] = { 8., 8., 10., 10., 10.};
+double min_thr_to_find_peaks_vect[] = {7., 7., 7., 7., 7.};
 
 // 0 high, 1 low
 float range1_low_low_mV   = 5;//5;  // 5;  //5;
@@ -1305,13 +1306,33 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
 
 
 //------------------------------------------------------------------------------
-void DCR_CT_1SiPM_5HVs_NO_Delays(string file1, string file2, string file3, string file4, string file5, int last_event_n){
+void DCR_CT_1SiPM_5HVs_NO_Delays(string filelist, int last_event_n){
     //TRUE:
     find_peaks_bool = true;
     DCR_from_cnt_bool = true;
     DO_NOT_DELETE_HIST_LED = true;
 
     smooth_trace_bool = true;
+
+
+    ifstream OpenFile (filelist.c_str());
+    // char file1[300], file2[300], file3[300], file4[300], file5[300];
+    string file1, file2, file3, file4, file5;
+    OpenFile>>file1;
+    OpenFile>>file2;
+    OpenFile>>file3;
+    OpenFile>>file4;
+    OpenFile>>file5;
+
+    cout<<"Analysing files:"<<endl;
+    cout<<"file1 = "<<file1<<endl;
+    cout<<"file2 = "<<file2<<endl;
+    cout<<"file3 = "<<file3<<endl;
+    cout<<"file4 = "<<file4<<endl;
+    cout<<"file5 = "<<file5<<endl;
+
+    OpenFile.close();
+
 
     //I have 3 files
     nfiletot = 5;
