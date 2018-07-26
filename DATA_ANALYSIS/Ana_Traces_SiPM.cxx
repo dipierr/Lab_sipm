@@ -263,6 +263,10 @@ int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 float pe_0_5_vect[nfilemax] = {10., 10., 10., 10., 10., 10., 10., 10., 10., 10.};
 float pe_1_5_vect[nfilemax] = {23., 25., 28., 30., 30., 30., 30., 30., 30., 30.};
 
+
+// AREA
+double Area = 36.00;
+
 // ONLY for LED measures
 int minLED_amp = 290;//168;//115;  // window: min time for peak (ns) for LED
 int maxLED_amp = 305;//176;//125;  // window: max time for peak (ns) for LED
@@ -1540,7 +1544,7 @@ void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int nfile_in_list, int last_ev
     }
 
 
-    TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
+    TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); $\\frac{DCR}{mm^2}$ (Hz)");
     for(int i=0; i<nfiletot; i++){
         DCR_mg->Add(gDCR[i]);
     }
@@ -1555,10 +1559,8 @@ void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int nfile_in_list, int last_ev
     for(int i=0; i<nfiletot; i++){
         legendDCR_loop->AddEntry(gDCR[i],legend_entry[i].c_str(),"l");
     }
-
-
+    legendDCR_loop->SetNColumns(3);
     legendDCR_loop->Draw();
-
 
 }
 
@@ -1804,9 +1806,9 @@ TGraphErrors *DCR_func_NO_Delays(string file1, int last_event_n, int tot_files, 
             find_DCR_from_vector();
         }
         DCR_thr[h] = thr_to_find_peaks; //mV
-        DCR[nfile][h] = DCR_from_cnt;
+        DCR[nfile][h] = DCR_from_cnt/Area;
         // cout<<DCR_from_cnt<<endl;
-        errDCR[nfile][h] = errDCR_from_cnt;
+        errDCR[nfile][h] = errDCR_from_cnt/Area;
         thr_to_find_peaks_vect[nfile][h] = thr_to_find_peaks;
         thr_to_find_peaks += gap_between_thr; //I jump to the next thr in order to evaluate the new DRC
         h++;
