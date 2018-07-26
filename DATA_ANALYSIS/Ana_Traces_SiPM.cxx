@@ -374,6 +374,9 @@ float **errDCR_mean;
 
 std::vector<Int_t> peak_pos;
 
+TGraphErrors *gDCR[nfilemax];
+
+
 TGraphErrors *gDCR_1;
 TGraphErrors *gDCR_2;
 TGraphErrors *gDCR_3;
@@ -1452,6 +1455,102 @@ void DCR_CT_1SiPM_5HVs_NO_Delays(string filelist, int last_event_n){
     // cout<<"double CrossTalk[] =    {"<<CT[0][0]<<", "<<CT[1][0]<<", "<<CT[2][0]<<"};"<<endl;
     //
     // cout<<"double errCrossTalk[] = {"<<CT[0][1]<<", "<<CT[1][1]<<", "<<CT[2][1]<<"};"<<endl;
+
+}
+
+
+//------------------------------------------------------------------------------
+void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int last_event_n){
+    //TRUE:
+    find_peaks_bool = true;
+    DCR_from_cnt_bool = true;
+    DO_NOT_DELETE_HIST_LED = true;
+
+    smooth_trace_bool = true;
+
+    // OPEN FILE AND READ FILE LIST
+    ifstream OpenFile (filelist.c_str());
+    string file[nfilemax];
+    nfiletot=0;
+    while(nfiletot<nfilemax){
+        OpenFile>>file[nfiletot];
+        nfiletot++;
+    }
+    OpenFile.close();
+
+    // Print the name of the files:
+    cout<<"Analysing files:"<<endl;
+    for(int i=0; i<nfiletot; i++){
+        cout<<"file "<<i+1<<" = "<<file[i]<<endl;
+    }
+
+    TCanvas *c = new TCanvas("Trace","Trace",w,h);
+
+    for(int k=0; k<nfiletot; k++){
+        //In order to set n different titles:
+        char h1[20], h2[20], h3[20];
+        char k_temp[2];
+        sprintf(h1, "histDelays");
+        sprintf(h2, "histAllPeaks");
+        sprintf(h3, "histDCRthr");
+        sprintf(k_temp, "%d", k);
+
+        //new hists:
+        ptrHistDelays[k]   = new TH1D(strcat(h1,k_temp),"",bins_Delays,0,maxyhistDelays);
+        ptrHistAllPeaks[k] = new TH1D(strcat(h2,k_temp),"",bins_DCR,0,maxyhistAllPeaks);
+        ptrHistDCRthr[k]   = new TH1D(strcat(h3,k_temp),"",bins_DCR,0,maxyhistDCR);
+    }
+
+    // colors:
+    color_file_1 = kGreen;
+    color_file_2 = kGreen+1;
+    color_file_3 = kBlue;
+    color_file_4 = kRed;
+    color_file_5 = kRed+1;
+
+    opacity = 0.3;
+
+    nfile = 0;
+
+    // LOOP ON FILES:
+    for(int i=0; i<nfiletot; i++){
+        
+        first_time_main_called = true; //will be set to false after the Analysis function is called
+        ind_peaks_all = 0;
+        for(int j=0; j<max_peaks; j++){
+            peaks_all[j] = 0;
+        }
+        // DCR_func
+        gDCR[i] = DCR_func_NO_Delays(file[i],last_event_n, nfiletot, c);
+
+        nfile++;
+    }
+
+
+    TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
+    for(int i=0; i<nfiletot; i++){
+        DCR_mg->Add(gDCR[i]);
+    }
+
+    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop");
+
+    cDCR_loop->SetGrid();
+    cDCR_loop->SetLogy();
+    DCR_mg->Draw("A3L");
+
+    auto legendDCR_loop = new TLegend(0.75,0.75,0.9,0.9);
+    for(int i=0; i<nfiletot; i++){
+        char leg_entry[20];
+        char nfile_char[2];
+        sprintf(leg_entry, "DCR file ");
+        sprintf(nfile_char, "%d", i+1);
+
+        legendDCR_loop->AddEntry(gDCR[i],strcat(leg_entry,nfile_char),"l");
+    }
+
+
+    legendDCR_loop->Draw();
+
 
 }
 
