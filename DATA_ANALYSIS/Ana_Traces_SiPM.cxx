@@ -133,8 +133,6 @@ void Ana1(string file1, int last_event_n, float threshold, bool display_one_ev_p
 void Ana3(string file1, string file2, string file3, int last_event_n);
 void Ana_LED(string file1, int last_event_n);
 void Ana_Ped(string file1, int last_event_n);
-void DCR_discriminator(string file1, int last_event_n, int thr_to_find_peaks);
-void DCR_CT_No_Stair(string file1, int last_event_n, float thr_0_5_pe, float thr_1_5_pe);
 void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int nfile, int nfile_in_list, int last_event_n);
 
 //SECONDARY
@@ -191,6 +189,9 @@ void ReadRootFile(string filename, int last_event_n, bool display, TCanvas *canv
 void DCR_CT_1SiPM_1HV_NO_Delays(string file1, int last_event_n);
 void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int last_event_n);
 void DCR_CT_1SiPM_5HVs_NO_Delays(string filelist, int last_event_n);
+void DCR_discriminator(string file1, int last_event_n, int thr_to_find_peaks);
+void DCR_CT_No_Stair(string file1, int last_event_n, float thr_0_5_pe, float thr_1_5_pe);
+
 
 // HELP
 void help();
@@ -1026,127 +1027,6 @@ void Ana_Ped(string file1, int last_event_n){
 
     new TCanvas();
     ptrHistCharge->Draw();
-
-}
-
-//------------------------------------------------------------------------------
-void DCR_discriminator(string file1, int last_event_n, int thr_to_find_peaks){
-    // TRUE:
-    find_peaks_discriminator_bool = true;
-
-    smooth_trace_bool = true;
-
-    TCanvas *c = new TCanvas("Trace","Trace",w,h);
-
-    //Analysis
-    Analysis(file1, last_event_n, false, c);
-
-    delete c;
-
-    cout<<endl;
-    cout<<"// File analyzed: "<<file1<<endl;
-    cout<<"// threshold = "<<thr_to_find_peaks<<endl;
-    cout<<"DCR = "<< DCR_from_discriminator*TMath::Power(10,-6) <<" MHz"<<endl;
-}
-
-//------------------------------------------------------------------------------
-void DCR_CT_No_Stair(string file1, int last_event_n, float thr_0_5_pe, float thr_1_5_pe){
-    //VARIABLES:
-    //TRUE:
-    find_peaks_bool = true;
-    DCR_DELAYS_bool = true; //DCR from delays
-    DO_NOT_DELETE_HIST_LED = true;
-    DCR_from_cnt_bool = true;
-
-    smooth_trace_bool = true;
-
-
-    nfile = 0; //I only consider 1 file
-
-    ptrHistAllPeaks[0]  = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
-    ptrHistDelays[0]    = new TH1D("histDelays","",bins_Delays,0,maxyhistDelays);
-    ptrHistDCRthr[0]    = new TH1D("histDCRthr","",bins_DCR,0,maxyhistDCR);
-
-    TCanvas *c = new TCanvas("Trace","Trace",w,h);
-
-    double DCR_from_cnt_0_5_pe = 0.;
-    double errDCR_from_cnt_0_5_pe = 0.;
-    double DCR_from_cnt_1_5_pe = 0.;
-    double errDCR_from_cnt_1_5_pe = 0.;
-
-    //////////////
-    /// 0.5 pe ///
-    //////////////
-
-    // Analysis
-    first_time_main_called = true;
-    thr_to_find_peaks = thr_0_5_pe;
-    Analysis(file1, last_event_n, false, c);
-
-    DCR_from_cnt_0_5_pe = DCR_from_cnt*TMath::Power(10,-6);
-    errDCR_from_cnt_0_5_pe = errDCR_from_cnt*TMath::Power(10,-6);
-
-    Get_DCR_temp_and_errDCR_temp();
-    DCR_pe_0_5_vect[nfile] = DCR_temp[nfile];
-    errDCR_pe_0_5_vect[nfile] = errDCR_temp[nfile];
-
-
-    // reset
-    ptrHistAllPeaks[0]->Reset();
-    ptrHistDelays[0]->Reset();
-    ptrHistDCRthr[0]->Reset();
-    DCR_cnt = 0;
-    DCR_from_cnt = 0;
-    trace_time = 0;
-    n_ev_tot = 0;
-
-    //////////////
-    /// 1.5 pe ///
-    //////////////
-
-    // Analysis for 1.5 pe
-    first_time_main_called = true;
-    thr_to_find_peaks = thr_1_5_pe;
-    Analysis(file1, last_event_n, false, c);
-
-    delete c;
-
-    DCR_from_cnt_1_5_pe = DCR_from_cnt*TMath::Power(10,-6);
-    errDCR_from_cnt_1_5_pe = errDCR_from_cnt*TMath::Power(10,-6);
-
-    Get_DCR_temp_and_errDCR_temp();
-    DCR_pe_1_5_vect[nfile] = DCR_temp[nfile];
-    errDCR_pe_1_5_vect[nfile] = errDCR_temp[nfile];
-
-
-    // CROSS TALK
-    double CT[2];   // CT[0] = CrossTalk, CT[1] = errCrossTalk
-    EvaluateCrossTalk(DCR_pe_0_5_vect[0], errDCR_pe_0_5_vect[0], DCR_pe_1_5_vect[0], errDCR_pe_1_5_vect[0], CT);
-    cout<<"   Cross Talk    = ("<<CT[0]<<" +- "<<CT[1]<<")"<<endl;
-
-
-
-    float CrossTalk = DCR_pe_1_5_vect[0]/DCR_pe_0_5_vect[0];
-    float errCrossTalk= CrossTalk * TMath::Sqrt( (errDCR_pe_0_5_vect[0]/DCR_pe_0_5_vect[0])*(errDCR_pe_0_5_vect[0]/DCR_pe_0_5_vect[0]) + (errDCR_pe_1_5_vect[0]/DCR_pe_1_5_vect[0])*(errDCR_pe_1_5_vect[0]/DCR_pe_1_5_vect[0]) );
-    cout<<"   Cross Talk    = ("<<CrossTalk<<" +- "<<errCrossTalk<<")"<<endl;
-
-
-
-    cout<<endl<<endl;
-    cout<<"-------------------------"<<endl;
-    cout<<"-------[ RESULTS ]-------"<<endl;
-    cout<<"-------------------------"<<endl<<endl;
-
-    cout<<"File analyzed: "<<file1<<endl;
-
-    cout<<"   DCR at "<<thr_0_5_pe<<" mV = "<<endl;
-    cout<<"         ("<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<") MHz, from exp fit"<<endl;
-    cout<<"         ("<<DCR_from_cnt_0_5_pe<<" +- "<<errDCR_from_cnt_0_5_pe<<") MHz, from cnt"<<endl;
-
-    cout<<"   DCR at "<<thr_1_5_pe<<" mV = "<<endl;
-    cout<<"         ("<<DCR_pe_1_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_1_5_vect[0]*TMath::Power(10,-6)<<") MHz, from exp fit"<<endl;
-    cout<<"         ("<<DCR_from_cnt_1_5_pe<<" +- "<<errDCR_from_cnt_1_5_pe<<") MHz, from cnt"<<endl;
-
 
 }
 
@@ -4494,6 +4374,131 @@ void DCR_CT_1SiPM_5HVs_NO_Delays(string filelist, int last_event_n){
     // cout<<"double errCrossTalk[] = {"<<CT[0][1]<<", "<<CT[1][1]<<", "<<CT[2][1]<<"};"<<endl;
 
 }
+
+
+//------------------------------------------------------------------------------
+void DCR_discriminator(string file1, int last_event_n, int thr_to_find_peaks){
+    // TRUE:
+    find_peaks_discriminator_bool = true;
+
+    smooth_trace_bool = true;
+
+    TCanvas *c = new TCanvas("Trace","Trace",w,h);
+
+    //Analysis
+    Analysis(file1, last_event_n, false, c);
+
+    delete c;
+
+    cout<<endl;
+    cout<<"// File analyzed: "<<file1<<endl;
+    cout<<"// threshold = "<<thr_to_find_peaks<<endl;
+    cout<<"DCR = "<< DCR_from_discriminator*TMath::Power(10,-6) <<" MHz"<<endl;
+}
+
+//------------------------------------------------------------------------------
+void DCR_CT_No_Stair(string file1, int last_event_n, float thr_0_5_pe, float thr_1_5_pe){
+    //VARIABLES:
+    //TRUE:
+    find_peaks_bool = true;
+    DCR_DELAYS_bool = true; //DCR from delays
+    DO_NOT_DELETE_HIST_LED = true;
+    DCR_from_cnt_bool = true;
+
+    smooth_trace_bool = true;
+
+
+    nfile = 0; //I only consider 1 file
+
+    ptrHistAllPeaks[0]  = new TH1D("histAllPeaks","",bins_DCR,0,maxyhistAllPeaks);
+    ptrHistDelays[0]    = new TH1D("histDelays","",bins_Delays,0,maxyhistDelays);
+    ptrHistDCRthr[0]    = new TH1D("histDCRthr","",bins_DCR,0,maxyhistDCR);
+
+    TCanvas *c = new TCanvas("Trace","Trace",w,h);
+
+    double DCR_from_cnt_0_5_pe = 0.;
+    double errDCR_from_cnt_0_5_pe = 0.;
+    double DCR_from_cnt_1_5_pe = 0.;
+    double errDCR_from_cnt_1_5_pe = 0.;
+
+    //////////////
+    /// 0.5 pe ///
+    //////////////
+
+    // Analysis
+    first_time_main_called = true;
+    thr_to_find_peaks = thr_0_5_pe;
+    Analysis(file1, last_event_n, false, c);
+
+    DCR_from_cnt_0_5_pe = DCR_from_cnt*TMath::Power(10,-6);
+    errDCR_from_cnt_0_5_pe = errDCR_from_cnt*TMath::Power(10,-6);
+
+    Get_DCR_temp_and_errDCR_temp();
+    DCR_pe_0_5_vect[nfile] = DCR_temp[nfile];
+    errDCR_pe_0_5_vect[nfile] = errDCR_temp[nfile];
+
+
+    // reset
+    ptrHistAllPeaks[0]->Reset();
+    ptrHistDelays[0]->Reset();
+    ptrHistDCRthr[0]->Reset();
+    DCR_cnt = 0;
+    DCR_from_cnt = 0;
+    trace_time = 0;
+    n_ev_tot = 0;
+
+    //////////////
+    /// 1.5 pe ///
+    //////////////
+
+    // Analysis for 1.5 pe
+    first_time_main_called = true;
+    thr_to_find_peaks = thr_1_5_pe;
+    Analysis(file1, last_event_n, false, c);
+
+    delete c;
+
+    DCR_from_cnt_1_5_pe = DCR_from_cnt*TMath::Power(10,-6);
+    errDCR_from_cnt_1_5_pe = errDCR_from_cnt*TMath::Power(10,-6);
+
+    Get_DCR_temp_and_errDCR_temp();
+    DCR_pe_1_5_vect[nfile] = DCR_temp[nfile];
+    errDCR_pe_1_5_vect[nfile] = errDCR_temp[nfile];
+
+
+    // CROSS TALK
+    double CT[2];   // CT[0] = CrossTalk, CT[1] = errCrossTalk
+    EvaluateCrossTalk(DCR_pe_0_5_vect[0], errDCR_pe_0_5_vect[0], DCR_pe_1_5_vect[0], errDCR_pe_1_5_vect[0], CT);
+    cout<<"   Cross Talk    = ("<<CT[0]<<" +- "<<CT[1]<<")"<<endl;
+
+
+
+    float CrossTalk = DCR_pe_1_5_vect[0]/DCR_pe_0_5_vect[0];
+    float errCrossTalk= CrossTalk * TMath::Sqrt( (errDCR_pe_0_5_vect[0]/DCR_pe_0_5_vect[0])*(errDCR_pe_0_5_vect[0]/DCR_pe_0_5_vect[0]) + (errDCR_pe_1_5_vect[0]/DCR_pe_1_5_vect[0])*(errDCR_pe_1_5_vect[0]/DCR_pe_1_5_vect[0]) );
+    cout<<"   Cross Talk    = ("<<CrossTalk<<" +- "<<errCrossTalk<<")"<<endl;
+
+
+
+    cout<<endl<<endl;
+    cout<<"-------------------------"<<endl;
+    cout<<"-------[ RESULTS ]-------"<<endl;
+    cout<<"-------------------------"<<endl<<endl;
+
+    cout<<"File analyzed: "<<file1<<endl;
+
+    cout<<"   DCR at "<<thr_0_5_pe<<" mV = "<<endl;
+    cout<<"         ("<<DCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_0_5_vect[0]*TMath::Power(10,-6)<<") MHz, from exp fit"<<endl;
+    cout<<"         ("<<DCR_from_cnt_0_5_pe<<" +- "<<errDCR_from_cnt_0_5_pe<<") MHz, from cnt"<<endl;
+
+    cout<<"   DCR at "<<thr_1_5_pe<<" mV = "<<endl;
+    cout<<"         ("<<DCR_pe_1_5_vect[0]*TMath::Power(10,-6)<<" +- "<<errDCR_pe_1_5_vect[0]*TMath::Power(10,-6)<<") MHz, from exp fit"<<endl;
+    cout<<"         ("<<DCR_from_cnt_1_5_pe<<" +- "<<errDCR_from_cnt_1_5_pe<<") MHz, from cnt"<<endl;
+
+
+}
+
+
+
 
 
 //-----------------------------------------------------------------------------
