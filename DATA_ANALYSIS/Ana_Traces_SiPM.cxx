@@ -3931,7 +3931,7 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
           SmoothTraceN(n_SmootTraceN);
           // cout<<"Smooth trace "<<n_SmootTraceN<<" points"<<endl;
 
-        // smooth_trace_step();
+        // smooth_trace_step(); 
         // smooth_trace_3();
         // smooth_trace_4();
         // smooth_trace_5();
