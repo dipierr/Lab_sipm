@@ -1476,7 +1476,7 @@ void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int last_event_n){
         OpenFile>>file[nfiletot];
         nfiletot++;
     }
-    OpenFile.close();
+    OpenFile.close(); 
 
     // Print the name of the files:
     cout<<"Analysing files:"<<endl;
@@ -1514,7 +1514,7 @@ void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int last_event_n){
 
     // LOOP ON FILES:
     for(int i=0; i<nfiletot; i++){
-        
+
         first_time_main_called = true; //will be set to false after the Analysis function is called
         ind_peaks_all = 0;
         for(int j=0; j<max_peaks; j++){
