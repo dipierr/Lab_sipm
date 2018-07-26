@@ -1474,11 +1474,14 @@ void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int nfile_in_list, int last_ev
 
     // OPEN FILE AND READ FILE LIST
     ifstream OpenFile (filelist.c_str());
-    string file[nfilemax];
+    string file[nfilemax], legend_entry[nfilemax];
     nfiletot=0;
 
     while(nfiletot<nfile_in_list and nfiletot<nfilemax){
         OpenFile>>file[nfiletot];
+        OpenFile>>legend_entry[nfiletot];
+        OpenFile>>legend_entry[nfiletot];
+        OpenFile>>legend_entry[nfiletot];
         nfiletot++;
     }
     OpenFile.close();
@@ -1507,16 +1510,16 @@ void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int nfile_in_list, int last_ev
     }
 
     // colors:
-    color_file[0] = kGreen-1;
-    color_file[1] = kGreen;
-    color_file[2] = kGreen+1;
-    color_file[3] = kBlue-1;
-    color_file[4] = kBlue;
-    color_file[5] = kBlue+1;
-    color_file[6] = kRed-1;
-    color_file[7] = kRed;
-    color_file[8] = kRed+1;
-    color_file[9] = kRed+2;
+    color_file[0] = kBlack;
+    color_file[1] = kOrange+5;
+    color_file[2] = kRed;
+    color_file[3] = kOrange;
+    color_file[4] = kGreen+1;
+    color_file[5] = kCyan;
+    color_file[6] = kBlue;
+    color_file[7] = kViolet;
+    color_file[8] = kGray;
+    color_file[9] = kGray+3;
 
     opacity = 0.3;
 
@@ -1550,12 +1553,7 @@ void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int nfile_in_list, int last_ev
 
     auto legendDCR_loop = new TLegend(0.75,0.75,0.9,0.9);
     for(int i=0; i<nfiletot; i++){
-        char leg_entry[20];
-        char nfile_char[2];
-        sprintf(leg_entry, "DCR file ");
-        sprintf(nfile_char, "%d", i+1);
-
-        legendDCR_loop->AddEntry(gDCR[i],strcat(leg_entry,nfile_char),"l");
+        legendDCR_loop->AddEntry(gDCR[i],legend_entry[i].c_str(),"l");
     }
 
 
@@ -3931,7 +3929,7 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
           SmoothTraceN(n_SmootTraceN);
           // cout<<"Smooth trace "<<n_SmootTraceN<<" points"<<endl;
 
-        // smooth_trace_step(); 
+        // smooth_trace_step();
         // smooth_trace_3();
         // smooth_trace_4();
         // smooth_trace_5();
