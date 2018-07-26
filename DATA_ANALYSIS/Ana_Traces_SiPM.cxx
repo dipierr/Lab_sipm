@@ -66,7 +66,7 @@ using namespace std;
 
 
 
-#define nfilemax 5
+#define nfilemax 10
 #define max_peak_num 50
 #define max_peaks 5000000
 
@@ -138,6 +138,8 @@ void DCR_CT_No_Stair(string file1, int last_event_n, float thr_0_5_pe, float thr
 void DCR_CT_1SiPM_1HV_NO_Delays(string file1, int last_event_n);
 void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int last_event_n);
 void DCR_CT_1SiPM_5HVs_NO_Delays(string filelist, int last_event_n);
+void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int nfile, int nfile_in_list, int last_event_n);
+
 
 
 
@@ -242,7 +244,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 9;//8;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
+int dleddt = 8;//8;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 50; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
@@ -258,8 +260,8 @@ float max_pe_0_5 = 15; //max value for 0.5pe threshold (mV)
 float min_pe_1_5 = 28; //min value for 1.5pe threshold (mV)
 float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
-float pe_0_5_vect[5] = {10., 10., 10., 10., 10.};
-float pe_1_5_vect[5] = {23., 25., 28., 30., 30.};
+float pe_0_5_vect[nfilemax] = {10., 10., 10., 10., 10., 10., 10., 10., 10., 10.};
+float pe_1_5_vect[nfilemax] = {23., 25., 28., 30., 30., 30., 30., 30., 30., 30.};
 
 // ONLY for LED measures
 int minLED_amp = 290;//168;//115;  // window: min time for peak (ns) for LED
@@ -272,7 +274,7 @@ int dcr_maxtp  = maxLED_amp + 200;
 // threshold
 float thr_to_find_peaks = 8; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5.
 
-double min_thr_to_find_peaks_vect[] = {7., 7., 7., 7., 7.};
+double min_thr_to_find_peaks_vect[nfilemax] = {7., 7., 7., 7., 7., 7., 7., 7., 7., 7.};
 
 // 0 high, 1 low
 float range1_low_low_mV   = 5;//5;  // 5;  //5;
@@ -442,6 +444,8 @@ auto color_file_2 = kBlue+1;
 auto color_file_3 = kBlue+1;
 auto color_file_4 = kBlue+1;
 auto color_file_5 = kBlue+1;
+
+int color_file[] = {kBlue,kBlue,kBlue,kBlue,kBlue,kBlue,kBlue,kBlue,kBlue,kBlue};
 
 double opacity = 0.3;
 
@@ -1460,7 +1464,7 @@ void DCR_CT_1SiPM_5HVs_NO_Delays(string filelist, int last_event_n){
 
 
 //------------------------------------------------------------------------------
-void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int last_event_n){
+void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int nfile_in_list, int last_event_n){
     //TRUE:
     find_peaks_bool = true;
     DCR_from_cnt_bool = true;
@@ -1472,11 +1476,12 @@ void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int last_event_n){
     ifstream OpenFile (filelist.c_str());
     string file[nfilemax];
     nfiletot=0;
-    while(nfiletot<nfilemax){
+
+    while(nfiletot<nfile_in_list and nfiletot<nfilemax){
         OpenFile>>file[nfiletot];
         nfiletot++;
     }
-    OpenFile.close(); 
+    OpenFile.close();
 
     // Print the name of the files:
     cout<<"Analysing files:"<<endl;
@@ -1502,11 +1507,16 @@ void DCR_CT_1SiPM_nHVs_NO_Delays(string filelist, int last_event_n){
     }
 
     // colors:
-    color_file_1 = kGreen;
-    color_file_2 = kGreen+1;
-    color_file_3 = kBlue;
-    color_file_4 = kRed;
-    color_file_5 = kRed+1;
+    color_file[0] = kGreen-1;
+    color_file[1] = kGreen;
+    color_file[2] = kGreen+1;
+    color_file[3] = kBlue-1;
+    color_file[4] = kBlue;
+    color_file[5] = kBlue+1;
+    color_file[6] = kRed-1;
+    color_file[7] = kRed;
+    color_file[8] = kRed+1;
+    color_file[9] = kRed+2;
 
     opacity = 0.3;
 
@@ -1811,11 +1821,15 @@ TGraphErrors *DCR_func_NO_Delays(string file1, int last_event_n, int tot_files, 
      gDCR->SetLineWidth(2);
 
 
-    if(nfile==0){gDCR->SetLineColor(color_file_1);  gDCR->SetFillColorAlpha(color_file_1, opacity);}
-    if(nfile==1){gDCR->SetLineColor(color_file_2);   gDCR->SetFillColorAlpha(color_file_2, opacity);   }
-    if(nfile==2){gDCR->SetLineColor(color_file_3);  gDCR->SetFillColorAlpha(color_file_3, opacity);  }
-    if(nfile==3){gDCR->SetLineColor(color_file_4);   gDCR->SetFillColorAlpha(color_file_4, opacity);   }
-    if(nfile==4){gDCR->SetLineColor(color_file_5);  gDCR->SetFillColorAlpha(color_file_5, opacity);  }
+    // if(nfile==0){gDCR->SetLineColor(color_file_1);  gDCR->SetFillColorAlpha(color_file_1, opacity);}
+    // if(nfile==1){gDCR->SetLineColor(color_file_2);   gDCR->SetFillColorAlpha(color_file_2, opacity);   }
+    // if(nfile==2){gDCR->SetLineColor(color_file_3);  gDCR->SetFillColorAlpha(color_file_3, opacity);  }
+    // if(nfile==3){gDCR->SetLineColor(color_file_4);   gDCR->SetFillColorAlpha(color_file_4, opacity);   }
+    // if(nfile==4){gDCR->SetLineColor(color_file_5);  gDCR->SetFillColorAlpha(color_file_5, opacity);  }
+
+    gDCR->SetLineColor(color_file[nfile]);
+    gDCR->SetFillColorAlpha(color_file[nfile], opacity);
+
 
     cout<<endl<<endl;
 
@@ -3913,7 +3927,7 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
       }
 
       if(smooth_trace_bool){
-          int n_SmootTraceN = 4;
+          int n_SmootTraceN = 2;
           SmoothTraceN(n_SmootTraceN);
           // cout<<"Smooth trace "<<n_SmootTraceN<<" points"<<endl;
 
