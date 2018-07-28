@@ -1702,6 +1702,7 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
                 } // end peak_width < max_peak_width
                 else{ // this is not a peak, too wide in time
                     i++;
+                    // cout<<"*******   PEAK TOO WIDE   *******"<<endl;
                 }
             } // end falling edge
             else{ // I have not found a falling edge
@@ -1876,7 +1877,9 @@ void FindDCRfromVector(){
         }
     }
 
-    trace_time = trace_time_raw - DCR_cnt * 2 * dleddt - n_ev_tot * rise_time;
+    // trace_time = trace_time_raw - DCR_cnt * 2 * dleddt - n_ev_tot * rise_time;
+    trace_time = trace_time_raw - DCR_cnt * 2 * (dleddt) - n_ev_tot * rise_time;
+
 
     double err_DCR_cnt = 0.;
     double err_trace_time = 0.;
