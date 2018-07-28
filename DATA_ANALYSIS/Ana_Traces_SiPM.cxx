@@ -114,7 +114,7 @@ typedef struct {
 
 
 // PREDEFINED
-void DCR_CT_1SiPM_nHVs(string filelist, int nfile, int nfile_in_list, int last_event_n
+void DCR_CT_1SiPM_nHVs(string filelist, int nfile, int nfile_in_list, int last_event_n);
 void Ana1(string file1, int last_event_n, float threshold, bool display_one_ev_param);
 void Ana3(string file1, string file2, string file3, int last_event_n);
 void Ana_LED(string file1, int last_event_n);
