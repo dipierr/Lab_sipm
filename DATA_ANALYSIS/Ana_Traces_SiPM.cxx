@@ -72,6 +72,8 @@ using namespace std;
 
 #define tau -225
 
+#define n6 TMath::Power(10,-6)
+
 
 //------------------------------------------------------------------------------
 //--------------------------[   READ BIN DRS4 INTRO   ]-------------------------
@@ -119,8 +121,6 @@ typedef struct {
 
 
 
-
-
 //------------------------------------------------------------------------------
 //-------------------------------[   FUNCTIONS   ]------------------------------
 //------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ void Ana_LED(string file1, int last_event_n);
 void Ana_Ped(string file1, int last_event_n);
 void DCR_CT_1SiPM_nHVs(string filelist, int nfile, int nfile_in_list, int last_event_n);
 
-//SECONDARY
+// SECONDARY
 void Analysis(string file, int last_event_n, bool display, TCanvas *c);
 void DLED(int trace_length, int dleddt);
 int find_peak_fix_time(int mintp, int maxtp);
@@ -153,10 +153,11 @@ void discriminator(double thr, float **t, double length);
 void Get_DCR_temp_and_errDCR_temp();
 void show_trace(TCanvas* canv, float *x, float *y, int trace_length, float miny, float maxy, bool line_bool, bool delete_bool);
 void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int trace_length1, int trace_length2, float miny1, float maxy1, float miny2, float maxy2, bool line_bool, bool delete_bool);
-void find_peaks_from_vector();
-void find_DCR_from_vector();
+void FindDelaysFromVector();
+void FindDCRfromVector();
 void find_DCR_0_5_pe_and_1_5_pe_auto();
 void find_DCR_0_5_pe_and_1_5_pe_manual();
+void DivideAreaDCR_DCR_0_5_DCR_1_5();
 void find_offset();
 void find_offset_mod_2();
 void find_offset_mod_3();
@@ -177,6 +178,9 @@ void SmoothTraceN(int n);
 Float_t GetMean(std::vector<Float_t> vec);
 Float_t GetStdDev(std::vector<Float_t> vec);
 void EvaluateCrossTalk(double DCR_0_5, double errDCR_0_5, double DCR_1_5, double errDCR_1_5, double* CT);
+double GetDCRfromDelays();
+double GetErrDCRfromDelays();
+
 
 
 
@@ -277,7 +281,6 @@ int dcr_maxtp  = maxLED_amp + 200;
 // threshold
 float thr_to_find_peaks = 8; //thr_to_find_peaks, as seen in DLED trace (in V); it should be similar to pe_0_5.
 
-double min_thr_to_find_peaks_vect[nfilemax] = {7., 7., 7., 7., 7., 7., 7., 7., 7., 7.};
 
 // 0 high, 1 low
 float range1_low_low_mV   = 5;//5;  // 5;  //5;
@@ -367,6 +370,8 @@ float **trace_AVG;
 float **AVG_trace_window;
 float **DCR;
 float **errDCR;
+float **DCR_Area;
+float **errDCR_Area;
 float **DCR_thr;
 float *peak;
 float *peaks;
@@ -380,7 +385,7 @@ float **errDCR_mean;
 std::vector<Int_t> peak_pos;
 
 TGraphErrors *gDCR[nfilemax];
-
+TGraphErrors *gDCR_temp;
 
 TGraphErrors *gDCR_1;
 TGraphErrors *gDCR_2;
@@ -391,10 +396,24 @@ TGraphErrors *gDCR_5;
 
 double DCR_temp[nfilemax];
 double errDCR_temp[nfilemax];
+
 double DCR_pe_0_5_vect[nfilemax];
 double DCR_pe_1_5_vect[nfilemax];
 double errDCR_pe_0_5_vect[nfilemax];
 double errDCR_pe_1_5_vect[nfilemax];
+double DCR_pe_0_5_delays_vect[nfilemax];
+double DCR_pe_1_5_delays_vect[nfilemax];
+double errDCR_pe_0_5_delays_vect[nfilemax];
+double errDCR_pe_1_5_delays_vect[nfilemax];
+
+double DCR_pe_0_5_Area_vect[nfilemax];
+double DCR_pe_1_5_Area_vect[nfilemax];
+double errDCR_pe_0_5_Area_vect[nfilemax];
+double errDCR_pe_1_5_Area_vect[nfilemax];
+double DCR_pe_0_5_Area_delays_vect[nfilemax];
+double DCR_pe_1_5_Area_delays_vect[nfilemax];
+double errDCR_pe_0_5_Area_delays_vect[nfilemax];
+double errDCR_pe_1_5_Area_delays_vect[nfilemax];
 
 
 int trace_DLED_length; int ii=0; int i=0; int index_func = 0; int nfile = 0; int n_DCR = 0; int DCR_cnt = 0; int DCR_cnt_temp = 0; int discriminator_cnt = 0; int trace_length = 0; int n_ev, index_for_peak; int one_window=0;
@@ -415,8 +434,10 @@ int mintp = 0; int maxtp = 0;
 int index_peak_LED = 0;
 
 float peaks_all_delay[2][max_peaks];
+
 int ind_peaks_all_delay = 0;
 float peaks_all[max_peaks];
+float peaks_all_time[max_peaks];
 int ind_peaks_all = 0;
 int n_ev_tot = 0;
 
@@ -466,6 +487,7 @@ bool average = false; //calculate the average of traces (useful for LED measures
 
 bool DCR_DELAYS_bool = false; //DCR from delays
 bool CROSS_TALK_bool = false; //DCR must be true
+bool fit_hist_del_bool = false;
 
 bool drawHistAllPeaks = false; // to draw hist of all peaks in traces
 bool fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
@@ -550,7 +572,7 @@ TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[7])*(x-[7])/(
 //------------------------------------------------------------------------------
 
 
-
+// TCanvas *c1 = new TCanvas("c1","c1",w,h);
 
 
 //------------------------------------------------------------------------------
@@ -561,6 +583,7 @@ TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[7])*(x-[7])/(
 void DCR_CT_1SiPM_1HV(string file1, int last_event_n){
     //TRUE:
     find_peaks_bool = true;
+    fit_hist_del_bool = true;
     DCR_DELAYS_bool = true; //DCR from delays
     CROSS_TALK_bool = true; //DCR must be true
     DO_NOT_DELETE_HIST_LED = true;
@@ -640,6 +663,7 @@ void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_
     //TRUE:
     find_peaks_bool = true;
     DCR_DELAYS_bool = true; //DCR from delays
+    fit_hist_del_bool = true;
     CROSS_TALK_bool = true; //DCR must be true
     DO_NOT_DELETE_HIST_LED = true;
 
@@ -753,6 +777,7 @@ void Ana1(string file1, int last_event_n, float thr, bool display_one_ev_param){
     drawHistAllPeaks = true; // to draw hist of all peaks in traces
     fitHistAllPeaks = false; // fit hist of all peaks -> for GAIN
     DCR_DELAYS_bool = true; //DCR from delays
+    fit_hist_del_bool = true;
     show_hists_DCR_DELAYS  = true;
     display_one_ev = display_one_ev_param;
     DO_NOT_DELETE_HIST_LED = true;
@@ -828,6 +853,7 @@ void Ana3(string file1, string file2, string file3, int last_event_n){
     //TRUE:
     find_peaks_bool = true;
     DCR_DELAYS_bool = true; //DCR from delays
+    fit_hist_del_bool = true;
     CROSS_TALK_bool = true; //DCR must be true
     DO_NOT_DELETE_HIST_LED = true;
 
@@ -1036,6 +1062,8 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
     find_peaks_bool = true;
     DCR_from_cnt_bool = true;
     DO_NOT_DELETE_HIST_LED = true;
+    DCR_DELAYS_bool = true;
+    fit_hist_del_bool = false;
 
     smooth_trace_bool = true;
 
@@ -1095,6 +1123,14 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
     // LOOP ON FILES:
     for(int i=0; i<nfiletot; i++){
 
+        // reset
+        ptrHistAllPeaks[0]->Reset();
+        ptrHistDelays[0]->Reset();
+        DCR_cnt = 0;
+        DCR_from_cnt = 0;
+        trace_time = 0;
+        n_ev_tot = 0;
+
         first_time_main_called = true; //will be set to false after the Analysis function is called
         ind_peaks_all = 0;
         for(int j=0; j<max_peaks; j++){
@@ -1102,6 +1138,7 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
         }
         // DCR_func
         gDCR[i] = DCR_func_NO_Delays(file[i],last_event_n, nfiletot, c);
+        delete[] gDCR_temp;
 
         nfile++;
     }
@@ -1125,6 +1162,23 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
     legendDCR_loop->SetNColumns(3);
     legendDCR_loop->Draw();
 
+
+
+    for(int i=0; i<nfiletot; i++){
+        // nfile
+        cout<<legend_entry[i]<<endl;
+
+        // 0.5 pe
+        cout<<"     DCR at 0.5 pe from cnt    = ("<<DCR_pe_0_5_Area_vect[i]*n6*Area<<" +- "<<errDCR_pe_0_5_Area_vect[i]*n6*Area<<") MHz"<<endl;
+        cout<<"     DCR at 0.5 pe from delays = ("<<DCR_pe_0_5_Area_delays_vect[i]*n6*Area<<" +- "<<errDCR_pe_0_5_Area_delays_vect[i]*n6*Area<<") MHz"<<endl;
+
+        // 1.5 pe
+        cout<<"     DCR at 1.5 pe from cnt = ("<<DCR_pe_1_5_Area_vect[i]*n6*Area<<" +- "<<errDCR_pe_1_5_Area_vect[i]*n6*Area<<") MHz"<<endl;
+        cout<<"     DCR at 1.5 pe from delays = ("<<DCR_pe_1_5_Area_delays_vect[i]*n6*Area<<" +- "<<errDCR_pe_1_5_Area_delays_vect[i]*n6*Area<<") MHz"<<endl;
+
+        cout<<endl;
+    }
+
 }
 
 
@@ -1145,7 +1199,7 @@ void Analysis(string file, int last_event_n, bool display, TCanvas *c){
         if(DRS4_Evaluation_Board_Mod)
           ReadRootFile(file, last_event_n, display, c);
     }else{ //in order to speed up when I want to find peaks at different thresholds: I read the file only one time
-        find_peaks_from_vector();
+        FindDelaysFromVector();
     }
 
 
@@ -1215,7 +1269,10 @@ void Analysis(string file, int last_event_n, bool display, TCanvas *c){
         }
 
         // fit_hist_del
-        fit_hist_del(expDelLow_max, expDelHigh_max);
+        if(fit_hist_del_bool){
+            fit_hist_del(expDelLow_max, expDelHigh_max);
+        }
+
     }
 
     if(showHist_bool){
@@ -1251,6 +1308,14 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files, TCanvas *c
                 DCR[i] = new float[n_DCR];
         }
         errDCR = new float*[tot_files];
+            for(int i = 0; i < tot_files; i++) {
+                errDCR[i] = new float[n_DCR];
+        }
+        DCR_Area = new float*[tot_files];
+            for(int i = 0; i < tot_files; i++) {
+                DCR[i] = new float[n_DCR];
+        }
+        errDCR_Area = new float*[tot_files];
             for(int i = 0; i < tot_files; i++) {
                 errDCR[i] = new float[n_DCR];
         }
@@ -1297,8 +1362,11 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files, TCanvas *c
     else                            find_DCR_0_5_pe_and_1_5_pe_manual();
 
 
+    // find DCR / Area
+    DivideAreaDCR_DCR_0_5_DCR_1_5();
 
-    TGraphErrors *gDCR = new TGraphErrors(n_DCR, DCR_thr, DCR[nfile],NULL, errDCR[nfile]);
+
+    TGraphErrors *gDCR = new TGraphErrors(n_DCR, DCR_thr, DCR_Area[nfile],NULL, errDCR_Area[nfile]);
 
      gDCR->SetLineWidth(2);
 
@@ -1317,12 +1385,13 @@ TGraphErrors *DCR_func(string file1, int last_event_n, int tot_files, TCanvas *c
 //------------------------------------------------------------------------------
 TGraphErrors *DCR_func_NO_Delays(string file1, int last_event_n, int tot_files, TCanvas *c){
     bool display = false;
+    DCR_DELAYS_bool = true;
 
     thr_to_find_peaks = min_thr_to_find_peaks;
 
     n_DCR = (int)((max_thr_to_find_peaks - min_thr_to_find_peaks)/gap_between_thr);
 
-    if(first_time_DCR_called){
+    if(first_time_DCR_called){ // first_time_DCR_called
         DCR = new float*[tot_files];
             for(int i = 0; i < tot_files; i++) {
                 DCR[i] = new float[n_DCR];
@@ -1330,6 +1399,14 @@ TGraphErrors *DCR_func_NO_Delays(string file1, int last_event_n, int tot_files, 
         errDCR = new float*[tot_files];
             for(int i = 0; i < tot_files; i++) {
                 errDCR[i] = new float[n_DCR];
+        }
+        DCR_Area = new float*[tot_files];
+            for(int i = 0; i < tot_files; i++) {
+                DCR_Area[i] = new float[n_DCR];
+        }
+        errDCR_Area = new float*[tot_files];
+            for(int i = 0; i < tot_files; i++) {
+                errDCR_Area[i] = new float[n_DCR];
         }
         thr_to_find_peaks_vect = new float*[tot_files];
             for(int i = 0; i < tot_files; i++) {
@@ -1352,51 +1429,116 @@ TGraphErrors *DCR_func_NO_Delays(string file1, int last_event_n, int tot_files, 
             for(int i = 0; i < tot_files; i++) {
                 errDCR_mean[i] = new float[n_smooth];
         }
-    }
+
+    } // end first_time_DCR_called
+
     first_time_DCR_called = false;
 
-    int h = 0;
     float *DCR_thr = new float[n_DCR];
+    double delta = (pe_1_5_vect[nfile] - pe_0_5_vect[nfile])/n_DCR;
+
+    /////////////////////////////////////////////
+    ///     RESET
+    /////////////////////////////////////////////
+    ind_peaks_all = 0;
+    ind_peaks_all_delay = 0;
+
+    for(int i=0; i<max_peaks; i++){
+        peaks_all_delay[0][i] = 0;
+        peaks_all_delay[1][i] = 0;
+
+        peaks_all[i] = 0;
+        peaks_all_time[i] = 0;
+    }
+
+
+    int h = 0;
 
     while(thr_to_find_peaks <= max_thr_to_find_peaks){ // loop for DCR vs thresholds graph
         // reset
         DCR_cnt = 0;
         DCR_from_cnt = 0;
         trace_time = 0;
+
+
         if(h==0){
             Analysis(file1,last_event_n,display, c);
         }else{
-            find_DCR_from_vector();
+            FindDCRfromVector();
         }
+
+
         DCR_thr[h] = thr_to_find_peaks; //mV
-        DCR[nfile][h] = DCR_from_cnt/Area;
-        // cout<<DCR_from_cnt<<endl;
-        errDCR[nfile][h] = errDCR_from_cnt/Area;
+        DCR[nfile][h] = DCR_from_cnt;
+        errDCR[nfile][h] = errDCR_from_cnt;
+
+
+        // 0.5 pe
+        if((thr_to_find_peaks > pe_0_5_vect[nfile] - delta) and (thr_to_find_peaks < pe_0_5_vect[nfile] + delta)){
+            // reset
+            ptrHistAllPeaks[nfile]->Reset();
+            ptrHistDelays[nfile]->Reset();
+
+            // From delays
+            FindDelaysFromVector();
+            fit_hist_del(expDelLow_max, expDelHigh_max);
+
+            DCR_pe_0_5_delays_vect[nfile] = GetDCRfromDelays();
+            errDCR_pe_0_5_delays_vect[nfile] = GetErrDCRfromDelays();
+
+            // From cnt
+            DCR_pe_0_5_vect[nfile] = DCR[nfile][h];
+            errDCR_pe_0_5_vect[nfile] = errDCR[nfile][h];
+
+            // cout<<"DCR_thr[h] "<<DCR_thr[h]<<endl;
+            // cout<<"DCR_pe_0_5_delays_vect[nfile]"<<DCR_pe_0_5_delays_vect[nfile]<<endl;
+        }
+
+        // 1.5 pe
+        if((thr_to_find_peaks > pe_1_5_vect[nfile] - delta) and (thr_to_find_peaks < pe_1_5_vect[nfile] + delta)){
+            // reset
+            ptrHistAllPeaks[nfile]->Reset();
+            ptrHistDelays[nfile]->Reset();
+
+            // From delays
+            FindDelaysFromVector();
+            fit_hist_del(expDelLow_max, expDelHigh_max);
+
+            DCR_pe_1_5_delays_vect[nfile] = GetDCRfromDelays();
+            errDCR_pe_1_5_delays_vect[nfile] = GetErrDCRfromDelays();
+
+            // From cnt
+            DCR_pe_1_5_vect[nfile] = DCR[nfile][h];
+            errDCR_pe_1_5_vect[nfile] = errDCR[nfile][h];
+
+            // cout<<"DCR_thr[h] "<<DCR_thr[h]<<endl;
+            // cout<<"DCR[nfile][h] "<<DCR[nfile][h]<<endl;
+            // cout<<"DCR_pe_1_5_vect[nfile] "<<DCR_pe_1_5_vect[nfile]<<endl;
+        }
+
         thr_to_find_peaks_vect[nfile][h] = thr_to_find_peaks;
         thr_to_find_peaks += gap_between_thr; //I jump to the next thr in order to evaluate the new DRC
         h++;
     }
 
-    find_DCR_0_5_pe_and_1_5_pe_manual();
-
-    TGraphErrors *gDCR = new TGraphErrors(n_DCR, DCR_thr, DCR[nfile],NULL, errDCR[nfile]);
-
-     gDCR->SetLineWidth(2);
+    // find DCR / Area
+    DivideAreaDCR_DCR_0_5_DCR_1_5();
 
 
-    // if(nfile==0){gDCR->SetLineColor(color_file_1);  gDCR->SetFillColorAlpha(color_file_1, opacity);}
-    // if(nfile==1){gDCR->SetLineColor(color_file_2);   gDCR->SetFillColorAlpha(color_file_2, opacity);   }
-    // if(nfile==2){gDCR->SetLineColor(color_file_3);  gDCR->SetFillColorAlpha(color_file_3, opacity);  }
-    // if(nfile==3){gDCR->SetLineColor(color_file_4);   gDCR->SetFillColorAlpha(color_file_4, opacity);   }
-    // if(nfile==4){gDCR->SetLineColor(color_file_5);  gDCR->SetFillColorAlpha(color_file_5, opacity);  }
 
-    gDCR->SetLineColor(color_file[nfile]);
-    gDCR->SetFillColorAlpha(color_file[nfile], opacity);
+    TGraphErrors *gDCR_temp = new TGraphErrors(n_DCR, DCR_thr, DCR_Area[nfile],NULL, errDCR_Area[nfile]);
+
+    gDCR_temp->SetLineWidth(2);
+
+    gDCR_temp->SetLineColor(color_file[nfile]);
+    gDCR_temp->SetFillColorAlpha(color_file[nfile], opacity);
 
 
     cout<<endl<<endl;
 
-    return gDCR;
+    delete[] DCR_thr;
+
+    return gDCR_temp;
 
 }
 
@@ -1492,6 +1634,7 @@ void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,
     int peak_width = max_peak_width;
     num_peaks=0;
     for(int i=0; i<max_peak_num; i++)index_vect[i]=0;
+    ind_peaks_all_delay = 0;
 
     while(ii<trace_DLED_length){//I find peaks after the DLED procedure
 
@@ -1568,7 +1711,9 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
     int half_falling_points = 0;
     int diff = 0;
 
-    for(int i=0; i<max_peak_num; i++) index_vect[i]=0;
+    for(int i=0; i<max_peak_num; i++){
+            index_vect[i]=0;
+    }
 
     bool find_rising_edge = true;
 
@@ -1643,6 +1788,7 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
                     }
 
                     // I fill also the vector:
+                    peaks_all_time[ind_peaks_all] = t[0][index_new];
                     peaks_all[ind_peaks_all] = t[1][index_new];
                     ind_peaks_all++;
 
@@ -1682,8 +1828,13 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
 
     } // end loop on trace t
 
+    // in peaks_all_delay I put -1 at the end of the trace
     peaks_all_delay[0][ind_peaks_all_delay] = -1;
     peaks_all_delay[1][ind_peaks_all_delay] = -1;
+
+    peaks_all[ind_peaks_all] = -1;
+    peaks_all[ind_peaks_all] = -1;
+
     ind_peaks_all_delay++;
 
 }
@@ -1834,7 +1985,7 @@ void FindPeaksFromPositions(){
 }
 
 //------------------------------------------------------------------------------
-void find_DCR_from_vector(){
+void FindDCRfromVector(){
 
     for(int i=0; i<ind_peaks_all; i++){
         if(peaks_all[i] > thr_to_find_peaks){
@@ -1857,30 +2008,56 @@ void find_DCR_from_vector(){
     err_DCR_cnt = TMath::Sqrt((double)DCR_cnt);
     errDCR_from_cnt = TMath::Sqrt( TMath::Power( err_DCR_cnt / (trace_time * n_ev_tot), 2) + TMath::Power( (double)DCR_cnt*err_trace_time / ( trace_time * n_ev_tot * trace_time * n_ev_tot ), 2) );
 
+}
+
+//------------------------------------------------------------------------------
+void FindDelaysFromVector(){
+    //int n,i,k;
+    double time_new = -1., time_old = -1.;
+    double time_delay = 0.;
+
+    for(int i=0;i<ind_peaks_all; i++){ // loop on peaks_all_delay
+        // cout<<time_old<<endl;
+        // cout<<peaks_all_delay[0][i]<<endl;
+        if(peaks_all_time[i]==-1){ // new trace
+            time_old = -1;
+            time_new = -1;
+        }
+        else{ // trace
+            if(peaks_all[i] > thr_to_find_peaks){ // > thr
+                time_new = peaks_all_time[i];
+                if(time_old>0){ // not the first peak trace
+                    time_delay = time_new - time_old;
+                    // if( (time_delay>expDelLow_max) and (time_delay<expDelHigh_max) and (t[0][time_new]>2*expDelLow_max) and (time_new<900) ){
+                    if( (time_delay>expDelLow_max) and (time_delay<expDelHigh_max) ){
+                        ptrHistDelays[nfile] -> Fill(time_delay);
+                    }
+                } // end not the first peak in trace
+                time_old = time_new;
+
+            } // end > thr
+        } // end trace
+
+    } // end loop on peaks_all_delay
 
 }
 
 //------------------------------------------------------------------------------
-void find_peaks_from_vector(){
-    //int n,i,k;
-    int index_old, index_new;
-    index_old = index_new = 0;
-    for(int i=0;i<ind_peaks_all_delay; i++){
-        if(peaks_all_delay[0][i]==-1){
-            index_old = 0;
-            index_new = 0;
-        }else{
-        if(peaks_all_delay[1][i] > thr_to_find_peaks){
-            index_new = peaks_all_delay[0][i];
-            if(index_old>0){
-                ptrHistDelays[nfile] -> Fill(index_new - index_old);
-            }
-            index_old = index_new;
-        }
-        }
-        }
-//          cout<<peaks_all_delay[0][i]<<"\t"<<peaks_all_delay[1][i]<<endl;
+void DivideAreaDCR_DCR_0_5_DCR_1_5(){
+    for(int i=0; i<n_DCR; i++){
+        DCR_Area[nfile][i]    = DCR[nfile][i] / Area;
+        errDCR_Area[nfile][i] = errDCR[nfile][i] / Area;
+    }
 
+    DCR_pe_0_5_Area_vect[nfile]    = DCR_pe_0_5_vect[nfile] / Area;
+    errDCR_pe_0_5_Area_vect[nfile] = errDCR_pe_0_5_vect[nfile] / Area;
+    DCR_pe_1_5_Area_vect[nfile]    = DCR_pe_1_5_vect[nfile] / Area;
+    errDCR_pe_1_5_Area_vect[nfile] = errDCR_pe_1_5_vect[nfile] / Area;
+
+    DCR_pe_0_5_Area_delays_vect[nfile] = DCR_pe_0_5_delays_vect[nfile] / Area;
+    errDCR_pe_0_5_Area_delays_vect[nfile] = errDCR_pe_0_5_delays_vect[nfile] / Area;
+    DCR_pe_1_5_Area_delays_vect[nfile] = DCR_pe_1_5_delays_vect[nfile] / Area;
+    errDCR_pe_1_5_Area_delays_vect[nfile] = errDCR_pe_1_5_delays_vect[nfile] / Area;
 }
 
 //------------------------------------------------------------------------------
@@ -2065,6 +2242,16 @@ void show_AVG_trace_window(TCanvas *canv, float *tracet, float *tracev, int trac
 void Get_DCR_temp_and_errDCR_temp(){
     DCR_temp[nfile] = expDel->GetParameter(0)*TMath::Power(10,9);
     errDCR_temp[nfile] = expDel->GetParError(0)*TMath::Power(10,9);
+}
+
+//-----------------------------------------------------------------------------
+double GetDCRfromDelays(){
+    return expDel->GetParameter(0)*TMath::Power(10,9);
+}
+
+//-----------------------------------------------------------------------------
+double GetErrDCRfromDelays(){
+    return expDel->GetParError(0)*TMath::Power(10,9);
 }
 
 //------------------------------------------------------------------------------
@@ -4082,6 +4269,7 @@ void DCR_CT_1SiPM_1HV_NO_Delays(string file1, int last_event_n){
     // DCR_func
     gDCR_1 = DCR_func_NO_Delays(file1,last_event_n, 1, c);
 
+
     TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); DCR (Hz)");
     DCR_mg->Add(gDCR_1);
 
@@ -4156,7 +4344,7 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     first_time_main_called = true; //will be set to false after the Analysis function is called
     ind_peaks_all = 0;
     for(int i=0; i<max_peaks; i++){peaks_all[i] = 0;}
-    min_thr_to_find_peaks = min_thr_to_find_peaks_vect[0];
+    min_thr_to_find_peaks = min_thr_to_find_peaks;
     // DCR_func
     gDCR_1 = DCR_func_NO_Delays(file1,last_event_n, nfiletot, c);
 
@@ -4165,7 +4353,7 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     first_time_main_called = true; //will be set to false after the Analysis function is called
     ind_peaks_all = 0;
     for(int i=0; i<max_peaks; i++){peaks_all[i] = 0;}
-    min_thr_to_find_peaks = min_thr_to_find_peaks_vect[1];
+    min_thr_to_find_peaks = min_thr_to_find_peaks;
     // DCR_func
     gDCR_2 = DCR_func_NO_Delays(file2,last_event_n, nfiletot, c);
 
@@ -4174,7 +4362,7 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
     first_time_main_called = true; //will be set to false after the Analysis function is called
     ind_peaks_all = 0;
     for(int i=0; i<max_peaks; i++){peaks_all[i] = 0;}
-    min_thr_to_find_peaks = min_thr_to_find_peaks_vect[2];
+    min_thr_to_find_peaks = min_thr_to_find_peaks;
     // DCR_func
     gDCR_3 = DCR_func_NO_Delays(file3,last_event_n, nfiletot, c);
 
@@ -4402,6 +4590,7 @@ void DCR_CT_No_Stair(string file1, int last_event_n, float thr_0_5_pe, float thr
     //TRUE:
     find_peaks_bool = true;
     DCR_DELAYS_bool = true; //DCR from delays
+    fit_hist_del_bool = false;
     DO_NOT_DELETE_HIST_LED = true;
     DCR_from_cnt_bool = true;
 
