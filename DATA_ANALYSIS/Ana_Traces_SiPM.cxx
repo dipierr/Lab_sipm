@@ -3,19 +3,6 @@
 /******************************************************************************
  *  Ana_Traces_SiPM.cxx                                                       *
  *                                                                            *
- *  Read Ana_Traces_SiPM_ReadMe.md and/or the code before use.                *
- *                                                                            *
- *  Key points:                                                               *
- *  (1) Open root:                                                            *
- *          $ root -l                                                         *
- *  (2) Compile the macro:                                                    *
- *          root[0] .L Ana_Traces_SiPM.cxx++                                  *
- *  (3) Run the desired function:                                             *
- *          root [1] DCR_CT_1SiPM_1HV_all_delays(string file1, int last_event_n);        *
- *          root [1] DCR_CT_1SiPM_3HVs_all_delays(string file1, string file2,            *
- *                    string file3, int last_event_n)                         *
- *          root [1] Ana1(string file1, int last_event_n,                     *
- *                    bool display_one_ev_param);                             *
  *                                                                            *
  *  Davide Depaoli 2018                                                       *
  *  Alessio Berti  2018                                                       *
