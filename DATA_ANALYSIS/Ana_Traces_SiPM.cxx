@@ -11,8 +11,8 @@
  *  (2) Compile the macro:                                                    *
  *          root[0] .L Ana_Traces_SiPM.cxx++                                  *
  *  (3) Run the desired function:                                             *
- *          root [1] DCR_CT_1SiPM_1HV(string file1, int last_event_n);        *
- *          root [1] DCR_CT_1SiPM_3HVs(string file1, string file2,            *
+ *          root [1] DCR_CT_1SiPM_1HV_all_delays(string file1, int last_event_n);        *
+ *          root [1] DCR_CT_1SiPM_3HVs_all_delays(string file1, string file2,            *
  *                    string file3, int last_event_n)                         *
  *          root [1] Ana1(string file1, int last_event_n,                     *
  *                    bool display_one_ev_param);                             *
@@ -127,13 +127,11 @@ typedef struct {
 
 
 // PREDEFINED
-void DCR_CT_1SiPM_1HV(string file1, int last_event_n);
-void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n);
+void DCR_CT_1SiPM_nHVs(string filelist, int nfile, int nfile_in_list, int last_event_n
 void Ana1(string file1, int last_event_n, float threshold, bool display_one_ev_param);
 void Ana3(string file1, string file2, string file3, int last_event_n);
 void Ana_LED(string file1, int last_event_n);
 void Ana_Ped(string file1, int last_event_n);
-void DCR_CT_1SiPM_nHVs(string filelist, int nfile, int nfile_in_list, int last_event_n);
 
 // SECONDARY
 void Analysis(string file, int last_event_n, bool display, TCanvas *c);
@@ -195,6 +193,8 @@ void DCR_CT_1SiPM_3HVs_NO_Delays(string file1, string file2, string file3, int l
 void DCR_CT_1SiPM_5HVs_NO_Delays(string filelist, int last_event_n);
 void DCR_discriminator(string file1, int last_event_n, int thr_to_find_peaks);
 void DCR_CT_No_Stair(string file1, int last_event_n, float thr_0_5_pe, float thr_1_5_pe);
+void DCR_CT_1SiPM_1HV_all_delays(string file1, int last_event_n);
+void DCR_CT_1SiPM_3HVs_all_delays(string file1, string file2, string file3, int last_event_n);
 
 
 // HELP
@@ -580,7 +580,7 @@ TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[7])*(x-[7])/(
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void DCR_CT_1SiPM_1HV(string file1, int last_event_n){
+void DCR_CT_1SiPM_1HV_all_delays(string file1, int last_event_n){
     //TRUE:
     find_peaks_bool = true;
     fit_hist_del_bool = true;
@@ -658,7 +658,7 @@ void DCR_CT_1SiPM_1HV(string file1, int last_event_n){
 
 
 //------------------------------------------------------------------------------
-void DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n){
+void DCR_CT_1SiPM_3HVs_all_delays(string file1, string file2, string file3, int last_event_n){
 
     //TRUE:
     find_peaks_bool = true;
@@ -4229,8 +4229,8 @@ void help(){
     cout<<"Ana_Traces_SiPM.cxx"<<endl;
     cout<<"PREDEFINED FUNCTIONS:"<<endl;
 
-    cout<<"\tvoid DCR_CT_1SiPM_1HV(string file1, int last_event_n);"<<endl;
-    cout<<"\tvoid DCR_CT_1SiPM_3HVs(string file1, string file2, string file3, int last_event_n);"<<endl;
+    cout<<"\tvoid DCR_CT_1SiPM_1HV_all_delays(string file1, int last_event_n);"<<endl;
+    cout<<"\tvoid DCR_CT_1SiPM_3HVs_all_delays(string file1, string file2, string file3, int last_event_n);"<<endl;
     cout<<"\tvoid Ana1(string file1, int last_event_n, bool display_one_ev_param);"<<endl;
     cout<<"\tvoid Ana_LED(string file1, int last_event_n);"<<endl;
     cout<<"\tvoid Ana_Ped(string file1, int last_event_n);"<<endl;
