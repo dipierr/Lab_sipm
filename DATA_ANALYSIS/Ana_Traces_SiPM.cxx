@@ -118,7 +118,8 @@ void Ana1(string file1, int last_event_n, float threshold, bool display_one_ev_p
 void Ana3(string file1, string file2, string file3, int last_event_n);
 void Ana_LED(string file1, int last_event_n);
 void Ana_Ped(string file1, int last_event_n);
-void DCR_CT_1SiPM_nHVs(string filelist, int nfile, int nfile_in_list, int last_event_n);
+void DCR_CT_1SiPM_1HV(string file, int last_event_n);
+void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n);
 
 
 // SECONDARY
@@ -300,7 +301,7 @@ float maxyhist = 200;
 float maxyHistCharge = 50;
 float maxyhistAllPeaks = 200;
 float maxyhistDCR = 200;
-float maxyhistDelays = 200;
+float maxyhistDelays = 500;
 float w = 1000;
 float h = 800;
 int bins_Volt = 204;
@@ -318,7 +319,7 @@ int bins_Charge = 100;
 
 // DELAYS distribution
 float expDelLow_max= 40.;
-float expDelHigh_max = 160.;
+float expDelHigh_max = 500.;
 
 //-------------
 //-------------
@@ -854,6 +855,89 @@ void Ana_Ped(string file1, int last_event_n){
     ptrHistCharge->Draw();
 
 }
+
+
+
+//------------------------------------------------------------------------------
+void DCR_CT_1SiPM_1HV(string file1, int last_event_n){
+    //TRUE:
+    find_peaks_bool = true;
+    DCR_from_cnt_bool = true;
+    DO_NOT_DELETE_HIST_LED = true;
+    DCR_DELAYS_bool = true;
+    fit_hist_del_bool = false;
+
+    smooth_trace_bool = true;
+
+    // Print the name of the file:
+    cout<<"Analysing file:"<<endl;
+    cout<<"file = "<<file1<<endl;
+
+    nfile = 0;
+
+    TCanvas *c = new TCanvas("Trace","Trace",w,h);
+
+    char h1[20], h2[20], h3[20];
+    char k_temp[2] = "1";
+    sprintf(h1, "histDelays");
+    sprintf(h2, "histAllPeaks");
+    sprintf(h3, "histDCRthr");
+
+    //new hists:
+    ptrHistDelays[0]   = new TH1D(strcat(h1,k_temp),"",bins_Delays,0,maxyhistDelays);
+    ptrHistAllPeaks[0] = new TH1D(strcat(h2,k_temp),"",bins_DCR,0,maxyhistAllPeaks);
+    ptrHistDCRthr[0]   = new TH1D(strcat(h3,k_temp),"",bins_DCR,0,maxyhistDCR);
+
+    // colors:
+    color_file[0] = kGreen+1;
+
+    opacity = 0.3;
+
+
+    // LOOP ON FILES:
+
+    ptrHistAllPeaks[0]->Reset();
+    ptrHistDelays[0]->Reset();
+    DCR_cnt = 0;
+    DCR_from_cnt = 0;
+    trace_time = 0;
+    n_ev_tot = 0;
+
+    first_time_main_called = true; //will be set to false after the Analysis function is called
+    ind_peaks_all = 0;
+    for(int j=0; j<max_peaks; j++){
+        peaks_all[j] = 0;
+    }
+    // DCR_func
+    gDCR[0] = DCR_func_NO_Delays(file1,last_event_n, 1, c);
+    delete[] gDCR_temp;
+
+
+
+    TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); $\\frac{DCR}{mm^2}$ (Hz)");
+    DCR_mg->Add(gDCR[0]);
+
+
+    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop");
+
+    cDCR_loop->SetGrid();
+    cDCR_loop->SetLogy();
+    DCR_mg->Draw("A3L");
+
+    // 0.5 pe
+    cout<<"     DCR at 0.5 pe from cnt    = ("<<DCR_pe_0_5_Area_vect[0]*n6*Area<<" +- "<<errDCR_pe_0_5_Area_vect[0]*n6*Area<<") MHz"<<endl;
+    cout<<"     DCR at 0.5 pe from delays = ("<<DCR_pe_0_5_Area_delays_vect[0]*n6*Area<<" +- "<<errDCR_pe_0_5_Area_delays_vect[0]*n6*Area<<") MHz"<<endl;
+
+    // 1.5 pe
+    cout<<"     DCR at 1.5 pe from cnt = ("<<DCR_pe_1_5_Area_vect[0]*n6*Area<<" +- "<<errDCR_pe_1_5_Area_vect[0]*n6*Area<<") MHz"<<endl;
+    cout<<"     DCR at 1.5 pe from delays = ("<<DCR_pe_1_5_Area_delays_vect[0]*n6*Area<<" +- "<<errDCR_pe_1_5_Area_delays_vect[0]*n6*Area<<") MHz"<<endl;
+
+    cout<<endl;
+
+
+}
+
+
 
 //------------------------------------------------------------------------------
 void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
