@@ -141,6 +141,7 @@ def main(**kwargs):
             h=h+1
 
     #plot I-V
+    plt.figure(figsize=(12, 7))
     plt.plot(V, I, color='blue', marker='o', linestyle='None', markersize=1)
     plt.xlabel('V (V)', fontsize = 18)
     plt.ylabel('I ('+'$\mu$'+'A)', fontsize = 18)
