@@ -7,7 +7,7 @@
 |   I-V_Analysis.py                                                             |
 |                                                                               |
 |   File to be analyzed: tab separated, written as:                             |
-|   V (V)   I (muA) errI (muA)                                                  | 
+|   V (V)   I (muA) errI (muA)                                                  |
 |   with NO header                                                              |
 |                                                                               |
 |   Before Vdb: linear fit                                                      |
@@ -16,10 +16,10 @@
 |   Reference:                                                                  |
 |   Nagy Ferenc & al. - A model based DC analysis of SiPM breakdown voltages    |
 |                                                                               |
-|                                                                               |     
+|                                                                               |
 |   Davide Depaoli 2018                                                         |
 |                                                                               |
-|                                                                               | 
+|                                                                               |
 ---------------------------------------------------------------------------------
 '''
 
@@ -50,13 +50,13 @@ def line_fit(p,x):
 def parabola_fit(p,x):
     a, b, c = p
     return a*(x)**2+b*x+c
-    
+
 def main(**kwargs):
-    
+
 #-------------------------------------------------------------------------------
 #--------------------------------[   LOG(I) - V   ]-----------------------------
 #-------------------------------------------------------------------------------
-    
+
     low_lim = 24.2
     central_lim_low=26
     central_lim_high=26.5
@@ -77,9 +77,9 @@ def main(**kwargs):
     #input_file = "I-V_Dark_02"
     file = open(kwargs['input_file'], "r")
     lines = file.read().split("\n")
-    
+
     print(kwargs['input_file']+ '\n')
-    
+
     # define length of columns
     I = ["" for x in range(len(lines))]
     V = ["" for x in range(len(lines))]
@@ -96,7 +96,7 @@ def main(**kwargs):
         V[j]=float(values[0])
         I[j]=float(values[1])
         errI[j]=float(values[2])
-        
+
         if low_lim < V[j] < central_lim_low:
             before_Vbd=before_Vbd+1
         if central_lim_high < V[j] < up_lim:
@@ -104,7 +104,7 @@ def main(**kwargs):
         if central_lim_high_2 < V[j] < up_lim:
             after_Vbd_2=after_Vbd_2+1
         j=j+1
-        
+
 
     V1 = ["" for x in range(before_Vbd)]
     I1 = ["" for x in range(before_Vbd)]
@@ -160,7 +160,7 @@ def main(**kwargs):
     data1 = RealData(V1, I1, sx=errV, sy=errI1)
     odr1 = ODR(data1, fit1_model, beta0=[1.,1.])
     out = odr1.run()
-    out.pprint() 
+    out.pprint()
     pcov1ODR = odr1.output.cov_beta # Covariance Matrix
     optimizedParameters1 = odr1.output.beta # fit parameters
 
@@ -199,7 +199,7 @@ def main(**kwargs):
     #-----------------
     #   INTERSECTION 1
     #-----------------
-    div_int = 0.000001
+    div_int = 0.0000005
     div_int_close = 0.0000001
     xfit_int = np.arange(intersect_low, intersect_up,div_int)
 
@@ -235,7 +235,7 @@ def main(**kwargs):
 
     sigma_1 = sigma_1 + pcov1ODR[0,0] * df_dm * df_dm + pcov1ODR[0,1] * df_dm * df_dq
     sigma_1 = sigma_1 + pcov1ODR[1,0] * df_dq * df_dm + pcov1ODR[1,1] * df_dq * df_dq
-    
+
     sigma_1 = sigma_1**0.5
 
     print( '\nsigma_1 = '+ str(sigma_1))
@@ -276,9 +276,9 @@ def main(**kwargs):
 
     sigma_2 = sigma_2 + pcov1ODR[0,0] * df_dm * df_dm + pcov1ODR[0,1] * df_dm * df_dq
     sigma_2 = sigma_2 + pcov1ODR[1,0] * df_dq * df_dm + pcov1ODR[1,1] * df_dq * df_dq
-    
+
     sigma_2 = sigma_2**0.5
-    
+
     errVbd_logI_V = sigma_2
     print ('\nsigma_2 = '+str(sigma_2))
 
@@ -293,14 +293,14 @@ def main(**kwargs):
     upErr = IntersectionUp - Intersection
     if round(upErr,2) != round(downErr,2):
         print ('ERROR, check the code')
-    
+
     print('\n\nMEAN WAY')
     print( 'Intersection = '+str( round(Intersection,2))+ '+-'+ str(round(upErr,2)))
-    
-    
-    
-    
-    
+
+
+
+
+
     print('\n\n\n')
     print('------------------------------')
     print('-------[   RESULTS   ]--------')
@@ -314,4 +314,3 @@ def main(**kwargs):
 if __name__ == '__main__':
     args = PARSER.parse_args()
     main(**args.__dict__)
-

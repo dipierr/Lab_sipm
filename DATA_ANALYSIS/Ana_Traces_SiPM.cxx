@@ -260,8 +260,8 @@ float pe_1_5_vect[nfilemax] = {23., 25., 28., 30., 30., 30., 30., 30., 30., 30.}
 double Area = 36.00;
 
 // ONLY for LED measures
-int minLED_amp = 290;//168;//115;  // window: min time for peak (ns) for LED
-int maxLED_amp = 305;//176;//125;  // window: max time for peak (ns) for LED
+int minLED_amp = 168;//290;//115;  // window: min time for peak (ns) for LED
+int maxLED_amp = 176;//305;//125;  // window: max time for peak (ns) for LED
 double time_area_low = 30;  // time for the area before the LED peak (ns)
 double time_area_high = 200; // time for the area after the LED peak (ns)
 int dcr_mintp  = minLED_amp + 200;
