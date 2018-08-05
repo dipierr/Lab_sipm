@@ -52,7 +52,7 @@
 const int tot = timeDown+timeUp+1;
 
 
-void DLED_LineExp(){
+void DLED_Line_Exp(){
 
     double x[tot], y[tot], y_DLED[tot], y1[tot], ysum1[tot], ysum1_DLED[tot], y2[tot], ysum2[tot], ysum2_DLED[tot], y3[tot], ysum3[tot], ysum3_DLED[tot],y4[tot], ysum4[tot], ysum4_DLED[tot],y5[tot], ysum5[tot], ysum5_DLED[tot];
     double min = 0;
