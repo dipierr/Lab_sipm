@@ -50,7 +50,7 @@
 
 
 const int tot = timeDown+timeUp+1;
-const double A = 1;
+
 
 
 
@@ -86,7 +86,7 @@ void DLED_02(){
     // }
     for(int i=timeUp+1; i<=timeUp+timeDown; i++){
         x[i] = i;
-        y[i] = y[timeUp] * TMath::Exp(- k_fall * (i - timeUp));
+        y[i] = y[timeUp] *TMath::Exp(- k_fall * (i - timeUp));
     }
 
     //yi
