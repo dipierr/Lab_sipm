@@ -48,7 +48,6 @@
 #define timeDown 200
 #define k_fall 0.01
 
-
 const int tot = timeDown+timeUp+1;
 
 
@@ -251,6 +250,9 @@ void DLED_Line_Exp(){
     DLED_2timeUp_inf->cd(2);
     grsum5_DLED->Draw("al");
 
+    //////////////////////
+    ///   AXIS TITLE   ///
+    //////////////////////
 
     gr->GetXaxis()->SetTitle("Time (a.u.)");
     gr1->GetXaxis()->SetTitle("Time (a.u.)");
@@ -290,6 +292,10 @@ void DLED_Line_Exp(){
     grsum3_DLED->GetYaxis()->SetTitle("Amplitude (a.u.)");
     grsum4_DLED->GetYaxis()->SetTitle("Amplitude (a.u.)");
     grsum5_DLED->GetYaxis()->SetTitle("Amplitude (a.u.)");
+
+    ///////////////////////////////////////////////////////////////////////////
+
+
 
     grsum1->SetLineWidth(2);
     grsum2->SetLineWidth(2);
