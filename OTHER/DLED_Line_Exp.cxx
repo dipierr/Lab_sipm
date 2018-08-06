@@ -55,7 +55,7 @@ const int tot = timeDown+timeUp+1;
 
 void DLED_Line_Exp(){
 
-    double x[tot], x_shift[tot], y[tot], y_shift[tot], y_DLED[tot], y1[tot], ysum1[tot], ysum1_DLED[tot], y2[tot], ysum2[tot], ysum2_DLED[tot], y3[tot], ysum3[tot], ysum3_DLED[tot],y4[tot], ysum4[tot], ysum4_DLED[tot],y5[tot], ysum5[tot], ysum5_DLED[tot];
+    double x[tot], x_shift[tot], y[tot], y_shift[tot], y_DLED[tot], y1[tot], ysum1[tot], ysum1_DLED[tot], y2[tot], ysum2[tot], ysum2_DLED[tot], y3[tot], ysum3[tot], ysum3_DLED[tot],y4[tot], ysum4[tot], ysum4_DLED[tot],y5[tot], ysum5[tot], ysum5_DLED[tot], y_DLED_2[tot], y_DLED_3[tot], y_DLED_4[tot], y_DLED_5[tot];
     double min = 0;
     double max = 100;
     int dleddt = timeUp;
@@ -66,6 +66,10 @@ void DLED_Line_Exp(){
     int d4 = 2*timeUp; //DLED_2timeUp
     int d5 = 10*timeUp; //DLED_2timeUp_inf
     int k=0;
+    int dleddt2 = 2;
+    int dleddt3 = 4;
+    int dleddt4 = 7;
+    int dleddt5 = 10;
 
     cout<<"timeUp = "<<timeUp<<endl;
     cout<<"d1     = "<<d1<<endl;
@@ -79,7 +83,7 @@ void DLED_Line_Exp(){
     dyDown = (max-min)/timeDown;
 
     for(int i=0; i<tot; i++){
-        x[i] = x_shift[i] =  y[i] = y_DLED[i] = y1[i] = ysum1[i]= ysum1_DLED[i] = y2[i] = ysum2[i]= ysum2_DLED[i] = y3[i] = ysum3[i]= ysum3_DLED[i] = y4[i] = ysum4[i]= ysum4_DLED[i] = y5[i] = ysum5[i]= ysum5_DLED[i] = 0.;
+        x[i] = x_shift[i] =  y[i] = y_DLED[i] = y1[i] = ysum1[i]= ysum1_DLED[i] = y2[i] = ysum2[i]= ysum2_DLED[i] = y3[i] = ysum3[i]= ysum3_DLED[i] = y4[i] = ysum4[i]= ysum4_DLED[i] = y5[i] = ysum5[i]= ysum5_DLED[i] = ysum5_DLED[i] = y_DLED_2[i] = y_DLED_3[i] = y_DLED_4[i] = y_DLED_5[i]= 0.;
     }
 
     //x
@@ -143,6 +147,20 @@ void DLED_Line_Exp(){
         ysum5_DLED[i] = ysum5[i]-ysum5[i - dleddt];
     }
 
+    // DLED with different dleddt
+    for(int i=dleddt2; i<tot; i++){
+        y_DLED_2[i] = y[i]-y[i - dleddt2];
+    }
+    for(int i=dleddt3; i<tot; i++){
+        y_DLED_3[i] = y[i]-y[i - dleddt3];
+    }
+    for(int i=dleddt4; i<tot; i++){
+        y_DLED_4[i] = y[i]-y[i - dleddt4];
+    }
+    for(int i=dleddt5; i<tot; i++){
+        y_DLED_5[i] = y[i]-y[i - dleddt5];
+    }
+
     //y
     TCanvas *DLED_Original = new TCanvas("DLED_Original","DLED_Original");
     DLED_Original->Divide(1,2);
@@ -158,6 +176,33 @@ void DLED_Line_Exp(){
     gr_DLED->SetLineColor(kRed);
     DLED_Original->cd(2);
     gr_DLED->Draw("al");
+
+
+    // different dleddt
+    TCanvas *DLED_Different_dleddt = new TCanvas("DLED_Different_dleddt","DLED_Different_dleddt");
+
+    TGraph* gr_DLED_2 = new TGraph(tot,x,y_DLED_2);
+    gr_DLED_2->SetLineColor(kAzure+1);
+
+    TGraph* gr_DLED_3 = new TGraph(tot,x,y_DLED_3);
+    gr_DLED_3->SetLineColor(kGreen+1);
+
+    TGraph* gr_DLED_4 = new TGraph(tot,x,y_DLED_4);
+    gr_DLED_4->SetLineColor(kMagenta);
+
+    TGraph* gr_DLED_5 = new TGraph(tot,x,y_DLED_5);
+    gr_DLED_5->SetLineColor(kViolet-1);
+
+    TMultiGraph *gDLED_Different_dleddt = new TMultiGraph("gDLED_Different_dleddt", ";Time (a.u.); Amplitude (a.u.)");
+    gDLED_Different_dleddt->Add(gr);
+    gDLED_Different_dleddt->Add(gr_DLED);
+    gDLED_Different_dleddt->Add(gr_DLED_2);
+    gDLED_Different_dleddt->Add(gr_DLED_3);
+    gDLED_Different_dleddt->Add(gr_DLED_4);
+    gDLED_Different_dleddt->Add(gr_DLED_5);
+
+    DLED_Different_dleddt->cd();
+    gDLED_Different_dleddt->Draw("al");
 
 
     //y and y_shift
@@ -305,6 +350,8 @@ void DLED_Line_Exp(){
     grsum5->GetXaxis()->SetTitle("Time (a.u.)");
 
     gr_DLED->GetXaxis()->SetTitle("Time (a.u.)");
+    gr_DLED_2->GetXaxis()->SetTitle("Time (a.u.)");
+    gr_DLED_3->GetXaxis()->SetTitle("Time (a.u.)");
     grsum1_DLED->GetXaxis()->SetTitle("Time (a.u.)");
     grsum2_DLED->GetXaxis()->SetTitle("Time (a.u.)");
     grsum3_DLED->GetXaxis()->SetTitle("Time (a.u.)");
@@ -447,6 +494,8 @@ void DLED_Line_Exp(){
     gr_shift->GetXaxis()->SetRangeUser(minx,maxx);
 
     gr_DLED->GetXaxis()->SetRangeUser(minx,maxx);
+    gr_DLED_2->GetXaxis()->SetRangeUser(minx,maxx);
+    gr_DLED_3->GetXaxis()->SetRangeUser(minx,maxx);
     grsum1_DLED->GetXaxis()->SetRangeUser(minx,maxx);
     grsum2_DLED->GetXaxis()->SetRangeUser(minx,maxx);
     grsum3_DLED->GetXaxis()->SetRangeUser(minx,maxx);
@@ -471,6 +520,7 @@ void DLED_Line_Exp(){
     DLED_timeUp_2timeUp->cd(2)->SetGridy();
     DLED_2timeUp->cd(2)->SetGridy();
     DLED_2timeUp_inf->cd(2)->SetGridy();
+    DLED_Different_dleddt->SetGridy();
 
 
     DLED_Original->Update();
@@ -480,9 +530,14 @@ void DLED_Line_Exp(){
     DLED_2timeUp->Update();
     DLED_2timeUp_inf->Update();
 
-
-
     DLED_Original_Shift->Update();
+
+    double maxx_diff_dleddt = (int)(maxx*0.375);
+    double maxy_diff_dleddt = maxy;
+    double miny_diff_dleddt = -20;
+    gDLED_Different_dleddt->GetXaxis()->SetRangeUser(minx,maxx_diff_dleddt);
+    gDLED_Different_dleddt->GetYaxis()->SetRangeUser(miny_diff_dleddt,maxy_diff_dleddt);
+    DLED_Different_dleddt->Update();
 
 
 }
