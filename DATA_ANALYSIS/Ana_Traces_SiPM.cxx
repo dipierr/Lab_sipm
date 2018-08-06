@@ -253,8 +253,8 @@ float max_pe_0_5 = 15; //max value for 0.5pe threshold (mV)
 float min_pe_1_5 = 28; //min value for 1.5pe threshold (mV)
 float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
-float pe_0_5_vect[nfilemax] = {10., 10., 10., 10., 10., 10., 10., 10., 10., 10.};
-float pe_1_5_vect[nfilemax] = {23., 25., 28., 30., 30., 30., 30., 30., 30., 30.};
+float pe_0_5_vect[nfilemax] = {8.,  8., 10., 11., 12., 13., 10., 10., 10., 10.};
+float pe_1_5_vect[nfilemax] = {23., 26., 31., 35., 40., 41., 30., 30., 30., 30.};
 
 
 // AREA
@@ -958,7 +958,7 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
     DCR_DELAYS_bool = true;
     fit_hist_del_bool = false;
 
-    smooth_trace_bool = true;
+    smooth_trace_bool = false;
 
     // OPEN FILE AND READ FILE LIST
     ifstream OpenFile (filelist.c_str());
@@ -1055,20 +1055,34 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
     legendDCR_loop->SetNColumns(3);
     legendDCR_loop->Draw();
 
-
+    cout<<endl;
+    cout<<endl;
+    cout<<"FILES ANALIZED:"<<endl;
+    for(int i=0; i<nfiletot; i++){
+        cout<<"file "<<i+1<<" = "<<file[i]<<endl;
+    }
+    cout<<endl;
+    cout<<endl;
 
     for(int i=0; i<nfiletot; i++){
-        // nfile
-        cout<<legend_entry[i]<<endl;
+        // // nfile
+        // cout<<legend_entry[i]<<endl;
+        //
+        // // 0.5 pe
+        // cout<<"     DCR at 0.5 pe from cnt    = ("<<DCR_pe_0_5_Area_vect[i]*n6*Area<<" +- "<<errDCR_pe_0_5_Area_vect[i]*n6*Area<<") MHz"<<endl;
+        // cout<<"     DCR at 0.5 pe from delays = ("<<DCR_pe_0_5_Area_delays_vect[i]*n6*Area<<" +- "<<errDCR_pe_0_5_Area_delays_vect[i]*n6*Area<<") MHz"<<endl;
+        //
+        // // 1.5 pe
+        // cout<<"     DCR at 1.5 pe from cnt = ("<<DCR_pe_1_5_Area_vect[i]*n6*Area<<" +- "<<errDCR_pe_1_5_Area_vect[i]*n6*Area<<") MHz"<<endl;
+        // cout<<"     DCR at 1.5 pe from delays = ("<<DCR_pe_1_5_Area_delays_vect[i]*n6*Area<<" +- "<<errDCR_pe_1_5_Area_delays_vect[i]*n6*Area<<") MHz"<<endl;
+        //
+        // cout<<endl;
 
-        // 0.5 pe
-        cout<<"     DCR at 0.5 pe from cnt    = ("<<DCR_pe_0_5_Area_vect[i]*n6*Area<<" +- "<<errDCR_pe_0_5_Area_vect[i]*n6*Area<<") MHz"<<endl;
-        cout<<"     DCR at 0.5 pe from delays = ("<<DCR_pe_0_5_Area_delays_vect[i]*n6*Area<<" +- "<<errDCR_pe_0_5_Area_delays_vect[i]*n6*Area<<") MHz"<<endl;
-
-        // 1.5 pe
-        cout<<"     DCR at 1.5 pe from cnt = ("<<DCR_pe_1_5_Area_vect[i]*n6*Area<<" +- "<<errDCR_pe_1_5_Area_vect[i]*n6*Area<<") MHz"<<endl;
-        cout<<"     DCR at 1.5 pe from delays = ("<<DCR_pe_1_5_Area_delays_vect[i]*n6*Area<<" +- "<<errDCR_pe_1_5_Area_delays_vect[i]*n6*Area<<") MHz"<<endl;
-
+        cout<< "HV = "<<legend_entry[i]<<";"<<endl;
+        cout<< "index = find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV);"<<endl;
+        cout<< "DCR_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<DCR_pe_0_5_Area_vect[i]*n6*Area<<";"<<endl;
+        cout<< "errDCR_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<errDCR_pe_0_5_Area_vect[i]*n6*Area<<";"<<endl;
+        cout<< "CT_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<DCR_pe_1_5_Area_vect[i]/DCR_pe_0_5_Area_vect[i]<<";"<<endl;
         cout<<endl;
     }
 
