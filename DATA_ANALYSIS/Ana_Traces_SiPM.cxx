@@ -167,7 +167,7 @@ Float_t GetStdDev(std::vector<Float_t> vec);
 void EvaluateCrossTalk(double DCR_0_5, double errDCR_0_5, double DCR_1_5, double errDCR_1_5, double* CT);
 double GetDCRfromDelays();
 double GetErrDCRfromDelays();
-
+void Init_gaus_sum_12();
 
 
 
@@ -546,6 +546,14 @@ TF1 *expDel = new TF1("expDel","[1]*TMath::Exp(-[0]*x)",expDelLow_max,expDelHigh
 TF1 *gausFit0 = new TF1("gausFit0","gaus",-100,100);
 TF1 *gausFit1 = new TF1("gausFit1","gaus",-100,100);
 TF1 *gausFit2 = new TF1("gausFit2","gaus",-100,100);
+
+TF1 *gaus_sum_12 = new TF1("gaus_sum_12", "[0]*TMath::Exp( - (x-[2]-[3])*(x-[2]-[3])/( 2*([4]*[4] + [5]*[5] )) ) + [1]*TMath::Exp( - (x-[2]-2*[3])*(x-[2]-2*[3])/( 2*([4]*[4] + 4*[5]*[5] ) ) ) " ,-100,100);
+// [0]  A_1pe
+// [1]  A_2pe
+// [2]  V0
+// [3]  g
+// [4]  Sigma_0
+// [5]  Sigma_add
 
 TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[7])*(x-[7])/( 2*[5]*[5] ) ) + [1]*TMath::Exp( - (x-[7]-[4]-[8])*(x-[7]-[4]-[8])/( 2*([5]*[5] + [6]*[6] )) ) + [2]*TMath::Exp( - (x-[7]-2*[4])*(x-[7]-2*[4])/( 2*([5]*[5] + 4*[6]*[6] ) ) ) + [3]*TMath::Exp( - (x-[7]-3*[4])*(x-[7]-3*[4])/( 2*([5]*[5] + 9*[6]*[6]) ) )" ,-100,100);
 //[H0]*TMath::Exp( - (x-[V0])*(x-[V0])/( 2*[s0]*[s0] ) ) + [H1]*TMath::Exp( - (x-[V0]-[gain])*(x-[V0]-[gain])/( 2*([s0]*[s0] + [sadd]*[sadd] )) ) + [H2]*TMath::Exp( - (x-[V0]-2*[gain])*(x-[V0]-2*[gain])/( 2*([s0]*[s0] + 4*[sadd]*[sadd] ) ) ) + [H3]*TMath::Exp( - (x-[V0]-3*[gain])*(x-[V0]-3*[gain])/( 2*([s0]*[s0] + 9*[sadd]*[sadd]) ) )
@@ -3990,6 +3998,35 @@ void help(){
     cout<<"Davide Depaoli 2018"<<endl;
     cout<<endl;
 }
+
+//------------------------------------------------------------------------------
+void Init_gaus_sum_12(){
+    // TF1 *gaus_sum_12 = new TF1("gaus_sum_12", "[0]*TMath::Exp( - (x-[2]-[3])*(x-[2]-[3])/( 2*([4]*[4] + [5]*[5] )) ) + [1]*TMath::Exp( - (x-[2]-2*[3])*(x-[2]-2*[3])/( 2*([4]*[4] + 4*[5]*[5] ) ) ) " ,-100,100);
+    // [0]  A_1pe
+    // [1]  A_2pe
+    // [2]  V0
+    // [3]  g
+    // [4]  Sigma_0
+    // [5]  Sigma_add
+
+    // Set Name
+    gaus_sum_12->SetParName(0, "A_1pe");
+    gaus_sum_12->SetParName(1, "A_2pe");
+    gaus_sum_12->SetParName(2, "V0");
+    gaus_sum_12->SetParName(3, "gain");
+    gaus_sum_12->SetParName(4, "s0");
+    gaus_sum_12->SetParName(5, "sadd");
+
+    // Initialize Parameters
+    gaus_sum_12->SetParameter(0, 800);
+    gaus_sum_12->SetParameter(1, 800);
+    gaus_sum_12->SetParameter(2, 0);
+    gaus_sum_12->SetParameter(3, 20);
+    gaus_sum_12->SetParameter(4, 2);
+    gaus_sum_12->SetParameter(5, 2);
+
+}
+
 
 
 
