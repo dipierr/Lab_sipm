@@ -1,7 +1,7 @@
 /******************************************************************************\
  * GAIN_V_SiPM_HD3_2.cxx
  *
- * GAIN values obtained by Ana_Traces_SiPM.cxx (version of 06/08/2018, 3)
+ * GAIN values obtained by Ana_Traces_SiPM.cxx (version of 06/08/2018, 4)
  *
  * KEY POINTS:
  *  > Ana1(...)
