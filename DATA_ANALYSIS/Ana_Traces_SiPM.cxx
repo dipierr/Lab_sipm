@@ -236,7 +236,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 8;//8;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
+int dleddt = 5;//8;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 50; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
@@ -586,6 +586,7 @@ void Ana1(string file1, int last_event_n, float thr, bool display_one_ev_param){
     DCR_from_cnt_bool = true;
 
     smooth_trace_bool = false;
+
 
     //Charge:
     line_bool = false;
@@ -2901,148 +2902,11 @@ void DLED_offset_remove(){
 }
 
 //------------------------------------------------------------------------------
-void smooth_trace_step(){ // smooth the trace before DLED
-  for(int i=0; i<trace_length; i+=n_smooth_trace){
-
-    // sum on n_smooth_trace
-    for(int j=i+1; j<i+n_smooth_trace; j++){
-      trace[0][i] += trace[0][j];
-      trace[1][i] += trace[1][j];
-    }
-
-    // divide for n_smooth_trace
-    trace[0][i] /= n_smooth_trace;
-    trace[1][i] /= n_smooth_trace;
-
-    // all the values of the trace from i to i+n_smooth_trace are set equal
-    for(int j=i+1; j<i+n_smooth_trace; j++){
-      trace[0][j] = trace[0][i];
-      trace[1][j] = trace[1][i];
-    }
-  }
-}
-
-
-//------------------------------------------------------------------------------
-void smooth_trace_3(){ // smooth the trace before DLED
-  for(int i=0; i<trace_length; i+=3){
-
-    // sum on 3
-    for(int j=1; j<3; j++){
-      trace[1][i] += trace[1][i+j];
-    }
-
-    // divide for 3
-    trace[1][i]   /= 3;
-    for(int j=1; j<3; j++){
-      trace[1][i+j] = trace[1][i];
-    }
-
-    // now I have something like:
-    //
-    //                    [ i ] [i+1] [i+2]
-    //  [i-3] [i-2] [i-1]
-    //
-
-    // I change the values of [ i ] and [i-1] in order to smooth the trace
-    if(i!=0){
-      double gap = trace[1][i] - trace[1][i-1];
-      trace[1][i-1] += gap/3;
-      trace[1][i]   -= gap/3;
-    }
-    // cout<<i<<endl;
-  }
-}
-
-
-//------------------------------------------------------------------------------
-void smooth_trace_4(){ // smooth the trace before DLED
-  for(int i=0; i<trace_length; i+=4){
-
-    // sum on 4
-    for(int j=1; j<4; j++){
-      trace[1][i] += trace[1][i+j];
-    }
-
-    // divide for 4
-    trace[1][i]   /= 4;
-    for(int j=1; j<4; j++){
-      trace[1][i+j] = trace[1][i];
-    }
-
-    // now I have something like:
-    //
-    //                         [ i ] [i+1] [i+2] [i+3]
-    //  [i-4] [i-3] [i-2] [i-1]
-    //
-
-    // I change the values of [i-2], [i-1], [i] and [i+1] in order to smooth the trace
-    if(i!=0){
-      double gap = (double)trace[1][i+2] - (double)trace[1][i-2];
-      trace[1][i-2] += gap/5;
-      trace[1][i-1] += gap/5*2;
-      trace[1][i]   -= gap/5*2;
-      trace[1][i+1] -= gap/5;
-    }
-  }
-}
-
-
-
-//------------------------------------------------------------------------------
-void smooth_trace_5(){ // smooth the trace before DLED
-  for(int i=0; i<trace_length; i+=5){
-
-    // sum on 5
-    for(int j=1; j<5; j++){
-      trace[1][i] += trace[1][i+j];
-    }
-
-    // divide for 5
-    trace[1][i]   /= 5;
-    for(int j=1; j<5; j++){
-      trace[1][i+j] = trace[1][i];
-    }
-
-    // now I have something like:
-    //
-    //                               [ i ] [i+1] [i+2] [i+3] [i+4]
-    //  [i-5] [i-4] [i-3] [i-2] [i-1]
-    //
-
-    // I change the values of [i-2], [i-1], [i] and [i+1] in order to smooth the trace
-    if(i!=0){
-      double gap = (double)trace[1][i+2] - (double)trace[1][i-2];
-      trace[1][i-2] += gap/5;
-      trace[1][i-1] += gap/5*2;
-      trace[1][i]   -= gap/5*2;
-      trace[1][i+1] -= gap/5;
-    }
-  }
-}
-
-
-//------------------------------------------------------------------------------
-void SmoothTraceMarkov(int window){
-
-    double temp[trace_length];
-    double diff = 1000.0;
-    TSpectrum *s = new TSpectrum();
-    for(int i=0; i<trace_length; i++){
-       temp[i] = (double)trace[1][i] + diff;
-    }
-    s->SmoothMarkov(temp, trace_length, window);
-    for (int i=0; i<trace_length; i++) {
-       trace[1][i] = (float)temp[i] - diff;
-    }
-    delete s;
-
-}
-
-//------------------------------------------------------------------------------
 void SmoothTraceN(int n){
     int max_k = n - n%2;
     double den = n + 1 - n%2;
+
+    // cout<<"SMOOTHING TRACE "<<n<<endl;
 
     // cout<<max_k<<" "<<den<<endl;
     // getchar();
@@ -3565,7 +3429,7 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
       if(smooth_trace_bool){
           int n_SmootTraceN = 2;
           SmoothTraceN(n_SmootTraceN);
-          // cout<<"Smooth trace "<<n_SmootTraceN<<" points"<<endl;
+          cout<<"Smooth trace "<<n_SmootTraceN<<" points"<<endl;
 
         // smooth_trace_step();
         // smooth_trace_3();
@@ -4763,6 +4627,147 @@ void DCR_CT_1SiPM_3HVs_all_delays(string file1, string file2, string file3, int 
     cout<<"double errCrossTalk[] ={"<<errCrossTalk[0]<<", "<<errCrossTalk[1]<<", "<<errCrossTalk[2]<<"};"<<endl;
 
 }
+
+//
+//
+// //------------------------------------------------------------------------------
+// void smooth_trace_step(){ // smooth the trace before DLED
+//   for(int i=0; i<trace_length; i+=n_smooth_trace){
+//
+//     // sum on n_smooth_trace
+//     for(int j=i+1; j<i+n_smooth_trace; j++){
+//       trace[0][i] += trace[0][j];
+//       trace[1][i] += trace[1][j];
+//     }
+//
+//     // divide for n_smooth_trace
+//     trace[0][i] /= n_smooth_trace;
+//     trace[1][i] /= n_smooth_trace;
+//
+//     // all the values of the trace from i to i+n_smooth_trace are set equal
+//     for(int j=i+1; j<i+n_smooth_trace; j++){
+//       trace[0][j] = trace[0][i];
+//       trace[1][j] = trace[1][i];
+//     }
+//   }
+// }
+//
+//
+// //------------------------------------------------------------------------------
+// void smooth_trace_3(){ // smooth the trace before DLED
+//   for(int i=0; i<trace_length; i+=3){
+//
+//     // sum on 3
+//     for(int j=1; j<3; j++){
+//       trace[1][i] += trace[1][i+j];
+//     }
+//
+//     // divide for 3
+//     trace[1][i]   /= 3;
+//     for(int j=1; j<3; j++){
+//       trace[1][i+j] = trace[1][i];
+//     }
+//
+//     // now I have something like:
+//     //
+//     //                    [ i ] [i+1] [i+2]
+//     //  [i-3] [i-2] [i-1]
+//     //
+//
+//     // I change the values of [ i ] and [i-1] in order to smooth the trace
+//     if(i!=0){
+//       double gap = trace[1][i] - trace[1][i-1];
+//       trace[1][i-1] += gap/3;
+//       trace[1][i]   -= gap/3;
+//     }
+//     // cout<<i<<endl;
+//   }
+// }
+//
+//
+// //------------------------------------------------------------------------------
+// void smooth_trace_4(){ // smooth the trace before DLED
+//   for(int i=0; i<trace_length; i+=4){
+//
+//     // sum on 4
+//     for(int j=1; j<4; j++){
+//       trace[1][i] += trace[1][i+j];
+//     }
+//
+//     // divide for 4
+//     trace[1][i]   /= 4;
+//     for(int j=1; j<4; j++){
+//       trace[1][i+j] = trace[1][i];
+//     }
+//
+//     // now I have something like:
+//     //
+//     //                         [ i ] [i+1] [i+2] [i+3]
+//     //  [i-4] [i-3] [i-2] [i-1]
+//     //
+//
+//     // I change the values of [i-2], [i-1], [i] and [i+1] in order to smooth the trace
+//     if(i!=0){
+//       double gap = (double)trace[1][i+2] - (double)trace[1][i-2];
+//       trace[1][i-2] += gap/5;
+//       trace[1][i-1] += gap/5*2;
+//       trace[1][i]   -= gap/5*2;
+//       trace[1][i+1] -= gap/5;
+//     }
+//   }
+// }
+//
+//
+//
+// //------------------------------------------------------------------------------
+// void smooth_trace_5(){ // smooth the trace before DLED
+//   for(int i=0; i<trace_length; i+=5){
+//
+//     // sum on 5
+//     for(int j=1; j<5; j++){
+//       trace[1][i] += trace[1][i+j];
+//     }
+//
+//     // divide for 5
+//     trace[1][i]   /= 5;
+//     for(int j=1; j<5; j++){
+//       trace[1][i+j] = trace[1][i];
+//     }
+//
+//     // now I have something like:
+//     //
+//     //                               [ i ] [i+1] [i+2] [i+3] [i+4]
+//     //  [i-5] [i-4] [i-3] [i-2] [i-1]
+//     //
+//
+//     // I change the values of [i-2], [i-1], [i] and [i+1] in order to smooth the trace
+//     if(i!=0){
+//       double gap = (double)trace[1][i+2] - (double)trace[1][i-2];
+//       trace[1][i-2] += gap/5;
+//       trace[1][i-1] += gap/5*2;
+//       trace[1][i]   -= gap/5*2;
+//       trace[1][i+1] -= gap/5;
+//     }
+//   }
+// }
+//
+//
+// //------------------------------------------------------------------------------
+// void SmoothTraceMarkov(int window){
+//
+//     double temp[trace_length];
+//     double diff = 1000.0;
+//     TSpectrum *s = new TSpectrum();
+//     for(int i=0; i<trace_length; i++){
+//        temp[i] = (double)trace[1][i] + diff;
+//     }
+//     s->SmoothMarkov(temp, trace_length, window);
+//     for (int i=0; i<trace_length; i++) {
+//        trace[1][i] = (float)temp[i] - diff;
+//     }
+//     delete s;
+//
+// }
 
 
 
