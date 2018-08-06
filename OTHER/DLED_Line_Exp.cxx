@@ -1,13 +1,13 @@
-//DLED.cxx
+// DLED_Line_Exp.cxx
 
 /********************************************************************************
- *  DLED.cxx                                                                    *
+ *  DLED_Line_Exp.cxx                                                           *
  *                                                                              *
  *  Plots some examples of signals analyzed using the DLED techniques           *
  *                                                                              *
  *  To RUN:                                                                     *
  *  $ root -l                                                                   *
- *  root[0] .x DLED_02.cxx                                                      *
+ *  root[0] .x DLED_Line_Exp.cxx                                                *
  *                                                                              *
  *                                                                              *
  *  Davide Depaoli 2018                                                         *
@@ -66,10 +66,10 @@ void DLED_Line_Exp(){
     int d4 = 2*timeUp; //DLED_2timeUp
     int d5 = 10*timeUp; //DLED_2timeUp_inf
     int k=0;
-    int dleddt2 = 2;
-    int dleddt3 = 4;
-    int dleddt4 = 7;
-    int dleddt5 = 10;
+    int dleddt2 = dleddt-4;
+    int dleddt3 = dleddt-2;
+    int dleddt4 = dleddt+2;
+    int dleddt5 = dleddt+4;
 
     cout<<"timeUp = "<<timeUp<<endl;
     cout<<"d1     = "<<d1<<endl;
