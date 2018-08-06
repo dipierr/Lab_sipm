@@ -1,5 +1,5 @@
 /******************************************************************************\
- * GAIN_V_SiPM_HD3_2.cxx
+ * GAIN_V_SiPM_HD3_2_GausSum.cxx
  *
  * GAIN values obtained by Ana_Traces_SiPM.cxx (version of 06/08/2018, 4)
  *
@@ -97,10 +97,10 @@
 #define h 600
 #define w 800
 
-void GAIN_V_SiPM_HD3_2();
+void GAIN_V_SiPM_HD3_2_GausSum();
 int find_index(double vect[],int N, double value);
 
-void GAIN_V_SiPM_HD3_2(){
+void GAIN_V_SiPM_HD3_2_GausSum(){
 
     // HV:
     // SiPM1:
