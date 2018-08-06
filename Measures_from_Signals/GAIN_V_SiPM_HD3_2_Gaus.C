@@ -1,5 +1,5 @@
 /******************************************************************************\
- * GAIN_V_SiPM_HD3_2_GausSum.cxx
+ * GAIN_V_SiPM_HD3_2_Gaus.cxx
  *
  * GAIN values obtained by Ana_Traces_SiPM.cxx (version of 06/08/2018, 4)
  *
@@ -8,10 +8,7 @@
  *  > dleddt = 6
  *  > NO trace smoothing
  *  > thr (parameter of Ana1(...)) set depending on the situation
- *  > fitted using gaus_sum_12, i.e.:
- *      "[0]*TMath::Exp( - (x-[2]-[3])*(x-[2]-[3])/( 2*([4]*[4] + [5]*[5] )) )
- *       + [1]*TMath::Exp( - (x-[2]-2*[3])*(x-[2]-2*[3])/( 2*([4]*[4] +
- *      4*[5]*[5] ) ) ) "
+ *  > fitted using two different gaussians using FitPanel
  *
  * FILES ANALIZED:
  *
@@ -97,10 +94,10 @@
 #define h 600
 #define w 800
 
-void GAIN_V_SiPM_HD3_2_GausSum();
+void GAIN_V_SiPM_HD3_2_Gaus();
 int find_index(double vect[],int N, double value);
 
-void GAIN_V_SiPM_HD3_2_GausSum(){
+void GAIN_V_SiPM_HD3_2_Gaus(){
 
     // HV:
     // SiPM1:
@@ -159,28 +156,28 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     HV = 32.;
     index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
     cout<< index <<endl;
-    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 1.36383e+01;
-    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 1.12055e-02;
+    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 9999;
+    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0;
 
     HV = 33;
-    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 1.59077e+01;
-    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 9.03540e-03;
+    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 9999;
+    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0;
 
     HV = 34;
-    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 1.89570e+01;
-    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 8.47637e-03;
+    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 9999;
+    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0;
 
     HV = 35;
-    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 2.17825e+01;
-    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 8.68068e-03;
+    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 9999;
+    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0;
 
     HV = 36;
-    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 2.45054e+01;
-    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 8.84089e-03;
+    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 9999;
+    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0;
 
     HV = 37;
-    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 2.68621e+01;
-    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 2.91218e-02;
+    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 9999;
+    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0;
 
 
 
@@ -190,28 +187,28 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     HV = 32.;
     index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
     cout<< index <<endl;
-    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.10810e+01;
-    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.28896e-02;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 2.63456e+01-1.43432e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0;
 
     HV = 33;
-    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.43413e+01;
-    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.27008e-02;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 3.15294e+01-1.72352e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0;
 
     HV = 34;
-    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] =  1.72045e+01;
-    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 8.79688e-03;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] =  3.66303e+01-1.94682e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0;
 
     HV = 35;
-    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.98671e+01;
-    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 9.01132e-03;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 4.11993e+01-2.13305e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0;
 
     HV = 36;
-    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 2.15711e+01;
-    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 9.60525e-03;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 4.57549e+01 - 2.33086e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0;
 
     HV = 37;
-    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 2.46153e+01;
-    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 3.50003e-02;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 5.01583e+01 - 2.51468e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0;
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -220,28 +217,28 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     HV = 32.;
     index = find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV);
     cout<< index <<endl;
-    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  1.32845e+01;
-    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  1.09552e-02;
+    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  9999;
+    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  0.;
 
     HV = 33;
-    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  1.60972e+01;
-    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  8.65181e-03;
+    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  9999;
+    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  0.;
 
     HV = 34;
-    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  1.92261e+01;
-    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 8.09490e-03 ;
+    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  9999;
+    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.;
 
     HV = 35;
-    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  2.20918e+01;
-    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  2.59910e-02;
+    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  9999;
+    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  0.;
 
     HV = 36;
-    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  2.40640e+01;
-    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  2.93357e-02;
+    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  9999;
+    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  0.;
 
     HV = 37;
-    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  2.69107e+01;
-    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  3.13209e-02;
+    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 9999;
+    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  0.;
 
 
 
@@ -262,10 +259,6 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
 
 
     //------------------------------
-    // for(int i=0; i<n_GAIN_2; i++){
-    //     HV_2[i] -=1;
-    // }
-    //------------------------------
 
     TGraphErrors *gV_GAIN_1  = new TGraphErrors(n_GAIN_1, HV_1, GAIN_1, errHV_1, errGAIN_1);
     TGraphErrors *gV_GAIN_2  = new TGraphErrors(n_GAIN_2, HV_2, GAIN_2, errHV_2, errGAIN_2);
@@ -275,19 +268,19 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     //------------------------------
 
     gV_GAIN_1->SetMarkerStyle(20);
-    gV_GAIN_1->SetMarkerColor(kOrange+1);
+    gV_GAIN_1->SetMarkerColor(kOrange+2);
     gV_GAIN_1->SetTitle();
     gV_GAIN_1->GetXaxis()->SetTitle("Bias Voltage (V)");
     gV_GAIN_1->GetYaxis()->SetTitle("GAIN (mV)");
 
     gV_GAIN_2->SetMarkerStyle(20);
-    gV_GAIN_2->SetMarkerColor(kRed);
+    gV_GAIN_2->SetMarkerColor(kOrange+2);
     gV_GAIN_2->SetTitle();
     gV_GAIN_2->GetXaxis()->SetTitle("Bias Voltage (V)");
     gV_GAIN_2->GetYaxis()->SetTitle("GAIN (mV)");
 
     gV_GAIN_3->SetMarkerStyle(20);
-    gV_GAIN_3->SetMarkerColor(kMagenta);
+    gV_GAIN_3->SetMarkerColor(kOrange+2);
     gV_GAIN_3->SetTitle();
     gV_GAIN_3->GetXaxis()->SetTitle("Bias Voltage (V)");
     gV_GAIN_3->GetYaxis()->SetTitle("GAIN (mV)");
@@ -331,15 +324,6 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     cout<<"V_bd_1 = "<<V_bd_1<<endl;
     cout<<"V_bd_2 = "<<V_bd_2<<endl;
     cout<<"V_bd_3 = "<<V_bd_3<<endl;
-
-
-    TCanvas *cGAIN = new TCanvas("cGAIN", "cGAIN",w,h);
-    cGAIN->SetGrid();
-    TMultiGraph *mgGAIN = new TMultiGraph("mgGAIN", ";Bias Voltage (V);GAIN (mV)");
-    mgGAIN->Add(gV_GAIN_1);
-    mgGAIN->Add(gV_GAIN_2);
-    mgGAIN->Add(gV_GAIN_3);
-    mgGAIN->Draw("AP");
 
 
 
