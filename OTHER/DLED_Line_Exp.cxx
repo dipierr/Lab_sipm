@@ -71,12 +71,17 @@ void DLED_Line_Exp(){
     int dleddt4 = dleddt+2;
     int dleddt5 = dleddt+4;
 
-    cout<<"timeUp = "<<timeUp<<endl;
-    cout<<"d1     = "<<d1<<endl;
-    cout<<"d2     = "<<d2<<endl;
-    cout<<"d3     = "<<d3<<endl;
-    cout<<"d4     = "<<d4<<endl;
-    cout<<"d5     = "<<d5<<endl;
+    cout<<"timeUp  = "<<timeUp<<endl;
+    cout<<"d1      = "<<d1<<endl;
+    cout<<"d2      = "<<d2<<endl;
+    cout<<"d3      = "<<d3<<endl;
+    cout<<"d4      = "<<d4<<endl;
+    cout<<"d5      = "<<d5<<endl;
+    cout<<"dleddt  = "<<dleddt<<endl;
+    cout<<"dleddt2 = "<<dleddt2<<endl;
+    cout<<"dleddt3 = "<<dleddt3<<endl;
+    cout<<"dleddt4 = "<<dleddt4<<endl;
+    cout<<"dleddt5 = "<<dleddt5<<endl;
 
 
     dyUp = (max-min)/timeUp;
