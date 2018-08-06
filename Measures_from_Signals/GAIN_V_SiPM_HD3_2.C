@@ -5,7 +5,7 @@
  *
  * KEY POINTS:
  *  > Ana1(...)
- *  > dleddt = 5
+ *  > dleddt = 6
  *  > NO trace smoothing
  *  > thr (parameter of Ana1(...)) set depending on the situation
  *  > fitted using gaus_sum_12, i.e.:
@@ -187,13 +187,61 @@ void GAIN_V_SiPM_HD3_2(){
     ///////////////////////////////////////////////////////////////////////////
     //      SiPM2
     ///////////////////////////////////////////////////////////////////////////
+    HV = 32.;
+    index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
+    cout<< index <<endl;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.10810e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.28896e-02;
 
+    HV = 33;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.43413e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.27008e-02;
+
+    HV = 34;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] =  1.72837e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 8.79688e-03;
+
+    HV = 35;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 2.00172e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 9.01132e-03;
+
+    HV = 36;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 2.15711e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 9.60525e-03;
+
+    HV = 37;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 2.46153e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 3.50003e-02;
 
 
     ///////////////////////////////////////////////////////////////////////////
     //      SiPM3
     ///////////////////////////////////////////////////////////////////////////
+    HV = 32.;
+    index = find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV);
+    cout<< index <<endl;
+    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  1.32845e+01;
+    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  1.09552e-02;
 
+    HV = 33;
+    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  1.60972e+01;
+    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  8.65181e-03;
+
+    HV = 34;
+    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  1.92261e+01;
+    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 8.09490e-03 ;
+
+    HV = 35;
+    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  2.20918e+01;
+    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  2.59910e-02;
+
+    HV = 36;
+    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  2.40640e+01;
+    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  2.93357e-02;
+
+    HV = 37;
+    GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  2.69107e+01;
+    errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  3.13209e-02;
 
 
 
@@ -266,7 +314,19 @@ void GAIN_V_SiPM_HD3_2(){
 
     gV_GAIN_1->Fit("linearFit1");
     V_bd_1  = - linearFit1->GetParameter(0)/linearFit1->GetParameter(1);
+
+    gV_GAIN_2->Fit("linearFit2");
+    V_bd_2  = - linearFit2->GetParameter(0)/linearFit1->GetParameter(1);
+
+    gV_GAIN_3->Fit("linearFit3");
+    V_bd_3  = - linearFit3->GetParameter(0)/linearFit1->GetParameter(1);
+
+
+
+
     cout<<"V_bd_1 = "<<V_bd_1<<endl;
+    cout<<"V_bd_2 = "<<V_bd_2<<endl;
+    cout<<"V_bd_3 = "<<V_bd_3<<endl;
 
 
 
