@@ -132,6 +132,7 @@ void FindPeakPositions(float* vector, Bool_t dled_bool, Int_t dt);
 void FindPeaksFromPositions();
 void fit_hist_peaks_0pe_1pe_2pe(TCanvas *canv, TH1D *hist);
 void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_talk);
+void fit_hist_peaks_gaus_sum_12(TH1D *hist);
 void fit_hist_del(float expDelLow, float expDelHigh);
 void fit_hist_peaks(TCanvas *canv, TH1D *hist);
 TGraphErrors* DCR_func(string file1, int last_event_n, int tot_files, TCanvas *c);
@@ -617,6 +618,12 @@ void Ana1(string file1, int last_event_n, float thr, bool display_one_ev_param){
     Get_DCR_temp_and_errDCR_temp();
     DCR_pe_0_5_vect[nfile] = DCR_temp[nfile];
     errDCR_pe_0_5_vect[nfile] = errDCR_temp[nfile];
+
+
+    ///////
+
+    fit_hist_peaks_gaus_sum_12(ptrHistAllPeaks[0]);
+
 
 
     cout<<endl<<endl;
@@ -2681,6 +2688,29 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
     cout << "Cross Talk           = " << Prob_Cross_Talk*100 <<" \%" << endl;
   }
 
+
+
+
+}
+
+
+
+//------------------------------------------------------------------------------
+void fit_hist_peaks_gaus_sum_12( TH1D *hist){
+
+    TCanvas *cAllPeaksFit = new TCanvas("AllPeaksFit","AllPeaksFit",w,h);
+    cAllPeaksFit->cd();
+
+    Init_gaus_sum_12();
+
+  // Fit Range
+  float fit_low  = -10;
+  float fit_high = 100;
+
+
+  // FIT
+  gaus_sum_12->SetRange(fit_low, fit_high);
+  hist -> Fit("gaus_sum_12", "+", "", fit_low, fit_high);
 
 
 

@@ -1,18 +1,93 @@
 /******************************************************************************\
  * GAIN_V_SiPM_HD3_2.cxx
  *
- * GAIN values obtained by Ana_Traces_SiPM.cxx (version of 06/08/2018)
+ * GAIN values obtained by Ana_Traces_SiPM.cxx (version of 06/08/2018, 3)
  *
  * KEY POINTS:
  *  > Ana1(...)
  *  > dleddt = 5
  *  > NO trace smoothing
  *  > thr (parameter of Ana1(...)) set depending on the situation
+ *  > fitted using gaus_sum_12, i.e.:
+ *      "[0]*TMath::Exp( - (x-[2]-[3])*(x-[2]-[3])/( 2*([4]*[4] + [5]*[5] )) )
+ *       + [1]*TMath::Exp( - (x-[2]-2*[3])*(x-[2]-2*[3])/( 2*([4]*[4] +
+ *      4*[5]*[5] ) ) ) "
+ *
+ * FILES ANALIZED:
+ *
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_29.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_30.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_31.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_32.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_33.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_34.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_36.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_37.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_29.00_AS_2_100000ev_01.dat
+ *
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_30.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_31.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_32.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_33.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_34.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_36.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_37.00_AS_2_100000ev_01.dat
+ *
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_29.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_30.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_31.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_32.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_33.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_34.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_36.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_37.00_AS_2_100000ev_01.dat
+ *
  *
 \******************************************************************************/
 
 
 
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <stdio.h>
+#include <stdlib.h>
+#include <cstdio>
+#include <fcntl.h>
+#include <unistd.h>
+#include <math.h>
+#include <algorithm>
+#include <functional>
+#include <numeric>
+#include "TMath.h"
+#include "TH1D.h"
+#include "TH2D.h"
+#include "TH1.h"
+#include "TCanvas.h"
+#include "TF1.h"
+#include "TLegend.h"
+#include "TStyle.h"
+#include "TGraphErrors.h"
+#include "TMultiGraph.h"
+#include "TAxis.h"
+#include "TPad.h"
+#include "TLine.h"
+#include "TSpectrum.h"
+#include "TVirtualFitter.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TSystem.h"
+#include "TTask.h"
+#include "TVirtualGraphPainter.h"
+#include "TGaxis.h"
+#include "TROOT.h"
+#include "TString.h"
 
 #define n_GAIN_1 6
 #define n_GAIN_2 6
@@ -23,7 +98,7 @@
 #define w 800
 
 void GAIN_V_SiPM_HD3_2();
-int find_index(double *vect, double value);
+int find_index(double vect[],int N, double value);
 
 void GAIN_V_SiPM_HD3_2(){
 
@@ -77,11 +152,36 @@ void GAIN_V_SiPM_HD3_2(){
     }
 
 
+
     ///////////////////////////////////////////////////////////////////////////
     //      SiPM1
     ///////////////////////////////////////////////////////////////////////////
-    HV = 32;
-    GAIN_1[find_index(GAIN_1, HV)] = 10;
+    HV = 32.;
+    index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
+    cout<< index <<endl;
+    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 1.36383e+01;
+    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 1.12055e-02;
+
+    HV = 33;
+    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 1.59077e+01;
+    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 9.03540e-03;
+
+    HV = 34;
+    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 1.89570e+01;
+    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 8.47637e-03;
+
+    HV = 35;
+    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 2.17825e+01;
+    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 8.68068e-03;
+
+    HV = 36;
+    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 2.45054e+01;
+    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 8.84089e-03;
+
+    HV = 37;
+    GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 2.68621e+01;
+    errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 2.91218e-02;
+
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -93,6 +193,24 @@ void GAIN_V_SiPM_HD3_2(){
     ///////////////////////////////////////////////////////////////////////////
     //      SiPM3
     ///////////////////////////////////////////////////////////////////////////
+
+
+
+
+    //------------------------------
+
+
+    // PERCENTAGE ERROR
+    double err_rel = 0.05;
+    for(int i=0; i<n_GAIN_1; i++){
+        errGAIN_1[i] = err_rel * GAIN_1[i];
+    }
+    for(int i=0; i<n_GAIN_2; i++){
+        errGAIN_2[i] = err_rel * GAIN_2[i];
+    }
+    for(int i=0; i<n_GAIN_3; i++){
+        errGAIN_3[i] = err_rel * GAIN_3[i];
+    }
 
 
     //------------------------------
@@ -136,22 +254,37 @@ void GAIN_V_SiPM_HD3_2(){
     cV_GAIN_3->SetGrid();
     gV_GAIN_3->Draw("AP");
 
+    //------------------------------
+
+
+    double V_bd_1,V_bd_2,V_bd_3;
+
+    TF1 *linearFit1 = new TF1("linearFit1","pol1",-100,100);
+    TF1 *linearFit2 = new TF1("linearFit2","pol1",-100,100);
+    TF1 *linearFit3 = new TF1("linearFit3","pol1",-100,100);
+
+
+    gV_GAIN_1->Fit("linearFit1");
+    V_bd_1  = - linearFit1->GetParameter(0)/linearFit1->GetParameter(1);
+    cout<<"V_bd_1 = "<<V_bd_1<<endl;
+
 
 
 
 }
 
 
-int find_index(double *vect, double value){
-    int index, n;
-    n = sizeof(vect)/sizeof(vect[0]);
+int find_index(double vect[], int N, double value){
+    int index =0;
 
-    double epsilon = 0.00001;
 
-    for(int i=0; i<n; i++){
+    double epsilon = 0.1;
+
+    for(int i=0; i<N; i++){
+        // cout<<vect[i]<<endl;
         if((vect[i]>value-epsilon) && (vect[i]<value+epsilon)){
             index = i;
-            break;
+            // break;
         }
     }
 
