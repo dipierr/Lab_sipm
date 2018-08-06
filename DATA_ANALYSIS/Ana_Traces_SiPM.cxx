@@ -236,7 +236,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 5;//8;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
+int dleddt = 6;//8;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 50; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
@@ -301,28 +301,22 @@ float maxyhist = 200;
 float maxyHistCharge = 50;
 float maxyhistAllPeaks = 200;
 float maxyhistDCR = 200;
-float maxyhistDelays = 500;
 float w = 1000;
 float h = 800;
 int bins_Volt = 204;
 int bins_DCR = 206;
-int bins_Delays = 50;
 int bins_Charge = 100;
 
+
+float minyhistDelays = 15;
+float maxyhistDelays = 100;
+int bins_Delays = maxyhistDelays-minyhistDelays;
+float expDelLow_max  = minyhistDelays*1.25;
+float expDelHigh_max = maxyhistDelays;
+
 //---------------
 //---------------
 
-
-//-------------
-//---[ FIT ]---
-//-------------
-
-// DELAYS distribution
-float expDelLow_max= 40.;
-float expDelHigh_max = 500.;
-
-//-------------
-//-------------
 
 
 //-----------------
@@ -1674,6 +1668,13 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
                     //Now I look for the maximum value in that window
                     index_new = find_peak_fix_time(peak_start, peak_end);
 
+
+                    // if(index_old > 0 and t[0][index_new] - t[0][index_old] < minyhistDelays){
+                    //     continue;
+                    //     // find_rising_edge = false;
+                    // }
+
+
                     // I fill the hist of all the peaks
                     if(fill_hist_peaks_when_found){
                         ptrHistAllPeaks[nfile]->Fill(trace_DLED[1][index_new]);
@@ -1690,7 +1691,7 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
                         if(index_old>0){
                             time_delay = t[0][index_new] - t[0][index_old];
                             // if( (time_delay>expDelLow_max) and (time_delay<expDelHigh_max) and (t[0][index_new]>2*expDelLow_max) and (index_new<900) ){
-                            if( (time_delay>expDelLow_max) and (time_delay<expDelHigh_max) ){
+                            if( (time_delay>minyhistDelays) and (time_delay<expDelHigh_max) ){
                                 ptrHistDelays[nfile] -> Fill(time_delay);
                                 peaks_all_delay[0][ind_peaks_all_delay] = t[0][index_new];
                                 peaks_all_delay[1][ind_peaks_all_delay] = t[1][index_new];
@@ -3435,9 +3436,9 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
       }
 
       if(smooth_trace_bool){
-          int n_SmootTraceN = 2;
+          int n_SmootTraceN = 4;
           SmoothTraceN(n_SmootTraceN);
-          cout<<"Smooth trace "<<n_SmootTraceN<<" points"<<endl;
+          // cout<<"Smooth trace "<<n_SmootTraceN<<" points"<<endl;
 
         // smooth_trace_step();
         // smooth_trace_3();
