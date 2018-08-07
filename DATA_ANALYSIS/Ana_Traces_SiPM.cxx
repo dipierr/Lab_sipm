@@ -253,8 +253,12 @@ float max_pe_0_5 = 15; //max value for 0.5pe threshold (mV)
 float min_pe_1_5 = 28; //min value for 1.5pe threshold (mV)
 float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
-float pe_0_5_vect[nfilemax] = {8.,  8., 10., 11., 12., 13., 10., 10., 10., 10.};
-float pe_1_5_vect[nfilemax] = {23., 26., 31., 35., 40., 41., 30., 30., 30., 30.};
+float pe_0_5_vect[nfilemax] = {10.,  10., 11., 14., 15., 15., 10., 10., 10., 10.};
+float pe_1_5_vect[nfilemax] = {26., 25., 30., 32., 35., 37., 30., 30., 30., 30.};
+
+// used for DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07 (6 files, 32 - 37)
+// float pe_0_5_vect[nfilemax] = {8.,  8., 10., 11., 12., 13., 10., 10., 10., 10.};
+// float pe_1_5_vect[nfilemax] = {23., 26., 31., 35., 40., 41., 30., 30., 30., 30.};
 
 
 // AREA
@@ -311,7 +315,7 @@ int bins_Charge = 100;
 
 float minyhistDelays = 15;
 float maxyhistDelays = 100;
-int bins_Delays = maxyhistDelays-minyhistDelays;
+int bins_Delays = 50;
 float expDelLow_max  = minyhistDelays*1.25;
 float expDelHigh_max = maxyhistDelays;
 
@@ -1080,9 +1084,14 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
 
         cout<< "HV = "<<legend_entry[i]<<";"<<endl;
         cout<< "index = find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV);"<<endl;
+        // CNT
         cout<< "DCR_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<DCR_pe_0_5_Area_vect[i]*n6*Area<<";"<<endl;
         cout<< "errDCR_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<errDCR_pe_0_5_Area_vect[i]*n6*Area<<";"<<endl;
         cout<< "CT_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<DCR_pe_1_5_Area_vect[i]/DCR_pe_0_5_Area_vect[i]<<";"<<endl;
+        // DELAYS
+        cout<< "DCR_Del_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<DCR_pe_0_5_Area_delays_vect[i]*n6*Area<<";"<<endl;
+        cout<< "errDCR_Del_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<errDCR_pe_0_5_Area_delays_vect[i]*n6*Area<<";"<<endl;
+        cout<< "CT_Del_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<DCR_pe_1_5_Area_delays_vect[i]/DCR_pe_0_5_Area_delays_vect[i]<<";"<<endl;
         cout<<endl;
     }
 
