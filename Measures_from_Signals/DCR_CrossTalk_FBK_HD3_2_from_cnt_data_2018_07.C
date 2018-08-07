@@ -89,7 +89,7 @@
 
 
 #define h 600
-#define w 800
+#define w 1000
 
 void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07();
 int find_index(double v[],int N, double value);
@@ -557,6 +557,21 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     //------------------------------
 
+    auto legendDCR = new TLegend(0.15,0.70,0.35,0.85);
+    legendDCR->AddEntry(gV_DCR_1,"HD3-2 (1)","p");
+    legendDCR->AddEntry(gV_DCR_2,"HD3-2 (2)","p");
+    legendDCR->AddEntry(gV_DCR_3,"HD3-2 (3)","p");
+
+    auto legendCT = new TLegend(0.15,0.70,0.35,0.85);
+    legendCT->AddEntry(gV_CT_1,"HD3-2 (1)","p");
+    legendCT->AddEntry(gV_CT_2,"HD3-2 (2)","p");
+    legendCT->AddEntry(gV_CT_3,"HD3-2 (3)","p");
+
+
+
+    //------------------------------
+
+
     TCanvas *cDCR = new TCanvas("cDCR", "cDCR",w,h);
     cDCR->SetGrid();
     TMultiGraph *mgDCR = new TMultiGraph("mgDCR", ";Bias Voltage (V);DCR (MHz)");
@@ -564,6 +579,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     mgDCR->Add(gV_DCR_2);
     mgDCR->Add(gV_DCR_3);
     mgDCR->Draw("AP");
+    legendDCR->Draw();
 
     //------------------------------
 
@@ -574,6 +590,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     mgCT->Add(gV_CT_2);
     mgCT->Add(gV_CT_3);
     mgCT->Draw("AP");
+    legendCT->Draw();
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -607,13 +624,49 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     //------------------------------
 
+
+    auto legendDCR_Del = new TLegend(0.15,0.70,0.35,0.85);
+    legendDCR_Del->AddEntry(gV_DCR_Del_1,"HD3-2 (1)","p");
+    legendDCR_Del->AddEntry(gV_DCR_Del_2,"HD3-2 (2)","p");
+    legendDCR_Del->AddEntry(gV_DCR_Del_3,"HD3-2 (3)","p");
+
+    auto legendCT_Del = new TLegend(0.15,0.70,0.35,0.85);
+    legendCT_Del->AddEntry(gV_CT_Del_1,"HD3-2 (1)","p");
+    legendCT_Del->AddEntry(gV_CT_Del_2,"HD3-2 (2)","p");
+    legendCT_Del->AddEntry(gV_CT_Del_3,"HD3-2 (3)","p");
+
+    //------------------------------
+
+    auto legendDCR_CNT_Del = new TLegend(0.15,0.70,0.35,0.85);
+    legendDCR_CNT_Del->AddEntry(gV_DCR_1,"","p");
+    legendDCR_CNT_Del->AddEntry(gV_DCR_Del_1,"HD3-2 (1)","p");
+    legendDCR_CNT_Del->AddEntry(gV_DCR_2,"","p");
+    legendDCR_CNT_Del->AddEntry(gV_DCR_Del_2,"HD3-2 (2)","p");
+    legendDCR_CNT_Del->AddEntry(gV_DCR_3,"","p");
+    legendDCR_CNT_Del->AddEntry(gV_DCR_Del_3,"HD3-2 (3)","p");
+    legendDCR_CNT_Del->SetNColumns(2);
+
+    auto legendCT_CNT_Del = new TLegend(0.15,0.70,0.35,0.85);
+    legendCT_CNT_Del->AddEntry(gV_CT_1,"","p");
+    legendCT_CNT_Del->AddEntry(gV_CT_Del_1,"HD3-2 (1)","p");
+    legendCT_CNT_Del->AddEntry(gV_CT_2,"","p");
+    legendCT_CNT_Del->AddEntry(gV_CT_Del_2,"HD3-2 (2)","p");
+    legendCT_CNT_Del->AddEntry(gV_CT_3,"","p");
+    legendCT_CNT_Del->AddEntry(gV_CT_Del_3,"HD3-2 (3)","p");
+    legendCT_CNT_Del->SetNColumns(2);
+
+
+    //------------------------------
+
     TCanvas *cDCR_Del = new TCanvas("cDCR_Del", "cDCR_Del",w,h);
     cDCR_Del->SetGrid();
-    TMultiGraph *mgDCR_Del = new TMultiGraph("mgDCR_Del", ";Bias Voltage (V);DCR_Del (MHz)");
+    TMultiGraph *mgDCR_Del = new TMultiGraph("mgDCR_Del", ";Bias Voltage (V);DCR (MHz)");
     mgDCR_Del->Add(gV_DCR_Del_1);
     mgDCR_Del->Add(gV_DCR_Del_2);
     mgDCR_Del->Add(gV_DCR_Del_3);
     mgDCR_Del->Draw("AP");
+    legendDCR_Del->Draw();
+
 
     //------------------------------
 
@@ -624,6 +677,8 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     mgCT_Del->Add(gV_CT_Del_2);
     mgCT_Del->Add(gV_CT_Del_3);
     mgCT_Del->Draw("AP");
+    legendCT_Del->Draw();
+
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -632,7 +687,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     TCanvas *cDCR_CNT_Del_1 = new TCanvas("cDCR_CNT_Del_1", "cDCR_CNT_Del_1",w,h);
     cDCR_CNT_Del_1->SetGrid();
-    TMultiGraph *mgDCR_CNT_Del_1 = new TMultiGraph("mgDCR_CNT_Del_1", ";Bias Voltage (V);DCR_CNT_Del_1 (MHz)");
+    TMultiGraph *mgDCR_CNT_Del_1 = new TMultiGraph("mgDCR_CNT_Del_1", ";Bias Voltage (V);DCR (MHz)");
     mgDCR_CNT_Del_1->Add(gV_DCR_1);
     mgDCR_CNT_Del_1->Add(gV_DCR_Del_1);
     mgDCR_CNT_Del_1->Draw("AP");
@@ -652,7 +707,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     TCanvas *cDCR_CNT_Del_2 = new TCanvas("cDCR_CNT_Del_2", "cDCR_CNT_Del_2",w,h);
     cDCR_CNT_Del_2->SetGrid();
-    TMultiGraph *mgDCR_CNT_Del_2 = new TMultiGraph("mgDCR_CNT_Del_2", ";Bias Voltage (V);DCR_CNT_Del_2 (MHz)");
+    TMultiGraph *mgDCR_CNT_Del_2 = new TMultiGraph("mgDCR_CNT_Del_2", ";Bias Voltage (V);DCR (MHz)");
     mgDCR_CNT_Del_2->Add(gV_DCR_2);
     mgDCR_CNT_Del_2->Add(gV_DCR_Del_2);
     mgDCR_CNT_Del_2->Draw("AP");
@@ -672,7 +727,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     TCanvas *cDCR_CNT_Del_3 = new TCanvas("cDCR_CNT_Del_3", "cDCR_CNT_Del_3",w,h);
     cDCR_CNT_Del_3->SetGrid();
-    TMultiGraph *mgDCR_CNT_Del_3 = new TMultiGraph("mgDCR_CNT_Del_3", ";Bias Voltage (V);DCR_CNT_Del_3 (MHz)");
+    TMultiGraph *mgDCR_CNT_Del_3 = new TMultiGraph("mgDCR_CNT_Del_3", ";Bias Voltage (V);DCR (MHz)");
     mgDCR_CNT_Del_3->Add(gV_DCR_3);
     mgDCR_CNT_Del_3->Add(gV_DCR_Del_3);
     mgDCR_CNT_Del_3->Draw("AP");
@@ -692,7 +747,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     TCanvas *cDCR_CNT_Del = new TCanvas("cDCR_CNT_Del", "cDCR_CNT_Del",w,h);
     cDCR_CNT_Del->SetGrid();
-    TMultiGraph *mgDCR_CNT_Del = new TMultiGraph("mgDCR_CNT_Del", ";Bias Voltage (V);DCR_CNT_Del (MHz)");
+    TMultiGraph *mgDCR_CNT_Del = new TMultiGraph("mgDCR_CNT_Del", ";Bias Voltage (V);DCR (MHz)");
     mgDCR_CNT_Del->Add(gV_DCR_1);
     mgDCR_CNT_Del->Add(gV_DCR_2);
     mgDCR_CNT_Del->Add(gV_DCR_3);
@@ -700,6 +755,8 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     mgDCR_CNT_Del->Add(gV_DCR_Del_2);
     mgDCR_CNT_Del->Add(gV_DCR_Del_3);
     mgDCR_CNT_Del->Draw("AP");
+    legendDCR_CNT_Del->Draw();
+
 
     //------------------------------
 
@@ -713,6 +770,8 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     mgCT_CNT_Del->Add(gV_CT_Del_2);
     mgCT_CNT_Del->Add(gV_CT_Del_3);
     mgCT_CNT_Del->Draw("AP");
+    legendCT_CNT_Del->Draw();
+
 
 
 }
