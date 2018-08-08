@@ -6,7 +6,8 @@
  *    > SUPPLY:     Kenwood Regulated DC Power Supply PW18-1.8Q
  *    > AMPLIFIER:  ADVANSID OUT 2
  *    > DIGITIZER:  DRS4 Evaluation Board
- *    > FUNC GEN:
+ *    > LASER:      Advanced Laser Diode System, Picosecond Laser System,
+ *                  Controller EIG2000DX and a 406 nm laser head
  *
  * > File obtained using Ana_LED(...) function in Ana_Traces_SiPM.cxx using
  *   fit_hist_peaks_gaus_sum_012(...)
@@ -34,14 +35,19 @@
 
 
 #define h 600
-#define w 800
+#define w 1000
 
 void OperationPoint_LASER_PLS_FitGausSum_01(){
+
+    // ERRORS
+    bool fix_error_bool = true;
+
     // HV
     double HV[] =  {29.00,30.00,    31.00,        32.00,        33.00,        34.00,               35.00,               36.00};
     double errHV[]={0.01, 0.01,     0.01,         0.01,         0.01,         0.01,                0.01,                0.01};
     // double HV[] =  {29.00,30.00,    31.00,        32.00,        33.00,        34.00,        34.50,        35.00,        35.50,        36.00};
     // double errHV[]={0.01, 0.01,     0.01,         0.01,         0.01,         0.01,         0.01,         0.01,         0.01,         0.01};
+
 
 
     // PEAK 0
@@ -388,6 +394,25 @@ void OperationPoint_LASER_PLS_FitGausSum_01(){
 
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    //          FIXED ERROR
+    ///////////////////////////////////////////////////////////////////////////
+
+    if(fix_error_bool){
+        // double err_fix_CT = 0.015;
+        double err_fix_CT = 0.02;
+        for(int i=0; i<n_GAIN; i++){
+            errProb_Cross_Talk[i] = err_fix_CT;
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    for(int i=0; i<n_GAIN; i++){
+            cout<<"Error CT = "<<errProb_Cross_Talk[i]<<endl;
+        }
+
+
     //------------------------------
     // Gain_Weighted
     //------------------------------
@@ -397,7 +422,7 @@ void OperationPoint_LASER_PLS_FitGausSum_01(){
 
     //------------------------------
 
-    gV_GW->SetMarkerStyle(20);
+    gV_GW->SetMarkerStyle(47);
     gV_GW->SetMarkerColor(kOrange+2);
     gV_GW->SetTitle();
     gV_GW->GetXaxis()->SetTitle("Voltage (V)");
@@ -418,7 +443,7 @@ void OperationPoint_LASER_PLS_FitGausSum_01(){
 
     //------------------------------
 
-    gV_MS->SetMarkerStyle(20);
+    gV_MS->SetMarkerStyle(47);
     gV_MS->SetMarkerColor(kOrange+2);
     gV_MS->SetTitle();
     gV_MS->GetXaxis()->SetTitle("Voltage (V)");
@@ -442,11 +467,12 @@ void OperationPoint_LASER_PLS_FitGausSum_01(){
 
     //------------------------------
 
-    gV_PCT->SetMarkerStyle(20);
+    gV_PCT->SetMarkerStyle(21);
+    // gV_PCT->SetMarkerSize(2);
     gV_PCT->SetMarkerColor(kOrange+2);
     gV_PCT->SetTitle();
     gV_PCT->GetXaxis()->SetTitle("Voltage (V)");
-    gV_PCT->GetYaxis()->SetTitle("Probability Cross Talk");
+    gV_PCT->GetYaxis()->SetTitle("Cross Talk");
 
     //------------------------------
 
@@ -468,7 +494,7 @@ void OperationPoint_LASER_PLS_FitGausSum_01(){
 
     //------------------------------
 
-    gV_IG->SetMarkerStyle(20);
+    gV_IG->SetMarkerStyle(47);
     gV_IG->SetMarkerColor(kOrange+2);
     gV_IG->SetTitle();
     gV_IG->GetXaxis()->SetTitle("Voltage (V)");

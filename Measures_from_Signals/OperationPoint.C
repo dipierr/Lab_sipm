@@ -1,5 +1,10 @@
+// ****************************************************************************
+// *********************************   OLD   **********************************
+// ****************************************************************************
+
 /******************************************************************************\
  * OPERATION POINT
+ *
  *
  * Setup LED:
  *    > HV:         AGILENT E3641A
@@ -39,7 +44,7 @@ void OperationPoint(){
     // Sigma_peak_0
     double Sigma_peak_0[] =      {1.74381e+00,2.19778e+00,2.18775e+00,2.35603,2.26689e+00,2.70367e+00,2.52442e+00,3.15461e+00};
     double errSigma_peak_0[] =   {5.65270e-02,5.09429e-02,5.55387e-02,7.16945e-02,6.32656e-02,7.25822e-02,7.36245e-02,1.07703e-01};
-    
+
     // H_peak_0
     double H_peak_0[] =      {6.33035e+02,5.32954e+02,3.69550e+02,2.88937e+02,2.53373e+02,2.14920e+02,1.90727e+02,1.63868e+02};
     double errH_peak_0[] =   {1.11321e+01,1.05667e+01,9.97152e+00,8.50633e+00,1.00300e+01,7.77582e+00,7.84682e+00,5.80190e+00};
@@ -51,7 +56,7 @@ void OperationPoint(){
     // Mean_peak_1
     double Mean_peak_1[] =      {1.49911e+01,1.53951e+01,1.75317e+01,1.88485e+01,2.01527e+01,2.04909e+01,2.16402e+01,2.29223e+01};
     double errMean_peak_1[] =   {3.37541e-01,2.48184e-01,1.22079e-01,1.09392e-01,8.35216e-02,1.58792e-01,1.43441e-01,3.58637e-01};
-    
+
     // H_peak_1
     double H_peak_1[] =      {7.34431e+02,5.64418e+02,4.44348e+02,3.83262e+02,3.53597e+02,2.61308e+02,2.62385e+02,1.83551e+02};
     double errH_peak_1[] =   {1.26639e+01,1.18572e+01,9.87949e+00,8.95463e+00,8.27998e+00,6.51954e+00,6.88303e+00,4.89531e+00};
@@ -75,10 +80,10 @@ void OperationPoint(){
      // Cross Talk
     double Cross_Talk[] =      {0.265269,0.293336,0.3389,0.352329,0.383516,0.4243,0.48297};
     double errCross_Talk[] =   {0.0229779,0.010678,0.00689956,0.00572358,0.00477179,0.00413051,0.00367729};
-    
+
     // Entries
     double Entries[] = {41288,39806,39756,32634,40183,39415,39799,37981};
-       
+
 
 
     double GAIN[n_GAIN];
@@ -134,7 +139,7 @@ void OperationPoint(){
         errIntegral_GAIN[i]=Integral[i]/(GAIN[i]*Cross_Talk[i])*TMath::Power(errGAIN[i]*errGAIN[i]/(GAIN[i]*GAIN[i])+errCross_Talk[i]*errCross_Talk[i]/(Cross_Talk[i]*Cross_Talk[i]),0.5);
         //Integral_GAIN[i]=TMath::Abs(Integral[i])/(GAIN[i]);
         //errIntegral_GAIN[i]=Integral[i]*errGAIN[i]/(GAIN[i]*GAIN[i]);
-        
+
         //Probabilità CrossTalk LED
         errEntries[i]=TMath::Power(Entries[i],0.5);
         Area0[i]=H_peak_0[i]*Sigma_peak_0[i]*TMath::Power(2*TMath::Pi(),0.5)/1;
@@ -149,8 +154,8 @@ void OperationPoint(){
         cout << "p 0 \t" << Prob_0pe[i] << endl;
         cout << "p 1 s\t" << Prob_1peS[i] << endl;
         cout << "p 1\t" << Prob_1pe[i] << endl<<endl    ;
-    
-        
+
+
         errArea1[i]=Area1[i]*TMath::Power(TMath::Power(errH_peak_1[i]/H_peak_1[i],2)+TMath::Power(errSigma_peak_1[i]/Sigma_peak_1[i],2),0.5);
         errProb_1peS[i]=errArea1[i]/Entries[i];
         errMu[i]=errArea0[i]/(Prob_0pe[i]*Entries[i]);
@@ -174,7 +179,7 @@ void OperationPoint(){
 
 
     }
-    
+
     //------------------------------
     // Gain_Weighted
     //------------------------------
@@ -216,8 +221,8 @@ void OperationPoint(){
     TCanvas *cV_MS = new TCanvas("cV_MS", "cV_MS",w,h);
     cV_MS->SetGrid();
     gV_MS->Draw("AP");
-    
-    
+
+
     //------------------------------
     // Cross Talk
     //------------------------------
