@@ -94,6 +94,8 @@
 void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07();
 int find_index(double v[],int N, double value);
 
+char title_DCR[80];
+
 void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     // SiPM1:
@@ -123,6 +125,11 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     // ERRORS:
     bool percentage_error_bool = false;
     bool fix_error_bool = true;
+
+    bool dcr_area = false;
+
+    // Area:
+    double Area = 36;
 
     // Initialization
     for(int i=0; i<n_DCR_1; i++){
@@ -336,7 +343,6 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.350756;
 
 
-
     //------------------------------
 
 
@@ -428,6 +434,30 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     //------------------------------
 
+    if(dcr_area){
+        for(int i=0; i< n_DCR_1; i++){
+            DCR_1[i]  /= Area;
+            errDCR_1[i] /= Area;
+            DCR_1[i]  *= 1e3;
+            errDCR_1[i] *= 1e3;
+        }
+        for(int i=0; i< n_DCR_2; i++){
+            DCR_2[i]  /= Area;
+            errDCR_2[i] /= Area;
+            DCR_2[i]  *= 1e3;
+            errDCR_2[i] *= 1e3;
+        }
+        for(int i=0; i< n_DCR_3; i++){
+            DCR_3[i]  /= Area;
+            errDCR_3[i] /= Area;
+            DCR_3[i]  *= 1e3;
+            errDCR_3[i] *= 1e3;
+        }
+    }
+
+
+    //------------------------------
+
     TGraphErrors *gV_DCR_1  = new TGraphErrors(n_DCR_1, HV_1, DCR_1, errHV_1, errDCR_1);
     TGraphErrors *gV_DCR_2  = new TGraphErrors(n_DCR_2, HV_2, DCR_2, errHV_2, errDCR_2);
     TGraphErrors *gV_DCR_3  = new TGraphErrors(n_DCR_3, HV_3, DCR_3, errHV_3, errDCR_3);
@@ -447,23 +477,26 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     //------------------------------
 
+    if(dcr_area) strcpy(title_DCR, "$\\frac{DCR}{Area} \\left(\\frac{kHz}{mm^2}\\right)$");
+    else strcpy(title_DCR, "DCR (MHz)");
+
     gV_DCR_1->SetMarkerStyle(20);
     gV_DCR_1->SetMarkerColor(kOrange+1);
     gV_DCR_1->SetTitle();
     gV_DCR_1->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gV_DCR_1->GetYaxis()->SetTitle("DCR (MHz)");
+    gV_DCR_1->GetYaxis()->SetTitle(title_DCR);
 
     gV_DCR_2->SetMarkerStyle(20);
     gV_DCR_2->SetMarkerColor(kRed);
     gV_DCR_2->SetTitle();
     gV_DCR_2->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gV_DCR_2->GetYaxis()->SetTitle("DCR (MHz)");
+    gV_DCR_2->GetYaxis()->SetTitle(title_DCR);
 
     gV_DCR_3->SetMarkerStyle(20);
     gV_DCR_3->SetMarkerColor(kMagenta);
     gV_DCR_3->SetTitle();
     gV_DCR_3->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gV_DCR_3->GetYaxis()->SetTitle("DCR (MHz)");
+    gV_DCR_3->GetYaxis()->SetTitle(title_DCR);
 
     //------------------------------
 
@@ -771,6 +804,13 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     mgCT_CNT_Del->Add(gV_CT_Del_3);
     mgCT_CNT_Del->Draw("AP");
     legendCT_CNT_Del->Draw();
+
+    cout<<"###############################################################################"<<endl;
+    cout<<" WARNING "<<endl;
+    if(dcr_area) cout<<"DCR / AREA, please check axis title"<<endl;
+    else         cout<<" DCR global, not / area"<<endl;
+    cout<<"###############################################################################"<<endl;
+
 
 
 

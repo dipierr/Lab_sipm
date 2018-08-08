@@ -96,7 +96,7 @@
 
 
 #define h 600
-#define w 800
+#define w 1000
 
 void GAIN_V_SiPM_HD3_2_GausSum();
 int find_index(double vect[],int N, double value);
@@ -163,7 +163,7 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     ///////////////////////////////////////////////////////////////////////////
     HV = 32.;
     index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
-    cout<< index <<endl;
+    // cout<< index <<endl;
     GAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 1.36383e+01;
     errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 1.12055e-02;
 
@@ -194,7 +194,7 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     ///////////////////////////////////////////////////////////////////////////
     HV = 32.;
     index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
-    cout<< index <<endl;
+    // cout<< index <<endl;
     GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.31614e+01;
     errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.19338e-02;
 
@@ -224,7 +224,7 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     ///////////////////////////////////////////////////////////////////////////
     HV = 32.;
     index = find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV);
-    cout<< index <<endl;
+    // cout<< index <<endl;
     GAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  1.32845e+01;
     errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] =  1.09552e-02;
 
@@ -282,10 +282,7 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
 
 
     //------------------------------
-    // for(int i=0; i<n_GAIN_2; i++){
-    //     HV_2[i] -=1;
-    // }
-    //------------------------------
+
 
     TGraphErrors *gV_GAIN_1  = new TGraphErrors(n_GAIN_1, HV_1, GAIN_1, errHV_1, errGAIN_1);
     TGraphErrors *gV_GAIN_2  = new TGraphErrors(n_GAIN_2, HV_2, GAIN_2, errHV_2, errGAIN_2);
@@ -352,6 +349,11 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     cout<<"V_bd_2 = "<<V_bd_2<<endl;
     cout<<"V_bd_3 = "<<V_bd_3<<endl;
 
+    auto legendGAIN = new TLegend(0.15,0.70,0.35,0.85);
+    legendGAIN->AddEntry(gV_GAIN_1,"HD3-2 (1)","p");
+    legendGAIN->AddEntry(gV_GAIN_2,"HD3-2 (2)","p");
+    legendGAIN->AddEntry(gV_GAIN_3,"HD3-2 (3)","p");
+
 
     TCanvas *cGAIN = new TCanvas("cGAIN", "cGAIN",w,h);
     cGAIN->SetGrid();
@@ -360,6 +362,101 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     mgGAIN->Add(gV_GAIN_2);
     mgGAIN->Add(gV_GAIN_3);
     mgGAIN->Draw("AP");
+    legendGAIN->Draw();
+
+
+    //------------------------------
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    //------------------------------
+
+    double HV_Vbd_1[n_GAIN_1+1],HV_Vbd_2[n_GAIN_2+1],HV_Vbd_3[n_GAIN_3+1],errHV_Vbd_2[n_GAIN_2+1],errHV_Vbd_3[n_GAIN_3+1],errHV_Vbd_1[n_GAIN_1+1];
+    double GAIN_Vbd_1[n_GAIN_1+1],GAIN_Vbd_2[n_GAIN_2+1],GAIN_Vbd_3[n_GAIN_3+1],errGAIN_Vbd_2[n_GAIN_2+1],errGAIN_Vbd_3[n_GAIN_3+1],errGAIN_Vbd_1[n_GAIN_1+1];
+
+    HV_Vbd_1[0]      = V_bd_1;
+    errHV_Vbd_1[0]   = 0.1;
+    GAIN_Vbd_1[0]    = 0;
+    errGAIN_Vbd_1[0] = 0;
+
+    HV_Vbd_2[0]      = V_bd_2;
+    errHV_Vbd_2[0]   = 0.1;
+    GAIN_Vbd_2[0]    = 0;
+    errGAIN_Vbd_2[0] = 0;
+
+    HV_Vbd_3[0]      = V_bd_3;
+    errHV_Vbd_3[0]   = 0.1;
+    GAIN_Vbd_3[0]    = 0;
+    errGAIN_Vbd_3[0] = 0;
+
+    for(int i=0; i<n_GAIN_1; i++){
+        HV_Vbd_1[i+1]      = HV_1[i];
+        errHV_Vbd_1[i+1]   = errHV_1[i];
+        GAIN_Vbd_1[i+1]    = GAIN_1[i];
+        errGAIN_Vbd_1[i+1] = errGAIN_1[i];
+
+        HV_Vbd_2[i+1]      = HV_2[i];
+        errHV_Vbd_2[i+1]   = errHV_2[i];
+        GAIN_Vbd_2[i+1]    = GAIN_2[i];
+        errGAIN_Vbd_2[i+1] = errGAIN_2[i];
+
+        HV_Vbd_3[i+1]      = HV_3[i];
+        errHV_Vbd_3[i+1]   = errHV_3[i];
+        GAIN_Vbd_3[i+1]    = GAIN_3[i];
+        errGAIN_Vbd_3[i+1] = errGAIN_3[i];
+    }
+
+
+    TGraphErrors *gV_GAIN_Vbd_1  = new TGraphErrors(n_GAIN_1+1, HV_Vbd_1, GAIN_Vbd_1, errHV_Vbd_1, errGAIN_Vbd_1);
+    TGraphErrors *gV_GAIN_Vbd_2  = new TGraphErrors(n_GAIN_2+1, HV_Vbd_2, GAIN_Vbd_2, errHV_Vbd_2, errGAIN_Vbd_2);
+    TGraphErrors *gV_GAIN_Vbd_3  = new TGraphErrors(n_GAIN_3+1, HV_Vbd_3, GAIN_Vbd_3, errHV_Vbd_3, errGAIN_Vbd_3);
+
+
+    //------------------------------
+
+    gV_GAIN_Vbd_1->SetMarkerStyle(20);
+    gV_GAIN_Vbd_1->SetMarkerColor(kOrange+1);
+    gV_GAIN_Vbd_1->SetTitle();
+    gV_GAIN_Vbd_1->GetXaxis()->SetTitle("Bias Voltage (V)");
+    gV_GAIN_Vbd_1->GetYaxis()->SetTitle("GAIN (mV)");
+
+    gV_GAIN_Vbd_2->SetMarkerStyle(20);
+    gV_GAIN_Vbd_2->SetMarkerColor(kRed);
+    gV_GAIN_Vbd_2->SetTitle();
+    gV_GAIN_Vbd_2->GetXaxis()->SetTitle("Bias Voltage (V)");
+    gV_GAIN_Vbd_2->GetYaxis()->SetTitle("GAIN (mV)");
+
+    gV_GAIN_Vbd_3->SetMarkerStyle(20);
+    gV_GAIN_Vbd_3->SetMarkerColor(kMagenta);
+    gV_GAIN_Vbd_3->SetTitle();
+    gV_GAIN_Vbd_3->GetXaxis()->SetTitle("Bias Voltage (V)");
+    gV_GAIN_Vbd_3->GetYaxis()->SetTitle("GAIN (mV)");
+
+    //------------------------------
+
+    TCanvas *cV_GAIN_Vbd_1 = new TCanvas("cV_GAIN_Vbd_1", "cV_GAIN_Vbd_1",w,h);
+    cV_GAIN_Vbd_1->SetGrid();
+    gV_GAIN_Vbd_1->Draw("AP");
+
+    TCanvas *cV_GAIN_Vbd_2 = new TCanvas("cV_GAIN_Vbd_2", "cV_GAIN_Vbd_2",w,h);
+    cV_GAIN_Vbd_2->SetGrid();
+    gV_GAIN_Vbd_2->Draw("AP");
+
+    TCanvas *cV_GAIN_Vbd_3 = new TCanvas("cV_GAIN_Vbd_3", "cV_GAIN_Vbd_3",w,h);
+    cV_GAIN_Vbd_3->SetGrid();
+    gV_GAIN_Vbd_3->Draw("AP");
+
+    //------------------------------
+
+
+
+    TCanvas *cGAIN_Vbd = new TCanvas("cGAIN_Vbd", "cGAIN_Vbd",w,h);
+    cGAIN_Vbd->SetGrid();
+    TMultiGraph *mgGAIN_Vdb = new TMultiGraph("mgGAIN_Vdb", ";Bias Voltage (V);GAIN (mV)");
+    mgGAIN_Vdb->Add(gV_GAIN_Vbd_1);
+    mgGAIN_Vdb->Add(gV_GAIN_Vbd_2);
+    mgGAIN_Vdb->Add(gV_GAIN_Vbd_3);
+    mgGAIN_Vdb->Draw("AP");
 
 
 
