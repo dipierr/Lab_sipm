@@ -1,7 +1,10 @@
 /******************************************************************************\
+ * DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07___
+ *  OperationPoint_LASER_PLS_FitGausSum_01.C
+ *
  * DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07.C
  *      +
- * OperationPoint_LASER_PLS_FitGausSum_01
+ * OperationPoint_LASER_PLS_FitGausSum_01.C
  *
  *  Update: 08/08/2018
  *

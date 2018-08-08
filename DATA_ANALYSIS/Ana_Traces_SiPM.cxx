@@ -554,7 +554,7 @@ TF1 *gaus_sum_12 = new TF1("gaus_sum_12", "[0]*TMath::Exp( - (x-[2]-[3])*(x-[2]-
 // [4]  Sigma_0
 // [5]  Sigma_add
 
-TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[7])*(x-[7])/( 2*[5]*[5] ) ) + [1]*TMath::Exp( - (x-[7]-[4]-[8])*(x-[7]-[4]-[8])/( 2*([5]*[5] + [6]*[6] )) ) + [2]*TMath::Exp( - (x-[7]-2*[4])*(x-[7]-2*[4])/( 2*([5]*[5] + 4*[6]*[6] ) ) ) + [3]*TMath::Exp( - (x-[7]-3*[4])*(x-[7]-3*[4])/( 2*([5]*[5] + 9*[6]*[6]) ) )" ,-100,100);
+TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[7])*(x-[7])/( 2*[5]*[5] ) ) + [1]*TMath::Exp( - (x-[7]-[4])*(x-[7]-[4])/( 2*([5]*[5] + [6]*[6] )) ) + [2]*TMath::Exp( - (x-[7]-2*[4])*(x-[7]-2*[4])/( 2*([5]*[5] + 4*[6]*[6] ) ) ) + [3]*TMath::Exp( - (x-[7]-3*[4])*(x-[7]-3*[4])/( 2*([5]*[5] + 9*[6]*[6]) ) )" ,-100,100);
 //[H0]*TMath::Exp( - (x-[V0])*(x-[V0])/( 2*[s0]*[s0] ) ) + [H1]*TMath::Exp( - (x-[V0]-[gain])*(x-[V0]-[gain])/( 2*([s0]*[s0] + [sadd]*[sadd] )) ) + [H2]*TMath::Exp( - (x-[V0]-2*[gain])*(x-[V0]-2*[gain])/( 2*([s0]*[s0] + 4*[sadd]*[sadd] ) ) ) + [H3]*TMath::Exp( - (x-[V0]-3*[gain])*(x-[V0]-3*[gain])/( 2*([s0]*[s0] + 9*[sadd]*[sadd]) ) )
 
 
@@ -755,9 +755,9 @@ void Ana_LED(string file1, int last_event_n){
 
     find_charge_window_bool = true;
 
-    led_and_dcr_0pe = true;
+    led_and_dcr_0pe = false;
 
-    smooth_trace_bool = true;
+    smooth_trace_bool = false;
 
     min_peak_window[0] = minLED_amp;
     max_peak_window[0] = maxLED_amp;
@@ -2571,22 +2571,33 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
   gaus_sum_012->SetParName(5, "s0");
   gaus_sum_012->SetParName(6, "sadd");
   gaus_sum_012->SetParName(7, "V0");
-  gaus_sum_012->SetParName(8, "dg01");
+  // gaus_sum_012->SetParName(8, "dg01");
 
   // Initialize Parameters
-  gaus_sum_012->SetParameter(0, 800);  // H0
-  gaus_sum_012->SetParameter(1, 800);  // H1
-  gaus_sum_012->SetParameter(2, 800);  // H2
-  gaus_sum_012->SetParameter(3, 800);  // H3
-  gaus_sum_012->SetParameter(4, 15);   // g
-  gaus_sum_012->SetParameter(5, 2);    // s0
-  gaus_sum_012->SetParameter(6, 1);    // sadd
-  gaus_sum_012->SetParameter(7, 1);    // V0
-  gaus_sum_012->SetParameter(8, 0.1);  // dg01
+  gaus_sum_012->SetParameter(0, 104);  // H0
+  gaus_sum_012->SetParameter(1, 140);  // H1
+  gaus_sum_012->SetParameter(2, 133);  // H2
+  gaus_sum_012->SetParameter(3, 109);  // H3
+  gaus_sum_012->SetParameter(4, 20);   // g
+  gaus_sum_012->SetParameter(5, 5);    // s0
+  gaus_sum_012->SetParameter(6, 2);    // sadd
+  gaus_sum_012->SetParameter(7, 4);    // V0
+  // gaus_sum_012->SetParameter(8, 0.1);  // dg01
+
+  gaus_sum_012->SetParLimits(0, 0,1e5);  // H0
+  gaus_sum_012->SetParLimits(1, 0,1e5);  // H1
+  gaus_sum_012->SetParLimits(2, 0,1e5);  // H2
+  gaus_sum_012->SetParLimits(3, 0,1e5);  // H3
+  gaus_sum_012->SetParLimits(4, 10,40);   // g
+  gaus_sum_012->SetParLimits(5, 0,20);    // s0
+  gaus_sum_012->SetParLimits(6, 0,4);    // sadd
+  gaus_sum_012->SetParLimits(7, -10,10);    // V0
+  // gaus_sum_012->SetParLimits(8, -1,1);  // dg01
+
 
   // Fit Range
-  float fit_low  = -10;
-  float fit_high = 55;
+  float fit_low  = -1.1;
+  float fit_high = 75.4;
 
 
   // FIT
@@ -2596,8 +2607,11 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
   // gain
   Gain              = gaus_sum_012->GetParameter(4);
   errGain           = gaus_sum_012->GetParError(4);
-  Diff_Gain_0_1     = gaus_sum_012->GetParameter(8);
-  errDiff_Gain_0_1  = gaus_sum_012->GetParError(8);
+  // Diff_Gain_0_1     = gaus_sum_012->GetParameter(8);
+  // errDiff_Gain_0_1  = gaus_sum_012->GetParError(8);
+
+  Diff_Gain_0_1 = 0;
+  errDiff_Gain_0_1 = 0;
 
   // sigma
   Sigma_add        = gaus_sum_012->GetParameter(6);
@@ -2715,6 +2729,7 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
 
 
 }
+
 
 
 

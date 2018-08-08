@@ -280,6 +280,31 @@ void OperationPoint_LASER_PLS_FitGausSum_01(){
     Entries[4]           = 40418;
 
 
+    // HV = 35.00 V
+    // Window for LED peak: (168, 176) ns  (minLED_amp, maxLED_amp)
+    // H_peak_0[0]          = 103.649;
+    // errH_peak_0[0]       = 2.2203;
+    // Sigma_peak_0[0]      = 5.31358;
+    // errSigma_peak_0[0]   = 0.0968018;
+    // H_peak_1[0]          = 139.676;
+    // errH_peak_1[0]       = 2.1813;
+    // Sigma_peak_1[0]      = 5.76161;
+    // errSigma_peak_1[0]   = 0.0962972;
+    // Mean_peak_1[0]       = 24.7479;
+    // errMean_peak_1[0]    = 0.152175;
+    // Mean_peak_2[0]       = 45.4243;
+    // errMean_peak_2[0]    = 0.17965;
+    // GAIN[0]              = 20.6764;
+    // errGAIN[0]           = 0.0954815;
+    // Mean_hg[2]           = 63.8847;
+    // errMean_hg[2]        = 0.225644;
+    // Std_hg[2]            = 45.246;
+    // errStd_hg[2]         = 0.159554;
+    // Entries[0]           = 40208;
+
+
+
+
 
 
     // HV = 35.5 V
