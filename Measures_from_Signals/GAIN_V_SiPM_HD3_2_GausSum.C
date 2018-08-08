@@ -12,6 +12,7 @@
  *      "[0]*TMath::Exp( - (x-[2]-[3])*(x-[2]-[3])/( 2*([4]*[4] + [5]*[5] )) )
  *       + [1]*TMath::Exp( - (x-[2]-2*[3])*(x-[2]-2*[3])/( 2*([4]*[4] +
  *      4*[5]*[5] ) ) ) "
+ *  > fit range set manually
  *
  * FILES ANALIZED:
  *
@@ -118,6 +119,10 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     // index:
     int index = 0;
 
+    // ERRORS
+    bool percentage_error_bool = false;
+    bool fix_error_bool = true;
+
     // Initialization
     for(int i=0; i<n_GAIN_1; i++){
         HV_1[i] = errHV_1[i] = GAIN_1[i] = errGAIN_1[i] = 0.;
@@ -190,28 +195,28 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     HV = 32.;
     index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
     cout<< index <<endl;
-    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.10810e+01;
-    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.28896e-02;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.31614e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.19338e-02;
 
     HV = 33;
-    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.43413e+01;
-    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.27008e-02;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.50984e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.09344e-02;
 
     HV = 34;
-    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] =  1.72045e+01;
-    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 8.79688e-03;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] =  1.74047e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 9.84946e-03;
 
     HV = 35;
-    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 1.98671e+01;
-    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 9.01132e-03;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 2.02401e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 8.91698e-03;
 
     HV = 36;
-    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 2.15711e+01;
-    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 9.60525e-03;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 2.25491e+01  ;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 8.93731e-03;
 
     HV = 37;
-    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 2.46153e+01;
-    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 3.50003e-02;
+    GAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 2.51216e+01;
+    errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 9.41230e-03;
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -249,16 +254,31 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
 
 
     // PERCENTAGE ERROR
-    double err_rel = 0.05;
-    for(int i=0; i<n_GAIN_1; i++){
-        errGAIN_1[i] = err_rel * GAIN_1[i];
+    if(percentage_error_bool){
+        double err_rel = 0.05;
+        for(int i=0; i<n_GAIN_1; i++){
+            errGAIN_1[i] = err_rel * GAIN_1[i];
+        }
+        for(int i=0; i<n_GAIN_2; i++){
+            errGAIN_2[i] = err_rel * GAIN_2[i];
+        }
+        for(int i=0; i<n_GAIN_3; i++){
+            errGAIN_3[i] = err_rel * GAIN_3[i];
+        }
     }
-    for(int i=0; i<n_GAIN_2; i++){
-        errGAIN_2[i] = err_rel * GAIN_2[i];
+    if(fix_error_bool){
+        double err_fix = 1;
+        for(int i=0; i<n_GAIN_1; i++){
+            errGAIN_1[i] = err_fix;
+        }
+        for(int i=0; i<n_GAIN_2; i++){
+            errGAIN_2[i] = err_fix;
+        }
+        for(int i=0; i<n_GAIN_3; i++){
+            errGAIN_3[i] = err_fix;
+        }
     }
-    for(int i=0; i<n_GAIN_3; i++){
-        errGAIN_3[i] = err_rel * GAIN_3[i];
-    }
+
 
 
     //------------------------------
