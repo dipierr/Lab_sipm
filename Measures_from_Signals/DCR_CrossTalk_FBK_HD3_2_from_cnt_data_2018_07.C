@@ -95,6 +95,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07();
 int find_index(double v[],int N, double value);
 
 char title_DCR[80];
+char title_DCR_mg[80];
 
 void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
@@ -126,7 +127,9 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     bool percentage_error_bool = false;
     bool fix_error_bool = true;
 
-    bool dcr_area = false;
+    bool dcr_area = true;
+
+    bool draw_all_bool = false;
 
     // Area:
     double Area = 36;
@@ -453,10 +456,34 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
             DCR_3[i]  *= 1e3;
             errDCR_3[i] *= 1e3;
         }
+
+        //------------------------------
+
+        for(int i=0; i< n_DCR_1; i++){
+            DCR_Del_1[i]  /= Area;
+            errDCR_Del_1[i] /= Area;
+            DCR_Del_1[i]  *= 1e3;
+            errDCR_Del_1[i] *= 1e3;
+        }
+        for(int i=0; i< n_DCR_2; i++){
+            DCR_Del_2[i]  /= Area;
+            errDCR_Del_2[i] /= Area;
+            DCR_Del_2[i]  *= 1e3;
+            errDCR_Del_2[i] *= 1e3;
+        }
+        for(int i=0; i< n_DCR_3; i++){
+            DCR_Del_3[i]  /= Area;
+            errDCR_Del_3[i] /= Area;
+            DCR_Del_3[i]  *= 1e3;
+            errDCR_Del_3[i] *= 1e3;
+        }
+
     }
 
 
     //------------------------------
+    //------------------------------
+
 
     TGraphErrors *gV_DCR_1  = new TGraphErrors(n_DCR_1, HV_1, DCR_1, errHV_1, errDCR_1);
     TGraphErrors *gV_DCR_2  = new TGraphErrors(n_DCR_2, HV_2, DCR_2, errHV_2, errDCR_2);
@@ -477,8 +504,11 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     //------------------------------
 
-    if(dcr_area) strcpy(title_DCR, "$\\frac{DCR}{Area} \\left(\\frac{kHz}{mm^2}\\right)$");
-    else strcpy(title_DCR, "DCR (MHz)");
+    if(dcr_area) strcpy(title_DCR, "\\frac{DCR}{Area} \\left(\\frac{kHz}{mm^2}\\right)");
+    else         strcpy(title_DCR, "DCR (MHz)");
+
+    strcpy(title_DCR_mg, ";Bias Voltage (V); ");
+    strcat(title_DCR_mg, title_DCR);
 
     gV_DCR_1->SetMarkerStyle(20);
     gV_DCR_1->SetMarkerColor(kOrange+1);
@@ -526,19 +556,19 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     gV_DCR_Del_1->SetMarkerColor(kOrange+1);
     gV_DCR_Del_1->SetTitle();
     gV_DCR_Del_1->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gV_DCR_Del_1->GetYaxis()->SetTitle("DCR (MHz)");
+    gV_DCR_Del_1->GetYaxis()->SetTitle(title_DCR);
 
     gV_DCR_Del_2->SetMarkerStyle(22);
     gV_DCR_Del_2->SetMarkerColor(kRed);
     gV_DCR_Del_2->SetTitle();
     gV_DCR_Del_2->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gV_DCR_Del_2->GetYaxis()->SetTitle("DCR (MHz)");
+    gV_DCR_Del_2->GetYaxis()->SetTitle(title_DCR);
 
     gV_DCR_Del_3->SetMarkerStyle(22);
     gV_DCR_Del_3->SetMarkerColor(kMagenta);
     gV_DCR_Del_3->SetTitle();
     gV_DCR_Del_3->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gV_DCR_Del_3->GetYaxis()->SetTitle("DCR (MHz)");
+    gV_DCR_Del_3->GetYaxis()->SetTitle(title_DCR);
 
     //------------------------------
 
@@ -562,31 +592,36 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     //------------------------------
 
-    TCanvas *cV_DCR_1 = new TCanvas("cV_DCR_1", "cV_DCR_1",w,h);
-    cV_DCR_1->SetGrid();
-    gV_DCR_1->Draw("AP");
+    if(draw_all_bool){
+        TCanvas *cV_DCR_1 = new TCanvas("cV_DCR_1", "cV_DCR_1",w,h);
+        cV_DCR_1->SetGrid();
+        gV_DCR_1->Draw("AP");
 
-    TCanvas *cV_DCR_2 = new TCanvas("cV_DCR_2", "cV_DCR_2",w,h);
-    cV_DCR_2->SetGrid();
-    gV_DCR_2->Draw("AP");
+        TCanvas *cV_DCR_2 = new TCanvas("cV_DCR_2", "cV_DCR_2",w,h);
+        cV_DCR_2->SetGrid();
+        gV_DCR_2->Draw("AP");
 
-    TCanvas *cV_DCR_3 = new TCanvas("cV_DCR_3", "cV_DCR_3",w,h);
-    cV_DCR_3->SetGrid();
-    gV_DCR_3->Draw("AP");
+        TCanvas *cV_DCR_3 = new TCanvas("cV_DCR_3", "cV_DCR_3",w,h);
+        cV_DCR_3->SetGrid();
+        gV_DCR_3->Draw("AP");
+    }
 
     //------------------------------
 
-    TCanvas *cV_CT_1 = new TCanvas("cV_CT_1", "cV_CT_1",w,h);
-    cV_CT_1->SetGrid();
-    gV_CT_1->Draw("AP");
+    if(draw_all_bool){
+        TCanvas *cV_CT_1 = new TCanvas("cV_CT_1", "cV_CT_1",w,h);
+        cV_CT_1->SetGrid();
+        gV_CT_1->Draw("AP");
 
-    TCanvas *cV_CT_2 = new TCanvas("cV_CT_2", "cV_CT_2",w,h);
-    cV_CT_2->SetGrid();
-    gV_CT_2->Draw("AP");
+        TCanvas *cV_CT_2 = new TCanvas("cV_CT_2", "cV_CT_2",w,h);
+        cV_CT_2->SetGrid();
+        gV_CT_2->Draw("AP");
 
-    TCanvas *cV_CT_3 = new TCanvas("cV_CT_3", "cV_CT_3",w,h);
-    cV_CT_3->SetGrid();
-    gV_CT_3->Draw("AP");
+        TCanvas *cV_CT_3 = new TCanvas("cV_CT_3", "cV_CT_3",w,h);
+        cV_CT_3->SetGrid();
+        gV_CT_3->Draw("AP");
+    }
+
 
     //------------------------------
 
@@ -607,7 +642,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     TCanvas *cDCR = new TCanvas("cDCR", "cDCR",w,h);
     cDCR->SetGrid();
-    TMultiGraph *mgDCR = new TMultiGraph("mgDCR", ";Bias Voltage (V);DCR (MHz)");
+    TMultiGraph *mgDCR = new TMultiGraph("mgDCR", title_DCR_mg);
     mgDCR->Add(gV_DCR_1);
     mgDCR->Add(gV_DCR_2);
     mgDCR->Add(gV_DCR_3);
@@ -618,7 +653,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     TCanvas *cCT = new TCanvas("cCT", "cCT",w,h);
     cCT->SetGrid();
-    TMultiGraph *mgCT = new TMultiGraph("mgCT", ";Bias Voltage (V);Cross Talk");
+    TMultiGraph *mgCT = new TMultiGraph("mgCT", ";Bias Voltage (V); Cross Talk");
     mgCT->Add(gV_CT_1);
     mgCT->Add(gV_CT_2);
     mgCT->Add(gV_CT_3);
@@ -629,31 +664,37 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     //------------------------------
 
-    TCanvas *cV_DCR_Del_1 = new TCanvas("cV_DCR_Del_1", "cV_DCR_Del_1",w,h);
-    cV_DCR_Del_1->SetGrid();
-    gV_DCR_Del_1->Draw("AP");
+    if(draw_all_bool){
+        TCanvas *cV_DCR_Del_1 = new TCanvas("cV_DCR_Del_1", "cV_DCR_Del_1",w,h);
+        cV_DCR_Del_1->SetGrid();
+        gV_DCR_Del_1->Draw("AP");
 
-    TCanvas *cV_DCR_Del_2 = new TCanvas("cV_DCR_Del_2", "cV_DCR_Del_2",w,h);
-    cV_DCR_Del_2->SetGrid();
-    gV_DCR_Del_2->Draw("AP");
+        TCanvas *cV_DCR_Del_2 = new TCanvas("cV_DCR_Del_2", "cV_DCR_Del_2",w,h);
+        cV_DCR_Del_2->SetGrid();
+        gV_DCR_Del_2->Draw("AP");
 
-    TCanvas *cV_DCR_Del_3 = new TCanvas("cV_DCR_Del_3", "cV_DCR_Del_3",w,h);
-    cV_DCR_Del_3->SetGrid();
-    gV_DCR_Del_3->Draw("AP");
+        TCanvas *cV_DCR_Del_3 = new TCanvas("cV_DCR_Del_3", "cV_DCR_Del_3",w,h);
+        cV_DCR_Del_3->SetGrid();
+        gV_DCR_Del_3->Draw("AP");
+    }
+
 
     //------------------------------
 
-    TCanvas *cV_CT_Del_1 = new TCanvas("cV_CT_Del_1", "cV_CT_Del_1",w,h);
-    cV_CT_Del_1->SetGrid();
-    gV_CT_Del_1->Draw("AP");
+    if(draw_all_bool){
+        TCanvas *cV_CT_Del_1 = new TCanvas("cV_CT_Del_1", "cV_CT_Del_1",w,h);
+        cV_CT_Del_1->SetGrid();
+        gV_CT_Del_1->Draw("AP");
 
-    TCanvas *cV_CT_Del_2 = new TCanvas("cV_CT_Del_2", "cV_CT_Del_2",w,h);
-    cV_CT_Del_2->SetGrid();
-    gV_CT_Del_2->Draw("AP");
+        TCanvas *cV_CT_Del_2 = new TCanvas("cV_CT_Del_2", "cV_CT_Del_2",w,h);
+        cV_CT_Del_2->SetGrid();
+        gV_CT_Del_2->Draw("AP");
 
-    TCanvas *cV_CT_Del_3 = new TCanvas("cV_CT_Del_3", "cV_CT_Del_3",w,h);
-    cV_CT_Del_3->SetGrid();
-    gV_CT_Del_3->Draw("AP");
+        TCanvas *cV_CT_Del_3 = new TCanvas("cV_CT_Del_3", "cV_CT_Del_3",w,h);
+        cV_CT_Del_3->SetGrid();
+        gV_CT_Del_3->Draw("AP");
+    }
+
 
     //------------------------------
 
@@ -693,7 +734,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     TCanvas *cDCR_Del = new TCanvas("cDCR_Del", "cDCR_Del",w,h);
     cDCR_Del->SetGrid();
-    TMultiGraph *mgDCR_Del = new TMultiGraph("mgDCR_Del", ";Bias Voltage (V);DCR (MHz)");
+    TMultiGraph *mgDCR_Del = new TMultiGraph("mgDCR_Del", title_DCR_mg);
     mgDCR_Del->Add(gV_DCR_Del_1);
     mgDCR_Del->Add(gV_DCR_Del_2);
     mgDCR_Del->Add(gV_DCR_Del_3);
@@ -716,63 +757,67 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     ///////////////////////////////////////////////////////////////////////////
 
-    //------------------------------
+    if(draw_all_bool){
+        //------------------------------
 
-    TCanvas *cDCR_CNT_Del_1 = new TCanvas("cDCR_CNT_Del_1", "cDCR_CNT_Del_1",w,h);
-    cDCR_CNT_Del_1->SetGrid();
-    TMultiGraph *mgDCR_CNT_Del_1 = new TMultiGraph("mgDCR_CNT_Del_1", ";Bias Voltage (V);DCR (MHz)");
-    mgDCR_CNT_Del_1->Add(gV_DCR_1);
-    mgDCR_CNT_Del_1->Add(gV_DCR_Del_1);
-    mgDCR_CNT_Del_1->Draw("AP");
+        TCanvas *cDCR_CNT_Del_1 = new TCanvas("cDCR_CNT_Del_1", "cDCR_CNT_Del_1",w,h);
+        cDCR_CNT_Del_1->SetGrid();
+        TMultiGraph *mgDCR_CNT_Del_1 = new TMultiGraph("mgDCR_CNT_Del_1", title_DCR_mg);
+        mgDCR_CNT_Del_1->Add(gV_DCR_1);
+        mgDCR_CNT_Del_1->Add(gV_DCR_Del_1);
+        mgDCR_CNT_Del_1->Draw("AP");
 
-    //------------------------------
+        //------------------------------
 
-    TCanvas *cCT_CNT_Del_1 = new TCanvas("cCT_CNT_Del_1", "cCT_CNT_Del_1",w,h);
-    cCT_CNT_Del_1->SetGrid();
-    TMultiGraph *mgCT_CNT_Del_1 = new TMultiGraph("mgCT_CNT_Del_1", ";Bias Voltage (V);Cross Talk");
-    mgCT_CNT_Del_1->Add(gV_CT_1);
-    mgCT_CNT_Del_1->Add(gV_CT_Del_1);
-    mgCT_CNT_Del_1->Draw("AP");
-
-
-    //------------------------------
-    //------------------------------
-
-    TCanvas *cDCR_CNT_Del_2 = new TCanvas("cDCR_CNT_Del_2", "cDCR_CNT_Del_2",w,h);
-    cDCR_CNT_Del_2->SetGrid();
-    TMultiGraph *mgDCR_CNT_Del_2 = new TMultiGraph("mgDCR_CNT_Del_2", ";Bias Voltage (V);DCR (MHz)");
-    mgDCR_CNT_Del_2->Add(gV_DCR_2);
-    mgDCR_CNT_Del_2->Add(gV_DCR_Del_2);
-    mgDCR_CNT_Del_2->Draw("AP");
-
-    //------------------------------
-
-    TCanvas *cCT_CNT_Del_2 = new TCanvas("cCT_CNT_Del_2", "cCT_CNT_Del_2",w,h);
-    cCT_CNT_Del_2->SetGrid();
-    TMultiGraph *mgCT_CNT_Del_2 = new TMultiGraph("mgCT_CNT_Del_2", ";Bias Voltage (V);Cross Talk");
-    mgCT_CNT_Del_2->Add(gV_CT_2);
-    mgCT_CNT_Del_2->Add(gV_CT_Del_2);
-    mgCT_CNT_Del_2->Draw("AP");
+        TCanvas *cCT_CNT_Del_1 = new TCanvas("cCT_CNT_Del_1", "cCT_CNT_Del_1",w,h);
+        cCT_CNT_Del_1->SetGrid();
+        TMultiGraph *mgCT_CNT_Del_1 = new TMultiGraph("mgCT_CNT_Del_1", ";Bias Voltage (V);Cross Talk");
+        mgCT_CNT_Del_1->Add(gV_CT_1);
+        mgCT_CNT_Del_1->Add(gV_CT_Del_1);
+        mgCT_CNT_Del_1->Draw("AP");
 
 
-    //------------------------------
-    //------------------------------
+        //------------------------------
+        //------------------------------
 
-    TCanvas *cDCR_CNT_Del_3 = new TCanvas("cDCR_CNT_Del_3", "cDCR_CNT_Del_3",w,h);
-    cDCR_CNT_Del_3->SetGrid();
-    TMultiGraph *mgDCR_CNT_Del_3 = new TMultiGraph("mgDCR_CNT_Del_3", ";Bias Voltage (V);DCR (MHz)");
-    mgDCR_CNT_Del_3->Add(gV_DCR_3);
-    mgDCR_CNT_Del_3->Add(gV_DCR_Del_3);
-    mgDCR_CNT_Del_3->Draw("AP");
+        TCanvas *cDCR_CNT_Del_2 = new TCanvas("cDCR_CNT_Del_2", "cDCR_CNT_Del_2",w,h);
+        cDCR_CNT_Del_2->SetGrid();
+        TMultiGraph *mgDCR_CNT_Del_2 = new TMultiGraph("mgDCR_CNT_Del_2", title_DCR_mg);
+        mgDCR_CNT_Del_2->Add(gV_DCR_2);
+        mgDCR_CNT_Del_2->Add(gV_DCR_Del_2);
+        mgDCR_CNT_Del_2->Draw("AP");
 
-    //------------------------------
+        //------------------------------
 
-    TCanvas *cCT_CNT_Del_3 = new TCanvas("cCT_CNT_Del_3", "cCT_CNT_Del_3",w,h);
-    cCT_CNT_Del_3->SetGrid();
-    TMultiGraph *mgCT_CNT_Del_3 = new TMultiGraph("mgCT_CNT_Del_3", ";Bias Voltage (V);Cross Talk");
-    mgCT_CNT_Del_3->Add(gV_CT_3);
-    mgCT_CNT_Del_3->Add(gV_CT_Del_3);
-    mgCT_CNT_Del_3->Draw("AP");
+        TCanvas *cCT_CNT_Del_2 = new TCanvas("cCT_CNT_Del_2", "cCT_CNT_Del_2",w,h);
+        cCT_CNT_Del_2->SetGrid();
+        TMultiGraph *mgCT_CNT_Del_2 = new TMultiGraph("mgCT_CNT_Del_2", ";Bias Voltage (V);Cross Talk");
+        mgCT_CNT_Del_2->Add(gV_CT_2);
+        mgCT_CNT_Del_2->Add(gV_CT_Del_2);
+        mgCT_CNT_Del_2->Draw("AP");
+
+
+        //------------------------------
+        //------------------------------
+
+        TCanvas *cDCR_CNT_Del_3 = new TCanvas("cDCR_CNT_Del_3", "cDCR_CNT_Del_3",w,h);
+        cDCR_CNT_Del_3->SetGrid();
+        TMultiGraph *mgDCR_CNT_Del_3 = new TMultiGraph("mgDCR_CNT_Del_3", title_DCR_mg);
+        mgDCR_CNT_Del_3->Add(gV_DCR_3);
+        mgDCR_CNT_Del_3->Add(gV_DCR_Del_3);
+        mgDCR_CNT_Del_3->Draw("AP");
+
+        //------------------------------
+
+        TCanvas *cCT_CNT_Del_3 = new TCanvas("cCT_CNT_Del_3", "cCT_CNT_Del_3",w,h);
+        cCT_CNT_Del_3->SetGrid();
+        TMultiGraph *mgCT_CNT_Del_3 = new TMultiGraph("mgCT_CNT_Del_3", ";Bias Voltage (V);Cross Talk");
+        mgCT_CNT_Del_3->Add(gV_CT_3);
+        mgCT_CNT_Del_3->Add(gV_CT_Del_3);
+        mgCT_CNT_Del_3->Draw("AP");
+
+
+    }
 
 
     //------------------------------
@@ -780,7 +825,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     TCanvas *cDCR_CNT_Del = new TCanvas("cDCR_CNT_Del", "cDCR_CNT_Del",w,h);
     cDCR_CNT_Del->SetGrid();
-    TMultiGraph *mgDCR_CNT_Del = new TMultiGraph("mgDCR_CNT_Del", ";Bias Voltage (V);DCR (MHz)");
+    TMultiGraph *mgDCR_CNT_Del = new TMultiGraph("mgDCR_CNT_Del", title_DCR_mg);
     mgDCR_CNT_Del->Add(gV_DCR_1);
     mgDCR_CNT_Del->Add(gV_DCR_2);
     mgDCR_CNT_Del->Add(gV_DCR_3);
