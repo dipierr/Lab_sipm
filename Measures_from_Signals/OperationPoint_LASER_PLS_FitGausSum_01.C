@@ -399,7 +399,7 @@ void OperationPoint_LASER_PLS_FitGausSum_01(){
 
     //------------------------------
 
-    gV_GW->SetMarkerStyle(47);
+    gV_GW->SetMarkerStyle(21);
     gV_GW->SetMarkerColor(kOrange+2);
     gV_GW->SetTitle();
     gV_GW->GetXaxis()->SetTitle("Voltage (V)");
@@ -420,7 +420,7 @@ void OperationPoint_LASER_PLS_FitGausSum_01(){
 
     //------------------------------
 
-    gV_MS->SetMarkerStyle(47);
+    gV_MS->SetMarkerStyle(21);
     gV_MS->SetMarkerColor(kOrange+2);
     gV_MS->SetTitle();
     gV_MS->GetXaxis()->SetTitle("Voltage (V)");
