@@ -2693,7 +2693,7 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
 
   // Fit Range
   float fit_low  = -10;
-  float fit_high = 51;
+  float fit_high = 35;
 
   float Mean_peak_0, Mean_peak_1, Mean_peak_2;
   float errMean_peak_0, errMean_peak_1, errMean_peak_2;
