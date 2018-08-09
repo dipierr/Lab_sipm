@@ -141,7 +141,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     bool dcr_area = true;
 
     // DRAW ALL
-    bool draw_all_bool = true;
+    bool draw_all_bool = false;
 
     // Area:
     double Area = 36;
