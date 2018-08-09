@@ -7,6 +7,16 @@
  *  > DCR_CT_1SiPM_nHVs(...)
  *  > dleddt = 6
  *  > NO trace smoothing
+ *  > thr at 0.5pe and 1.5 pe set manually
+ *
+ *  > for HV = 32 ... 37:
+ *    minyhistDelays = 15;  maxyhistDelays = 100;
+ *    expDelLow_max  = minyhistDelays*1.25; expDelHigh_max = maxyhistDelays;
+ *
+ *  > for HV = 31: (I need a bit more points)
+ *    minyhistDelays = 15;  maxyhistDelays = 127;
+ *    expDelLow_max  = minyhistDelays*1.25; expDelHigh_max = maxyhistDelays;
+ *
  *
  * FILES ANALIZED:
  *
@@ -83,9 +93,9 @@
 #include "TROOT.h"
 #include "TString.h"
 
-#define n_DCR_1 6
-#define n_DCR_2 6
-#define n_DCR_3 6
+#define n_DCR_1 7
+#define n_DCR_2 7
+#define n_DCR_3 7
 
 
 #define h 600
@@ -131,7 +141,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     bool dcr_area = true;
 
     // DRAW ALL
-    bool draw_all_bool = false;
+    bool draw_all_bool = true;
 
     // Area:
     double Area = 36;
@@ -148,21 +158,21 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     }
 
     // HV
-    HV_1[0]    = 32.00;
+    HV_1[0]    = 31.00;
     errHV_1[0] =  0.01;
     for(int i=1; i<n_DCR_1; i++){
         HV_1[i]    = HV_1[i-1]+1.;
         errHV_1[i] = errHV_1[0];
     }
 
-    HV_2[0]    = 32.00;
+    HV_2[0]    = 31.00;
     errHV_2[0] =  0.01;
     for(int i=1; i<n_DCR_2; i++){
         HV_2[i]    = HV_2[i-1]+1.;
         errHV_2[i] = errHV_2[0];
     }
 
-    HV_3[0]    = 32.00;
+    HV_3[0]    = 31.00;
     errHV_3[0] =  0.01;
     for(int i=1; i<n_DCR_3; i++){
         HV_3[i]    = HV_3[i-1]+1.;
@@ -174,6 +184,17 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     ///////////////////////////////////////////////////////////////////////////
     //      SiPM1
     ///////////////////////////////////////////////////////////////////////////
+    HV = 31.00;
+    index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
+    DCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 10.8468;
+    errDCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0110521;
+    CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.176791;
+    DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 9.75963;
+    errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0398614;
+    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.140421;
+
+
+
     HV = 32.00;
     index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
     DCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 14.7845;
@@ -232,6 +253,17 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     ///////////////////////////////////////////////////////////////////////////
     //      SiPM2
     ///////////////////////////////////////////////////////////////////////////
+    HV = 31.00;
+    index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
+    DCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 10.9316;
+    errDCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0111002;
+    CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.154444;
+    DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 10.1127;
+    errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0399677;
+    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.111517;
+
+
+
     HV = 32.00;
     index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
     DCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 14.5568;
@@ -293,6 +325,17 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     ///////////////////////////////////////////////////////////////////////////
     //      SiPM3
     ///////////////////////////////////////////////////////////////////////////
+    HV = 31.00;
+    index = find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV);
+    DCR_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 13.2422;
+    errDCR_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.012366;
+    CT_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.183176;
+    DCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 12.1804;
+    errDCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.0353279;
+    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.149937;
+
+
+
     HV = 32.00;
     index = find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV);
     DCR_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 17.6465;
@@ -397,7 +440,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     // FIXED ERROR
     if(fix_error_bool){
         double err_fix_DCR = 1;
-        double err_fix_CT = 0.015;
+        double err_fix_CT = 0.02;
         for(int i=0; i<n_DCR_1; i++){
             errDCR_1[i] = err_fix_DCR;
         }
@@ -857,6 +900,60 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     if(dcr_area) cout<<"DCR / AREA, please check axis title"<<endl;
     else         cout<<" DCR global, not / area"<<endl;
     cout<<"###############################################################################"<<endl;
+
+
+    // TEST Z
+    int N_Z = n_DCR_1;
+    double testZ_DCR[3][N_Z];
+    double testZ_CT[3][N_Z];
+    int n_SiPM = 0;
+    int n_SiPM_tot = 3;
+
+    n_SiPM = 0;
+    for(int i=0; i<N_Z; i++){
+        testZ_DCR[n_SiPM][i] = TMath::Abs((DCR_1[i] - DCR_Del_1[i]) / (TMath::Sqrt( errDCR_1[i]*errDCR_1[i] + errDCR_Del_1[i]*errDCR_Del_1[i] )));
+    }
+
+    n_SiPM = 1;
+    for(int i=0; i<N_Z; i++){
+        testZ_DCR[n_SiPM][i] = TMath::Abs((DCR_2[i] - DCR_Del_2[i]) / (TMath::Sqrt( errDCR_2[i]*errDCR_2[i] + errDCR_Del_2[i]*errDCR_Del_2[i] )));
+    }
+
+    n_SiPM = 2;
+    for(int i=0; i<N_Z; i++){
+        testZ_DCR[n_SiPM][i] = TMath::Abs((DCR_2[i] - DCR_Del_2[i]) / (TMath::Sqrt( errDCR_2[i]*errDCR_2[i] + errDCR_Del_2[i]*errDCR_Del_2[i] )));
+    }
+
+    n_SiPM = 0;
+    for(int i=0; i<N_Z; i++){
+        testZ_CT[n_SiPM][i] = TMath::Abs((CT_1[i] - CT_Del_1[i]) / (TMath::Sqrt( errCT_1[i]*errCT_1[i] + errCT_Del_1[i]*errCT_Del_1[i] )));
+    }
+
+    n_SiPM = 1;
+    for(int i=0; i<N_Z; i++){
+        testZ_CT[n_SiPM][i] = TMath::Abs((CT_2[i] - CT_Del_2[i]) / (TMath::Sqrt( errCT_2[i]*errCT_2[i] + errCT_Del_2[i]*errCT_Del_2[i] )));
+    }
+
+    n_SiPM = 2;
+    for(int i=0; i<N_Z; i++){
+        testZ_CT[n_SiPM][i] = TMath::Abs((CT_2[i] - CT_Del_2[i]) / (TMath::Sqrt( errCT_2[i]*errCT_2[i] + errCT_Del_2[i]*errCT_Del_2[i] )));
+    }
+
+    cout<<endl;
+    cout<<"TEST Z"<<endl;
+    for(int n=0; n<n_SiPM_tot; n++){
+        cout<<"SiPM "<<n+1<<endl;
+        for(int i=0; i<N_Z; i++){
+            cout<<testZ_DCR[n][i];
+            if(testZ_DCR[n][i] > 1.96) cout<<"\tTEST NOT PASSED"<<endl;
+            else cout<<endl;
+
+            cout<<testZ_CT[n][i];
+            if(testZ_CT[n][i] > 1.96) cout<<"\tTEST NOT PASSED "<<endl;
+            else cout<<endl;
+        }
+        cout<<endl;
+    }
 
 
 
