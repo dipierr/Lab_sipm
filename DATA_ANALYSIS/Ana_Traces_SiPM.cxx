@@ -126,8 +126,10 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n);
 void Analysis(string file, int last_event_n, bool display, TCanvas *c);
 void DLED(int trace_length, int dleddt);
 int find_peak_fix_time(int mintp, int maxtp);
+int FindPeakLED(int mintp, int maxtp);
 void find_peaks(float thr_to_find_peaks, int max_peak_width, int min_peak_width,int blind_gap, bool DCR_DELAYS_bool);
 void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_width, int rising_points, int falling_points);
+int FindPeakRisingFallingSelectedWindow(double thr, float **t, double length, int rising_points, int falling_points, int first_index, int last_index);
 void FindPeakPositions(float* vector, Bool_t dled_bool, Int_t dt);
 void FindPeaksFromPositions();
 void fit_hist_peaks_0pe_1pe_2pe(TCanvas *canv, TH1D *hist);
@@ -237,7 +239,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 6;//8;//5;//9*GSPS; //10ns is approx the rise time used for HD3_2 on AS out 2. Expressed in points: 9 @ 1GSPS
+int dleddt = 9;//8;//5;//9*GSPS;
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 50; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
@@ -265,8 +267,8 @@ float pe_1_5_vect[nfilemax] = {26., 25., 30., 32., 35., 37., 30., 30., 30., 30.}
 double Area = 36.00;
 
 // ONLY for LED measures
-int minLED_amp = 168;//290;//115;  // window: min time for peak (ns) for LED
-int maxLED_amp = 176;//305;//125;  // window: max time for peak (ns) for LED
+int minLED_amp = 168;//168;//290;//115;  // window: min time for peak (ns) for LED
+int maxLED_amp = 177;//176;//305;//125;  // window: max time for peak (ns) for LED
 double time_area_low = 30;  // time for the area before the LED peak (ns)
 double time_area_high = 200; // time for the area after the LED peak (ns)
 int dcr_mintp  = minLED_amp + 200;
@@ -523,7 +525,7 @@ bool smooth_trace_bool = false;
 
 int histLED_low = -50;
 int histLED_high = 700;
-float histLED_binw = 0.3; //mV
+float histLED_binw = 0.7;//0.3; //mV
 int histLED_nbins = (int)(((float)histLED_high-(float)histLED_low)/histLED_binw);//750;
 TH1D *ptrHistLED = new TH1D("histLED","",histLED_nbins, histLED_low, histLED_high);
 TH1D *ptrHistArea = new TH1D("histArea","",700, 0, 7000);
@@ -554,7 +556,8 @@ TF1 *gaus_sum_12 = new TF1("gaus_sum_12", "[0]*TMath::Exp( - (x-[2]-[3])*(x-[2]-
 // [4]  Sigma_0
 // [5]  Sigma_add
 
-TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[7])*(x-[7])/( 2*[5]*[5] ) ) + [1]*TMath::Exp( - (x-[7]-[4])*(x-[7]-[4])/( 2*([5]*[5] + [6]*[6] )) ) + [2]*TMath::Exp( - (x-[7]-2*[4])*(x-[7]-2*[4])/( 2*([5]*[5] + 4*[6]*[6] ) ) ) + [3]*TMath::Exp( - (x-[7]-3*[4])*(x-[7]-3*[4])/( 2*([5]*[5] + 9*[6]*[6]) ) )" ,-100,100);
+TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[6])*(x-[6])/( 2*[4]*[4] ) ) + [1]*TMath::Exp( - (x-[6]-[3])*(x-[6]-[3])/( 2*([4]*[4] + [5]*[5] )) ) + [2]*TMath::Exp( - (x-[6]-2*[3])*(x-[6]-2*[3])/( 2*([4]*[4] + 4*[5]*[5] ) ) ) " ,-100,100);
+// TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[7])*(x-[7])/( 2*[5]*[5] ) ) + [1]*TMath::Exp( - (x-[7]-[4])*(x-[7]-[4])/( 2*([5]*[5] + [6]*[6] )) ) + [2]*TMath::Exp( - (x-[7]-2*[4])*(x-[7]-2*[4])/( 2*([5]*[5] + 4*[6]*[6] ) ) ) + [3]*TMath::Exp( - (x-[7]-3*[4])*(x-[7]-3*[4])/( 2*([5]*[5] + 9*[6]*[6]) ) )" ,-100,100);
 //[H0]*TMath::Exp( - (x-[V0])*(x-[V0])/( 2*[s0]*[s0] ) ) + [H1]*TMath::Exp( - (x-[V0]-[gain])*(x-[V0]-[gain])/( 2*([s0]*[s0] + [sadd]*[sadd] )) ) + [H2]*TMath::Exp( - (x-[V0]-2*[gain])*(x-[V0]-2*[gain])/( 2*([s0]*[s0] + 4*[sadd]*[sadd] ) ) ) + [H3]*TMath::Exp( - (x-[V0]-3*[gain])*(x-[V0]-3*[gain])/( 2*([s0]*[s0] + 9*[sadd]*[sadd]) ) )
 
 
@@ -801,6 +804,7 @@ void Ana_LED(string file1, int last_event_n){
     cout<<"-------------"<<endl;
     cout<<"---[ LED ]---"<<endl;
     cout<<"-------------"<<endl;
+    cout<<endl;
     fit_hist_peaks_gaus_sum_012(canvLED, ptrHistLED, evaluate_cross_talk);
     cout<<"---------------------------------------------------------------------"<<endl;
 
@@ -1505,6 +1509,42 @@ void DLED(int trace_length, int dleddt){
         trace_DLED[1][ii] = trace[1][ii + dleddt]-trace[1][ii];
     }
 }
+
+//------------------------------------------------------------------------------
+int FindPeakLED(int mintp, int maxtp){
+    max_func = -10000;
+    index_func=-1;
+    for(ii=mintp; ii<maxtp; ii++){
+        if(trace_DLED[1][ii]>max_func && trace_DLED[1][ii]>trace_DLED[1][ii-1] && trace_DLED[1][ii]>trace_DLED[1][ii+1]){
+            max_func=trace_DLED[1][ii];
+            index_func=ii;
+        }
+    }
+
+    if(index_func==-1) {
+        for(ii=mintp; ii<maxtp; ii++){
+            if(trace_DLED[1][ii]>max_func && trace_DLED[1][ii]>trace_DLED[1][mintp-1] && trace_DLED[1][ii]>trace_DLED[1][maxtp+1]){
+                max_func=trace_DLED[1][ii];
+                index_func=ii;
+            }
+        }
+    }
+
+    if(index_func==-1){
+        // cout<<"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"<<endl;
+        for(ii=mintp; ii<maxtp; ii++){
+            if(trace_DLED[1][ii]>max_func){
+                max_func=trace_DLED[1][ii];
+                index_func=ii;
+            }
+        }
+    }
+
+    return index_func;
+}
+
+
+
 //------------------------------------------------------------------------------
 int find_peak_fix_time(int mintp, int maxtp){
     max_func = -10000;
@@ -1762,6 +1802,114 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
     ind_peaks_all_delay++;
 
 }
+
+
+
+//------------------------------------------------------------------------------
+int FindPeakRisingFallingSelectedWindow(double thr, float **t, double length, int rising_points, int falling_points, int first_index, int last_index){
+    int i=first_index;
+    int index_new = -1;
+    int peak_start = 0;
+    int peak_end = 0;
+    int peak_width = last_index-first_index;
+    double time_delay = 0;
+    num_peaks=0;
+    bool rising = true;
+    bool falling = true;
+    int half_rising_points = 0;
+    int half_falling_points = 0;
+    int diff = 0;
+
+    for(int i=0; i<max_peak_num; i++){
+            index_vect[i]=0;
+    }
+
+    bool find_rising_edge = true;
+
+    DCR_cnt_temp = 0;
+
+    while(i<last_index){ // loop on trace t
+
+        if(find_rising_edge){ // find rising edge
+            if(t[1][i] > thr){ // loop > thr
+
+                // find if rising edge or not
+                rising = true;
+                half_rising_points = (int)(rising_points/2);
+                diff = rising_points%2;
+                // cout<<endl<<"rising_points = "<<rising_points<<", i = "<<i<<endl;
+                for(int j=i-half_rising_points; j<i+half_rising_points+diff; j++){ // rising?
+                    // cout<<j<<", ";
+                    if( t[1][j] >= t[1][j+1] ){
+                        rising = false;
+                    }
+                } // end rising?
+
+                // getchar();
+
+                if(rising){ // rising edge
+                    peak_start = i-1;
+                    i++;
+                    find_rising_edge = false;
+                }
+                else{
+                    i++;
+                } // end rising edge
+
+            }else{
+                i++;
+            } // end loop > thr
+        } // end find rising edge
+        else{ // wait until the peak ends
+
+            // find if falling edge or not
+            falling = true;
+            half_falling_points = (int)(falling_points/2);
+            diff = falling_points%2;
+            // cout<<endl<<"falling_points = "<<falling_points<<", i = "<<i<<endl;
+            for(int j=i-half_falling_points; j<i+half_falling_points+diff; j++){ // falling?
+                // cout<<j<<", ";
+                if( t[1][j] <= t[1][j+1] ){
+                    falling = false;
+                }
+            } // end falling?
+
+            if(falling){ // falling edge
+                peak_end = i+1;
+                peak_width = peak_end-peak_start;
+
+                // I have found a falling edge. The following time I will look for a new peak:
+                find_rising_edge = true;
+
+
+                // I have to check if this can be a peak:
+                if(peak_width < max_peak_width){ // peak_width < max_peak_width
+                    // I have found a new peak
+                    DCR_cnt++;
+                    DCR_cnt_temp++;
+
+                    //Now I look for the maximum value in that window
+                    index_new = find_peak_fix_time(peak_start, peak_end);
+
+
+                    i+=gap_between_peaks;
+                } // end peak_width < max_peak_width
+                else{ // this is not a peak, too wide in time
+                    i++;
+                    // cout<<"*******   PEAK TOO WIDE   *******"<<endl;
+                }
+            } // end falling edge
+            else{ // I have not found a falling edge
+                i++;
+            }
+        } //end wait until the peak ends
+
+    } // end loop on trace t
+
+    return index_new;
+
+}
+
 
 //------------------------------------------------------------------------------
 void FindPeakPositions(float* vector, Bool_t dled_bool, Int_t dt)
@@ -2504,8 +2652,6 @@ void fit_hist_peaks_0pe_1pe_2pe(TCanvas *canv, TH1D *hist){
   // cout<<"Enter vector index:"<<endl;
   // cin>>index;
 
-  cout<<endl;
-  cout<<"// Window for LED peak: "<<"("<<minLED_amp<<", "<<maxLED_amp<<") ns"<<"  (minLED_amp, maxLED_amp)"<<endl;
 
   // peak 0
   cout<<"H_peak_0["<<index<<"]\t\t= "<<H_peak_0<<";"<<endl;
@@ -2544,6 +2690,11 @@ void fit_hist_peaks_0pe_1pe_2pe(TCanvas *canv, TH1D *hist){
 //------------------------------------------------------------------------------
 void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_talk){
 
+
+  // Fit Range
+  float fit_low  = -10;
+  float fit_high = 51;
+
   float Mean_peak_0, Mean_peak_1, Mean_peak_2;
   float errMean_peak_0, errMean_peak_1, errMean_peak_2;
 
@@ -2562,42 +2713,28 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
 
   canv->cd();
 
+  //   [0]*TMath::Exp( - (x-[6])*(x-[6])/( 2*[4]*[4] ) ) +
+  // + [1]*TMath::Exp( - (x-[6]-[3])*(x-[6]-[3])/( 2*([4]*[4] + [5]*[5] )) ) +
+  // + [2]*TMath::Exp( - (x-[6]-2*[3])*(x-[6]-2*[3])/( 2*([4]*[4] + 4*[5]*[5] ) ) )
+
   // Set Name
   gaus_sum_012->SetParName(0, "H0");
   gaus_sum_012->SetParName(1, "H1");
   gaus_sum_012->SetParName(2, "H2");
-  gaus_sum_012->SetParName(3, "H3");
-  gaus_sum_012->SetParName(4, "gain");
-  gaus_sum_012->SetParName(5, "s0");
-  gaus_sum_012->SetParName(6, "sadd");
-  gaus_sum_012->SetParName(7, "V0");
-  // gaus_sum_012->SetParName(8, "dg01");
+  gaus_sum_012->SetParName(3, "gain");
+  gaus_sum_012->SetParName(4, "s0");
+  gaus_sum_012->SetParName(5, "sadd");
+  gaus_sum_012->SetParName(6, "V0");
 
   // Initialize Parameters
   gaus_sum_012->SetParameter(0, 104);  // H0
   gaus_sum_012->SetParameter(1, 140);  // H1
   gaus_sum_012->SetParameter(2, 133);  // H2
-  gaus_sum_012->SetParameter(3, 109);  // H3
-  gaus_sum_012->SetParameter(4, 20);   // g
-  gaus_sum_012->SetParameter(5, 5);    // s0
-  gaus_sum_012->SetParameter(6, 2);    // sadd
-  gaus_sum_012->SetParameter(7, 4);    // V0
-  // gaus_sum_012->SetParameter(8, 0.1);  // dg01
+  gaus_sum_012->SetParameter(3, 20);   // g
+  gaus_sum_012->SetParameter(4, 5);    // s0
+  gaus_sum_012->SetParameter(5, 2);    // sadd
+  gaus_sum_012->SetParameter(6, 4);    // V0
 
-  gaus_sum_012->SetParLimits(0, 0,1e5);  // H0
-  gaus_sum_012->SetParLimits(1, 0,1e5);  // H1
-  gaus_sum_012->SetParLimits(2, 0,1e5);  // H2
-  gaus_sum_012->SetParLimits(3, 0,1e5);  // H3
-  gaus_sum_012->SetParLimits(4, 10,40);   // g
-  gaus_sum_012->SetParLimits(5, 0,20);    // s0
-  gaus_sum_012->SetParLimits(6, 0,4);    // sadd
-  gaus_sum_012->SetParLimits(7, -10,10);    // V0
-  // gaus_sum_012->SetParLimits(8, -1,1);  // dg01
-
-
-  // Fit Range
-  float fit_low  = -1.1;
-  float fit_high = 75.4;
 
 
   // FIT
@@ -2613,9 +2750,11 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
   Diff_Gain_0_1 = 0;
   errDiff_Gain_0_1 = 0;
 
+  // (0, "H0");   (1, "H1");   (2, "H2");   (3, "gain");   (4, "s0");   (5, "sadd");   (6, "V0");
+
   // sigma
-  Sigma_add        = gaus_sum_012->GetParameter(6);
-  errSigma_add     = gaus_sum_012->GetParError(6);
+  Sigma_add        = gaus_sum_012->GetParameter(5);
+  errSigma_add     = gaus_sum_012->GetParError(5);
 
 
   //--------------
@@ -2623,10 +2762,10 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
   //-------------
   H_peak_0          = gaus_sum_012->GetParameter(0);
   errH_peak_0       = gaus_sum_012->GetParError(0);
-  Mean_peak_0       = gaus_sum_012->GetParameter(7);
-  errMean_peak_0    = gaus_sum_012->GetParError(7);
-  Sigma_peak_0      = gaus_sum_012->GetParameter(5);
-  errSigma_peak_0   = gaus_sum_012->GetParError(5);
+  Mean_peak_0       = gaus_sum_012->GetParameter(6);
+  errMean_peak_0    = gaus_sum_012->GetParError(6);
+  Sigma_peak_0      = gaus_sum_012->GetParameter(4);
+  errSigma_peak_0   = gaus_sum_012->GetParError(4);
 
 
   //--------------
@@ -2653,6 +2792,15 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
 
   //gaus_sum_012->Draw("same");
 
+  // check:
+  cout<<"H0     "<< H_peak_0 <<endl;
+  cout<<"H1     "<< H_peak_2 <<endl;
+  cout<<"H2     "<< H_peak_2 <<endl;
+  cout<<"gain   "<< gaus_sum_012->GetParameter(3) <<endl;
+  cout<<"s0     "<< Sigma_peak_0 <<endl;
+  cout<<"sadd   "<< Sigma_add <<endl;
+  cout<<"V0     "<< Mean_peak_0 <<endl;
+
   //---------------------
   //---[ GLOBAL HIST ]---
   //---------------------
@@ -2673,17 +2821,28 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
   double Prob_1peS = Area1/Entries;
   double Prob_Cross_Talk = 1-(Prob_1peS/Prob_1pe);
 
+  // cout<<"Sigma_peak_1    "<<Sigma_peak_1<<endl;
+  // cout<<"Area0           "<<Area0<<endl;
+  // cout<<"Area1           "<<Area1<<endl;
+  // cout<<"Mu              "<<Mu<<endl;
+  // cout<<"Prob_1pe        "<<Prob_1pe<<endl;
+  // cout<<"Prob_1peS       "<<Prob_1peS<<endl;
+  // cout<<"Prob_Cross_Talk "<<Prob_Cross_Talk<<endl;
+
 
   //-----------------
   //---[ RESULTS ]---
   //-----------------
   int index = 0;
   cout<<endl;
-  // cout<<"Enter vector index:"<<endl;
-  // cin>>index;
+  cout<<"Enter vector index:"<<endl;
+  cin>>index;
 
   cout<<endl;
   cout<<"// Window for LED peak: "<<"("<<minLED_amp<<", "<<maxLED_amp<<") ns"<<"  (minLED_amp, maxLED_amp)"<<endl;
+  cout<<"// Other: dleddt = "<<dleddt<<"; smooth_trace_bool = "<<smooth_trace_bool<<";"<<endl;
+  cout<<"//        histLED_low = "<<histLED_low<<"; histLED_high = "<<histLED_high<<"; histLED_binw = "<<histLED_binw<<";"<<endl;
+  cout<<"//        fit_low = "<<fit_low<<"; fit_high = "<<fit_high<<";"<<endl;
 
   // peak 0
   cout<<"H_peak_0["<<index<<"]          = "<<H_peak_0<<";"<<endl;
@@ -3610,7 +3769,25 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
                     // cout<<"mintp "<<mintp<<"\t"<<"maxtp "<<maxtp<<"\t";
                     // cout<<"min_line "<<min_line<<"\t"<<"max_line "<<max_line<<"\t";
                     // cout<<"trace_DLED[0][0] "<<trace_DLED[0][0]<<endl;
+
+
                     index_for_peak = find_peak_fix_time(mintp, maxtp);
+                    // index_for_peak = FindPeakLED(mintp, maxtp);
+                    // index_for_peak = FindPeakRisingFallingSelectedWindow(5, trace_DLED, trace_DLED_length,2,4,mintp, maxtp);
+                    // if(index_for_peak==0){
+                    //     int max_temp = -10000;
+                    //     for( ii=mintp; ii<maxtp; ii++){
+                    //         if(trace_DLED[1][ii]>max_temp and trace_DLED[1][ii]<5){
+                    //             max_temp=trace_DLED[1][ii];
+                    //             index_func=ii;
+                    //         }
+                    //     }
+                    // }
+
+                    // int FindPeakRisingFallingSelectedWindow(double thr, float **t, double length, int rising_points, int falling_points, int first_index, int last_index);
+
+
+
                     if(jj==0){
                       index_peak_LED = index_for_peak;
                     }
@@ -3627,6 +3804,9 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
                           } // end check mintp
                       } // end 1pe or more
                     }// end peak rejected or not
+
+                    // peak always ok:
+                    peak_rejected = false;
 
                     // peak OK
                     if(!peak_rejected){
