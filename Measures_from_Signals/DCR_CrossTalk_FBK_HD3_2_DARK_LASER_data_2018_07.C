@@ -72,12 +72,12 @@ TGraphErrors *gV_MS;
 char title_DCR[80];
 char title_DCR_mg[80];
 
-void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07___OperationPoint_LASER_PLS_FitGausSum_01();
+void DCR_CrossTalk_FBK_HD3_2_DARK_LASER_data_2018_07();
 // void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07();
 int find_index(double v[],int N, double value);
 // void OperationPoint_LASER_PLS_FitGausSum_01();
 
-void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07___OperationPoint_LASER_PLS_FitGausSum_01(){
+void DCR_CrossTalk_FBK_HD3_2_DARK_LASER_data_2018_07(){
 
     // SiPM1:
     double HV_1[n_DCR_1], errHV_1[n_DCR_1];
