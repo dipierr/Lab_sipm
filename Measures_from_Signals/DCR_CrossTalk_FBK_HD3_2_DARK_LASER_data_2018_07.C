@@ -655,25 +655,25 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_LASER_data_2018_07(){
     //------------------------------
 
 
-    TCanvas *cDCR = new TCanvas("cDCR", "cDCR",w,h);
-    cDCR->SetGrid();
-    TMultiGraph *mgDCR = new TMultiGraph("mgDCR", title_DCR_mg);
-    mgDCR->Add(gV_DCR_1);
-    mgDCR->Add(gV_DCR_2);
-    mgDCR->Add(gV_DCR_3);
-    mgDCR->Draw("AP");
-    legendDCR->Draw();
+    // TCanvas *cDCR = new TCanvas("cDCR", "cDCR",w,h);
+    // cDCR->SetGrid();
+    // TMultiGraph *mgDCR = new TMultiGraph("mgDCR", title_DCR_mg);
+    // mgDCR->Add(gV_DCR_1);
+    // mgDCR->Add(gV_DCR_2);
+    // mgDCR->Add(gV_DCR_3);
+    // mgDCR->Draw("AP");
+    // legendDCR->Draw();
 
     //------------------------------
 
-    TCanvas *cCT = new TCanvas("cCT", "cCT",w,h);
-    cCT->SetGrid();
-    TMultiGraph *mgCT = new TMultiGraph("mgCT", ";Bias Voltage (V); Cross Talk");
-    mgCT->Add(gV_CT_1);
-    mgCT->Add(gV_CT_2);
-    mgCT->Add(gV_CT_3);
-    mgCT->Draw("AP");
-    legendCT->Draw();
+    // TCanvas *cCT = new TCanvas("cCT", "cCT",w,h);
+    // cCT->SetGrid();
+    // TMultiGraph *mgCT = new TMultiGraph("mgCT", ";Bias Voltage (V); Cross Talk");
+    // mgCT->Add(gV_CT_1);
+    // mgCT->Add(gV_CT_2);
+    // mgCT->Add(gV_CT_3);
+    // mgCT->Draw("AP");
+    // legendCT->Draw();
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -747,26 +747,26 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_LASER_data_2018_07(){
 
     //------------------------------
 
-    TCanvas *cDCR_Del = new TCanvas("cDCR_Del", "cDCR_Del",w,h);
-    cDCR_Del->SetGrid();
-    TMultiGraph *mgDCR_Del = new TMultiGraph("mgDCR_Del", title_DCR_mg);
-    mgDCR_Del->Add(gV_DCR_Del_1);
-    mgDCR_Del->Add(gV_DCR_Del_2);
-    mgDCR_Del->Add(gV_DCR_Del_3);
-    mgDCR_Del->Draw("AP");
-    legendDCR_Del->Draw();
+    // TCanvas *cDCR_Del = new TCanvas("cDCR_Del", "cDCR_Del",w,h);
+    // cDCR_Del->SetGrid();
+    // TMultiGraph *mgDCR_Del = new TMultiGraph("mgDCR_Del", title_DCR_mg);
+    // mgDCR_Del->Add(gV_DCR_Del_1);
+    // mgDCR_Del->Add(gV_DCR_Del_2);
+    // mgDCR_Del->Add(gV_DCR_Del_3);
+    // mgDCR_Del->Draw("AP");
+    // legendDCR_Del->Draw();
 
 
     //------------------------------
 
-    TCanvas *cCT_Del = new TCanvas("cCT_Del", "cCT_Del",w,h);
-    cCT_Del->SetGrid();
-    TMultiGraph *mgCT_Del = new TMultiGraph("mgCT_Del", ";Bias Voltage (V);Cross Talk");
-    mgCT_Del->Add(gV_CT_Del_1);
-    mgCT_Del->Add(gV_CT_Del_2);
-    mgCT_Del->Add(gV_CT_Del_3);
-    mgCT_Del->Draw("AP");
-    legendCT_Del->Draw();
+    // TCanvas *cCT_Del = new TCanvas("cCT_Del", "cCT_Del",w,h);
+    // cCT_Del->SetGrid();
+    // TMultiGraph *mgCT_Del = new TMultiGraph("mgCT_Del", ";Bias Voltage (V);Cross Talk");
+    // mgCT_Del->Add(gV_CT_Del_1);
+    // mgCT_Del->Add(gV_CT_Del_2);
+    // mgCT_Del->Add(gV_CT_Del_3);
+    // mgCT_Del->Draw("AP");
+    // legendCT_Del->Draw();
 
 
 
@@ -838,38 +838,38 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_LASER_data_2018_07(){
     //------------------------------
     //------------------------------
 
-    TCanvas *cDCR_CNT_Del = new TCanvas("cDCR_CNT_Del", "cDCR_CNT_Del",w,h);
-    cDCR_CNT_Del->SetGrid();
-    TMultiGraph *mgDCR_CNT_Del = new TMultiGraph("mgDCR_CNT_Del", title_DCR_mg);
-    mgDCR_CNT_Del->Add(gV_DCR_1);
-    mgDCR_CNT_Del->Add(gV_DCR_2);
-    mgDCR_CNT_Del->Add(gV_DCR_3);
-    mgDCR_CNT_Del->Add(gV_DCR_Del_1);
-    mgDCR_CNT_Del->Add(gV_DCR_Del_2);
-    mgDCR_CNT_Del->Add(gV_DCR_Del_3);
-    mgDCR_CNT_Del->Draw("AP");
-    legendDCR_CNT_Del->Draw();
+    // TCanvas *cDCR_CNT_Del = new TCanvas("cDCR_CNT_Del", "cDCR_CNT_Del",w,h);
+    // cDCR_CNT_Del->SetGrid();
+    // TMultiGraph *mgDCR_CNT_Del = new TMultiGraph("mgDCR_CNT_Del", title_DCR_mg);
+    // mgDCR_CNT_Del->Add(gV_DCR_1);
+    // mgDCR_CNT_Del->Add(gV_DCR_2);
+    // mgDCR_CNT_Del->Add(gV_DCR_3);
+    // mgDCR_CNT_Del->Add(gV_DCR_Del_1);
+    // mgDCR_CNT_Del->Add(gV_DCR_Del_2);
+    // mgDCR_CNT_Del->Add(gV_DCR_Del_3);
+    // mgDCR_CNT_Del->Draw("AP");
+    // legendDCR_CNT_Del->Draw();
 
 
     //------------------------------
 
-    TCanvas *cCT_CNT_Del = new TCanvas("cCT_CNT_Del", "cCT_CNT_Del",w,h);
-    cCT_CNT_Del->SetGrid();
-    TMultiGraph *mgCT_CNT_Del = new TMultiGraph("mgCT_CNT_Del", ";Bias Voltage (V);Cross Talk");
-    mgCT_CNT_Del->Add(gV_CT_1);
-    mgCT_CNT_Del->Add(gV_CT_2);
-    mgCT_CNT_Del->Add(gV_CT_3);
-    mgCT_CNT_Del->Add(gV_CT_Del_1);
-    mgCT_CNT_Del->Add(gV_CT_Del_2);
-    mgCT_CNT_Del->Add(gV_CT_Del_3);
-    mgCT_CNT_Del->Draw("AP");
-    legendCT_CNT_Del->Draw();
+    // TCanvas *cCT_CNT_Del = new TCanvas("cCT_CNT_Del", "cCT_CNT_Del",w,h);
+    // cCT_CNT_Del->SetGrid();
+    // TMultiGraph *mgCT_CNT_Del = new TMultiGraph("mgCT_CNT_Del", ";Bias Voltage (V);Cross Talk");
+    // mgCT_CNT_Del->Add(gV_CT_1);
+    // mgCT_CNT_Del->Add(gV_CT_2);
+    // mgCT_CNT_Del->Add(gV_CT_3);
+    // mgCT_CNT_Del->Add(gV_CT_Del_1);
+    // mgCT_CNT_Del->Add(gV_CT_Del_2);
+    // mgCT_CNT_Del->Add(gV_CT_Del_3);
+    // mgCT_CNT_Del->Draw("AP");
+    // legendCT_CNT_Del->Draw();
 
-    cout<<"###############################################################################"<<endl;
-    cout<<" WARNING "<<endl;
-    if(dcr_area) cout<<"DCR / AREA, please check axis title"<<endl;
-    else         cout<<" DCR global, not / area"<<endl;
-    cout<<"###############################################################################"<<endl;
+    // cout<<"###############################################################################"<<endl;
+    // cout<<" WARNING "<<endl;
+    // if(dcr_area) cout<<"DCR / AREA, please check axis title"<<endl;
+    // else         cout<<" DCR global, not / area"<<endl;
+    // cout<<"###############################################################################"<<endl;
 
 
 
@@ -1239,7 +1239,7 @@ TGraphErrors *gV_GW  = new TGraphErrors(n_GAIN, HV_LASER_GAIN, GainWeighted, err
 
 //------------------------------
 
-gV_GW->SetMarkerStyle(47);
+gV_GW->SetMarkerStyle(21);
 gV_GW->SetMarkerColor(kOrange+2);
 gV_GW->SetTitle();
 gV_GW->GetXaxis()->SetTitle("Voltage (V)");
@@ -1247,9 +1247,9 @@ gV_GW->GetYaxis()->SetTitle("Weighted Gain");
 
 //------------------------------
 
-TCanvas *cV_GW = new TCanvas("cV_GW", "cV_GW",w,h);
-cV_GW->SetGrid();
-gV_GW->Draw("AP");
+// TCanvas *cV_GW = new TCanvas("cV_GW", "cV_GW",w,h);
+// cV_GW->SetGrid();
+// gV_GW->Draw("AP");
 
  //------------------------------
  // Mean/Dev_st
@@ -1260,7 +1260,7 @@ TGraphErrors *gV_MS  = new TGraphErrors(n_MEAN, HV_LASER, Mean_hist_St_dev, errH
 
 //------------------------------
 
-gV_MS->SetMarkerStyle(47);
+gV_MS->SetMarkerStyle(21);
 gV_MS->SetMarkerColor(kOrange+2);
 gV_MS->SetTitle();
 gV_MS->GetXaxis()->SetTitle("Voltage (V)");
@@ -1268,9 +1268,9 @@ gV_MS->GetYaxis()->SetTitle("Mean/St_Dev ()");
 
 //------------------------------
 
-TCanvas *cV_MS = new TCanvas("cV_MS", "cV_MS",w,h);
-cV_MS->SetGrid();
-gV_MS->Draw("AP");
+// TCanvas *cV_MS = new TCanvas("cV_MS", "cV_MS",w,h);
+// cV_MS->SetGrid();
+// gV_MS->Draw("AP");
 
 
 //------------------------------
@@ -1293,9 +1293,9 @@ gV_PCT->GetYaxis()->SetTitle("Cross Talk");
 
 //------------------------------
 
-TCanvas *cV_PCT = new TCanvas("cV_PCT", "cV_PCT",w,h);
-cV_PCT->SetGrid();
-gV_PCT->Draw("AP");
+// TCanvas *cV_PCT = new TCanvas("cV_PCT", "cV_PCT",w,h);
+// cV_PCT->SetGrid();
+// gV_PCT->Draw("AP");
 
 
 
