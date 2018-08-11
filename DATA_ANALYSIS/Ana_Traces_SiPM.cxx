@@ -61,6 +61,9 @@ using namespace std;
 
 #define n6 TMath::Power(10,-6)
 
+#define h_canvas 600
+#define w_canvas 1000
+
 
 //------------------------------------------------------------------------------
 //--------------------------[   READ BIN DRS4 INTRO   ]-------------------------
@@ -239,7 +242,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 6;//9;//8;//5;//9*GSPS;
+int dleddt = 9;//9;//8;//5;//9*GSPS;
     // dleddt = 6; for DCR_CT_1SiPM_nHVs(), 20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat and similar
     // dleddt = 9; for Ana_LED(), 20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_35_AS_2_50000_01.dat and silar
 int blind_gap = 2*dleddt; //ns
@@ -269,8 +272,8 @@ float pe_1_5_vect[nfilemax] = {20., 25., 30., 32., 35., 37., 30., 30., 30., 30.}
 double Area = 36.00;
 
 // ONLY for LED measures
-int minLED_amp = 168;//168;//290;//115;  // window: min time for peak (ns) for LED
-int maxLED_amp = 177;//176;//305;//125;  // window: max time for peak (ns) for LED
+int minLED_amp = 168;//168;//168;//290;//115;  // window: min time for peak (ns) for LED
+int maxLED_amp = 180;//177;//176;//305;//125;  // window: max time for peak (ns) for LED
 double time_area_low = 30;  // time for the area before the LED peak (ns)
 double time_area_high = 200; // time for the area after the LED peak (ns)
 int dcr_mintp  = minLED_amp + 200;
@@ -939,7 +942,7 @@ void DCR_CT_1SiPM_1HV(string file1, int last_event_n){
     DCR_mg->Add(gDCR[0]);
 
 
-    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop");
+    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop", h_canvas, w_canvas);
 
     cDCR_loop->SetGrid();
     cDCR_loop->SetLogy();
@@ -1048,7 +1051,7 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
     }
 
 
-    TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); $\\frac{DCR}{mm^2}$ (Hz)");
+    TMultiGraph *DCR_mg = new TMultiGraph("DCR_mg", ";THR (mV); \\frac{DCR}{Area} \\left(\\frac{kHz}{mm^2}\\right)");
     for(int i=0; i<nfiletot; i++){
         DCR_mg->Add(gDCR[i]);
     }
@@ -1059,11 +1062,13 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
     cDCR_loop->SetLogy();
     DCR_mg->Draw("A3L");
 
-    auto legendDCR_loop = new TLegend(0.75,0.75,0.9,0.9);
+    auto legendDCR_loop = new TLegend(0.55,0.80,0.9,0.9);
     for(int i=0; i<nfiletot; i++){
         legendDCR_loop->AddEntry(gDCR[i],legend_entry[i].c_str(),"l");
     }
-    legendDCR_loop->SetNColumns(3);
+
+    int n_columns = (int)nfile_in_list/2 + 1;
+    legendDCR_loop->SetNColumns(n_columns);
     legendDCR_loop->Draw();
 
     cout<<endl;
@@ -2696,7 +2701,7 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
 
   // Fit Range
   float fit_low  = -10;
-  float fit_high = 29;
+  float fit_high = 28.7;
 
   float Mean_peak_0, Mean_peak_1, Mean_peak_2;
   float errMean_peak_0, errMean_peak_1, errMean_peak_2;
@@ -3794,19 +3799,21 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
                     if(jj==0){
                       index_peak_LED = index_for_peak;
                     }
-                    peak_rejected = true;
-                    if(index_for_peak>-1){ // peak rejected or not
-                      if(trace_DLED[1][index_for_peak]<thr_to_find_peaks){ // 0pe
-                          peak_rejected = false;
-                      } // end 0pe
-                      else{ // 1pe or more
-                          if(  trace_DLED[1][index_for_peak]>trace_DLED[1][mintp] && trace_DLED[1][index_for_peak]>trace_DLED[1][mintp-1]){ // check mintp
-                            if(trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp] && trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp+1]){ // check maxtp
-                              peak_rejected = false;
-                            } // end check maxtp
-                          } // end check mintp
-                      } // end 1pe or more
-                    }// end peak rejected or not
+
+                    // CHECK PEAK
+                    // peak_rejected = true;
+                    // if(index_for_peak>-1){ // peak rejected or not
+                    //   if(trace_DLED[1][index_for_peak]<thr_to_find_peaks){ // 0pe
+                    //       peak_rejected = false;
+                    //   } // end 0pe
+                    //   else{ // 1pe or more
+                    //       if(  trace_DLED[1][index_for_peak]>trace_DLED[1][mintp] && trace_DLED[1][index_for_peak]>trace_DLED[1][mintp-1]){ // check mintp
+                    //         if(trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp] && trace_DLED[1][index_for_peak]>trace_DLED[1][maxtp+1]){ // check maxtp
+                    //           peak_rejected = false;
+                    //         } // end check maxtp
+                    //       } // end check mintp
+                    //   } // end 1pe or more
+                    // }// end peak rejected or not
 
                     // peak always ok:
                     peak_rejected = false;

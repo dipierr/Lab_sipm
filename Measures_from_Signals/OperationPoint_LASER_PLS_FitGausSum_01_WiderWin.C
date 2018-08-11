@@ -46,7 +46,7 @@
 #define h 600
 #define w 1000
 
-void OperationPoint_LASER_PLS_FitGausSum_01(){
+void OperationPoint_LASER_PLS_FitGausSum_01_WiderWin(){
 
     // ERRORS
     bool fix_error_bool = true;
@@ -141,138 +141,147 @@ void OperationPoint_LASER_PLS_FitGausSum_01(){
 
 
     // HV = 31 V [0]
-    // Window for LED peak: (168, 177) ns  (minLED_amp, maxLED_amp)
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
     // Other: dleddt = 9; smooth_trace_bool = 0;
     //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
     //        fit_low = -10; fit_high = 29;
-    H_peak_0[0]          = 798.911;
-    errH_peak_0[0]       = 12.4535;
-    Sigma_peak_0[0]      = 2.45416;
-    errSigma_peak_0[0]   = 0.0310133;
-    H_peak_1[0]          = 1180.98;
-    errH_peak_1[0]       = 16.6779;
-    Sigma_peak_1[0]      = 2.96697;
-    errSigma_peak_1[0]   = 0.0387114;
-    Mean_peak_1[0]       = 5.9277;
-    errMean_peak_1[0]    = 0.0543554;
-    Mean_peak_2[0]       = 8.38187;
-    errMean_peak_2[0]    = 0.0625806;
-    GAIN[0]              = 2.45416;
-    errGAIN[0]           = 0.0310133;
-    Mean_hg[2]           = 23.9805;
-    errMean_hg[2]        = 0.0713393;
-    Std_hg[2]            = 15.9518;
-    errStd_hg[2]         = 0.0504445;
+    H_peak_0[0]          = 757.992;
+    errH_peak_0[0]       = 12.9783;
+    Sigma_peak_0[0]      = 2.19149;
+    errSigma_peak_0[0]   = 0.0345532;
+    H_peak_1[0]          = 1166.78;
+    errH_peak_1[0]       = 22.6696;
+    Sigma_peak_1[0]      = 2.89585;
+    errSigma_peak_1[0]   = 0.0511968;
+    Mean_peak_1[0]       = 6.6066;
+    errMean_peak_1[0]    = 0.0610825;
+    Mean_peak_2[0]       = 8.79809;
+    errMean_peak_2[0]    = 0.0701784;
+    GAIN[0]              = 2.19149;
+    errGAIN[0]           = 0.0345532;
+    Mean_hg[2]           = 24.6891;
+    errMean_hg[2]        = 0.0694716;
+    Std_hg[2]            = 15.5342;
+    errStd_hg[2]         = 0.0491239;
     Entries[0]           = 49999;
 
 
+
+
     // HV = 32 V [1]
-    // Window for LED peak: (168, 177) ns  (minLED_amp, maxLED_amp)
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
     // Other: dleddt = 9; smooth_trace_bool = 0;
     //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
     //        fit_low = -10; fit_high = 34;
-    H_peak_0[1]          = 602.069;
-    errH_peak_0[1]       = 9.94509;
-    Sigma_peak_0[1]      = 2.80037;
-    errSigma_peak_0[1]   = 0.0322954;
-    H_peak_1[1]          = 955.733;
-    errH_peak_1[1]       = 11.8414;
-    Sigma_peak_1[1]      = 3.274;
-    errSigma_peak_1[1]   = 0.0365093;
-    Mean_peak_1[1]       = 5.91894;
-    errMean_peak_1[1]    = 0.0551977;
-    Mean_peak_2[1]       = 8.71931;
-    errMean_peak_2[1]    = 0.0639514;
-    GAIN[1]              = 2.80037;
-    errGAIN[1]           = 0.0322954;
-    Mean_hg[3]           = 32.2026;
-    errMean_hg[3]        = 0.0987055;
-    Std_hg[3]            = 22.071;
-    errStd_hg[3]         = 0.0697953;
+    H_peak_0[1]          = 564.802;
+    errH_peak_0[1]       = 10.1474;
+    Sigma_peak_0[1]      = 2.56972;
+    errSigma_peak_0[1]   = 0.0326385;
+    H_peak_1[1]          = 979.947;
+    errH_peak_1[1]       = 12.4316;
+    Sigma_peak_1[1]      = 3.11386;
+    errSigma_peak_1[1]   = 0.0364095;
+    Mean_peak_1[1]       = 6.72997;
+    errMean_peak_1[1]    = 0.0554915;
+    Mean_peak_2[1]       = 9.29969;
+    errMean_peak_2[1]    = 0.0643784;
+    GAIN[1]              = 2.56972;
+    errGAIN[1]           = 0.0326385;
+    Mean_hg[3]           = 32.991;
+    errMean_hg[3]        = 0.096609;
+    Std_hg[3]            = 21.6022;
+    errStd_hg[3]         = 0.0683129;
     Entries[1]           = 49999;
 
 
 
+
+
     // HV = 33 V [2]
-    // Window for LED peak: (168, 177) ns  (minLED_amp, maxLED_amp)
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
     // Other: dleddt = 9; smooth_trace_bool = 0;
     //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
     //        fit_low = -10; fit_high = 38;
-    H_peak_0[2]          = 465.179;
-    errH_peak_0[2]       = 8.49261;
-    Sigma_peak_0[2]      = 3.20809;
-    errSigma_peak_0[2]   = 0.0409653;
-    H_peak_1[2]          = 782.935;
-    errH_peak_1[2]       = 9.37982;
-    Sigma_peak_1[2]      = 3.66242;
-    errSigma_peak_1[2]   = 0.0447216;
-    Mean_peak_1[2]       = 5.98651;
-    errMean_peak_1[2]    = 0.065181;
-    Mean_peak_2[2]       = 9.19459;
-    errMean_peak_2[2]    = 0.0769852;
-    GAIN[2]              = 3.20809;
-    errGAIN[2]           = 0.0409653;
-    Mean_hg[4]           = 41.6162;
-    errMean_hg[4]        = 0.131494;
-    Std_hg[4]            = 29.4028;
-    errStd_hg[4]         = 0.0929806;
+    H_peak_0[2]          = 443.125;
+    errH_peak_0[2]       = 8.93044;
+    Sigma_peak_0[2]      = 2.88207;
+    errSigma_peak_0[2]   = 0.0403952;
+    H_peak_1[2]          = 796.487;
+    errH_peak_1[2]       = 9.99911;
+    Sigma_peak_1[2]      = 3.46964;
+    errSigma_peak_1[2]   = 0.0434955;
+    Mean_peak_1[2]       = 6.61652;
+    errMean_peak_1[2]    = 0.0624507;
+    Mean_peak_2[2]       = 9.49859;
+    errMean_peak_2[2]    = 0.0743765;
+    GAIN[2]              = 2.88207;
+    errGAIN[2]           = 0.0403952;
+    Mean_hg[4]           = 42.534;
+    errMean_hg[4]        = 0.129352;
+    Std_hg[4]            = 28.9238;
+    errStd_hg[4]         = 0.091466;
     Entries[2]           = 49999;
 
 
 
 
 
+
+
+
     // HV = 34 V [3]
-    // Window for LED peak: (168, 177) ns  (minLED_amp, maxLED_amp)
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
     // Other: dleddt = 9; smooth_trace_bool = 0;
     //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
     //        fit_low = -10; fit_high = 46;
-    H_peak_0[3]          = 367.064;
-    errH_peak_0[3]       = 7.19149;
-    Sigma_peak_0[3]      = 3.55882;
-    errSigma_peak_0[3]   = 0.0455046;
-    H_peak_1[3]          = 619.135;
-    errH_peak_1[3]       = 7.96463;
-    Sigma_peak_1[3]      = 4.17185;
-    errSigma_peak_1[3]   = 0.0486095;
-    Mean_peak_1[3]       = 5.51912;
-    errMean_peak_1[3]    = 0.0708883;
-    Mean_peak_2[3]       = 9.07794;
-    errMean_peak_2[3]    = 0.0842367;
-    GAIN[3]              = 3.55882;
-    errGAIN[3]           = 0.0455046;
-    Mean_hg[5]           = 52.3904;
-    errMean_hg[5]        = 0.167837;
-    Std_hg[5]            = 37.529;
-    errStd_hg[5]         = 0.118678;
+    H_peak_0[3]          = 354.182;
+    errH_peak_0[3]       = 7.18554;
+    Sigma_peak_0[3]      = 3.14354;
+    errSigma_peak_0[3]   = 0.0395892;
+    H_peak_1[3]          = 626.743;
+    errH_peak_1[3]       = 8.22363;
+    Sigma_peak_1[3]      = 3.96278;
+    errSigma_peak_1[3]   = 0.0422394;
+    Mean_peak_1[3]       = 6.02895;
+    errMean_peak_1[3]    = 0.0653343;
+    Mean_peak_2[3]       = 9.17249;
+    errMean_peak_2[3]    = 0.0763929;
+    GAIN[3]              = 3.14354;
+    errGAIN[3]           = 0.0395892;
+    Mean_hg[5]           = 53.4209;
+    errMean_hg[5]        = 0.165406;
+    Std_hg[5]            = 36.9854;
+    errStd_hg[5]         = 0.116959;
     Entries[3]           = 49999;
 
 
 
 
+
+
     // HV = 35.00 V [4]
-    // Window for LED peak: (168, 177) ns  (minLED_amp, maxLED_amp)
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
     // Other: dleddt = 9; smooth_trace_bool = 0;
     //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
     //        fit_low = -10; fit_high = 51;
-    H_peak_0[4]          = 310.268;
-    errH_peak_0[4]       = 6.52916;
-    Sigma_peak_0[4]      = 3.78661;
-    errSigma_peak_0[4]   = 0.054867;
-    H_peak_1[4]          = 517.979;
-    errH_peak_1[4]       = 6.82964;
-    Sigma_peak_1[4]      = 4.54551;
-    errSigma_peak_1[4]   = 0.0561603;
-    Mean_peak_1[4]       = 4.9444;
-    errMean_peak_1[4]    = 0.0799529;
-    Mean_peak_2[4]       = 8.73101;
-    errMean_peak_2[4]    = 0.0969682;
-    GAIN[4]              = 3.78661;
-    errGAIN[4]           = 0.054867;
-    Mean_hg[6]           = 63.8248;
-    errMean_hg[6]        = 0.20694;
-    Std_hg[6]            = 46.2728;
-    errStd_hg[6]         = 0.146329;
+    H_peak_0[4]          = 298.849;
+    errH_peak_0[4]       = 6.71642;
+    Sigma_peak_0[4]      = 3.36501;
+    errSigma_peak_0[4]   = 0.0498614;
+    H_peak_1[4]          = 522.8;
+    errH_peak_1[4]       = 7.12905;
+    Sigma_peak_1[4]      = 4.32367;
+    errSigma_peak_1[4]   = 0.0501606;
+    Mean_peak_1[4]       = 5.35297;
+    errMean_peak_1[4]    = 0.074667;
+    Mean_peak_2[4]       = 8.71798;
+    errMean_peak_2[4]    = 0.0897848;
+    GAIN[4]              = 3.36501;
+    errGAIN[4]           = 0.0498614;
+    Mean_hg[6]           = 65.0381;
+    errMean_hg[6]        = 0.204377;
+    Std_hg[6]            = 45.6996;
+    errStd_hg[6]         = 0.144516;
     Entries[4]           = 49999;
 
 
@@ -281,30 +290,34 @@ void OperationPoint_LASER_PLS_FitGausSum_01(){
 
 
 
+
+
     // HV = 36 V ([5])
-    // Window for LED peak: (168, 177) ns  (minLED_amp, maxLED_amp)
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
     // Other: dleddt = 9; smooth_trace_bool = 0;
     //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
     //        fit_low = -10; fit_high = 60;
-    H_peak_0[5]          = 253.065;
-    errH_peak_0[5]       = 5.72925;
-    Sigma_peak_0[5]      = 4.17716;
-    errSigma_peak_0[5]   = 0.0685689;
-    H_peak_1[5]          = 394.896;
-    errH_peak_1[5]       = 5.7841;
-    Sigma_peak_1[5]      = 5.1988;
-    errSigma_peak_1[5]   = 0.0663333;
-    Mean_peak_1[5]       = 4.39273;
-    errMean_peak_1[5]    = 0.0982355;
-    Mean_peak_2[5]       = 8.56989;
-    errMean_peak_2[5]    = 0.119799;
-    GAIN[5]              = 4.17716;
-    errGAIN[5]           = 0.0685689;
-    Mean_hg[7]           = 76.9744;
-    errMean_hg[7]        = 0.252346;
-    Std_hg[7]            = 56.4257;
-    errStd_hg[7]         = 0.178435;
+    H_peak_0[5]          = 234.088;
+    errH_peak_0[5]       = 5.82906;
+    Sigma_peak_0[5]      = 3.79986;
+    errSigma_peak_0[5]   = 0.0672815;
+    H_peak_1[5]          = 393.178;
+    errH_peak_1[5]       = 5.96371;
+    Sigma_peak_1[5]      = 4.98827;
+    errSigma_peak_1[5]   = 0.0629806;
+    Mean_peak_1[5]       = 4.8069;
+    errMean_peak_1[5]    = 0.0952783;
+    Mean_peak_2[5]       = 8.60677;
+    errMean_peak_2[5]    = 0.116639;
+    GAIN[5]              = 3.79986;
+    errGAIN[5]           = 0.0672815;
+    Mean_hg[7]           = 78.4931;
+    errMean_hg[7]        = 0.249375;
+    Std_hg[7]            = 55.7614;
+    errStd_hg[7]         = 0.176335;
     Entries[5]           = 49999;
+
+
 
 
 

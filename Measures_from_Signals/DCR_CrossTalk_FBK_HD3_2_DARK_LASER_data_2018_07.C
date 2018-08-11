@@ -3,9 +3,114 @@
  *
  * DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07.C
  *      +
- * OperationPoint_LASER_PLS_FitGausSum_01.C
+ * DATA FROM LASER
+ *
+ * See info below
  *
  *  Update: 09/08/2018
+ *
+\******************************************************************************/
+
+
+//*****************************************************************************
+//*****************************       DARK       ******************************
+//*****************************************************************************
+
+/******************************************************************************\
+ * DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07.C
+ *
+ * GAIN values obtained by Ana_Traces_SiPM.cxx (version of 07/08/2018, 1)
+ *
+ * KEY POINTS:
+ *  > DCR_CT_1SiPM_nHVs(...)
+ *  > dleddt = 6
+ *  > NO trace smoothing
+ *  > thr at 0.5pe and 1.5 pe set manually
+ *
+ *  > for HV = 32 ... 37:
+ *    minyhistDelays = 15;  maxyhistDelays = 100;
+ *    expDelLow_max  = minyhistDelays*1.25; expDelHigh_max = maxyhistDelays;
+ *
+ *  > for HV = 31: (I need a bit more points)
+ *    minyhistDelays = 15;  maxyhistDelays = 127;
+ *    expDelLow_max  = minyhistDelays*1.25; expDelHigh_max = maxyhistDelays;
+ *
+ *
+ * FILES ANALIZED:
+ *
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_29.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_30.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_31.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_32.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_33.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_34.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_36.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_01_DARK_AgilentE3641A_37.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_29.00_AS_2_100000ev_01.dat
+ *
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_30.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_31.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_32.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_33.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_34.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_36.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_02_DARK_AgilentE3641A_37.00_AS_2_100000ev_01.dat
+ *
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_29.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_30.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_31.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_32.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_33.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_34.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_36.00_AS_2_100000ev_01.dat
+ *      20180725_HD3-2_03_DARK_AgilentE3641A_37.00_AS_2_100000ev_01.dat
+ *
+ *
+\******************************************************************************/
+
+
+
+
+
+//*****************************************************************************
+//*****************************       LASER       *****************************
+//*****************************************************************************
+
+
+/******************************************************************************\
+ * OPERATION POINT and MORE
+ *
+ * Setup LED:
+ *    > HV:         AGILENT E3641A
+ *    > SUPPLY:     Kenwood Regulated DC Power Supply PW18-1.8Q
+ *    > AMPLIFIER:  ADVANSID OUT 2
+ *    > DIGITIZER:  DRS4 Evaluation Board
+ *    > LASER:      Advanced Laser Diode System, Picosecond Laser System,
+ *                  Controller EIG2000DX and a 406 nm laser head
+ *
+ * > File obtained using Ana_LED(...) function in Ana_Traces_SiPM.cxx using
+ *   fit_hist_peaks_gaus_sum_012(...):
+ *      [0]*TMath::Exp( - (x-[6])*(x-[6])/( 2*[4]*[4] ) ) +
+ *      + [1]*TMath::Exp(-(x-[6]-[3])*(x-[6]-[3])/( 2*([4]*[4] + [5]*[5] )) ) +
+ *      + [2]*TMath::Exp(-(x-[6]-2*[3])*(x-[6]-2*[3])/(2*([4]*[4] + 4*[5]*[5])))
+ *
+ * > Ana_Traces_SiPM.cxx github: 11/08/2018 # 1
+ *
+ * > Fit range and the initial values of the parameters are set manually for
+ *   each file
+ *
+ * File used:
+ *    20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_29_AS_2_50000_01.dat
+ *    20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_30_AS_2_50000_01.dat
+ *    20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_31_AS_2_50000_01.dat
+ *    20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_32_AS_2_50000_01.dat
+ *    20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_33_AS_2_50000_01.dat
+ *    20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_34_AS_2_50000_01.dat
+ *    20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_35_AS_2_50000_01.dat
+ *    20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_36_AS_2_50000_01.dat
  *
 \******************************************************************************/
 
@@ -78,6 +183,11 @@ int find_index(double v[],int N, double value);
 // void OperationPoint_LASER_PLS_FitGausSum_01();
 
 void DCR_CrossTalk_FBK_HD3_2_DARK_LASER_data_2018_07(){
+
+
+//*****************************************************************************
+//*****************************       DARK       ******************************
+//*****************************************************************************
 
     // SiPM1:
     double HV_1[n_DCR_1], errHV_1[n_DCR_1];
@@ -878,10 +988,19 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_LASER_data_2018_07(){
 //*****************************************************************************
 //*****************************************************************************
 //*****************************************************************************
+
+
+
+//*****************************************************************************
+//*****************************       LASER       *****************************
+//*****************************************************************************
+
+
 //*****************************************************************************
 //*****************************************************************************
 //*****************************************************************************
 //*****************************************************************************
+
 
 // void OperationPoint_LASER_PLS_FitGausSum_01(){
 // ERRORS
@@ -969,146 +1088,156 @@ double errEntries[n_GAIN] = {0.};
 
 
 
-// HV_LASER = 29 V
 
 
-// HV_LASER = 30 V
-
-
-
-// HV_LASER = 31 V [0]
-// Window for LED peak: (168, 177) ns  (minLED_amp, maxLED_amp)
+// HV = 31 V [0]
+// Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
 // Other: dleddt = 9; smooth_trace_bool = 0;
 //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
-//        fit_low = -10; fit_high = 29;
-H_peak_0[0]          = 798.911;
-errH_peak_0[0]       = 12.4535;
-Sigma_peak_0[0]      = 2.45416;
-errSigma_peak_0[0]   = 0.0310133;
-H_peak_1[0]          = 1180.98;
-errH_peak_1[0]       = 16.6779;
-Sigma_peak_1[0]      = 2.96697;
-errSigma_peak_1[0]   = 0.0387114;
-Mean_peak_1[0]       = 5.9277;
-errMean_peak_1[0]    = 0.0543554;
-Mean_peak_2[0]       = 8.38187;
-errMean_peak_2[0]    = 0.0625806;
-GAIN[0]              = 2.45416;
-errGAIN[0]           = 0.0310133;
-Mean_hg[2]           = 23.9805;
-errMean_hg[2]        = 0.0713393;
-Std_hg[2]            = 15.9518;
-errStd_hg[2]         = 0.0504445;
+//        fit_low = -10; fit_high = 28.7;
+H_peak_0[0]          = 756.727;
+errH_peak_0[0]       = 12.9998;
+Sigma_peak_0[0]      = 2.23961;
+errSigma_peak_0[0]   = 0.0332716;
+H_peak_1[0]          = 1214.15;
+errH_peak_1[0]       = 19.6876;
+Sigma_peak_1[0]      = 2.81391;
+errSigma_peak_1[0]   = 0.0445573;
+Mean_peak_1[0]       = 6.73066;
+errMean_peak_1[0]    = 0.0595634;
+Mean_peak_2[0]       = 8.97026;
+errMean_peak_2[0]    = 0.0682261;
+GAIN[0]              = 2.23961;
+errGAIN[0]           = 0.0332716;
+Mean_hg[2]           = 24.6891;
+errMean_hg[2]        = 0.0694716;
+Std_hg[2]            = 15.5342;
+errStd_hg[2]         = 0.0491239;
 Entries[0]           = 49999;
 
 
-// HV_LASER = 32 V [1]
-// Window for LED peak: (168, 177) ns  (minLED_amp, maxLED_amp)
+
+
+
+
+
+
+
+// HV = 32 V [1]
+// Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
 // Other: dleddt = 9; smooth_trace_bool = 0;
 //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
 //        fit_low = -10; fit_high = 34;
-H_peak_0[1]          = 602.069;
-errH_peak_0[1]       = 9.94509;
-Sigma_peak_0[1]      = 2.80037;
-errSigma_peak_0[1]   = 0.0322954;
-H_peak_1[1]          = 955.733;
-errH_peak_1[1]       = 11.8414;
-Sigma_peak_1[1]      = 3.274;
-errSigma_peak_1[1]   = 0.0365093;
-Mean_peak_1[1]       = 5.91894;
-errMean_peak_1[1]    = 0.0551977;
-Mean_peak_2[1]       = 8.71931;
-errMean_peak_2[1]    = 0.0639514;
-GAIN[1]              = 2.80037;
-errGAIN[1]           = 0.0322954;
-Mean_hg[3]           = 32.2026;
-errMean_hg[3]        = 0.0987055;
-Std_hg[3]            = 22.071;
-errStd_hg[3]         = 0.0697953;
+H_peak_0[1]          = 564.802;
+errH_peak_0[1]       = 10.1474;
+Sigma_peak_0[1]      = 2.56972;
+errSigma_peak_0[1]   = 0.0326385;
+H_peak_1[1]          = 979.947;
+errH_peak_1[1]       = 12.4316;
+Sigma_peak_1[1]      = 3.11386;
+errSigma_peak_1[1]   = 0.0364095;
+Mean_peak_1[1]       = 6.72997;
+errMean_peak_1[1]    = 0.0554915;
+Mean_peak_2[1]       = 9.29969;
+errMean_peak_2[1]    = 0.0643784;
+GAIN[1]              = 2.56972;
+errGAIN[1]           = 0.0326385;
+Mean_hg[3]           = 32.991;
+errMean_hg[3]        = 0.096609;
+Std_hg[3]            = 21.6022;
+errStd_hg[3]         = 0.0683129;
 Entries[1]           = 49999;
 
 
 
-// HV_LASER = 33 V [2]
-// Window for LED peak: (168, 177) ns  (minLED_amp, maxLED_amp)
+
+
+// HV = 33 V [2]
+// Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
 // Other: dleddt = 9; smooth_trace_bool = 0;
 //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
 //        fit_low = -10; fit_high = 38;
-H_peak_0[2]          = 465.179;
-errH_peak_0[2]       = 8.49261;
-Sigma_peak_0[2]      = 3.20809;
-errSigma_peak_0[2]   = 0.0409653;
-H_peak_1[2]          = 782.935;
-errH_peak_1[2]       = 9.37982;
-Sigma_peak_1[2]      = 3.66242;
-errSigma_peak_1[2]   = 0.0447216;
-Mean_peak_1[2]       = 5.98651;
-errMean_peak_1[2]    = 0.065181;
-Mean_peak_2[2]       = 9.19459;
-errMean_peak_2[2]    = 0.0769852;
-GAIN[2]              = 3.20809;
-errGAIN[2]           = 0.0409653;
-Mean_hg[4]           = 41.6162;
-errMean_hg[4]        = 0.131494;
-Std_hg[4]            = 29.4028;
-errStd_hg[4]         = 0.0929806;
+H_peak_0[2]          = 443.125;
+errH_peak_0[2]       = 8.93044;
+Sigma_peak_0[2]      = 2.88207;
+errSigma_peak_0[2]   = 0.0403952;
+H_peak_1[2]          = 796.487;
+errH_peak_1[2]       = 9.99911;
+Sigma_peak_1[2]      = 3.46964;
+errSigma_peak_1[2]   = 0.0434955;
+Mean_peak_1[2]       = 6.61652;
+errMean_peak_1[2]    = 0.0624507;
+Mean_peak_2[2]       = 9.49859;
+errMean_peak_2[2]    = 0.0743765;
+GAIN[2]              = 2.88207;
+errGAIN[2]           = 0.0403952;
+Mean_hg[4]           = 42.534;
+errMean_hg[4]        = 0.129352;
+Std_hg[4]            = 28.9238;
+errStd_hg[4]         = 0.091466;
 Entries[2]           = 49999;
 
 
 
 
 
-// HV_LASER = 34 V [3]
-// Window for LED peak: (168, 177) ns  (minLED_amp, maxLED_amp)
+
+
+
+// HV = 34 V [3]
+// Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
 // Other: dleddt = 9; smooth_trace_bool = 0;
 //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
-//        fit_low = -10; fit_high = 46;
-H_peak_0[3]          = 367.064;
-errH_peak_0[3]       = 7.19149;
-Sigma_peak_0[3]      = 3.55882;
-errSigma_peak_0[3]   = 0.0455046;
-H_peak_1[3]          = 619.135;
-errH_peak_1[3]       = 7.96463;
-Sigma_peak_1[3]      = 4.17185;
-errSigma_peak_1[3]   = 0.0486095;
-Mean_peak_1[3]       = 5.51912;
-errMean_peak_1[3]    = 0.0708883;
-Mean_peak_2[3]       = 9.07794;
-errMean_peak_2[3]    = 0.0842367;
-GAIN[3]              = 3.55882;
-errGAIN[3]           = 0.0455046;
-Mean_hg[5]           = 52.3904;
-errMean_hg[5]        = 0.167837;
-Std_hg[5]            = 37.529;
-errStd_hg[5]         = 0.118678;
+//        fit_low = -10; fit_high = 43;
+H_peak_0[3]          = 351.779;
+errH_peak_0[3]       = 7.1352;
+Sigma_peak_0[3]      = 3.18861;
+errSigma_peak_0[3]   = 0.0401266;
+H_peak_1[3]          = 641.251;
+errH_peak_1[3]       = 8.29728;
+Sigma_peak_1[3]      = 3.89441;
+errSigma_peak_1[3]   = 0.0440761;
+Mean_peak_1[3]       = 6.16776;
+errMean_peak_1[3]    = 0.0662144;
+Mean_peak_2[3]       = 9.35637;
+errMean_peak_2[3]    = 0.0774241;
+GAIN[3]              = 3.18861;
+errGAIN[3]           = 0.0401266;
+Mean_hg[5]           = 53.4209;
+errMean_hg[5]        = 0.165406;
+Std_hg[5]            = 36.9854;
+errStd_hg[5]         = 0.116959;
 Entries[3]           = 49999;
 
 
 
 
-// HV_LASER = 35.00 V [4]
-// Window for LED peak: (168, 177) ns  (minLED_amp, maxLED_amp)
+
+
+
+// HV = 35.00 V [4]
+// Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
 // Other: dleddt = 9; smooth_trace_bool = 0;
 //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
-//        fit_low = -10; fit_high = 51;
-H_peak_0[4]          = 310.268;
-errH_peak_0[4]       = 6.52916;
-Sigma_peak_0[4]      = 3.78661;
-errSigma_peak_0[4]   = 0.054867;
-H_peak_1[4]          = 517.979;
-errH_peak_1[4]       = 6.82964;
-Sigma_peak_1[4]      = 4.54551;
-errSigma_peak_1[4]   = 0.0561603;
-Mean_peak_1[4]       = 4.9444;
-errMean_peak_1[4]    = 0.0799529;
-Mean_peak_2[4]       = 8.73101;
-errMean_peak_2[4]    = 0.0969682;
-GAIN[4]              = 3.78661;
-errGAIN[4]           = 0.054867;
-Mean_hg[6]           = 63.8248;
-errMean_hg[6]        = 0.20694;
-Std_hg[6]            = 46.2728;
-errStd_hg[6]         = 0.146329;
+//        fit_low = -10; fit_high = 49;
+H_peak_0[4]          = 296.954;
+errH_peak_0[4]       = 6.67128;
+Sigma_peak_0[4]      = 3.40184;
+errSigma_peak_0[4]   = 0.0500745;
+H_peak_1[4]          = 530.895;
+errH_peak_1[4]       = 7.18599;
+Sigma_peak_1[4]      = 4.27458;
+errSigma_peak_1[4]   = 0.0515737;
+Mean_peak_1[4]       = 5.4591;
+errMean_peak_1[4]    = 0.0750009;
+Mean_peak_2[4]       = 8.86093;
+errMean_peak_2[4]    = 0.0901808;
+GAIN[4]              = 3.40184;
+errGAIN[4]           = 0.0500745;
+Mean_hg[6]           = 65.0381;
+errMean_hg[6]        = 0.204377;
+Std_hg[6]            = 45.6996;
+errStd_hg[6]         = 0.144516;
 Entries[4]           = 49999;
 
 
@@ -1117,32 +1246,33 @@ Entries[4]           = 49999;
 
 
 
-// HV_LASER = 36 V ([5])
-// Window for LED peak: (168, 177) ns  (minLED_amp, maxLED_amp)
+
+
+
+// HV = 36 V ([5])
+// Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
 // Other: dleddt = 9; smooth_trace_bool = 0;
 //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
 //        fit_low = -10; fit_high = 60;
-H_peak_0[5]          = 253.065;
-errH_peak_0[5]       = 5.72925;
-Sigma_peak_0[5]      = 4.17716;
-errSigma_peak_0[5]   = 0.0685689;
-H_peak_1[5]          = 394.896;
-errH_peak_1[5]       = 5.7841;
-Sigma_peak_1[5]      = 5.1988;
-errSigma_peak_1[5]   = 0.0663333;
-Mean_peak_1[5]       = 4.39273;
-errMean_peak_1[5]    = 0.0982355;
-Mean_peak_2[5]       = 8.56989;
-errMean_peak_2[5]    = 0.119799;
-GAIN[5]              = 4.17716;
-errGAIN[5]           = 0.0685689;
-Mean_hg[7]           = 76.9744;
-errMean_hg[7]        = 0.252346;
-Std_hg[7]            = 56.4257;
-errStd_hg[7]         = 0.178435;
+H_peak_0[5]          = 234.088;
+errH_peak_0[5]       = 5.82906;
+Sigma_peak_0[5]      = 3.79986;
+errSigma_peak_0[5]   = 0.0672815;
+H_peak_1[5]          = 393.178;
+errH_peak_1[5]       = 5.96371;
+Sigma_peak_1[5]      = 4.98827;
+errSigma_peak_1[5]   = 0.0629806;
+Mean_peak_1[5]       = 4.8069;
+errMean_peak_1[5]    = 0.0952783;
+Mean_peak_2[5]       = 8.60677;
+errMean_peak_2[5]    = 0.116639;
+GAIN[5]              = 3.79986;
+errGAIN[5]           = 0.0672815;
+Mean_hg[7]           = 78.4931;
+errMean_hg[7]        = 0.249375;
+Std_hg[7]            = 55.7614;
+errStd_hg[7]         = 0.176335;
 Entries[5]           = 49999;
-
-
 
 
 
@@ -1242,14 +1372,14 @@ TGraphErrors *gV_GW  = new TGraphErrors(n_GAIN, HV_LASER_GAIN, GainWeighted, err
 gV_GW->SetMarkerStyle(21);
 gV_GW->SetMarkerColor(kOrange+2);
 gV_GW->SetTitle();
-gV_GW->GetXaxis()->SetTitle("Voltage (V)");
+gV_GW->GetXaxis()->SetTitle("Bias Voltage (V)");
 gV_GW->GetYaxis()->SetTitle("Weighted Gain");
 
 //------------------------------
 
-// TCanvas *cV_GW = new TCanvas("cV_GW", "cV_GW",w,h);
-// cV_GW->SetGrid();
-// gV_GW->Draw("AP");
+TCanvas *cV_GW = new TCanvas("cV_GW", "cV_GW",w,h);
+cV_GW->SetGrid();
+gV_GW->Draw("AP");
 
  //------------------------------
  // Mean/Dev_st
@@ -1263,7 +1393,7 @@ TGraphErrors *gV_MS  = new TGraphErrors(n_MEAN, HV_LASER, Mean_hist_St_dev, errH
 gV_MS->SetMarkerStyle(21);
 gV_MS->SetMarkerColor(kOrange+2);
 gV_MS->SetTitle();
-gV_MS->GetXaxis()->SetTitle("Voltage (V)");
+gV_MS->GetXaxis()->SetTitle("Bias Voltage (V)");
 gV_MS->GetYaxis()->SetTitle("Mean/St_Dev ()");
 
 //------------------------------
@@ -1288,14 +1418,14 @@ gV_PCT->SetMarkerStyle(21);
 // gV_PCT->SetMarkerSize(2);
 gV_PCT->SetMarkerColor(kOrange+2);
 gV_PCT->SetTitle();
-gV_PCT->GetXaxis()->SetTitle("Voltage (V)");
+gV_PCT->GetXaxis()->SetTitle("Bias Voltage (V)");
 gV_PCT->GetYaxis()->SetTitle("Cross Talk");
 
 //------------------------------
 
-// TCanvas *cV_PCT = new TCanvas("cV_PCT", "cV_PCT",w,h);
-// cV_PCT->SetGrid();
-// gV_PCT->Draw("AP");
+TCanvas *cV_PCT = new TCanvas("cV_PCT", "cV_PCT",w,h);
+cV_PCT->SetGrid();
+gV_PCT->Draw("AP");
 
 
 
@@ -1334,6 +1464,128 @@ gV_PCT->GetYaxis()->SetTitle("Cross Talk");
       legendCT_DARK_LASER->AddEntry(gV_CT_Del_1,"HD3-2 (1), from DELAYS","p");
       legendCT_DARK_LASER->AddEntry(gV_PCT,     "HD3-2 (1), from LASER","p");
       legendCT_DARK_LASER->Draw();
+
+
+//*****************************************************************************
+//*****************************************************************************
+//*****************************************************************************
+//*****************************************************************************
+//*****************************************************************************
+//*****************************************************************************
+//*****************************************************************************
+//*****************************************************************************
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+//    TEST Z
+/////////////////////////////////////////////////////////////////////////////
+
+    ///////////////////
+    // DARK
+    ///////////////////
+
+    cout<<endl<<endl;
+    cout<<"/////////////////////////////////////////////////"<<endl;
+    cout<<"//     TEST Z DARK"<<endl;
+    cout<<"/////////////////////////////////////////////////"<<endl;
+
+    // TEST Z
+    int N_Z = n_DCR_1;
+    double testZ_DCR[3][N_Z];
+    double testZ_CT[3][N_Z];
+    int n_SiPM = 0;
+    int n_SiPM_tot = 3;
+
+    n_SiPM = 0;
+    for(int i=0; i<N_Z; i++){
+      testZ_DCR[n_SiPM][i] = TMath::Abs((DCR_1[i] - DCR_Del_1[i]) / (TMath::Sqrt( errDCR_1[i]*errDCR_1[i] + errDCR_Del_1[i]*errDCR_Del_1[i] )));
+    }
+
+    n_SiPM = 1;
+    for(int i=0; i<N_Z; i++){
+      testZ_DCR[n_SiPM][i] = TMath::Abs((DCR_2[i] - DCR_Del_2[i]) / (TMath::Sqrt( errDCR_2[i]*errDCR_2[i] + errDCR_Del_2[i]*errDCR_Del_2[i] )));
+    }
+
+    n_SiPM = 2;
+    for(int i=0; i<N_Z; i++){
+      testZ_DCR[n_SiPM][i] = TMath::Abs((DCR_2[i] - DCR_Del_2[i]) / (TMath::Sqrt( errDCR_2[i]*errDCR_2[i] + errDCR_Del_2[i]*errDCR_Del_2[i] )));
+    }
+
+    n_SiPM = 0;
+    for(int i=0; i<N_Z; i++){
+      testZ_CT[n_SiPM][i] = TMath::Abs((CT_1[i] - CT_Del_1[i]) / (TMath::Sqrt( errCT_1[i]*errCT_1[i] + errCT_Del_1[i]*errCT_Del_1[i] )));
+    }
+
+    n_SiPM = 1;
+    for(int i=0; i<N_Z; i++){
+      testZ_CT[n_SiPM][i] = TMath::Abs((CT_2[i] - CT_Del_2[i]) / (TMath::Sqrt( errCT_2[i]*errCT_2[i] + errCT_Del_2[i]*errCT_Del_2[i] )));
+    }
+
+    n_SiPM = 2;
+    for(int i=0; i<N_Z; i++){
+      testZ_CT[n_SiPM][i] = TMath::Abs((CT_2[i] - CT_Del_2[i]) / (TMath::Sqrt( errCT_2[i]*errCT_2[i] + errCT_Del_2[i]*errCT_Del_2[i] )));
+    }
+
+
+    for(int n=0; n<n_SiPM_tot; n++){
+      cout<<"SiPM "<<n+1<<endl;
+      for(int i=0; i<N_Z; i++){
+          cout<<testZ_DCR[n][i];
+          if(testZ_DCR[n][i] > 1.96) cout<<"\tTEST NOT PASSED"<<endl;
+          else cout<<endl;
+
+          cout<<testZ_CT[n][i];
+          if(testZ_CT[n][i] > 1.96) cout<<"\tTEST NOT PASSED "<<endl;
+          else cout<<endl;
+      }
+      cout<<endl;
+    }
+
+
+    /////////////////////////
+    // DARK vs LASER
+    /////////////////////////
+    cout<<endl<<endl;
+    cout<<"/////////////////////////////////////////////////"<<endl;
+    cout<<"//     TEST Z DARK and LASER"<<endl;
+    cout<<"/////////////////////////////////////////////////"<<endl;
+    N_Z = n_GAIN;
+    double testZ_CT_DarkLaser = 0.;
+
+    n_SiPM = 0;
+
+    cout<<endl;
+    cout<<"CT DARK CNT vs CT DARK DEL SiPM "<<n_SiPM+1<<endl;
+    for(int i=0; i<N_Z; i++){
+      testZ_CT_DarkLaser = TMath::Abs((CT_1[i] - CT_Del_1[i]) / (TMath::Sqrt( errCT_1[i]*errCT_1[i] + errCT_Del_1[i]*errCT_Del_1[i] )));
+
+      cout<<testZ_CT_DarkLaser;
+      if(testZ_CT_DarkLaser > 1.96) cout<<"\tTEST NOT PASSED"<<endl;
+      else cout<<endl;
+    }
+
+    cout<<endl;
+    cout<<"CT DARK CNT vs CT LASER SiPM "<<n_SiPM+1<<endl;
+    for(int i=0; i<N_Z; i++){
+      testZ_CT_DarkLaser = TMath::Abs((CT_1[i] - Prob_Cross_Talk[i]) / (TMath::Sqrt( errCT_1[i]*errCT_1[i] + errProb_Cross_Talk[i]*errProb_Cross_Talk[i] )));
+
+      cout<<testZ_CT_DarkLaser;
+      if(testZ_CT_DarkLaser > 1.96) cout<<"\tTEST NOT PASSED"<<endl;
+      else cout<<endl;
+    }
+
+    cout<<endl;
+    cout<<"CT DARK DEL vs CT LASER SiPM "<<n_SiPM+1<<endl;
+    for(int i=0; i<N_Z; i++){
+      testZ_CT_DarkLaser = TMath::Abs((CT_Del_1[i] - Prob_Cross_Talk[i]) / (TMath::Sqrt( errCT_Del_1[i]*errCT_Del_1[i] + errProb_Cross_Talk[i]*errProb_Cross_Talk[i] )));
+
+      cout<<testZ_CT_DarkLaser;
+      if(testZ_CT_DarkLaser > 1.96) cout<<"\tTEST NOT PASSED"<<endl;
+      else cout<<endl;
+    }
+
+
 }
 
 
