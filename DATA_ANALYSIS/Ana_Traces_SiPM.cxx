@@ -2701,7 +2701,7 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
 
   // Fit Range
   float fit_low  = -10;
-  float fit_high = 28.7;
+  float fit_high = 60;
 
   float Mean_peak_0, Mean_peak_1, Mean_peak_2;
   float errMean_peak_0, errMean_peak_1, errMean_peak_2;
@@ -2853,33 +2853,37 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
   cout<<"//        fit_low = "<<fit_low<<"; fit_high = "<<fit_high<<";"<<endl;
 
   // peak 0
-  cout<<"H_peak_0["<<index<<"]          = "<<H_peak_0<<";"<<endl;
-  cout<<"errH_peak_0["<<index<<"]       = "<<errH_peak_0<<";"<<endl;
-  cout<<"Sigma_peak_0["<<index<<"]      = "<<Sigma_peak_0<<";"<<endl;
-  cout<<"errSigma_peak_0["<<index<<"]   = "<<errSigma_peak_0<<";"<<endl;
+  cout<<"H_peak_0[n_SiPM]["<<index<<"]          = "<<H_peak_0<<";"<<endl;
+  cout<<"errH_peak_0[n_SiPM]["<<index<<"]       = "<<errH_peak_0<<";"<<endl;
+  cout<<"Sigma_peak_0[n_SiPM]["<<index<<"]      = "<<Sigma_peak_0<<";"<<endl;
+  cout<<"errSigma_peak_0[n_SiPM]["<<index<<"]   = "<<errSigma_peak_0<<";"<<endl;
 
   // peak 1
-  cout<<"H_peak_1["<<index<<"]          = "<<H_peak_1<<";"<<endl;
-  cout<<"errH_peak_1["<<index<<"]       = "<<errH_peak_1<<";"<<endl;
-  cout<<"Sigma_peak_1["<<index<<"]      = "<<Sigma_peak_1<<";"<<endl;
-  cout<<"errSigma_peak_1["<<index<<"]   = "<<errSigma_peak_1<<";"<<endl;
-  cout<<"Mean_peak_1["<<index<<"]       = "<<Mean_peak_1<<";"<<endl;
-  cout<<"errMean_peak_1["<<index<<"]    = "<<errMean_peak_1<<";"<<endl;
+  cout<<"H_peak_1[n_SiPM]["<<index<<"]          = "<<H_peak_1<<";"<<endl;
+  cout<<"errH_peak_1[n_SiPM]["<<index<<"]       = "<<errH_peak_1<<";"<<endl;
+  cout<<"Sigma_peak_1[n_SiPM]["<<index<<"]      = "<<Sigma_peak_1<<";"<<endl;
+  cout<<"errSigma_peak_1[n_SiPM]["<<index<<"]   = "<<errSigma_peak_1<<";"<<endl;
+  cout<<"Mean_peak_1[n_SiPM]["<<index<<"]       = "<<Mean_peak_1<<";"<<endl;
+  cout<<"errMean_peak_1[n_SiPM]["<<index<<"]    = "<<errMean_peak_1<<";"<<endl;
 
   // peak 2
-  cout<<"Mean_peak_2["<<index<<"]       = "<<Mean_peak_2<<";"<<endl;
-  cout<<"errMean_peak_2["<<index<<"]    = "<<errMean_peak_2<<";"<<endl;
+  cout<<"Mean_peak_2[n_SiPM]["<<index<<"]       = "<<Mean_peak_2<<";"<<endl;
+  cout<<"errMean_peak_2[n_SiPM]["<<index<<"]    = "<<errMean_peak_2<<";"<<endl;
 
   // GAIN
-  cout<<"GAIN["<<index<<"]              = "<<Gain<<";"<<endl;
-  cout<<"errGAIN["<<index<<"]           = "<<errGain<<";"<<endl;
+  cout<<"GAIN[n_SiPM]["<<index<<"]              = "<<Gain<<";"<<endl;
+  cout<<"errGAIN[n_SiPM]["<<index<<"]           = "<<errGain<<";"<<endl;
+
+  // SIGMA ADD:
+  cout<<"Sigma_add[n_SiPM]["<<index<<"]         = "<<Sigma_add<<";"<<endl;
+  cout<<"errSigma_add[n_SiPM]["<<index<<"]      = "<<errSigma_add<<";"<<endl;
 
   // GLOBAL HIST
-  cout<<"Mean_hg["<<index+2<<"]           = "<<Mean_hg<<";"<<endl;
-  cout<<"errMean_hg["<<index+2<<"]        = "<<errMean_hg<<";"<<endl;
-  cout<<"Std_hg["<<index+2<<"]            = "<<Std_hg<<";"<<endl;
-  cout<<"errStd_hg["<<index+2<<"]         = "<<errStd_hg<<";"<<endl;
-  cout<<"Entries["<<index<<"]           = "<<Entries<<";"<<endl;
+  cout<<"Mean_hg[n_SiPM]["<<index+2<<"]           = "<<Mean_hg<<";"<<endl;
+  cout<<"errMean_hg[n_SiPM]["<<index+2<<"]        = "<<errMean_hg<<";"<<endl;
+  cout<<"Std_hg[n_SiPM]["<<index+2<<"]            = "<<Std_hg<<";"<<endl;
+  cout<<"errStd_hg[n_SiPM]["<<index+2<<"]         = "<<errStd_hg<<";"<<endl;
+  cout<<"Entries[n_SiPM]["<<index<<"]           = "<<Entries<<";"<<endl;
 
   // Info
   cout<<endl;
