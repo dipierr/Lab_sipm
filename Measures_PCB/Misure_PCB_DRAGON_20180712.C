@@ -50,7 +50,7 @@
 #define n_used 6
 
 
-void fit_linear(TGraphErrors *g, TCanvas *c1, TCanvas *c2);
+void fit_linear(TGraphErrors *g, TCanvas *c1);
 void Misure_PCB_DRAGON_20180711();
 
 double m_V_out, errm_V_out, q_V_out, errq_V_out;
@@ -171,57 +171,57 @@ void Misure_PCB_DRAGON_20180712(){
     //------------------------------
     //----------- GRAPHS -----------
     //------------------------------
-
-    TCanvas *cV_out_MAXi = new TCanvas("cV_out_MAXi", "cV_out_MAXi");
-    cV_out_MAXi->SetGrid();
-    gV_out_MAXi->Draw("AP");
-
-    TCanvas *cV_vmon_MAXi = new TCanvas("cV_vmon_MAXi", "cV_vmon_MAXi");
-    cV_vmon_MAXi->SetGrid();
-    gV_vmon_MAXi->Draw("AP");
-
-    TCanvas *cV_imon_MAXi = new TCanvas("cV_imon_MAXi", "cV_imon_MAXi");
-    cV_imon_MAXi->SetGrid();
-    gV_imon_MAXi->Draw("AP");
-
-
-    TCanvas *cV_out_MINi = new TCanvas("cV_out_MINi", "cV_out_MINi");
-    cV_out_MINi->SetGrid();
-    gV_out_MINi->Draw("AP");
-
-    TCanvas *cV_vmon_MINi = new TCanvas("cV_vmon_MINi", "cV_vmon_MINi");
-    cV_vmon_MINi->SetGrid();
-    gV_vmon_MINi->Draw("AP");
-
-    TCanvas *cV_imon_MINi = new TCanvas("cV_imon_MINi", "cV_imon_MINi");
-    cV_imon_MINi->SetGrid();
-    gV_imon_MINi->Draw("AP");
-
-
-    TCanvas *cV_out_SuperMINi = new TCanvas("cV_out_SuperMINi", "cV_out_SuperMINi");
-    cV_out_SuperMINi->SetGrid();
-    gV_out_SuperMINi->Draw("AP");
-
-    TCanvas *cV_vmon_SuperMINi = new TCanvas("cV_vmon_SuperMINi", "cV_vmon_SuperMINi");
-    cV_vmon_SuperMINi->SetGrid();
-    gV_vmon_SuperMINi->Draw("AP");
-
-    TCanvas *cV_imon_SuperMINi = new TCanvas("cV_imon_SuperMINi", "cV_imon_SuperMINi");
-    cV_imon_SuperMINi->SetGrid();
-    gV_imon_SuperMINi->Draw("AP");
-
-
-    TCanvas *cV_out_SuperMAXi = new TCanvas("cV_out_SuperMAXi", "cV_out_SuperMAXi");
-    cV_out_SuperMAXi->SetGrid();
-    gV_out_SuperMAXi->Draw("AP");
-
-    TCanvas *cV_vmon_SuperMAXi = new TCanvas("cV_vmon_SuperMAXi", "cV_vmon_SuperMAXi");
-    cV_vmon_SuperMAXi->SetGrid();
-    gV_vmon_SuperMAXi->Draw("AP");
-
-    TCanvas *cV_imon_SuperMAXi = new TCanvas("cV_imon_SuperMAXi", "cV_imon_SuperMAXi");
-    cV_imon_SuperMAXi->SetGrid();
-    gV_imon_SuperMAXi->Draw("AP");
+    //
+    // TCanvas *cV_out_MAXi = new TCanvas("cV_out_MAXi", "cV_out_MAXi");
+    // cV_out_MAXi->SetGrid();
+    // gV_out_MAXi->Draw("AP");
+    //
+    // TCanvas *cV_vmon_MAXi = new TCanvas("cV_vmon_MAXi", "cV_vmon_MAXi");
+    // cV_vmon_MAXi->SetGrid();
+    // gV_vmon_MAXi->Draw("AP");
+    //
+    // TCanvas *cV_imon_MAXi = new TCanvas("cV_imon_MAXi", "cV_imon_MAXi");
+    // cV_imon_MAXi->SetGrid();
+    // gV_imon_MAXi->Draw("AP");
+    //
+    //
+    // TCanvas *cV_out_MINi = new TCanvas("cV_out_MINi", "cV_out_MINi");
+    // cV_out_MINi->SetGrid();
+    // gV_out_MINi->Draw("AP");
+    //
+    // TCanvas *cV_vmon_MINi = new TCanvas("cV_vmon_MINi", "cV_vmon_MINi");
+    // cV_vmon_MINi->SetGrid();
+    // gV_vmon_MINi->Draw("AP");
+    //
+    // TCanvas *cV_imon_MINi = new TCanvas("cV_imon_MINi", "cV_imon_MINi");
+    // cV_imon_MINi->SetGrid();
+    // gV_imon_MINi->Draw("AP");
+    //
+    //
+    // TCanvas *cV_out_SuperMINi = new TCanvas("cV_out_SuperMINi", "cV_out_SuperMINi");
+    // cV_out_SuperMINi->SetGrid();
+    // gV_out_SuperMINi->Draw("AP");
+    //
+    // TCanvas *cV_vmon_SuperMINi = new TCanvas("cV_vmon_SuperMINi", "cV_vmon_SuperMINi");
+    // cV_vmon_SuperMINi->SetGrid();
+    // gV_vmon_SuperMINi->Draw("AP");
+    //
+    // TCanvas *cV_imon_SuperMINi = new TCanvas("cV_imon_SuperMINi", "cV_imon_SuperMINi");
+    // cV_imon_SuperMINi->SetGrid();
+    // gV_imon_SuperMINi->Draw("AP");
+    //
+    //
+    // TCanvas *cV_out_SuperMAXi = new TCanvas("cV_out_SuperMAXi", "cV_out_SuperMAXi");
+    // cV_out_SuperMAXi->SetGrid();
+    // gV_out_SuperMAXi->Draw("AP");
+    //
+    // TCanvas *cV_vmon_SuperMAXi = new TCanvas("cV_vmon_SuperMAXi", "cV_vmon_SuperMAXi");
+    // cV_vmon_SuperMAXi->SetGrid();
+    // gV_vmon_SuperMAXi->Draw("AP");
+    //
+    // TCanvas *cV_imon_SuperMAXi = new TCanvas("cV_imon_SuperMAXi", "cV_imon_SuperMAXi");
+    // cV_imon_SuperMAXi->SetGrid();
+    // gV_imon_SuperMAXi->Draw("AP");
 
 
     //------------------------------
@@ -336,10 +336,10 @@ void Misure_PCB_DRAGON_20180712(){
     cout<<endl;
     cout<<"///// V_out /////"<<endl;
     n_mean = 4; // fit_linear is called n_mean times
-    fit_linear(gV_out_SuperMINi, cV_out, cV_out_SuperMINi);
-    fit_linear(gV_out_MINi, cV_out, cV_out_MINi);
-    fit_linear(gV_out_MAXi, cV_out, cV_out_MAXi);
-    fit_linear(gV_out_SuperMAXi, cV_out, cV_out_SuperMAXi);
+    fit_linear(gV_out_SuperMINi, cV_out);
+    fit_linear(gV_out_MINi, cV_out);
+    fit_linear(gV_out_MAXi, cV_out);
+    fit_linear(gV_out_SuperMAXi, cV_out);
 
     // mean values
     q_V_out /= n_mean;
@@ -497,11 +497,11 @@ void Misure_PCB_DRAGON_20180712(){
 
     double K_SuperMINi_all[n_measured], K_MINi_all[n_measured ], K_MAXi_all[n_measured ], K_SuperMAXi_all[n_measured];
 
-    TH1D* ptrhistK_all           = new TH1D("histK", "", nbins_K, min_K, max_K);
-    TH1D* ptrhistK_SuperMINi_all = new TH1D("histK_SuperMINi", "", nbins_K, min_K, max_K);
-    TH1D* ptrhistK_MINi_all      = new TH1D("histK_MINi", "", nbins_K, min_K, max_K);
-    TH1D* ptrhistK_MAXi_all      = new TH1D("histK_MAXi", "", nbins_K, min_K, max_K);
-    TH1D* ptrhistK_SuperMAXi_all = new TH1D("histK_SuperMAXi", "", nbins_K, min_K, max_K);
+    TH1D* ptrhistK_all           = new TH1D("histK_all", "", nbins_K, min_K, max_K);
+    TH1D* ptrhistK_SuperMINi_all = new TH1D("histK_SuperMINi_all", "", nbins_K, min_K, max_K);
+    TH1D* ptrhistK_MINi_all      = new TH1D("histK_MINi_all", "", nbins_K, min_K, max_K);
+    TH1D* ptrhistK_MAXi_all      = new TH1D("histK_MAXi_all", "", nbins_K, min_K, max_K);
+    TH1D* ptrhistK_SuperMAXi_all = new TH1D("histK_SuperMAXi_all", "", nbins_K, min_K, max_K);
 
     for(int i=0; i<n_measured; i++){
 
@@ -582,7 +582,7 @@ void Misure_PCB_DRAGON_20180712(){
 
 }
 
-void fit_linear(TGraphErrors *g, TCanvas *c1, TCanvas *c2){
+void fit_linear(TGraphErrors *g, TCanvas *c1){
   // Fit
   TF1 *line = new TF1("line","[0]*x+[1]");
   // TF1 *line = new TF1("line","[0]*x");
@@ -590,8 +590,8 @@ void fit_linear(TGraphErrors *g, TCanvas *c1, TCanvas *c2){
 
   g->Fit("line", "q");
   c1->cd();
-  g->Draw("same");
-  c2->cd();
+  // g->Draw("same");
+  // c2->cd();
   g->Draw("same");
 
   // Get Parameters
