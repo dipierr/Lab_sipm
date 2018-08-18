@@ -242,9 +242,9 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 9;//9;//8;//5;//9*GSPS;
+int dleddt = 8;//9;//8;//5;//9*GSPS;
     // dleddt = 6; for DCR_CT_1SiPM_nHVs(), 20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat and similar
-    // dleddt = 9; for Ana_LED(), 20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_35_AS_2_50000_01.dat and silar
+    // dleddt = 9; for Ana_LED(), 20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_35_AS_2_50000_01.dat and similar
 int blind_gap = 2*dleddt; //ns
 int max_peak_width = 50; //used for find_peaks
 int min_peak_width =  0; //used for find_peaks
@@ -252,16 +252,16 @@ int gap_between_peaks = 10;
 int rise_time = dleddt;
 
 // ONLY for DCR_CT_1SiPM_1HV and DCR_CT_1SiPM_3HVs:
-float min_thr_to_find_peaks = 8;  //first thr value in the DCR vs thr plot (mV)
-float max_thr_to_find_peaks = 80; //last thr value in the DCR vs thr plot (mV)
+float min_thr_to_find_peaks = 7.1;  //first thr value in the DCR vs thr plot (mV)
+float max_thr_to_find_peaks = 60; //last thr value in the DCR vs thr plot (mV)
 float gap_between_thr = 0.1; //gap between thresholds in the DCR vs thr plot (mV)
 float min_pe_0_5 = 8;  //min value for 0.5pe threshold (mV)
 float max_pe_0_5 = 15; //max value for 0.5pe threshold (mV)
 float min_pe_1_5 = 28; //min value for 1.5pe threshold (mV)
 float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
-float pe_0_5_vect[nfilemax] = {8.,  10., 11., 14., 15., 15., 10., 10., 10., 10.};
-float pe_1_5_vect[nfilemax] = {20., 25., 30., 32., 35., 37., 30., 30., 30., 30.};
+float pe_0_5_vect[nfilemax] = {10.,  10., 12., 15., 15., 15., 10., 10., 10., 10.};
+float pe_1_5_vect[nfilemax] = {22., 26., 30., 35., 35., 37., 30., 30., 30., 30.};
 
 // used for DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07 (6 files, 32 - 37)
 // float pe_0_5_vect[nfilemax] = {8.,  8., 10., 11., 12., 13., 10., 10., 10., 10.};
@@ -320,11 +320,22 @@ int bins_DCR = 206;
 int bins_Charge = 100;
 
 
-float minyhistDelays = 15;
-float maxyhistDelays = 127;
+// for: FBK HD3-2
+// float minyhistDelays = 15;
+// float maxyhistDelays = 127;
+//     // maxyhistDelays = 100; for DCR_CT_1SiPM_nHVs() for 20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat and similar (from 32 to 36 V)
+//     // maxyhistDelays = 127; for DCR_CT_1SiPM_nHVs() for 20180725_HD3-2_01_DARK_AgilentE3641A_31.00_AS_2_100000ev_01.dat
+// int bins_Delays = 50;
+// float expDelLow_max  = minyhistDelays*1.25;
+// float expDelHigh_max = maxyhistDelays;
+
+// For SenSL
+float minyhistDelays = 100;
+float maxyhistDelays = 500;
     // maxyhistDelays = 100; for DCR_CT_1SiPM_nHVs() for 20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat and similar (from 32 to 36 V)
-int bins_Delays = 50;
-float expDelLow_max  = minyhistDelays*1.25;
+    // maxyhistDelays = 127; for DCR_CT_1SiPM_nHVs() for 20180725_HD3-2_01_DARK_AgilentE3641A_31.00_AS_2_100000ev_01.dat
+int bins_Delays = 400;
+float expDelLow_max  = minyhistDelays;
 float expDelHigh_max = maxyhistDelays;
 
 //---------------
@@ -1067,7 +1078,9 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
         legendDCR_loop->AddEntry(gDCR[i],legend_entry[i].c_str(),"l");
     }
 
-    int n_columns = (int)nfile_in_list/2 + 1;
+    int n_columns = 1;
+    if(nfile_in_list%2==0) n_columns = (int)nfile_in_list/2;
+    else                   n_columns = (int)nfile_in_list/2 + 1;
     legendDCR_loop->SetNColumns(n_columns);
     legendDCR_loop->Draw();
 
@@ -1079,6 +1092,18 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
     }
     cout<<endl;
     cout<<endl;
+
+    cout<<"// pe_0_5_vect["<<nfiletot<<"] = {";
+    for(int i=0; i<nfiletot-1; i++){
+        cout<<pe_0_5_vect[i]<<", ";
+    }
+    cout<<pe_0_5_vect[nfiletot-1]<<"}"<<endl;
+
+    cout<<"// pe_1_5_vect["<<nfiletot<<"] = {";
+    for(int i=0; i<nfiletot-1; i++){
+        cout<<pe_1_5_vect[i]<<", ";
+    }
+    cout<<pe_1_5_vect[nfiletot-1]<<"}"<<endl;
 
     for(int i=0; i<nfiletot; i++){
         // // nfile
@@ -1095,15 +1120,15 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
         // cout<<endl;
 
         cout<< "HV = "<<legend_entry[i]<<";"<<endl;
-        cout<< "index = find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV);"<<endl;
+        cout<< "index = find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV);"<<endl;
         // CNT
-        cout<< "DCR_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<DCR_pe_0_5_Area_vect[i]*n6*Area<<";"<<endl;
-        cout<< "errDCR_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<errDCR_pe_0_5_Area_vect[i]*n6*Area<<";"<<endl;
-        cout<< "CT_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<DCR_pe_1_5_Area_vect[i]/DCR_pe_0_5_Area_vect[i]<<";"<<endl;
+        cout<< "DCR_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_0_5_Area_vect[i]*n6*Area<<";"<<endl;
+        cout<< "errDCR_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<errDCR_pe_0_5_Area_vect[i]*n6*Area<<";"<<endl;
+        cout<< "CT_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_1_5_Area_vect[i]/DCR_pe_0_5_Area_vect[i]<<";"<<endl;
         // DELAYS
-        cout<< "DCR_Del_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<DCR_pe_0_5_Area_delays_vect[i]*n6*Area<<";"<<endl;
-        cout<< "errDCR_Del_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<errDCR_pe_0_5_Area_delays_vect[i]*n6*Area<<";"<<endl;
-        cout<< "CT_Del_vect[find_index(HV_vect,  sizeof(HV_vect)/sizeof(HV_vect[0]), HV)] = "<<DCR_pe_1_5_Area_delays_vect[i]/DCR_pe_0_5_Area_delays_vect[i]<<";"<<endl;
+        cout<< "DCR_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_0_5_Area_delays_vect[i]*n6*Area<<";"<<endl;
+        cout<< "errDCR_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<errDCR_pe_0_5_Area_delays_vect[i]*n6*Area<<";"<<endl;
+        cout<< "CT_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_1_5_Area_delays_vect[i]/DCR_pe_0_5_Area_delays_vect[i]<<";"<<endl;
         cout<<endl;
     }
 
@@ -3675,7 +3700,7 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
       }
 
       if(smooth_trace_bool){
-          int n_SmootTraceN = 4;
+          int n_SmootTraceN = 2;
           SmoothTraceN(n_SmootTraceN);
           // cout<<"Smooth trace "<<n_SmootTraceN<<" points"<<endl;
 

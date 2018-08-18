@@ -1,13 +1,15 @@
 /******************************************************************************\
  * DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07.C
  *
- * GAIN values obtained by Ana_Traces_SiPM.cxx (version of 07/08/2018, 1)
+ * Values obtained by Ana_Traces_SiPM.cxx (version of 07/08/2018, 1)
  *
  * KEY POINTS:
  *  > DCR_CT_1SiPM_nHVs(...)
  *  > dleddt = 6
  *  > NO trace smoothing
  *  > thr at 0.5pe and 1.5 pe set manually
+ *  > min_thr_to_find_peaks = 8;  //first thr value in the DCR vs thr plot (mV)
+ *  > max_thr_to_find_peaks = 80; //last thr value in the DCR vs thr plot (mV)
  *
  *  > for HV = 32 ... 37:
  *    minyhistDelays = 15;  maxyhistDelays = 100;
