@@ -2104,7 +2104,8 @@ void FindDCRfromVector(){
 
     // DCR from cnt
     trace_time *= TMath::Power(10,-9); // trace time is in ns
-    trace_time /= n_ev_tot;
+    // trace_time /= n_ev_tot;
+    trace_time = 1e-6;
     DCR_from_cnt = (double)DCR_cnt / (trace_time * n_ev_tot);
 
     // errors
