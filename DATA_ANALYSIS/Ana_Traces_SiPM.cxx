@@ -61,9 +61,6 @@ using namespace std;
 
 #define n6 TMath::Power(10,-6)
 
-#define h_canvas 600
-#define w_canvas 1000
-
 
 //------------------------------------------------------------------------------
 //--------------------------[   READ BIN DRS4 INTRO   ]-------------------------
@@ -314,7 +311,7 @@ float maxyHistCharge = 50;
 float maxyhistAllPeaks = 200;
 float maxyhistDCR = 200;
 float w = 1000;
-float h = 800;
+float h = 600;
 int bins_Volt = 204;
 int bins_DCR = 206;
 int bins_Charge = 100;
@@ -953,7 +950,7 @@ void DCR_CT_1SiPM_1HV(string file1, int last_event_n){
     DCR_mg->Add(gDCR[0]);
 
 
-    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop", h_canvas, w_canvas);
+    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop", h, w);
 
     cDCR_loop->SetGrid();
     cDCR_loop->SetLogy();
