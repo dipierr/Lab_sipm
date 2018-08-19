@@ -41,9 +41,9 @@ def main(**kwargs):
     #input_file ="I-V_Dark_Dir"
     file = open(kwargs['input_file'], "r")
     lines = file.read().split("\n")
-       
+
     print kwargs['input_file'], '\n'
-    
+
     # define length of columns
     I = ["" for x in range(len(lines))]
     V = ["" for x in range(len(lines))]
@@ -62,7 +62,7 @@ def main(**kwargs):
         if low_lim < V[j] < up_lim:
             index=index+1
         j=j+1
-        
+
 
     V1 = np.linspace(0,1,index)
     I1 = np.linspace(0,1,index)
@@ -75,10 +75,11 @@ def main(**kwargs):
         temp=float(values[0])
         if low_lim < temp < up_lim:
             V1[j]=float(values[0])
-            I1[j]=float(values[1])*10**(-6) 
+            I1[j]=float(values[1])*10**(-6)
             j=j+1
 
     #plot I-V
+    plt.figure(figsize=(10, 6))
     plt.plot(V, I, color='blue', marker='o', linestyle='None', markersize=1)
     plt.xlabel('V (V)')
     plt.ylabel('I ('+'A)')
@@ -110,7 +111,7 @@ def main(**kwargs):
     print stats.chisquare(I1, f_exp = general_line(V1, *optimizedParameters1))
 
     plt.show()
-    
+
 if __name__ == '__main__':
 	args = PARSER.parse_args()
 	main(**args.__dict__)

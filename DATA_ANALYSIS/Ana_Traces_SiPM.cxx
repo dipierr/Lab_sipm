@@ -2937,7 +2937,7 @@ void fit_hist_peaks_gaus_sum_12( TH1D *hist){
 
   // Fit Range
   float fit_low  = -10;
-  float fit_high = 100;
+  float fit_high = 50;
 
 
   // FIT
