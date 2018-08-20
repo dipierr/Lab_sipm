@@ -47,6 +47,21 @@ PARSER.add_argument('-f', '--input_file', type=str, required=False, default='fil
 #input_file = "I-V_Dark_02"
 
 
+# Plot with latex font (slows down the plot)
+matplotlib.rcParams['text.usetex'] = True
+matplotlib.rcParams['text.latex.unicode'] = True
+
+# Font dimensions
+plt.rcParams.update({'axes.titlesize': 18})
+plt.rcParams.update({'axes.labelsize': 18})
+plt.rcParams.update({'xtick.labelsize': 16})
+plt.rcParams.update({'ytick.labelsize': 16})
+
+
+plt.rcParams.update({'savefig.bbox': 'tight'})
+
+
+
 def line_fit(p,x):
     m, q = p
     return m*x + q
@@ -156,8 +171,8 @@ def main(**kwargs):
     #plot I-V
     plt.figure(figsize=(10, 6))
     plt.plot(V, I, color='blue', marker='o', linestyle='None', markersize=1)
-    plt.xlabel(r'$V (V)$', fontsize = 18)
-    plt.ylabel(r'$I (\mu A)$', fontsize = 18)
+    plt.xlabel(r'$V (V)$')
+    plt.ylabel(r'$I (\mu A)$')
     plt.grid(True)
     plt.errorbar(V, I, xerr=errV, yerr=errI, linestyle='None')
     plt.ylim(10**(-3), 10**(1))
@@ -276,8 +291,8 @@ def main(**kwargs):
     plt.figure(figsize=(10, 6))
     plt.plot(V, SqrtI, color='blue', marker='o', linestyle='None', markersize=1)
     # plt.plot(V_after, SqrtI_after, color='red', marker='o', linestyle='None', markersize=2)
-    plt.xlabel(r'$V (V)$', fontsize = 18)
-    plt.ylabel(r'$\sqrt{I} \sqrt{\mu A}$', fontsize = 18)
+    plt.xlabel(r'$V (V)$')
+    plt.ylabel(r'$\sqrt{I} (\sqrt{\mu A})$')
     plt.grid(True)
     plt.errorbar(V, SqrtI, xerr=errV, yerr=errSqrtI, linestyle='None')
 
@@ -328,6 +343,8 @@ def main(**kwargs):
     print('\tVdb = ('+str(Vbd_logI_V)+' +- '+str(errVbd_logI_V)+') V')
     print('sqrt(I) - V')
     print('\tVdb = ('+str(Vbd_sqrtI_V)+' +- '+str(errVbd_sqrtI_V)+') V')
+
+
 
     plt.show(block=False)
     input("Press Enter to continue... ")

@@ -48,12 +48,19 @@
 #define timeDown 200
 #define k_fall 0.01
 
-#define label_size 0.05
+#define label_size_x 0.06
+#define label_size_y 0.06
+#define axis_title_size 0.06
 
 const int tot = timeDown+timeUp+1;
 
+#define w_canvas 1000
+#define h_canvas 600
+
 
 void DLED_Line_Exp(){
+
+
 
     double x[tot], x_shift[tot], y[tot], y_shift[tot], y_DLED[tot], y1[tot], ysum1[tot], ysum1_DLED[tot], y2[tot], ysum2[tot], ysum2_DLED[tot], y3[tot], ysum3[tot], ysum3_DLED[tot],y4[tot], ysum4[tot], ysum4_DLED[tot],y5[tot], ysum5[tot], ysum5_DLED[tot], y_DLED_2[tot], y_DLED_3[tot], y_DLED_4[tot], y_DLED_5[tot];
     double min = 0;
@@ -167,7 +174,7 @@ void DLED_Line_Exp(){
     }
 
     //y
-    TCanvas *DLED_Original = new TCanvas("DLED_Original","DLED_Original");
+    TCanvas *DLED_Original = new TCanvas("DLED_Original","DLED_Original",w_canvas,h_canvas);
     DLED_Original->Divide(1,2);
 
     TGraph* gr = new TGraph(tot,x,y);
@@ -184,7 +191,7 @@ void DLED_Line_Exp(){
 
 
     // different dleddt
-    TCanvas *DLED_Different_dleddt = new TCanvas("DLED_Different_dleddt","DLED_Different_dleddt");
+    TCanvas *DLED_Different_dleddt = new TCanvas("DLED_Different_dleddt","DLED_Different_dleddt",w_canvas,h_canvas);
 
     TGraph* gr_DLED_2 = new TGraph(tot,x,y_DLED_2);
     gr_DLED_2->SetLineColor(kAzure+1);
@@ -211,7 +218,7 @@ void DLED_Line_Exp(){
 
 
     //y and y_shift
-    TCanvas *DLED_Original_Shift = new TCanvas("DLED_Original_Shift","DLED_Original_Shift");
+    TCanvas *DLED_Original_Shift = new TCanvas("DLED_Original_Shift","DLED_Original_Shift",w_canvas,h_canvas);
     DLED_Original_Shift->Divide(1,2);
 
     TGraph* gr_shift = new TGraph(tot,x_shift,y_shift);
@@ -226,7 +233,7 @@ void DLED_Line_Exp(){
 
 
     //ysum1
-    TCanvas *DLED_0_timeUp = new TCanvas("DLED_0_timeUp","DLED_0_timeUp");
+    TCanvas *DLED_0_timeUp = new TCanvas("DLED_0_timeUp","DLED_0_timeUp",w_canvas,h_canvas);
     DLED_0_timeUp->Divide(1,2);
 
     TGraph* gr1 = new TGraph(tot,x,y1);
@@ -248,7 +255,7 @@ void DLED_Line_Exp(){
     grsum1_DLED->Draw("al");
 
     //ysum2
-    TCanvas *DLED_timeUp = new TCanvas("DLED_timeUp","DLED_timeUp");
+    TCanvas *DLED_timeUp = new TCanvas("DLED_timeUp","DLED_timeUp",w_canvas,h_canvas);
     DLED_timeUp->Divide(1,2);
 
     TGraph* gr2 = new TGraph(tot,x,y2);
@@ -270,7 +277,7 @@ void DLED_Line_Exp(){
     grsum2_DLED->Draw("al");
 
     //ysum3
-    TCanvas *DLED_timeUp_2timeUp = new TCanvas("DLED_timeUp_2timeUp","DLED_timeUp_2timeUp");
+    TCanvas *DLED_timeUp_2timeUp = new TCanvas("DLED_timeUp_2timeUp","DLED_timeUp_2timeUp",w_canvas,h_canvas);
     DLED_timeUp_2timeUp->Divide(1,2);
 
     TGraph* gr3 = new TGraph(tot,x,y3);
@@ -293,7 +300,7 @@ void DLED_Line_Exp(){
 
 
     //ysum4
-    TCanvas *DLED_2timeUp = new TCanvas("DLED_2timeUp","DLED_2timeUp");
+    TCanvas *DLED_2timeUp = new TCanvas("DLED_2timeUp","DLED_2timeUp",w_canvas,h_canvas);
     DLED_2timeUp->Divide(1,2);
 
     TGraph* gr4 = new TGraph(tot,x,y4);
@@ -316,7 +323,7 @@ void DLED_Line_Exp(){
 
 
     //ysum5
-    TCanvas *DLED_2timeUp_inf = new TCanvas("DLED_2timeUp_inf","DLED_2timeUp_inf");
+    TCanvas *DLED_2timeUp_inf = new TCanvas("DLED_2timeUp_inf","DLED_2timeUp_inf",w_canvas,h_canvas);
     DLED_2timeUp_inf->Divide(1,2);
 
     TGraph* gr5 = new TGraph(tot,x,y5);
@@ -382,99 +389,11 @@ void DLED_Line_Exp(){
     grsum3_DLED->GetYaxis()->SetTitle("Amplitude (a.u.)");
     grsum4_DLED->GetYaxis()->SetTitle("Amplitude (a.u.)");
     grsum5_DLED->GetYaxis()->SetTitle("Amplitude (a.u.)");
+    gr_DLED->GetYaxis()->SetTitle("Amplitude (a.u.)");
 
     ///////////////////////////////////////////////////////////////////////////
 
 
-    //////////////////////////
-    ///   AXIS TITLE SIZE  ///
-    //////////////////////////
-
-
-
-    // gr->GetXaxis()->SetTitleSize(label_size);
-    // gr1->GetXaxis()->SetTitleSize(label_size);
-    // gr2->GetXaxis()->SetTitleSize(label_size);
-    // gr3->GetXaxis()->SetTitleSize(label_size);
-    // gr4->GetXaxis()->SetTitleSize(label_size);
-    // gr5->GetXaxis()->SetTitleSize(label_size);
-    //
-    // grsum1->GetXaxis()->SetTitleSize(label_size);
-    // grsum2->GetXaxis()->SetTitleSize(label_size);
-    // grsum3->GetXaxis()->SetTitleSize(label_size);
-    // grsum4->GetXaxis()->SetTitleSize(label_size);
-    // grsum5->GetXaxis()->SetTitleSize(label_size);
-    //
-    // gr_DLED->GetXaxis()->SetTitleSize(label_size);
-    // grsum1_DLED->GetXaxis()->SetTitleSize(label_size);
-    // grsum2_DLED->GetXaxis()->SetTitleSize(label_size);
-    // grsum3_DLED->GetXaxis()->SetTitleSize(label_size);
-    // grsum4_DLED->GetXaxis()->SetTitleSize(label_size);
-    // grsum5_DLED->GetXaxis()->SetTitleSize(label_size);
-    //
-    // gr->GetYaxis()->SetTitleSize(label_size);
-    // gr1->GetYaxis()->SetTitleSize(label_size);
-    // gr2->GetYaxis()->SetTitleSize(label_size);
-    // gr3->GetYaxis()->SetTitleSize(label_size);
-    // gr4->GetYaxis()->SetTitleSize(label_size);
-    // gr5->GetYaxis()->SetTitleSize(label_size);
-    //
-    // grsum1->GetYaxis()->SetTitleSize(label_size);
-    // grsum2->GetYaxis()->SetTitleSize(label_size);
-    // grsum3->GetYaxis()->SetTitleSize(label_size);
-    // grsum4->GetYaxis()->SetTitleSize(label_size);
-    // grsum5->GetYaxis()->SetTitleSize(label_size);
-    //
-    // grsum1_DLED->GetYaxis()->SetTitleSize(label_size);
-    // grsum2_DLED->GetYaxis()->SetTitleSize(label_size);
-    // grsum3_DLED->GetYaxis()->SetTitleSize(label_size);
-    // grsum4_DLED->GetYaxis()->SetTitleSize(label_size);
-    // grsum5_DLED->GetYaxis()->SetTitleSize(label_size);
-
-
-    ///////////////////////////////////////////////////////////////////////////
-
-
-    // gr->GetXaxis()->SetLabelSize(label_size);
-    // gr1->GetXaxis()->SetLabelSize(label_size);
-    // gr2->GetXaxis()->SetLabelSize(label_size);
-    // gr3->GetXaxis()->SetLabelSize(label_size);
-    // gr4->GetXaxis()->SetLabelSize(label_size);
-    // gr5->GetXaxis()->SetLabelSize(label_size);
-
-    // grsum1->GetXaxis()->SetLabelSize(label_size);
-    // grsum2->GetXaxis()->SetLabelSize(label_size);
-    // grsum3->GetXaxis()->SetLabelSize(label_size);
-    // grsum4->GetXaxis()->SetLabelSize(label_size);
-    // grsum5->GetXaxis()->SetLabelSize(label_size);
-
-    // gr_DLED->GetXaxis()->SetLabelSize(label_size);
-    // grsum1_DLED->GetXaxis()->SetLabelSize(label_size);
-    // grsum2_DLED->GetXaxis()->SetLabelSize(label_size);
-    // grsum3_DLED->GetXaxis()->SetLabelSize(label_size);
-    // grsum4_DLED->GetXaxis()->SetLabelSize(label_size);
-    // grsum5_DLED->GetXaxis()->SetLabelSize(label_size);
-
-    // gr->GetYaxis()->SetLabelSize(label_size);
-    // gr1->GetYaxis()->SetLabelSize(label_size);
-    // gr2->GetYaxis()->SetLabelSize(label_size);
-    // gr3->GetYaxis()->SetLabelSize(label_size);
-    // gr4->GetYaxis()->SetLabelSize(label_size);
-    // gr5->GetYaxis()->SetLabelSize(label_size);
-
-    // grsum1->GetYaxis()->SetLabelSize(label_size);
-    // grsum2->GetYaxis()->SetLabelSize(label_size);
-    // grsum3->GetYaxis()->SetLabelSize(label_size);
-    // grsum4->GetYaxis()->SetLabelSize(label_size);
-    // grsum5->GetYaxis()->SetLabelSize(label_size);
-
-    // grsum1_DLED->GetYaxis()->SetLabelSize(label_size);
-    // grsum2_DLED->GetYaxis()->SetLabelSize(label_size);
-    // grsum3_DLED->GetYaxis()->SetLabelSize(label_size);
-    // grsum4_DLED->GetYaxis()->SetLabelSize(label_size);
-    // grsum5_DLED->GetYaxis()->SetLabelSize(label_size);
-
-    ///////////////////////////////////////////////////////////////////////////
 
 
     grsum1->SetLineWidth(2);
@@ -528,21 +447,121 @@ void DLED_Line_Exp(){
     DLED_Different_dleddt->SetGridy();
 
 
-    DLED_Original->Update();
-    DLED_0_timeUp->Update();
-    DLED_timeUp->Update();
-    DLED_timeUp_2timeUp->Update();
-    DLED_2timeUp->Update();
-    DLED_2timeUp_inf->Update();
 
-    DLED_Original_Shift->Update();
 
     double maxx_diff_dleddt = (int)(maxx*0.375);
     double maxy_diff_dleddt = maxy;
     double miny_diff_dleddt = -20;
     gDLED_Different_dleddt->GetXaxis()->SetRangeUser(minx,maxx_diff_dleddt);
     gDLED_Different_dleddt->GetYaxis()->SetRangeUser(miny_diff_dleddt,maxy_diff_dleddt);
+
+
+    //#########################################################################
+    //#     FONT SIZE
+    //#########################################################################
+
+
+
+    gr->GetXaxis()->SetTitleSize(axis_title_size);
+    gr1->GetXaxis()->SetTitleSize(axis_title_size);
+    gr2->GetXaxis()->SetTitleSize(axis_title_size);
+    gr3->GetXaxis()->SetTitleSize(axis_title_size);
+    gr4->GetXaxis()->SetTitleSize(axis_title_size);
+    gr5->GetXaxis()->SetTitleSize(axis_title_size);
+    gr_shift->GetXaxis()->SetTitleSize(axis_title_size);
+
+    grsum1->GetXaxis()->SetTitleSize(axis_title_size);
+    grsum2->GetXaxis()->SetTitleSize(axis_title_size);
+    grsum3->GetXaxis()->SetTitleSize(axis_title_size);
+    grsum4->GetXaxis()->SetTitleSize(axis_title_size);
+    grsum5->GetXaxis()->SetTitleSize(axis_title_size);
+
+    gr_DLED->GetXaxis()->SetTitleSize(axis_title_size);
+    grsum1_DLED->GetXaxis()->SetTitleSize(axis_title_size);
+    grsum2_DLED->GetXaxis()->SetTitleSize(axis_title_size);
+    grsum3_DLED->GetXaxis()->SetTitleSize(axis_title_size);
+    grsum4_DLED->GetXaxis()->SetTitleSize(axis_title_size);
+    grsum5_DLED->GetXaxis()->SetTitleSize(axis_title_size);
+
+    gr->GetYaxis()->SetTitleSize(axis_title_size);
+    gr1->GetYaxis()->SetTitleSize(axis_title_size);
+    gr2->GetYaxis()->SetTitleSize(axis_title_size);
+    gr3->GetYaxis()->SetTitleSize(axis_title_size);
+    gr4->GetYaxis()->SetTitleSize(axis_title_size);
+    gr5->GetYaxis()->SetTitleSize(axis_title_size);
+    gr_shift->GetYaxis()->SetTitleSize(axis_title_size);
+
+    grsum1->GetYaxis()->SetTitleSize(axis_title_size);
+    grsum2->GetYaxis()->SetTitleSize(axis_title_size);
+    grsum3->GetYaxis()->SetTitleSize(axis_title_size);
+    grsum4->GetYaxis()->SetTitleSize(axis_title_size);
+    grsum5->GetYaxis()->SetTitleSize(axis_title_size);
+
+    gr_DLED->GetYaxis()->SetTitleSize(axis_title_size);
+    grsum1_DLED->GetYaxis()->SetTitleSize(axis_title_size);
+    grsum2_DLED->GetYaxis()->SetTitleSize(axis_title_size);
+    grsum3_DLED->GetYaxis()->SetTitleSize(axis_title_size);
+    grsum4_DLED->GetYaxis()->SetTitleSize(axis_title_size);
+    grsum5_DLED->GetYaxis()->SetTitleSize(axis_title_size);
+
+
+    /////////////////////////////////////////////////////////////////////////
+
+
+    gr->GetXaxis()->SetLabelSize(label_size_x);
+    gr1->GetXaxis()->SetLabelSize(label_size_x);
+    gr2->GetXaxis()->SetLabelSize(label_size_x);
+    gr3->GetXaxis()->SetLabelSize(label_size_x);
+    gr4->GetXaxis()->SetLabelSize(label_size_x);
+    gr5->GetXaxis()->SetLabelSize(label_size_x);
+    gr_shift->GetXaxis()->SetLabelSize(label_size_x);
+
+    grsum1->GetXaxis()->SetLabelSize(label_size_x);
+    grsum2->GetXaxis()->SetLabelSize(label_size_x);
+    grsum3->GetXaxis()->SetLabelSize(label_size_x);
+    grsum4->GetXaxis()->SetLabelSize(label_size_x);
+    grsum5->GetXaxis()->SetLabelSize(label_size_x);
+
+    gr_DLED->GetXaxis()->SetLabelSize(label_size_x);
+    grsum1_DLED->GetXaxis()->SetLabelSize(label_size_x);
+    grsum2_DLED->GetXaxis()->SetLabelSize(label_size_x);
+    grsum3_DLED->GetXaxis()->SetLabelSize(label_size_x);
+    grsum4_DLED->GetXaxis()->SetLabelSize(label_size_x);
+    grsum5_DLED->GetXaxis()->SetLabelSize(label_size_x);
+
+    gr->GetYaxis()->SetLabelSize(label_size_y);
+    gr1->GetYaxis()->SetLabelSize(label_size_y);
+    gr2->GetYaxis()->SetLabelSize(label_size_y);
+    gr3->GetYaxis()->SetLabelSize(label_size_y);
+    gr4->GetYaxis()->SetLabelSize(label_size_y);
+    gr5->GetYaxis()->SetLabelSize(label_size_y);
+    gr_shift->GetYaxis()->SetLabelSize(label_size_y);
+
+    grsum1->GetYaxis()->SetLabelSize(label_size_y);
+    grsum2->GetYaxis()->SetLabelSize(label_size_y);
+    grsum3->GetYaxis()->SetLabelSize(label_size_y);
+    grsum4->GetYaxis()->SetLabelSize(label_size_y);
+    grsum5->GetYaxis()->SetLabelSize(label_size_y);
+
+    gr_DLED->GetYaxis()->SetLabelSize(label_size_x);
+    grsum1_DLED->GetYaxis()->SetLabelSize(label_size_y);
+    grsum2_DLED->GetYaxis()->SetLabelSize(label_size_y);
+    grsum3_DLED->GetYaxis()->SetLabelSize(label_size_y);
+    grsum4_DLED->GetYaxis()->SetLabelSize(label_size_y);
+    grsum5_DLED->GetYaxis()->SetLabelSize(label_size_y);
+
+
+
+
+
+    DLED_Original->Update();
+    DLED_0_timeUp->Update();
+    DLED_timeUp->Update();
+    DLED_timeUp_2timeUp->Update();
+    DLED_2timeUp->Update();
+    DLED_2timeUp_inf->Update();
     DLED_Different_dleddt->Update();
+    DLED_Original_Shift->Update();
 
 
 }
