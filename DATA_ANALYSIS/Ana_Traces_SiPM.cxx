@@ -266,8 +266,8 @@ float pe_1_5_vect[nfilemax] = {22., 26., 30., 35., 35., 37., 30., 30., 30., 30.}
 
 
 // AREA
-double Area = 36.00; // 6*6 mm^2 for FBK NUV HD3-2
-// double Area = 36.844900; // 6.07*6.07 mm^2 for SensL MicroFJ-SMTPA-60035
+// double Area = 36.00; // 6*6 mm^2 for FBK NUV HD3-2
+double Area = 36.844900; // 6.07*6.07 mm^2 for SensL MicroFJ-SMTPA-60035
 
 // ONLY for LED measures
 int minLED_amp = 168;//168;//168;//290;//115;  // window: min time for peak (ns) for LED
