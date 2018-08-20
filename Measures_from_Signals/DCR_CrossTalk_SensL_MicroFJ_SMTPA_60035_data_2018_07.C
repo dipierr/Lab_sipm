@@ -10,6 +10,7 @@
  *  > thr at 0.5pe and 1.5 pe set manually
  *  > min_thr_to_find_peaks = 7.1;//first thr value in the DCR vs thr plot (mV)
  *  > max_thr_to_find_peaks = 60; //last thr value in the DCR vs thr plot (mV)
+ *  > Area = 36.844900; // 6.07*6.07 mm^2
  *
  *  FILES ANALYZED:
  *
@@ -117,7 +118,8 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
     bool draw_all_bool = false;
 
     // Area:
-    double Area = 36;
+    double Area;
+    Area = 6.07*6.07;
 
     // Initialization
     for(int i=0; i<n_DCR_1; i++){

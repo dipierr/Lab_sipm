@@ -266,8 +266,7 @@ float pe_1_5_vect[nfilemax] = {22., 26., 30., 35., 35., 37., 30., 30., 30., 30.}
 
 
 // AREA
-double Area = 36.00; // 6*6 mm^2 for FBK NUV HD3-2
-// double Area = 36.844900; // 6.07*6.07 mm^2 for SensL MicroFJ-SMTPA-60035
+double Area = 36.00;
 
 // ONLY for LED measures
 int minLED_amp = 168;//168;//168;//290;//115;  // window: min time for peak (ns) for LED
@@ -951,7 +950,7 @@ void DCR_CT_1SiPM_1HV(string file1, int last_event_n){
     DCR_mg->Add(gDCR[0]);
 
 
-    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop");
+    TCanvas *cDCR_loop = new TCanvas("cDCR_loop", "cDCR_loop", h, w);
 
     cDCR_loop->SetGrid();
     cDCR_loop->SetLogy();
@@ -2105,8 +2104,8 @@ void FindDCRfromVector(){
 
     // DCR from cnt
     trace_time *= TMath::Power(10,-9); // trace time is in ns
-    trace_time /= n_ev_tot;
-    // trace_time = 1e-6;
+    // trace_time /= n_ev_tot;
+    trace_time = 1e-6;
     DCR_from_cnt = (double)DCR_cnt / (trace_time * n_ev_tot);
 
     // errors
