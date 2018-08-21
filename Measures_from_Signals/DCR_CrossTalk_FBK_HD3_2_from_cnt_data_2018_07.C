@@ -10,6 +10,7 @@
  *  > thr at 0.5pe and 1.5 pe set manually
  *  > min_thr_to_find_peaks = 8;  //first thr value in the DCR vs thr plot (mV)
  *  > max_thr_to_find_peaks = 80; //last thr value in the DCR vs thr plot (mV)
+ *  > Area = 36; // 6x6 mm^2
  *
  *  > for HV = 32 ... 37:
  *    minyhistDelays = 15;  maxyhistDelays = 100;
