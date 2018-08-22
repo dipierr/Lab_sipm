@@ -42,7 +42,7 @@ def main(**kwargs):
     file = open(kwargs['input_file'], "r")
     lines = file.read().split("\n")
 
-    print kwargs['input_file'], '\n'
+    print(kwargs['input_file'], '\n')
 
     # define length of columns
     I = ["" for x in range(len(lines))]
@@ -108,7 +108,7 @@ def main(**kwargs):
     print('Rq = {}'.format(Rq))
     print('errRq = {}'.format(errRq))
 
-    print stats.chisquare(I1, f_exp = general_line(V1, *optimizedParameters1))
+    print(stats.chisquare(I1, f_exp = general_line(V1, *optimizedParameters1)))
 
     plt.show()
 
