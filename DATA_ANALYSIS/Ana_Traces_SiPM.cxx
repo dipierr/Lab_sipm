@@ -218,6 +218,8 @@ bool fill_hist_peaks_when_found = true;
 
 bool automatic_find_thr_1pe_2pe = false;
 
+bool change_title_size_bool = true;
+
 //-----------------
 //-----------------
 
@@ -2214,7 +2216,7 @@ void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int 
     graph1->GetYaxis()->SetTitleOffset(1.2);
     graph1->GetXaxis()->SetTitleOffset(1.2);
     graph1->GetYaxis()-> SetRangeUser(miny1,maxy1);
-    graph1->Draw("apl");
+    graph1->Draw("al");
     //graph1->SetEditable(kFALSE);
    if(line_bool){
         TLine *lmin = new TLine (min_line, miny1, min_line, maxy1);
@@ -2235,7 +2237,7 @@ void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int 
     graph2->GetYaxis()->SetTitleOffset(1.2);
     graph2->GetXaxis()->SetTitleOffset(1.2);
     graph2->GetYaxis()-> SetRangeUser(miny2,maxy2);
-    graph2->Draw("apl");
+    graph2->Draw("al");
     //graph2->SetEditable(kFALSE);
 if(line_bool){
         TLine *lmin = new TLine (min_line, miny2, min_line, maxy2);
@@ -2303,6 +2305,19 @@ if(line_bool){
       graphPeak_LED_DLED->SetMarkerStyle(20);
       graphPeak_LED_DLED->SetMarkerColor(kBlue);
       graphPeak_LED_DLED->Draw("psame");
+    }
+
+    if(change_title_size_bool){
+        gStyle->SetTitleFontSize(0.06);
+        graph1->GetXaxis()->SetTitleSize(0.06);
+        graph1->GetYaxis()->SetTitleSize(0.06);
+        graph1->GetXaxis()->SetLabelSize(0.06);
+        graph1->GetYaxis()->SetLabelSize(0.06);
+        graph2->GetXaxis()->SetTitleSize(0.06);
+        graph2->GetYaxis()->SetTitleSize(0.06);
+        graph2->GetXaxis()->SetLabelSize(0.06);
+        graph2->GetYaxis()->SetLabelSize(0.06);
+        canv->Update();
     }
 
     canv->Update();

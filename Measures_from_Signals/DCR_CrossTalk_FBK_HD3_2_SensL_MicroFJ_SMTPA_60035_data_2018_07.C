@@ -651,7 +651,7 @@ void DCR_CrossTalk_FBK_HD3_2_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
 
     TCanvas *cCT = new TCanvas("cCT", "cCT",w,h);
     cCT->SetGrid();
-    TMultiGraph *mgCT = new TMultiGraph("mgCT", ";Overvoltage (V); Cross Talk");
+    TMultiGraph *mgCT = new TMultiGraph("mgCT", ";Overvoltage (V); P_{CT}");
     mgCT->Add(gV_CT_1);
     mgCT->Add(gV_CT_2);
     mgCT->Add(gV_CT_3);
@@ -713,7 +713,7 @@ void DCR_CrossTalk_FBK_HD3_2_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
 
     // TCanvas *cCT_Del = new TCanvas("cCT_Del", "cCT_Del",w,h);
     // cCT_Del->SetGrid();
-    // TMultiGraph *mgCT_Del = new TMultiGraph("mgCT_Del", ";Overvoltage (V);Cross Talk");
+    // TMultiGraph *mgCT_Del = new TMultiGraph("mgCT_Del", ";Overvoltage (V); P_{CT}");
     // mgCT_Del->Add(gV_CT_Del_1);
     // mgCT_Del->Add(gV_CT_Del_2);
     // mgCT_Del->Add(gV_CT_Del_3);
@@ -741,7 +741,7 @@ void DCR_CrossTalk_FBK_HD3_2_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
 
     // TCanvas *cCT_CNT_Del = new TCanvas("cCT_CNT_Del", "cCT_CNT_Del",w,h);
     // cCT_CNT_Del->SetGrid();
-    // TMultiGraph *mgCT_CNT_Del = new TMultiGraph("mgCT_CNT_Del", ";Overvoltage (V);Cross Talk");
+    // TMultiGraph *mgCT_CNT_Del = new TMultiGraph("mgCT_CNT_Del", ";Overvoltage (V); P_{CT}");
     // mgCT_CNT_Del->Add(gV_CT_1);
     // mgCT_CNT_Del->Add(gV_CT_2);
     // mgCT_CNT_Del->Add(gV_CT_3);
@@ -1097,7 +1097,7 @@ void DCR_CrossTalk_FBK_HD3_2_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
 
     TCanvas *cCT_SensL = new TCanvas("cCT_SensL", "cCT_SensL",w,h);
     cCT_SensL->SetGrid();
-    TMultiGraph *mgCT_SensL = new TMultiGraph("mgCT_SensL", ";Overvoltage (V); Cross Talk");
+    TMultiGraph *mgCT_SensL = new TMultiGraph("mgCT_SensL", ";Overvoltage (V); P_{CT}");
     mgCT_SensL->Add(gV_CT_1_SensL);
     mgCT_SensL->Add(gV_CT_2_SensL);
     mgCT_SensL->Draw("AP");
@@ -1144,7 +1144,7 @@ void DCR_CrossTalk_FBK_HD3_2_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
 
     TCanvas *cCT_FBK_SensL = new TCanvas("cCT_FBK_SensL", "cCT_FBK_SensL",w,h);
     cCT_FBK_SensL->SetGrid();
-    TMultiGraph *mgCT_FBK_SensL = new TMultiGraph("mgCT_FBK_SensL", ";Overvoltage (V); Cross Talk");
+    TMultiGraph *mgCT_FBK_SensL = new TMultiGraph("mgCT_FBK_SensL", ";Overvoltage (V); P_{CT}");
     mgCT_FBK_SensL->Add(gV_CT_1);
     mgCT_FBK_SensL->Add(gV_CT_2);
     mgCT_FBK_SensL->Add(gV_CT_3);

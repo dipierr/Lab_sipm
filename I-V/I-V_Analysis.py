@@ -34,6 +34,9 @@ from scipy.odr import *
 from pylab import *
 import argparse
 
+# Other files in the same project:
+import PlotSettings
+
 
 
 __description__ = 'ANALYSIS I-V CURVE for SiPM'
@@ -46,19 +49,25 @@ PARSER.add_argument('-f', '--input_file', type=str, required=False, default='fil
 #input_file ="I-V_Dark"
 #input_file = "I-V_Dark_02"
 
-
-# Plot with latex font (slows down the plot)
-matplotlib.rcParams['text.usetex'] = True
-matplotlib.rcParams['text.latex.unicode'] = True
-
-# Font dimensions
-plt.rcParams.update({'axes.titlesize': 18})
-plt.rcParams.update({'axes.labelsize': 18})
-plt.rcParams.update({'xtick.labelsize': 16})
-plt.rcParams.update({'ytick.labelsize': 16})
-
-
-plt.rcParams.update({'savefig.bbox': 'tight'})
+# #################
+# # PLOT SETTINGS #
+# #################
+# # Direct input
+# plt.rcParams['text.latex.preamble']=[r"\usepackage{lmodern}"]
+# # Options, rcParams
+# params = {  # LaTeX font
+#             'text.usetex' : True,
+#             'text.latex.unicode': True,
+#             'font.size' : 12,
+#             # Font Size in Plots
+#             'axes.titlesize': 18,
+#             'axes.labelsize': 18,
+#             'xtick.labelsize': 16,
+#             'ytick.labelsize': 16,
+#             'savefig.bbox': 'tight'
+#           }
+# # Update rcParams
+# plt.rcParams.update(params)
 
 
 
@@ -72,6 +81,8 @@ def parabola_fit(p,x):
 
 
 def main(**kwargs):
+
+    PlotSettings.PlotSettings()
 
 #-------------------------------------------------------------------------------
 #--------------------------------[   LOG(I) - V   ]-----------------------------

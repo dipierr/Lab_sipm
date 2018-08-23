@@ -17,6 +17,9 @@ from scipy.optimize import curve_fit
 from scipy import asarray as ar,exp
 import argparse
 
+# Other Files in the same Project
+import PlotSettings
+
 
 __description__ = 'ANALYSIS I-V CURVE for SiPM (DIRECT)'
 
@@ -32,6 +35,8 @@ def general_line(x,m,q):
     return m*x + q
 
 def main(**kwargs):
+
+    PlotSettings.PlotSettings()
 
     low_lim = 0.64
     up_lim = 0.96
@@ -57,8 +62,8 @@ def main(**kwargs):
     for l in lines:
         values = l.split("\t")
         V[j]=float(values[0])
-        I[j]=float(values[1])*10**(-6)
-        errI[j]=float(values[2])*10**(-6)
+        I[j]=float(values[1])*10**(-3)
+        errI[j]=float(values[2])*10**(-3)
         if low_lim < V[j] < up_lim:
             index=index+1
         j=j+1
@@ -75,14 +80,14 @@ def main(**kwargs):
         temp=float(values[0])
         if low_lim < temp < up_lim:
             V1[j]=float(values[0])
-            I1[j]=float(values[1])*10**(-6)
+            I1[j]=float(values[1])*10**(-3)
             j=j+1
 
     #plot I-V
     plt.figure(figsize=(10, 6))
     plt.plot(V, I, color='blue', marker='o', linestyle='None', markersize=1)
-    plt.xlabel('V (V)')
-    plt.ylabel('I ('+'A)')
+    plt.xlabel(r'$V (V)$')
+    plt.ylabel(r'$I (mA)$')
     plt.grid(True)
     plt.errorbar(V, I, xerr=0.01, yerr=errI, linestyle='None')
 
@@ -97,7 +102,7 @@ def main(**kwargs):
     m = optimizedParameters1[0]
     q = optimizedParameters1[1]
     errm = pcov1[0][0]**(0.5)
-    Req = optimizedParameters1[0]**(-1)
+    Req = optimizedParameters1[0]**(-1)*10**(3)
     errReq= errm/m*Req
     Rq=22500*Req
     errRq=errReq/Req*Rq
@@ -110,7 +115,9 @@ def main(**kwargs):
 
     print(stats.chisquare(I1, f_exp = general_line(V1, *optimizedParameters1)))
 
-    plt.show()
+    plt.show(block=False)
+    input("Press Enter to continue... ")
+    plt.close()
 
 if __name__ == '__main__':
 	args = PARSER.parse_args()

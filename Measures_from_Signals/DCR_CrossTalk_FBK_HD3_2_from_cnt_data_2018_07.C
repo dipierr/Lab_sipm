@@ -582,19 +582,19 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     gV_CT_1->SetMarkerColor(kOrange+1);
     gV_CT_1->SetTitle();
     gV_CT_1->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gV_CT_1->GetYaxis()->SetTitle("Cross Talk");
+    gV_CT_1->GetYaxis()->SetTitle("P_{CT}");
 
     gV_CT_2->SetMarkerStyle(20);
     gV_CT_2->SetMarkerColor(kRed);
     gV_CT_2->SetTitle();
     gV_CT_2->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gV_CT_2->GetYaxis()->SetTitle("Cross Talk");
+    gV_CT_2->GetYaxis()->SetTitle("P_{CT}");
 
     gV_CT_3->SetMarkerStyle(20);
     gV_CT_3->SetMarkerColor(kMagenta);
     gV_CT_3->SetTitle();
     gV_CT_3->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gV_CT_3->GetYaxis()->SetTitle("Cross Talk");
+    gV_CT_3->GetYaxis()->SetTitle("P_{CT}");
 
     //------------------------------
 
@@ -624,19 +624,19 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     gV_CT_Del_1->SetMarkerColor(kOrange+1);
     gV_CT_Del_1->SetTitle();
     gV_CT_Del_1->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gV_CT_Del_1->GetYaxis()->SetTitle("Cross Talk");
+    gV_CT_Del_1->GetYaxis()->SetTitle("P_{CT}");
 
     gV_CT_Del_2->SetMarkerStyle(22);
     gV_CT_Del_2->SetMarkerColor(kRed);
     gV_CT_Del_2->SetTitle();
     gV_CT_Del_2->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gV_CT_Del_2->GetYaxis()->SetTitle("Cross Talk");
+    gV_CT_Del_2->GetYaxis()->SetTitle("P_{CT}");
 
     gV_CT_Del_3->SetMarkerStyle(22);
     gV_CT_Del_3->SetMarkerColor(kMagenta);
     gV_CT_Del_3->SetTitle();
     gV_CT_Del_3->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gV_CT_Del_3->GetYaxis()->SetTitle("Cross Talk");
+    gV_CT_Del_3->GetYaxis()->SetTitle("P_{CT}");
 
     //------------------------------
 
@@ -701,7 +701,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     TCanvas *cCT = new TCanvas("cCT", "cCT",w,h);
     cCT->SetGrid();
-    TMultiGraph *mgCT = new TMultiGraph("mgCT", ";Bias Voltage (V); Cross Talk");
+    TMultiGraph *mgCT = new TMultiGraph("mgCT", ";Bias Voltage (V); P_{CT}");
     mgCT->Add(gV_CT_1);
     mgCT->Add(gV_CT_2);
     mgCT->Add(gV_CT_3);
@@ -794,7 +794,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     TCanvas *cCT_Del = new TCanvas("cCT_Del", "cCT_Del",w,h);
     cCT_Del->SetGrid();
-    TMultiGraph *mgCT_Del = new TMultiGraph("mgCT_Del", ";Bias Voltage (V);Cross Talk");
+    TMultiGraph *mgCT_Del = new TMultiGraph("mgCT_Del", ";Bias Voltage (V); P_{CT}");
     mgCT_Del->Add(gV_CT_Del_1);
     mgCT_Del->Add(gV_CT_Del_2);
     mgCT_Del->Add(gV_CT_Del_3);
@@ -819,7 +819,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
         TCanvas *cCT_CNT_Del_1 = new TCanvas("cCT_CNT_Del_1", "cCT_CNT_Del_1",w,h);
         cCT_CNT_Del_1->SetGrid();
-        TMultiGraph *mgCT_CNT_Del_1 = new TMultiGraph("mgCT_CNT_Del_1", ";Bias Voltage (V);Cross Talk");
+        TMultiGraph *mgCT_CNT_Del_1 = new TMultiGraph("mgCT_CNT_Del_1", ";Bias Voltage (V); P_{CT}");
         mgCT_CNT_Del_1->Add(gV_CT_1);
         mgCT_CNT_Del_1->Add(gV_CT_Del_1);
         mgCT_CNT_Del_1->Draw("AP");
@@ -839,7 +839,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
         TCanvas *cCT_CNT_Del_2 = new TCanvas("cCT_CNT_Del_2", "cCT_CNT_Del_2",w,h);
         cCT_CNT_Del_2->SetGrid();
-        TMultiGraph *mgCT_CNT_Del_2 = new TMultiGraph("mgCT_CNT_Del_2", ";Bias Voltage (V);Cross Talk");
+        TMultiGraph *mgCT_CNT_Del_2 = new TMultiGraph("mgCT_CNT_Del_2", ";Bias Voltage (V); P_{CT}");
         mgCT_CNT_Del_2->Add(gV_CT_2);
         mgCT_CNT_Del_2->Add(gV_CT_Del_2);
         mgCT_CNT_Del_2->Draw("AP");
@@ -859,7 +859,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
         TCanvas *cCT_CNT_Del_3 = new TCanvas("cCT_CNT_Del_3", "cCT_CNT_Del_3",w,h);
         cCT_CNT_Del_3->SetGrid();
-        TMultiGraph *mgCT_CNT_Del_3 = new TMultiGraph("mgCT_CNT_Del_3", ";Bias Voltage (V);Cross Talk");
+        TMultiGraph *mgCT_CNT_Del_3 = new TMultiGraph("mgCT_CNT_Del_3", ";Bias Voltage (V); P_{CT}");
         mgCT_CNT_Del_3->Add(gV_CT_3);
         mgCT_CNT_Del_3->Add(gV_CT_Del_3);
         mgCT_CNT_Del_3->Draw("AP");
@@ -888,7 +888,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
 
     TCanvas *cCT_CNT_Del = new TCanvas("cCT_CNT_Del", "cCT_CNT_Del",w,h);
     cCT_CNT_Del->SetGrid();
-    TMultiGraph *mgCT_CNT_Del = new TMultiGraph("mgCT_CNT_Del", ";Bias Voltage (V);Cross Talk");
+    TMultiGraph *mgCT_CNT_Del = new TMultiGraph("mgCT_CNT_Del", ";Bias Voltage (V); P_{CT}");
     mgCT_CNT_Del->Add(gV_CT_1);
     mgCT_CNT_Del->Add(gV_CT_2);
     mgCT_CNT_Del->Add(gV_CT_3);

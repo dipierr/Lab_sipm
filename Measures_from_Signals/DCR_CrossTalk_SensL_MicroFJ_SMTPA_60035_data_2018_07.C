@@ -484,7 +484,7 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
 
     TCanvas *cCT = new TCanvas("cCT", "cCT",w,h);
     cCT->SetGrid();
-    TMultiGraph *mgCT = new TMultiGraph("mgCT", ";Bias Voltage (V); Cross Talk");
+    TMultiGraph *mgCT = new TMultiGraph("mgCT", ";Bias Voltage (V); P_{CT}");
     mgCT->Add(gV_CT_1);
     mgCT->Add(gV_CT_2);
     mgCT->Draw("AP");
@@ -565,7 +565,7 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
 
     TCanvas *cCT_Del = new TCanvas("cCT_Del", "cCT_Del",w,h);
     cCT_Del->SetGrid();
-    TMultiGraph *mgCT_Del = new TMultiGraph("mgCT_Del", ";Bias Voltage (V);Cross Talk");
+    TMultiGraph *mgCT_Del = new TMultiGraph("mgCT_Del", ";Bias Voltage (V); P_{CT}");
     mgCT_Del->Add(gV_CT_Del_1);
     mgCT_Del->Add(gV_CT_Del_2);
     mgCT_Del->Draw("AP");
@@ -589,7 +589,7 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
 
         TCanvas *cCT_CNT_Del_1 = new TCanvas("cCT_CNT_Del_1", "cCT_CNT_Del_1",w,h);
         cCT_CNT_Del_1->SetGrid();
-        TMultiGraph *mgCT_CNT_Del_1 = new TMultiGraph("mgCT_CNT_Del_1", ";Bias Voltage (V);Cross Talk");
+        TMultiGraph *mgCT_CNT_Del_1 = new TMultiGraph("mgCT_CNT_Del_1", ";Bias Voltage (V); P_{CT}");
         mgCT_CNT_Del_1->Add(gV_CT_1);
         mgCT_CNT_Del_1->Add(gV_CT_Del_1);
         mgCT_CNT_Del_1->Draw("AP");
@@ -609,7 +609,7 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
 
         TCanvas *cCT_CNT_Del_2 = new TCanvas("cCT_CNT_Del_2", "cCT_CNT_Del_2",w,h);
         cCT_CNT_Del_2->SetGrid();
-        TMultiGraph *mgCT_CNT_Del_2 = new TMultiGraph("mgCT_CNT_Del_2", ";Bias Voltage (V);Cross Talk");
+        TMultiGraph *mgCT_CNT_Del_2 = new TMultiGraph("mgCT_CNT_Del_2", ";Bias Voltage (V); P_{CT}");
         mgCT_CNT_Del_2->Add(gV_CT_2);
         mgCT_CNT_Del_2->Add(gV_CT_Del_2);
         mgCT_CNT_Del_2->Draw("AP");
@@ -638,7 +638,7 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
 
     TCanvas *cCT_CNT_Del = new TCanvas("cCT_CNT_Del", "cCT_CNT_Del",w,h);
     cCT_CNT_Del->SetGrid();
-    TMultiGraph *mgCT_CNT_Del = new TMultiGraph("mgCT_CNT_Del", ";Bias Voltage (V);Cross Talk");
+    TMultiGraph *mgCT_CNT_Del = new TMultiGraph("mgCT_CNT_Del", ";Bias Voltage (V); P_{CT}");
     mgCT_CNT_Del->Add(gV_CT_1);
     mgCT_CNT_Del->Add(gV_CT_2);
     mgCT_CNT_Del->Add(gV_CT_Del_1);
