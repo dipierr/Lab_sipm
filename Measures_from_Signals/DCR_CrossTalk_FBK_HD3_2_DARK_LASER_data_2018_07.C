@@ -1283,54 +1283,187 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_LASER_data_2018_07(){
 
     n_SiPM = 1;
 
-    // HV = 31 V [0]
-    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // HV = 31 [0]
+    // Window for LED peak: (172, 184) ns  (minLED_amp, maxLED_amp)
     // Other: dleddt = 9; smooth_trace_bool = 0;
     //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
-    //        fit_low = -10; fit_high = 28.7;
+    //        fit_low = -10; fit_high = 25;
+    H_peak_0[n_SiPM][0]          = 715.008;
+    errH_peak_0[n_SiPM][0]       = 13.2817;
+    Sigma_peak_0[n_SiPM][0]      = 1.89228;
+    errSigma_peak_0[n_SiPM][0]   = 0.0275124;
+    H_peak_1[n_SiPM][0]          = 1203.87;
+    errH_peak_1[n_SiPM][0]       = 17.9689;
+    Sigma_peak_1[n_SiPM][0]      = 2.43886;
+    errSigma_peak_1[n_SiPM][0]   = 0.0343317;
+    Mean_peak_1[n_SiPM][0]       = 4.88864;
+    errMean_peak_1[n_SiPM][0]    = 0.0496968;
+    Mean_peak_2[n_SiPM][0]       = 6.78092;
+    errMean_peak_2[n_SiPM][0]    = 0.0568041;
+    GAIN[n_SiPM][0]              = 1.89228;
+    errGAIN[n_SiPM][0]           = 0.0275124;
+    Sigma_add[n_SiPM][0]         = 1.5386;
+    errSigma_add[n_SiPM][0]      = 0.0426214;
+    Mean_hg[n_SiPM][2]           = 24.488;
+    errMean_hg[n_SiPM][2]        = 0.0704122;
+    Std_hg[n_SiPM][2]            = 15.7445;
+    errStd_hg[n_SiPM][2]         = 0.049789;
+    Entries[n_SiPM][0]           = 49999;
 
 
 
-    // HV = 32 V [1]
-    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+
+    // HV = 32 [1]
+    // Window for LED peak: (172, 184) ns  (minLED_amp, maxLED_amp)
     // Other: dleddt = 9; smooth_trace_bool = 0;
     //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
-    //        fit_low = -10; fit_high = 34;
+    //        fit_low = -10; fit_high = 35;
+    H_peak_0[n_SiPM][1]          = 537.075;
+    errH_peak_0[n_SiPM][1]       = 11.3828;
+    Sigma_peak_0[n_SiPM][1]      = 1.89691;
+    errSigma_peak_0[n_SiPM][1]   = 0.0275091;
+    H_peak_1[n_SiPM][1]          = 785.06;
+    errH_peak_1[n_SiPM][1]       = 15.4492;
+    Sigma_peak_1[n_SiPM][1]      = 3.09761;
+    errSigma_peak_1[n_SiPM][1]   = 0.041173;
+    Mean_peak_1[n_SiPM][1]       = 4.26647;
+    errMean_peak_1[n_SiPM][1]    = 0.0472965;
+    Mean_peak_2[n_SiPM][1]       = 6.16338;
+    errMean_peak_2[n_SiPM][1]    = 0.0547148;
+    GAIN[n_SiPM][1]              = 1.89691;
+    errGAIN[n_SiPM][1]           = 0.0275091;
+    Sigma_add[n_SiPM][1]         = 2.44886;
+    errSigma_add[n_SiPM][1]      = 0.0475218;
+    Mean_hg[n_SiPM][3]           = 33.8196;
+    errMean_hg[n_SiPM][3]        = 0.0991818;
+    Std_hg[n_SiPM][3]            = 22.1775;
+    errStd_hg[n_SiPM][3]         = 0.0701322;
+    Entries[n_SiPM][1]           = 49999;
+
+
 
 
 
 
     // HV = 33 V [2]
-    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Window for LED peak: (172, 184) ns  (minLED_amp, maxLED_amp)
     // Other: dleddt = 9; smooth_trace_bool = 0;
     //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
     //        fit_low = -10; fit_high = 38;
+    H_peak_0[n_SiPM][2]          = 431.455;
+    errH_peak_0[n_SiPM][2]       = 9.99776;
+    Sigma_peak_0[n_SiPM][2]      = 2.06233;
+    errSigma_peak_0[n_SiPM][2]   = 0.0323208;
+    H_peak_1[n_SiPM][2]          = 683.082;
+    errH_peak_1[n_SiPM][2]       = 10.2852;
+    Sigma_peak_1[n_SiPM][2]      = 3.16658;
+    errSigma_peak_1[n_SiPM][2]   = 0.0328786;
+    Mean_peak_1[n_SiPM][2]       = 3.93209;
+    errMean_peak_1[n_SiPM][2]    = 0.050976;
+    Mean_peak_2[n_SiPM][2]       = 5.99442;
+    errMean_peak_2[n_SiPM][2]    = 0.0603589;
+    GAIN[n_SiPM][2]              = 2.06233;
+    errGAIN[n_SiPM][2]           = 0.0323208;
+    Sigma_add[n_SiPM][2]         = 2.40291;
+    errSigma_add[n_SiPM][2]      = 0.0332835;
+    Mean_hg[n_SiPM][4]           = 44.4819;
+    errMean_hg[n_SiPM][4]        = 0.13307;
+    Std_hg[n_SiPM][4]            = 29.755;
+    errStd_hg[n_SiPM][4]         = 0.0940946;
+    Entries[n_SiPM][2]           = 49999;
+
 
 
 
 
     // HV = 34 V [3]
-    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Window for LED peak: (172, 184) ns  (minLED_amp, maxLED_amp)
     // Other: dleddt = 9; smooth_trace_bool = 0;
     //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
-    //        fit_low = -10; fit_high = 43;
+    //        fit_low = -10; fit_high = 41;
+    H_peak_0[n_SiPM][3]          = 313.525;
+    errH_peak_0[n_SiPM][3]       = 8.3593;
+    Sigma_peak_0[n_SiPM][3]      = 2.47548;
+    errSigma_peak_0[n_SiPM][3]   = 0.0462327;
+    H_peak_1[n_SiPM][3]          = 552.224;
+    errH_peak_1[n_SiPM][3]       = 8.37331;
+    Sigma_peak_1[n_SiPM][3]      = 3.43706;
+    errSigma_peak_1[n_SiPM][3]   = 0.0440436;
+    Mean_peak_1[n_SiPM][3]       = 3.81367;
+    errMean_peak_1[n_SiPM][3]    = 0.0659231;
+    Mean_peak_2[n_SiPM][3]       = 6.28915;
+    errMean_peak_2[n_SiPM][3]    = 0.080519;
+    GAIN[n_SiPM][3]              = 2.47548;
+    errGAIN[n_SiPM][3]           = 0.0462327;
+    Sigma_add[n_SiPM][3]         = 2.3844;
+    errSigma_add[n_SiPM][3]      = 0.0415552;
+    Mean_hg[n_SiPM][5]           = 56.7256;
+    errMean_hg[n_SiPM][5]        = 0.169934;
+    Std_hg[n_SiPM][5]            = 37.998;
+    errStd_hg[n_SiPM][5]         = 0.120162;
+    Entries[n_SiPM][3]           = 49999;
+
 
 
 
     // HV = 35.00 V [4]
-    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Window for LED peak: (172, 184) ns  (minLED_amp, maxLED_amp)
     // Other: dleddt = 9; smooth_trace_bool = 0;
     //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
-    //        fit_low = -10; fit_high = 49;
+    //        fit_low = -20; fit_high = 44.5;
+    H_peak_0[n_SiPM][4]          = 111.193;
+    errH_peak_0[n_SiPM][4]       = 3.83672;
+    Sigma_peak_0[n_SiPM][4]      = 4.34743;
+    errSigma_peak_0[n_SiPM][4]   = 0.104188;
+    H_peak_1[n_SiPM][4]          = 302.7;
+    errH_peak_1[n_SiPM][4]       = 6.08393;
+    Sigma_peak_1[n_SiPM][4]      = 5.37783;
+    errSigma_peak_1[n_SiPM][4]   = 0.107313;
+    Mean_peak_1[n_SiPM][4]       = 1.15583;
+    errMean_peak_1[n_SiPM][4]    = 0.171983;
+    Mean_peak_2[n_SiPM][4]       = 5.50326;
+    errMean_peak_2[n_SiPM][4]    = 0.201081;
+    GAIN[n_SiPM][4]              = 4.34743;
+    errGAIN[n_SiPM][4]           = 0.104188;
+    Sigma_add[n_SiPM][4]         = 3.16559;
+    errSigma_add[n_SiPM][4]      = 0.112973;
+    Mean_hg[n_SiPM][6]           = 67.6617;
+    errMean_hg[n_SiPM][6]        = 0.207382;
+    Std_hg[n_SiPM][6]            = 46.3716;
+    errStd_hg[n_SiPM][6]         = 0.146641;
+    Entries[n_SiPM][4]           = 49999;
+
 
 
 
     // HV = 36 V ([5])
-    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Window for LED peak: (172, 184) ns  (minLED_amp, maxLED_amp)
     // Other: dleddt = 9; smooth_trace_bool = 0;
     //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
-    //        fit_low = -10; fit_high = 60;
-    
+    //        fit_low = -20; fit_high = 50;
+    H_peak_0[n_SiPM][5]          = 205.388;
+    errH_peak_0[n_SiPM][5]       = 6.25112;
+    Sigma_peak_0[n_SiPM][5]      = 2.8459;
+    errSigma_peak_0[n_SiPM][5]   = 0.0610099;
+    H_peak_1[n_SiPM][5]          = 357.276;
+    errH_peak_1[n_SiPM][5]       = 6.1601;
+    Sigma_peak_1[n_SiPM][5]      = 4.2463;
+    errSigma_peak_1[n_SiPM][5]   = 0.0563765;
+    Mean_peak_1[n_SiPM][5]       = 2.52674;
+    errMean_peak_1[n_SiPM][5]    = 0.0868935;
+    Mean_peak_2[n_SiPM][5]       = 5.37264;
+    errMean_peak_2[n_SiPM][5]    = 0.106173;
+    GAIN[n_SiPM][5]              = 2.8459;
+    errGAIN[n_SiPM][5]           = 0.0610099;
+    Sigma_add[n_SiPM][5]         = 3.1515;
+    errSigma_add[n_SiPM][5]      = 0.0522952;
+    Mean_hg[n_SiPM][7]           = 84.41;
+    errMean_hg[n_SiPM][7]        = 0.256581;
+    Std_hg[n_SiPM][7]            = 57.3726;
+    errStd_hg[n_SiPM][7]         = 0.18143;
+    Entries[n_SiPM][5]           = 49999;
+
+
 
 
 
