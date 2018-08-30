@@ -459,6 +459,17 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     mgGAIN_Vdb->Draw("AP");
 
 
+    //------------------------------
+    // For LaTeX
+    //------------------------------
+    cout<<endl<<endl;
+    cout<<"For LaTeX"<<endl<<endl;
+    cout<<"\% From file GAIN_V_SiPM_HD3_2_GausSum.C"<<endl;
+    cout<<"\% HV & GAIN_1 (mV) & GAIN_2 (mV) & GAIN_3 (mV) \\\\"<<endl;
+    for(int i=0; i<n_GAIN_1; i++){
+        printf("$ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ \\\\ \n", HV_1[i], errHV_1[i], GAIN_1[i], errGAIN_1[i],GAIN_2[i], errGAIN_2[i],GAIN_3[i], errGAIN_3[i]);
+    }
+
 
 
 }
