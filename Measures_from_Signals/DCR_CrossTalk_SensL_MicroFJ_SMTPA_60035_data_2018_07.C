@@ -699,6 +699,17 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
         cout<<endl;
     }
 
+    //------------------------------
+    // For LaTeX
+    //------------------------------
+    cout<<endl<<endl;
+    cout<<"For LaTeX"<<endl<<endl;
+    cout<<"\% From file DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07.C"<<endl;
+    cout<<"\% From cnt"<<endl;
+    cout<<"\% HV & DCR_1 (kHz/mm^2) & DCR_2 (kHz/mm^2) & CT_1  & CT_2   \\\\"<<endl;
+    for(int i=0; i<n_DCR_1; i++){
+        printf("$ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $  \\\\ \n", HV_1[i], errHV_1[i], DCR_1[i], errDCR_1[i],DCR_2[i], errDCR_2[i], CT_1[i], errCT_1[i],CT_2[i], errCT_2[i]);
+    }
 
 
 
