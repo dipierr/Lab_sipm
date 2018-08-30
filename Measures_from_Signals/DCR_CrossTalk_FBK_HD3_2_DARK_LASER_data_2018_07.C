@@ -1654,6 +1654,18 @@ gV_PCT->Draw("AP");
       else cout<<endl;
     }
 
+    //------------------------------
+    // For LaTeX
+    //------------------------------
+    cout<<endl<<endl;
+    cout<<"For LaTeX"<<endl<<endl;
+    cout<<"\% From file DCR_CrossTalk_FBK_HD3_2_DARK_LASER_data_2018_07.C"<<endl;
+    cout<<"\% From LASER"<<endl;
+    cout<<"\% HV & CT & R_{gain}   \\\\"<<endl;
+    for(int i=0; i<n_GAIN; i++){
+        printf("$ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ \\\\ \n", HV_LASER[i], errHV_LASER[i], R_gain[i], Prob_Cross_Talk[n_SiPM][i],R_gain[i], errProb_Cross_Talk[n_SiPM][i]);
+    }
+
 
 }
 

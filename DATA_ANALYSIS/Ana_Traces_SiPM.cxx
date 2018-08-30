@@ -241,7 +241,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 6;//9;//8;//5;//9*GSPS;
+int dleddt = 9;//9;//8;//5;//9*GSPS;
     // dleddt = 6; for DCR_CT_1SiPM_nHVs(), 20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat and similar
     // dleddt = 9; for Ana_LED(), 20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_35_AS_2_50000_01.dat and similar
 int blind_gap = 2*dleddt; //ns
@@ -1423,7 +1423,7 @@ TGraphErrors *DCR_func_NO_Delays(string file1, int last_event_n, int tot_files, 
 
         DCR_thr[h] = thr_to_find_peaks; //mV
         DCR[nfile][h] = DCR_from_cnt;
-        errDCR[nfile][h] = errDCR_from_cnt;
+        errDCR[nfile][h] =  errDCR_from_cnt;
 
 
         // 0.5 pe
@@ -2107,14 +2107,15 @@ void FindDCRfromVector(){
 
     // DCR from cnt
     trace_time *= TMath::Power(10,-9); // trace time is in ns
-    trace_time /= n_ev_tot;
+    // trace_time /= n_ev_tot;
     // trace_time = 1e-6;
-    DCR_from_cnt = (double)DCR_cnt / (trace_time * n_ev_tot);
+    DCR_from_cnt = (double)DCR_cnt / (trace_time);
 
     // errors
     err_trace_time = TMath::Sqrt( (5*n_ev_tot) * TMath::Power(10,-9) * TMath::Power(10,-9) );
     err_DCR_cnt = TMath::Sqrt((double)DCR_cnt);
-    errDCR_from_cnt = TMath::Sqrt( TMath::Power( err_DCR_cnt / (trace_time * n_ev_tot), 2) + TMath::Power( (double)DCR_cnt*err_trace_time / ( trace_time * n_ev_tot * trace_time * n_ev_tot ), 2) );
+    // errDCR_from_cnt = TMath::Sqrt( TMath::Power( err_DCR_cnt / (trace_time), 2) + TMath::Power( (double)DCR_cnt*err_trace_time / ( trace_time * trace_time ), 2) );
+    errDCR_from_cnt = DCR_from_cnt * TMath::Sqrt( (err_DCR_cnt*err_DCR_cnt)/(DCR_cnt*DCR_cnt) +  (err_trace_time*err_trace_time)/(trace_time*trace_time));
 
 }
 
@@ -2740,7 +2741,7 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
 
   // Fit Range
   float fit_low  = -10;
-  float fit_high = 60;
+  float fit_high = 49;
 
   float Mean_peak_0, Mean_peak_1, Mean_peak_2;
   float errMean_peak_0, errMean_peak_1, errMean_peak_2;
