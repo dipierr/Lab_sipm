@@ -165,6 +165,7 @@
 #define n_SiPM_tot 3
 
 
+
 #define h 600
 #define w 1000
 
@@ -989,526 +990,464 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_LASER_data_2018_07(){
 
 
 
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-
-
-
-//*****************************************************************************
-//*****************************       LASER       *****************************
-//*****************************************************************************
-
-
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-
-
-// void OperationPoint_LASER_PLS_FitGausSum_01(){
-// ERRORS
-// bool fix_error_bool = true;
-
-// HV
-double HV_LASER[] =  {29.00,30.00,    31.00,        32.00,        33.00,        34.00,               35.00,               36.00};
-double errHV_LASER[]={0.01, 0.01,     0.01,         0.01,         0.01,         0.01,                0.01,                0.01};
-// double HV_LASER[] =  {29.00,30.00,    31.00,        32.00,        33.00,        34.00,        34.50,        35.00,        35.50,        36.00};
-// double errHV_LASER[]={0.01, 0.01,     0.01,         0.01,         0.01,         0.01,         0.01,         0.01,         0.01,         0.01};
-
-
-
-// PEAK 0
-// H_peak_0[n_SiPM]
-double H_peak_0[n_SiPM_tot][n_GAIN] = {0.};
-double errH_peak_0[n_SiPM_tot][n_GAIN] = {0.};
-
-// Sigma_peak_0[n_SiPM_tot]
-double Sigma_peak_0[n_SiPM_tot][n_GAIN] = {0.};
-double errSigma_peak_0[n_SiPM_tot][n_GAIN] = {0.};
-
-// PEAK 1
-// H_peak_1[n_SiPM_tot]
-double H_peak_1[n_SiPM_tot][n_GAIN] = {0.};
-double errH_peak_1[n_SiPM_tot][n_GAIN] = {0.};
-
-// Sigma_peak_1[n_SiPM_tot]
-double Sigma_peak_1[n_SiPM_tot][n_GAIN] = {0.};
-double errSigma_peak_1[n_SiPM_tot][n_GAIN] = {0.};
+    //*****************************************************************************
+    //*****************************************************************************
+    //*****************************************************************************
+    //*****************************************************************************
+
+
+
+    //*****************************************************************************
+    //*****************************       LASER       *****************************
+    //*****************************************************************************
+
+
+    //*****************************************************************************
+    //*****************************************************************************
+    //*****************************************************************************
+    //*****************************************************************************
+
+
+    // void OperationPoint_LASER_PLS_FitGausSum_01(){
+    // ERRORS
+    // bool fix_error_bool = true;
+
+    // HV
+    double HV_LASER[] =  {29.00,30.00,    31.00,        32.00,        33.00,        34.00,               35.00,               36.00};
+    double errHV_LASER[]={0.01, 0.01,     0.01,         0.01,         0.01,         0.01,                0.01,                0.01};
+    // double HV_LASER[] =  {29.00,30.00,    31.00,        32.00,        33.00,        34.00,        34.50,        35.00,        35.50,        36.00};
+    // double errHV_LASER[]={0.01, 0.01,     0.01,         0.01,         0.01,         0.01,         0.01,         0.01,         0.01,         0.01};
+
+    int n_SiPM_tot_LASER = 2; // MUST BE < n_SiPM_tot
+
+    if(n_SiPM_tot_LASER>n_SiPM_tot){
+        n_SiPM_tot_LASER = n_SiPM_tot;
+    }
+
+    // PEAK 0
+    // H_peak_0[n_SiPM]
+    double H_peak_0[n_SiPM_tot][n_GAIN] = {0.};
+    double errH_peak_0[n_SiPM_tot][n_GAIN] = {0.};
+
+    // Sigma_peak_0[n_SiPM_tot]
+    double Sigma_peak_0[n_SiPM_tot][n_GAIN] = {0.};
+    double errSigma_peak_0[n_SiPM_tot][n_GAIN] = {0.};
+
+    // PEAK 1
+    // H_peak_1[n_SiPM_tot]
+    double H_peak_1[n_SiPM_tot][n_GAIN] = {0.};
+    double errH_peak_1[n_SiPM_tot][n_GAIN] = {0.};
+
+    // Sigma_peak_1[n_SiPM_tot]
+    double Sigma_peak_1[n_SiPM_tot][n_GAIN] = {0.};
+    double errSigma_peak_1[n_SiPM_tot][n_GAIN] = {0.};
+
+    // Mean_peak_1[n_SiPM_tot]
+    double Mean_peak_1[n_SiPM_tot][n_GAIN] = {0.};
+    double errMean_peak_1[n_SiPM_tot][n_GAIN] = {0.};
+
+    // PEAK 2
+    // Mean_peak_2[n_SiPM_tot]
+    double Mean_peak_2[n_SiPM_tot][n_GAIN] = {0.};
+    double errMean_peak_2[n_SiPM_tot][n_GAIN] = {0.};
+
+    // GLOBAL HIST
+    // Mean hist global
+    double Mean_hg[n_SiPM_tot][n_MEAN] = {0.};
+    double errMean_hg[n_SiPM_tot][n_MEAN] = {0.};
+
+    // Standard_dev_hist_global
+    double Std_hg[n_SiPM_tot][n_MEAN] = {0.};
+    double errStd_hg[n_SiPM_tot][n_MEAN] = {0.};
+
+     // Integral of the average
+    double Integral[n_SiPM_tot][n_GAIN] = {0.};
+    double errIntegral[n_SiPM_tot][n_GAIN] = {0.};
+
+    // Entries
+    double Entries[n_SiPM_tot][n_GAIN] = {0.};
+
+    // GAIN
+    double GAIN[n_SiPM_tot][n_GAIN] = {0.};
+    double errGAIN[n_SiPM_tot][n_GAIN] = {0.};
+
+    // Other variables
+    double GainWeighted[n_SiPM_tot][n_GAIN] = {0.};
+    double errGainWeighted[n_SiPM_tot][n_GAIN] = {0.};
+    double Mean_hist_St_dev[n_SiPM_tot][n_MEAN] = {0.};
+    double errMean_hist_St_dev[n_SiPM_tot][n_MEAN] = {0.};
+    double Integral_GAIN[n_SiPM_tot][n_GAIN] = {0.};
+    double errIntegral_GAIN[n_SiPM_tot][n_GAIN] = {0.};
+    double HV_LASER_GAIN[n_GAIN] = {0.};
+    double errHV_LASER_GAIN[n_GAIN] = {0.};
+    double Area0[n_SiPM_tot][n_GAIN] = {0.};
+    double Area1[n_GAIN] = {0.};
+    double errArea0[n_SiPM_tot][n_GAIN] = {0.};
+    double errArea1[n_SiPM_tot][n_GAIN] = {0.};
+    double Prob_0pe[n_SiPM_tot][n_GAIN] = {0.};
+    double errProb_0pe[n_SiPM_tot][n_GAIN] = {0.};
+    double Prob_1pe[n_SiPM_tot][n_GAIN] = {0.};
+    double errProb_1pe[n_SiPM_tot][n_GAIN] = {0.};
+    double Prob_1peS[n_SiPM_tot][n_GAIN] = {0.};
+    double errProb_1peS[n_SiPM_tot][n_GAIN] = {0.};
+    double Mu[n_SiPM_tot][n_GAIN] = {0.};
+    double errMu[n_SiPM_tot][n_GAIN] = {0.};
+    double Prob_Cross_Talk[n_SiPM_tot][n_GAIN] = {0.};
+    double errProb_Cross_Talk[n_SiPM_tot][n_GAIN] = {0.};
+    double errEntries[n_SiPM_tot][n_GAIN] = {0.};
+
+    double Sigma_add[n_SiPM_tot][n_GAIN] = {0.};
+    double errSigma_add[n_SiPM_tot][n_GAIN] = {0.};
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //      SiPM1
+    ///////////////////////////////////////////////////////////////////////////
+
+    n_SiPM = 0;
+
+
+    // HV = 31 V [0]
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Other: dleddt = 9; smooth_trace_bool = 0;
+    //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
+    //        fit_low = -10; fit_high = 28.7;
+    H_peak_0[n_SiPM][0]          = 756.727;
+    errH_peak_0[n_SiPM][0]       = 12.9998;
+    Sigma_peak_0[n_SiPM][0]      = 2.23961;
+    errSigma_peak_0[n_SiPM][0]   = 0.0332716;
+    H_peak_1[n_SiPM][0]          = 1214.15;
+    errH_peak_1[n_SiPM][0]       = 19.6876;
+    Sigma_peak_1[n_SiPM][0]      = 2.81391;
+    errSigma_peak_1[n_SiPM][0]   = 0.0445573;
+    Mean_peak_1[n_SiPM][0]       = 6.73066;
+    errMean_peak_1[n_SiPM][0]    = 0.0595634;
+    Mean_peak_2[n_SiPM][0]       = 8.97026;
+    errMean_peak_2[n_SiPM][0]    = 0.0682261;
+    GAIN[n_SiPM][0]              = 2.23961;
+    errGAIN[n_SiPM][0]           = 0.0332716;
+    Sigma_add[n_SiPM][0]          = 1.7036;
+    errSigma_add[n_SiPM][0]       = 0.0591894;
+    Mean_hg[n_SiPM][2]           = 24.6891;
+    errMean_hg[n_SiPM][2]        = 0.0694716;
+    Std_hg[n_SiPM][2]            = 15.5342;
+    errStd_hg[n_SiPM][2]         = 0.0491239;
+    Entries[n_SiPM][0]           = 49999;
+
+
+    // HV = 32 V [1]
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Other: dleddt = 9; smooth_trace_bool = 0;
+    //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
+    //        fit_low = -10; fit_high = 34;
+    H_peak_0[n_SiPM][1]          = 564.802;
+    errH_peak_0[n_SiPM][1]       = 10.1474;
+    Sigma_peak_0[n_SiPM][1]      = 2.56972;
+    errSigma_peak_0[n_SiPM][1]   = 0.0326385;
+    H_peak_1[n_SiPM][1]          = 979.947;
+    errH_peak_1[n_SiPM][1]       = 12.4316;
+    Sigma_peak_1[n_SiPM][1]      = 3.11386;
+    errSigma_peak_1[n_SiPM][1]   = 0.0364095;
+    Mean_peak_1[n_SiPM][1]       = 6.72997;
+    errMean_peak_1[n_SiPM][1]    = 0.0554915;
+    Mean_peak_2[n_SiPM][1]       = 9.29969;
+    errMean_peak_2[n_SiPM][1]    = 0.0643784;
+    GAIN[n_SiPM][1]              = 2.56972;
+    errGAIN[n_SiPM][1]           = 0.0326385;
+    Sigma_add[n_SiPM][1]         = 1.7586;
+    errSigma_add[n_SiPM][1]      = 0.0433776;
+    Mean_hg[n_SiPM][3]           = 32.991;
+    errMean_hg[n_SiPM][3]        = 0.096609;
+    Std_hg[n_SiPM][3]            = 21.6022;
+    errStd_hg[n_SiPM][3]         = 0.0683129;
+    Entries[n_SiPM][1]           = 49999;
+
+
+
+    // HV = 33 V [2]
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Other: dleddt = 9; smooth_trace_bool = 0;
+    //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
+    //        fit_low = -10; fit_high = 38;
+    H_peak_0[n_SiPM][2]          = 443.125;
+    errH_peak_0[n_SiPM][2]       = 8.93044;
+    Sigma_peak_0[n_SiPM][2]      = 2.88207;
+    errSigma_peak_0[n_SiPM][2]   = 0.0403952;
+    H_peak_1[n_SiPM][2]          = 796.487;
+    errH_peak_1[n_SiPM][2]       = 9.99911;
+    Sigma_peak_1[n_SiPM][2]      = 3.46964;
+    errSigma_peak_1[n_SiPM][2]   = 0.0434955;
+    Mean_peak_1[n_SiPM][2]       = 6.61652;
+    errMean_peak_1[n_SiPM][2]    = 0.0624507;
+    Mean_peak_2[n_SiPM][2]       = 9.49859;
+    errMean_peak_2[n_SiPM][2]    = 0.0743765;
+    GAIN[n_SiPM][2]              = 2.88207;
+    errGAIN[n_SiPM][2]           = 0.0403952;
+    Sigma_add[n_SiPM][2]         = 1.93186;
+    errSigma_add[n_SiPM][2]      = 0.0497065;
+    Mean_hg[n_SiPM][4]           = 42.534;
+    errMean_hg[n_SiPM][4]        = 0.129352;
+    Std_hg[n_SiPM][4]            = 28.9238;
+    errStd_hg[n_SiPM][4]         = 0.091466;
+    Entries[n_SiPM][2]           = 49999;
+
+
+
+    // HV = 34 V [3]
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Other: dleddt = 9; smooth_trace_bool = 0;
+    //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
+    //        fit_low = -10; fit_high = 43;
+    H_peak_0[n_SiPM][3]          = 351.779;
+    errH_peak_0[n_SiPM][3]       = 7.1352;
+    Sigma_peak_0[n_SiPM][3]      = 3.18861;
+    errSigma_peak_0[n_SiPM][3]   = 0.0401266;
+    H_peak_1[n_SiPM][3]          = 641.251;
+    errH_peak_1[n_SiPM][3]       = 8.29728;
+    Sigma_peak_1[n_SiPM][3]      = 3.89441;
+    errSigma_peak_1[n_SiPM][3]   = 0.0440761;
+    Mean_peak_1[n_SiPM][3]       = 6.16776;
+    errMean_peak_1[n_SiPM][3]    = 0.0662144;
+    Mean_peak_2[n_SiPM][3]       = 9.35637;
+    errMean_peak_2[n_SiPM][3]    = 0.0774241;
+    GAIN[n_SiPM][3]              = 3.18861;
+    errGAIN[n_SiPM][3]           = 0.0401266;
+    Sigma_add[n_SiPM][3]         = 2.23588;
+    errSigma_add[n_SiPM][3]      = 0.0511766;
+    Mean_hg[n_SiPM][5]           = 53.4209;
+    errMean_hg[n_SiPM][5]        = 0.165406;
+    Std_hg[n_SiPM][5]            = 36.9854;
+    errStd_hg[n_SiPM][5]         = 0.116959;
+    Entries[n_SiPM][3]           = 49999;
+
+
+    // HV = 35.00 V [4]
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Other: dleddt = 9; smooth_trace_bool = 0;
+    //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
+    //        fit_low = -10; fit_high = 49;
+    H_peak_0[n_SiPM][4]          = 296.954;
+    errH_peak_0[n_SiPM][4]       = 6.67128;
+    Sigma_peak_0[n_SiPM][4]      = 3.40184;
+    errSigma_peak_0[n_SiPM][4]   = 0.0500745;
+    H_peak_1[n_SiPM][4]          = 530.895;
+    errH_peak_1[n_SiPM][4]       = 7.18599;
+    Sigma_peak_1[n_SiPM][4]      = 4.27458;
+    errSigma_peak_1[n_SiPM][4]   = 0.0515737;
+    Mean_peak_1[n_SiPM][4]       = 5.4591;
+    errMean_peak_1[n_SiPM][4]    = 0.0750009;
+    Mean_peak_2[n_SiPM][4]       = 8.86093;
+    errMean_peak_2[n_SiPM][4]    = 0.0901808;
+    GAIN[n_SiPM][4]              = 3.40184;
+    errGAIN[n_SiPM][4]           = 0.0500745;
+    Sigma_add[n_SiPM][4]         = 2.58834;
+    errSigma_add[n_SiPM][4]      = 0.0540655;
+    Mean_hg[n_SiPM][6]           = 65.0381;
+    errMean_hg[n_SiPM][6]        = 0.204377;
+    Std_hg[n_SiPM][6]            = 45.6996;
+    errStd_hg[n_SiPM][6]         = 0.144516;
+    Entries[n_SiPM][4]           = 49999;
+
+
+    // HV = 36 V ([5])
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Other: dleddt = 9; smooth_trace_bool = 0;
+    //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
+    //        fit_low = -10; fit_high = 60;
+    H_peak_0[n_SiPM][5]          = 234.088;
+    errH_peak_0[n_SiPM][5]       = 5.82906;
+    Sigma_peak_0[n_SiPM][5]      = 3.79986;
+    errSigma_peak_0[n_SiPM][5]   = 0.0672815;
+    H_peak_1[n_SiPM][5]          = 393.178;
+    errH_peak_1[n_SiPM][5]       = 5.96371;
+    Sigma_peak_1[n_SiPM][5]      = 4.98827;
+    errSigma_peak_1[n_SiPM][5]   = 0.0629806;
+    Mean_peak_1[n_SiPM][5]       = 4.8069;
+    errMean_peak_1[n_SiPM][5]    = 0.0952783;
+    Mean_peak_2[n_SiPM][5]       = 8.60677;
+    errMean_peak_2[n_SiPM][5]    = 0.116639;
+    GAIN[n_SiPM][5]              = 3.79986;
+    errGAIN[n_SiPM][5]           = 0.0672815;
+    Sigma_add[n_SiPM][5]         = 3.2317;
+    errSigma_add[n_SiPM][5]      = 0.0564978;
+    Mean_hg[n_SiPM][7]           = 78.4931;
+    errMean_hg[n_SiPM][7]        = 0.249375;
+    Std_hg[n_SiPM][7]            = 55.7614;
+    errStd_hg[n_SiPM][7]         = 0.176335;
+    Entries[n_SiPM][5]           = 49999;
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //      SiPM2
+    ///////////////////////////////////////////////////////////////////////////
+
+    n_SiPM = 1;
+
+    // HV = 31 V [0]
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Other: dleddt = 9; smooth_trace_bool = 0;
+    //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
+    //        fit_low = -10; fit_high = 28.7;
+
+
+
+    // HV = 32 V [1]
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Other: dleddt = 9; smooth_trace_bool = 0;
+    //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
+    //        fit_low = -10; fit_high = 34;
+
+
+
+
+    // HV = 33 V [2]
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Other: dleddt = 9; smooth_trace_bool = 0;
+    //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
+    //        fit_low = -10; fit_high = 38;
+
+
+
+
+    // HV = 34 V [3]
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Other: dleddt = 9; smooth_trace_bool = 0;
+    //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
+    //        fit_low = -10; fit_high = 43;
+
+
+
+    // HV = 35.00 V [4]
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Other: dleddt = 9; smooth_trace_bool = 0;
+    //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
+    //        fit_low = -10; fit_high = 49;
+
+
+
+    // HV = 36 V ([5])
+    // Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
+    // Other: dleddt = 9; smooth_trace_bool = 0;
+    //        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
+    //        fit_low = -10; fit_high = 60;
+    
+
+
+
+
+    //------------------------------
+
+    // select only points for n_GAIN
+    // for the mean (NOT used at the time being) I use more HVs
+    for (int i = 0; i < n_GAIN; i++) {
+        HV_LASER_GAIN[i] = HV_LASER[i+n_MEAN-n_GAIN];
+        errHV_LASER_GAIN[i] = errHV_LASER[i+n_MEAN-n_GAIN];
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //      CROSS TALK PROBABILITY AND RATIO GAIN
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    double R_gain[n_SiPM_tot][n_GAIN] = {0.};
+    double errR_gain[n_SiPM_tot][n_GAIN] = {0.};
+
+    for(int i=0; i<n_GAIN;i++){
+        for(n_SiPM=0; n_SiPM<n_SiPM_tot_LASER; n_SiPM++){
+            //////////////////////
+            ///   CROSS TALK   ///
+            //////////////////////
+            errEntries[n_SiPM][i]=TMath::Power(Entries[n_SiPM][i],0.5);
+            Area0[n_SiPM][i]=H_peak_0[n_SiPM][i]*Sigma_peak_0[n_SiPM][i]*TMath::Power(2*TMath::Pi(),0.5)/1;
+            Prob_0pe[n_SiPM][i]=Area0[n_SiPM][i]/Entries[n_SiPM][i];
+            Mu[n_SiPM][i]=-TMath::Log(Prob_0pe[n_SiPM][i]);
+            Prob_1pe[n_SiPM][i]=Mu[n_SiPM][i]*TMath::Exp(-Mu[n_SiPM][i]);
+            Area1[i]=H_peak_1[n_SiPM][i]*Sigma_peak_1[n_SiPM][i]*TMath::Power(2*TMath::Pi(),0.5)/1;
+            Prob_1peS[n_SiPM][i]=Area1[i]/Entries[n_SiPM][i];
+            Prob_Cross_Talk[n_SiPM][i]=1-(Prob_1peS[n_SiPM][i]/Prob_1pe[n_SiPM][i]);
+
+            errArea1[n_SiPM][i]=Area1[i]*TMath::Power(TMath::Power(errH_peak_1[n_SiPM][i]/H_peak_1[n_SiPM][i],2)+TMath::Power(errSigma_peak_1[n_SiPM][i]/Sigma_peak_1[n_SiPM][i],2),0.5);
+            errProb_1peS[n_SiPM][i]=errArea1[n_SiPM][i]/Entries[n_SiPM][i];
+            errMu[n_SiPM][i]=errArea0[n_SiPM][i]/(Prob_0pe[n_SiPM][i]*Entries[n_SiPM][i]);
+            errProb_1pe[n_SiPM][i]=TMath::Exp(-Mu[n_SiPM][i])*TMath::Abs(1-Mu[n_SiPM][i])*errMu[n_SiPM][i];
+            errArea0[n_SiPM][i]=Area0[n_SiPM][i]*TMath::Power(TMath::Power(errH_peak_0[n_SiPM][i]/H_peak_0[n_SiPM][i],2)+TMath::Power(errSigma_peak_0[n_SiPM][i]/Sigma_peak_0[n_SiPM][i],2),0.5);
+            errProb_0pe[n_SiPM][i]=errArea0[n_SiPM][i]/Entries[n_SiPM][i];
+            errProb_Cross_Talk[n_SiPM][i]=TMath::Power(TMath::Power(errProb_1peS[n_SiPM][i]/Prob_1pe[n_SiPM][i],2)+TMath::Power(Prob_1peS[n_SiPM][i]*errProb_1pe[n_SiPM][i]/Prob_1pe[n_SiPM][i],2),0.5);
+
+            //////////////////////
+            ///   RATIO GAIN   ///
+            //////////////////////
+            R_gain[n_SiPM][i]    = GAIN[n_SiPM][i] / Sigma_add[n_SiPM][i];
+            errR_gain[n_SiPM][i] = (errGAIN[n_SiPM][i]*errGAIN[n_SiPM][i])/(Sigma_add[n_SiPM][i]*Sigma_add[n_SiPM][i]);
+            errR_gain[n_SiPM][i]+= (errSigma_add[n_SiPM][i]*errSigma_add[n_SiPM][i])*(GAIN[n_SiPM][i]*GAIN[n_SiPM][i])/TMath::Power(Sigma_add[n_SiPM][i],4);
+            errR_gain[n_SiPM][i] = TMath::Sqrt(errR_gain[n_SiPM][i]);
+        }
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //          FIXED ERROR
+    ///////////////////////////////////////////////////////////////////////////
+
+    if(fix_error_bool){
+        // double err_fix_CT = 0.015;
+        double err_fix_CT = 0.02;
+        for(int i=0; i<n_GAIN; i++){
+            for(n_SiPM=0; n_SiPM<n_SiPM_tot_LASER; n_SiPM++){
+                errProb_Cross_Talk[n_SiPM][i] = err_fix_CT;
+            }
+        }
+    } // end fix_error_bool
+
+    ///////////////////////////////////////////////////////////////////////////
 
-// Mean_peak_1[n_SiPM_tot]
-double Mean_peak_1[n_SiPM_tot][n_GAIN] = {0.};
-double errMean_peak_1[n_SiPM_tot][n_GAIN] = {0.};
-
-// PEAK 2
-// Mean_peak_2[n_SiPM_tot]
-double Mean_peak_2[n_SiPM_tot][n_GAIN] = {0.};
-double errMean_peak_2[n_SiPM_tot][n_GAIN] = {0.};
-
-// GLOBAL HIST
-// Mean hist global
-double Mean_hg[n_SiPM_tot][n_MEAN] = {0.};
-double errMean_hg[n_SiPM_tot][n_MEAN] = {0.};
-
-// Standard_dev_hist_global
-double Std_hg[n_SiPM_tot][n_MEAN] = {0.};
-double errStd_hg[n_SiPM_tot][n_MEAN] = {0.};
-
- // Integral of the average
-double Integral[n_SiPM_tot][n_GAIN] = {0.};
-double errIntegral[n_SiPM_tot][n_GAIN] = {0.};
-
-// Entries
-double Entries[n_SiPM_tot][n_GAIN] = {0.};
-
-// GAIN
-double GAIN[n_SiPM_tot][n_GAIN] = {0.};
-double errGAIN[n_SiPM_tot][n_GAIN] = {0.};
-
-// Other variables
-double GainWeighted[n_SiPM_tot][n_GAIN] = {0.};
-double errGainWeighted[n_SiPM_tot][n_GAIN] = {0.};
-double Mean_hist_St_dev[n_SiPM_tot][n_MEAN] = {0.};
-double errMean_hist_St_dev[n_SiPM_tot][n_MEAN] = {0.};
-double Integral_GAIN[n_SiPM_tot][n_GAIN] = {0.};
-double errIntegral_GAIN[n_SiPM_tot][n_GAIN] = {0.};
-double HV_LASER_GAIN[n_GAIN] = {0.};
-double errHV_LASER_GAIN[n_GAIN] = {0.};
-double Area0[n_SiPM_tot][n_GAIN] = {0.};
-double Area1[n_GAIN] = {0.};
-double errArea0[n_SiPM_tot][n_GAIN] = {0.};
-double errArea1[n_SiPM_tot][n_GAIN] = {0.};
-double Prob_0pe[n_SiPM_tot][n_GAIN] = {0.};
-double errProb_0pe[n_SiPM_tot][n_GAIN] = {0.};
-double Prob_1pe[n_SiPM_tot][n_GAIN] = {0.};
-double errProb_1pe[n_SiPM_tot][n_GAIN] = {0.};
-double Prob_1peS[n_SiPM_tot][n_GAIN] = {0.};
-double errProb_1peS[n_SiPM_tot][n_GAIN] = {0.};
-double Mu[n_SiPM_tot][n_GAIN] = {0.};
-double errMu[n_SiPM_tot][n_GAIN] = {0.};
-double Prob_Cross_Talk[n_SiPM_tot][n_GAIN] = {0.};
-double errProb_Cross_Talk[n_SiPM_tot][n_GAIN] = {0.};
-double errEntries[n_SiPM_tot][n_GAIN] = {0.};
-
-double Sigma_add[n_SiPM_tot][n_GAIN] = {0.};
-double errSigma_add[n_SiPM_tot][n_GAIN] = {0.};
-
-
-n_SiPM = 0;
-
-
-// HV = 31 V [0]
-// Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
-// Other: dleddt = 9; smooth_trace_bool = 0;
-//        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
-//        fit_low = -10; fit_high = 28.7;
-H_peak_0[n_SiPM][0]          = 756.727;
-errH_peak_0[n_SiPM][0]       = 12.9998;
-Sigma_peak_0[n_SiPM][0]      = 2.23961;
-errSigma_peak_0[n_SiPM][0]   = 0.0332716;
-H_peak_1[n_SiPM][0]          = 1214.15;
-errH_peak_1[n_SiPM][0]       = 19.6876;
-Sigma_peak_1[n_SiPM][0]      = 2.81391;
-errSigma_peak_1[n_SiPM][0]   = 0.0445573;
-Mean_peak_1[n_SiPM][0]       = 6.73066;
-errMean_peak_1[n_SiPM][0]    = 0.0595634;
-Mean_peak_2[n_SiPM][0]       = 8.97026;
-errMean_peak_2[n_SiPM][0]    = 0.0682261;
-GAIN[n_SiPM][0]              = 2.23961;
-errGAIN[n_SiPM][0]           = 0.0332716;
-Sigma_add[n_SiPM][0]          = 1.7036;
-errSigma_add[n_SiPM][0]       = 0.0591894;
-Mean_hg[n_SiPM][2]           = 24.6891;
-errMean_hg[n_SiPM][2]        = 0.0694716;
-Std_hg[n_SiPM][2]            = 15.5342;
-errStd_hg[n_SiPM][2]         = 0.0491239;
-Entries[n_SiPM][0]           = 49999;
-
-
-
-
-
-
-
-
-
-
-// HV = 32 V [1]
-// Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
-// Other: dleddt = 9; smooth_trace_bool = 0;
-//        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
-//        fit_low = -10; fit_high = 34;
-H_peak_0[n_SiPM][1]          = 564.802;
-errH_peak_0[n_SiPM][1]       = 10.1474;
-Sigma_peak_0[n_SiPM][1]      = 2.56972;
-errSigma_peak_0[n_SiPM][1]   = 0.0326385;
-H_peak_1[n_SiPM][1]          = 979.947;
-errH_peak_1[n_SiPM][1]       = 12.4316;
-Sigma_peak_1[n_SiPM][1]      = 3.11386;
-errSigma_peak_1[n_SiPM][1]   = 0.0364095;
-Mean_peak_1[n_SiPM][1]       = 6.72997;
-errMean_peak_1[n_SiPM][1]    = 0.0554915;
-Mean_peak_2[n_SiPM][1]       = 9.29969;
-errMean_peak_2[n_SiPM][1]    = 0.0643784;
-GAIN[n_SiPM][1]              = 2.56972;
-errGAIN[n_SiPM][1]           = 0.0326385;
-Sigma_add[n_SiPM][1]         = 1.7586;
-errSigma_add[n_SiPM][1]      = 0.0433776;
-Mean_hg[n_SiPM][3]           = 32.991;
-errMean_hg[n_SiPM][3]        = 0.096609;
-Std_hg[n_SiPM][3]            = 21.6022;
-errStd_hg[n_SiPM][3]         = 0.0683129;
-Entries[n_SiPM][1]           = 49999;
-
-
-
-
-
-
-// HV = 33 V [2]
-// Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
-// Other: dleddt = 9; smooth_trace_bool = 0;
-//        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
-//        fit_low = -10; fit_high = 38;
-H_peak_0[n_SiPM][2]          = 443.125;
-errH_peak_0[n_SiPM][2]       = 8.93044;
-Sigma_peak_0[n_SiPM][2]      = 2.88207;
-errSigma_peak_0[n_SiPM][2]   = 0.0403952;
-H_peak_1[n_SiPM][2]          = 796.487;
-errH_peak_1[n_SiPM][2]       = 9.99911;
-Sigma_peak_1[n_SiPM][2]      = 3.46964;
-errSigma_peak_1[n_SiPM][2]   = 0.0434955;
-Mean_peak_1[n_SiPM][2]       = 6.61652;
-errMean_peak_1[n_SiPM][2]    = 0.0624507;
-Mean_peak_2[n_SiPM][2]       = 9.49859;
-errMean_peak_2[n_SiPM][2]    = 0.0743765;
-GAIN[n_SiPM][2]              = 2.88207;
-errGAIN[n_SiPM][2]           = 0.0403952;
-Sigma_add[n_SiPM][2]         = 1.93186;
-errSigma_add[n_SiPM][2]      = 0.0497065;
-Mean_hg[n_SiPM][4]           = 42.534;
-errMean_hg[n_SiPM][4]        = 0.129352;
-Std_hg[n_SiPM][4]            = 28.9238;
-errStd_hg[n_SiPM][4]         = 0.091466;
-Entries[n_SiPM][2]           = 49999;
-
-
-
-
-
-
-
-
-
-// HV = 34 V [3]
-// Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
-// Other: dleddt = 9; smooth_trace_bool = 0;
-//        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
-//        fit_low = -10; fit_high = 43;
-H_peak_0[n_SiPM][3]          = 351.779;
-errH_peak_0[n_SiPM][3]       = 7.1352;
-Sigma_peak_0[n_SiPM][3]      = 3.18861;
-errSigma_peak_0[n_SiPM][3]   = 0.0401266;
-H_peak_1[n_SiPM][3]          = 641.251;
-errH_peak_1[n_SiPM][3]       = 8.29728;
-Sigma_peak_1[n_SiPM][3]      = 3.89441;
-errSigma_peak_1[n_SiPM][3]   = 0.0440761;
-Mean_peak_1[n_SiPM][3]       = 6.16776;
-errMean_peak_1[n_SiPM][3]    = 0.0662144;
-Mean_peak_2[n_SiPM][3]       = 9.35637;
-errMean_peak_2[n_SiPM][3]    = 0.0774241;
-GAIN[n_SiPM][3]              = 3.18861;
-errGAIN[n_SiPM][3]           = 0.0401266;
-Sigma_add[n_SiPM][3]         = 2.23588;
-errSigma_add[n_SiPM][3]      = 0.0511766;
-Mean_hg[n_SiPM][5]           = 53.4209;
-errMean_hg[n_SiPM][5]        = 0.165406;
-Std_hg[n_SiPM][5]            = 36.9854;
-errStd_hg[n_SiPM][5]         = 0.116959;
-Entries[n_SiPM][3]           = 49999;
-
-
-
-
-
-
-
-
-// HV = 35.00 V [4]
-// Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
-// Other: dleddt = 9; smooth_trace_bool = 0;
-//        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
-//        fit_low = -10; fit_high = 49;
-H_peak_0[n_SiPM][4]          = 296.954;
-errH_peak_0[n_SiPM][4]       = 6.67128;
-Sigma_peak_0[n_SiPM][4]      = 3.40184;
-errSigma_peak_0[n_SiPM][4]   = 0.0500745;
-H_peak_1[n_SiPM][4]          = 530.895;
-errH_peak_1[n_SiPM][4]       = 7.18599;
-Sigma_peak_1[n_SiPM][4]      = 4.27458;
-errSigma_peak_1[n_SiPM][4]   = 0.0515737;
-Mean_peak_1[n_SiPM][4]       = 5.4591;
-errMean_peak_1[n_SiPM][4]    = 0.0750009;
-Mean_peak_2[n_SiPM][4]       = 8.86093;
-errMean_peak_2[n_SiPM][4]    = 0.0901808;
-GAIN[n_SiPM][4]              = 3.40184;
-errGAIN[n_SiPM][4]           = 0.0500745;
-Sigma_add[n_SiPM][4]         = 2.58834;
-errSigma_add[n_SiPM][4]      = 0.0540655;
-Mean_hg[n_SiPM][6]           = 65.0381;
-errMean_hg[n_SiPM][6]        = 0.204377;
-Std_hg[n_SiPM][6]            = 45.6996;
-errStd_hg[n_SiPM][6]         = 0.144516;
-Entries[n_SiPM][4]           = 49999;
-
-
-
-
-
-
-
-
-
-
-
-// HV = 36 V ([5])
-// Window for LED peak: (168, 180) ns  (minLED_amp, maxLED_amp)
-// Other: dleddt = 9; smooth_trace_bool = 0;
-//        histLED_low = -50; histLED_high = 700; histLED_binw = 0.7;
-//        fit_low = -10; fit_high = 60;
-H_peak_0[n_SiPM][5]          = 234.088;
-errH_peak_0[n_SiPM][5]       = 5.82906;
-Sigma_peak_0[n_SiPM][5]      = 3.79986;
-errSigma_peak_0[n_SiPM][5]   = 0.0672815;
-H_peak_1[n_SiPM][5]          = 393.178;
-errH_peak_1[n_SiPM][5]       = 5.96371;
-Sigma_peak_1[n_SiPM][5]      = 4.98827;
-errSigma_peak_1[n_SiPM][5]   = 0.0629806;
-Mean_peak_1[n_SiPM][5]       = 4.8069;
-errMean_peak_1[n_SiPM][5]    = 0.0952783;
-Mean_peak_2[n_SiPM][5]       = 8.60677;
-errMean_peak_2[n_SiPM][5]    = 0.116639;
-GAIN[n_SiPM][5]              = 3.79986;
-errGAIN[n_SiPM][5]           = 0.0672815;
-Sigma_add[n_SiPM][5]         = 3.2317;
-errSigma_add[n_SiPM][5]      = 0.0564978;
-Mean_hg[n_SiPM][7]           = 78.4931;
-errMean_hg[n_SiPM][7]        = 0.249375;
-Std_hg[n_SiPM][7]            = 55.7614;
-errStd_hg[n_SiPM][7]         = 0.176335;
-Entries[n_SiPM][5]           = 49999;
-
-
-
-
-
-
-//------------------------------
-
-// select only points for n_GAIN
-for (int i = 0; i < n_GAIN; i++) {
-    HV_LASER_GAIN[i] = HV_LASER[i+n_MEAN-n_GAIN];
-    errHV_LASER_GAIN[i] = errHV_LASER[i+n_MEAN-n_GAIN];
-}
-
-for (int i=0; i<n_GAIN; i++){
-
-    // GainWeighted[n_SiPM]
-    GainWeighted[n_SiPM][i] = GAIN[n_SiPM][i]/TMath::Sqrt(Sigma_peak_1[n_SiPM][i]*Sigma_peak_1[n_SiPM][i]-Sigma_peak_0[n_SiPM][i]*Sigma_peak_0[n_SiPM][i]);
-    errGainWeighted[n_SiPM][i] = errGAIN[n_SiPM][i]*errGAIN[n_SiPM][i]/(Sigma_peak_1[n_SiPM][i]*Sigma_peak_1[n_SiPM][i]-Sigma_peak_0[n_SiPM][i]*Sigma_peak_0[n_SiPM][i]);
-    errGainWeighted[n_SiPM][i] += errSigma_peak_1[n_SiPM][i]*errSigma_peak_1[n_SiPM][i]*Sigma_peak_1[n_SiPM][i]*Sigma_peak_1[n_SiPM][i]*GAIN[n_SiPM][i]*GAIN[n_SiPM][i]/TMath::Power(Sigma_peak_1[n_SiPM][i]*Sigma_peak_1[n_SiPM][i]-Sigma_peak_0[n_SiPM][i]*Sigma_peak_0[n_SiPM][i],3);
-    errGainWeighted[n_SiPM][i] += errSigma_peak_0[n_SiPM][i]*errSigma_peak_0[n_SiPM][i]*Sigma_peak_0[n_SiPM][i]*Sigma_peak_0[n_SiPM][i]*GAIN[n_SiPM][i]*GAIN[n_SiPM][i]/TMath::Power(Sigma_peak_1[n_SiPM][i]*Sigma_peak_1[n_SiPM][i]-Sigma_peak_0[n_SiPM][i]*Sigma_peak_0[n_SiPM][i],3);
-    errGainWeighted[n_SiPM][i] = TMath::Sqrt(errGainWeighted[n_SiPM][i]);
-
-    // Integral_GAIN
-    // Integral_GAIN[n_SiPM][i]=TMath::Abs(Integral[n_SiPM][i])/(GAIN[n_SiPM][i]*Cross_Talk[i]);
-    // errIntegral_GAIN[n_SiPM][i]=Integral[n_SiPM][i]/(GAIN[n_SiPM][i]*Cross_Talk[i])*TMath::Power(errGAIN[n_SiPM][i]*errGAIN[n_SiPM][i]/(GAIN[n_SiPM][i]*GAIN[n_SiPM][i])+errCross_Talk[i]*errCross_Talk[i]/(Cross_Talk[i]*Cross_Talk[i]),0.5);
-    //Integral_GAIN[n_SiPM][i]=TMath::Abs(Integral[n_SiPM][i])/(GAIN[n_SiPM][i]);
-    //errIntegral_GAIN[n_SiPM][i]=Integral[n_SiPM][i]*errGAIN[n_SiPM][i]/(GAIN[n_SiPM][i]*GAIN[n_SiPM][i]);
-
-    //Probabilità CrossTalk LED
-    errEntries[n_SiPM][i]=TMath::Power(Entries[n_SiPM][i],0.5);
-    Area0[n_SiPM][i]=H_peak_0[n_SiPM][i]*Sigma_peak_0[n_SiPM][i]*TMath::Power(2*TMath::Pi(),0.5)/1;
-    Prob_0pe[n_SiPM][i]=Area0[n_SiPM][i]/Entries[n_SiPM][i];
-    Mu[n_SiPM][i]=-TMath::Log(Prob_0pe[n_SiPM][i]);
-    Prob_1pe[n_SiPM][i]=Mu[n_SiPM][i]*TMath::Exp(-Mu[n_SiPM][i]);
-    Area1[i]=H_peak_1[n_SiPM][i]*Sigma_peak_1[n_SiPM][i]*TMath::Power(2*TMath::Pi(),0.5)/1;
-    Prob_1peS[n_SiPM][i]=Area1[i]/Entries[n_SiPM][i];
-    Prob_Cross_Talk[n_SiPM][i]=1-(Prob_1peS[n_SiPM][i]/Prob_1pe[n_SiPM][i]);
-    cout << "Cross Talk " << Prob_Cross_Talk[n_SiPM][i] << endl;
-    cout << "Prob_1peS[n_SiPM][i]/Prob_1pe[n_SiPM][i]\t" << Prob_1peS[n_SiPM][i]/Prob_1pe[n_SiPM][i] << endl;
-    cout << "p 0 \t" << Prob_0pe[n_SiPM][i] << endl;
-    cout << "p 1 s\t" << Prob_1peS[n_SiPM][i] << endl;
-    cout << "p 1\t" << Prob_1pe[n_SiPM][i] << endl<<endl    ;
-
-
-    errArea1[n_SiPM][i]=Area1[i]*TMath::Power(TMath::Power(errH_peak_1[n_SiPM][i]/H_peak_1[n_SiPM][i],2)+TMath::Power(errSigma_peak_1[n_SiPM][i]/Sigma_peak_1[n_SiPM][i],2),0.5);
-    errProb_1peS[n_SiPM][i]=errArea1[n_SiPM][i]/Entries[n_SiPM][i];
-    errMu[n_SiPM][i]=errArea0[n_SiPM][i]/(Prob_0pe[n_SiPM][i]*Entries[n_SiPM][i]);
-    errProb_1pe[n_SiPM][i]=TMath::Exp(-Mu[n_SiPM][i])*TMath::Abs(1-Mu[n_SiPM][i])*errMu[n_SiPM][i];
-    errArea0[n_SiPM][i]=Area0[n_SiPM][i]*TMath::Power(TMath::Power(errH_peak_0[n_SiPM][i]/H_peak_0[n_SiPM][i],2)+TMath::Power(errSigma_peak_0[n_SiPM][i]/Sigma_peak_0[n_SiPM][i],2),0.5);
-    errProb_0pe[n_SiPM][i]=errArea0[n_SiPM][i]/Entries[n_SiPM][i];
-    errProb_Cross_Talk[n_SiPM][i]=TMath::Power(TMath::Power(errProb_1peS[n_SiPM][i]/Prob_1pe[n_SiPM][i],2)+TMath::Power(Prob_1peS[n_SiPM][i]*errProb_1pe[n_SiPM][i]/Prob_1pe[n_SiPM][i],2),0.5);
-}
-double temp;
-for (int i = 0; i < n_MEAN; i++) {
-  // Mean_hg[n_SiPM]/St_dev
-  Mean_hist_St_dev[n_SiPM][i]= Mean_hg[n_SiPM][i]/Std_hg[n_SiPM][i];
-
-
-  errMean_hist_St_dev[n_SiPM][i] = TMath::Power(Std_hg[n_SiPM][i],-1)*TMath::Power(errMean_hg[n_SiPM][i]*errMean_hg[n_SiPM][i]+Mean_hg[n_SiPM][i]*Mean_hg[n_SiPM][i]*errStd_hg[n_SiPM][i]*errStd_hg[n_SiPM][i]/(Std_hg[n_SiPM][i]*Std_hg[n_SiPM][i]),0.5);
-
-  // temp = errMean_hg[n_SiPM][i]*errMean_hg[n_SiPM][i]+Mean_hg[n_SiPM][i]*Mean_hg[n_SiPM][i]*errStd_hg[n_SiPM][i]*errStd_hg[n_SiPM][i]/(Std_hg[n_SiPM][i]*Std_hg[n_SiPM][i]);
-  // temp = TMath::Power(temp, 0.5);
-  // temp *= 1/Std_hg[n_SiPM][i];
-  //
-
-
-}
-
-// RATIO GAIN (Another way to evaluate the same value as Gain Weighted)
-double R_gain[n_GAIN] = {0.};
-double errR_gain[n_GAIN] = {0.};
-
-for(int i=0; i<n_GAIN;i++){
-    R_gain[i]    = GAIN[n_SiPM][i] / Sigma_add[n_SiPM][i];
-    errR_gain[i] = (errGAIN[n_SiPM][i]*errGAIN[n_SiPM][i])/(Sigma_add[n_SiPM][i]*Sigma_add[n_SiPM][i]);
-    errR_gain[i]+= (errSigma_add[n_SiPM][i]*errSigma_add[n_SiPM][i])*(GAIN[n_SiPM][i]*GAIN[n_SiPM][i])/TMath::Power(Sigma_add[n_SiPM][i],4);
-    errR_gain[i] = TMath::Sqrt(errR_gain[i]);
-}
-
-
-///////////////////////////////////////////////////////////////////////////
-//          FIXED ERROR
-///////////////////////////////////////////////////////////////////////////
-
-if(fix_error_bool){
-    // double err_fix_CT = 0.015;
-    double err_fix_CT = 0.02;
     for(int i=0; i<n_GAIN; i++){
-        errProb_Cross_Talk[n_SiPM][i] = err_fix_CT;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////
-
-for(int i=0; i<n_GAIN; i++){
-        cout<<"Error CT = "<<errProb_Cross_Talk[n_SiPM][i]<<endl;
+        for(int i=0; i<n_GAIN; i++){
+            cout<<"Error CT = "<<errProb_Cross_Talk[n_SiPM][i]<<endl;
+        }
     }
 
+    TGraphErrors *gV_Rg[n_SiPM_tot];
+    TGraphErrors *gV_PCT[n_SiPM_tot];
+    TCanvas *cV_Rg[n_SiPM_tot];
+    TCanvas *cV_PCT[n_SiPM_tot];
+    string title_cV_Rg;
+    string title_cV_PCT;
 
-//------------------------------
-// Gain_Weighted
-//------------------------------
+    for(n_SiPM=0; n_SiPM<n_SiPM_tot_LASER; n_SiPM++){
+        //------------------------------
+        // R_Gain
+        //------------------------------
+        gV_Rg[n_SiPM]  = new TGraphErrors(n_GAIN, HV_LASER_GAIN, R_gain[n_SiPM], errHV_LASER_GAIN, errR_gain[n_SiPM]);
+        gV_Rg[n_SiPM]->SetMarkerStyle(21);
+        gV_Rg[n_SiPM]->SetMarkerColor(kOrange+2);
+        gV_Rg[n_SiPM]->SetTitle();
+        gV_Rg[n_SiPM]->GetXaxis()->SetTitle("Bias Voltage (V)");
+        gV_Rg[n_SiPM]->GetYaxis()->SetTitle("R_{gain}");
 
-// TGraphErrors *gV_GW  = new TGraphErrors(n_GAIN, HV_LASER_GAIN, GainWeighted[0], errHV_LASER_GAIN, errGainWeighted[0]);
-//
-//
-// //------------------------------
-//
-// gV_GW->SetMarkerStyle(21);
-// gV_GW->SetMarkerColor(kOrange+2);
-// gV_GW->SetTitle();
-// gV_GW->GetXaxis()->SetTitle("Bias Voltage (V)");
-// gV_GW->GetYaxis()->SetTitle("Weighted Gain");
-//
-// //------------------------------
-//
-// TCanvas *cV_GW = new TCanvas("cV_GW", "cV_GW",w,h);
-// cV_GW->SetGrid();
-// gV_GW->Draw("AP");
-
-
-//------------------------------
-// R_Gain
-//------------------------------
-
-TGraphErrors *gV_Rg  = new TGraphErrors(n_GAIN, HV_LASER_GAIN, R_gain, errHV_LASER_GAIN, errR_gain);
+        title_cV_Rg="cV_Rg_"+to_string(n_SiPM);
+        cV_Rg[n_SiPM] = new TCanvas(title_cV_Rg.c_str(), title_cV_Rg.c_str(),w,h);
+        cV_Rg[n_SiPM]->SetGrid();
+        gV_Rg[n_SiPM]->Draw("AP");
 
 
-//------------------------------
+        //------------------------------
+        // Prob_Cross_Talk
+        //------------------------------
+        gV_PCT[n_SiPM]  = new TGraphErrors(n_GAIN, HV_LASER_GAIN, Prob_Cross_Talk[n_SiPM], errHV_LASER_GAIN, errProb_Cross_Talk[n_SiPM]);
+        gV_PCT[n_SiPM]->SetMarkerStyle(21);
+        // gV_PCT[n_SiPM]->SetMarkerSize(2);
+        gV_PCT[n_SiPM]->SetMarkerColor(kOrange+2);
+        gV_PCT[n_SiPM]->SetTitle();
+        gV_PCT[n_SiPM]->GetXaxis()->SetTitle("Bias Voltage (V)");
+        gV_PCT[n_SiPM]->GetYaxis()->SetTitle("Cross Talk");
 
-gV_Rg->SetMarkerStyle(21);
-gV_Rg->SetMarkerColor(kOrange+2);
-gV_Rg->SetTitle();
-gV_Rg->GetXaxis()->SetTitle("Bias Voltage (V)");
-gV_Rg->GetYaxis()->SetTitle("R_{gain}");
+        title_cV_PCT="cV_PCT_"+to_string(n_SiPM);
+        cV_PCT[n_SiPM] = new TCanvas(title_cV_PCT.c_str(), title_cV_PCT.c_str(),w,h);
+        cV_PCT[n_SiPM]->SetGrid();
+        gV_PCT[n_SiPM]->Draw("AP");
+    }
 
-//------------------------------
-
-TCanvas *cV_Rg = new TCanvas("cV_Rg", "cV_Rg",w,h);
-cV_Rg->SetGrid();
-gV_Rg->Draw("AP");
-
-
-// check
-// TCanvas *cV_check_GW_Rg = new TCanvas("cV_check_GW_Rg", "cV_check_GW_Rg",w,h);
-// TMultiGraph *mgcheck_GW_Rg = new TMultiGraph("mgcheck_GW_Rg", ";Bias Voltage (V);Cross Talk");
-// gV_Rg->SetLineColor(kOrange+2);
-// mgcheck_GW_Rg->Add(gV_GW);
-// mgcheck_GW_Rg->Add(gV_Rg);
-// mgcheck_GW_Rg->Draw("AP");
-
- //------------------------------
- // Mean/Dev_st
- //------------------------------
-
-TGraphErrors *gV_MS  = new TGraphErrors(n_MEAN, HV_LASER, Mean_hist_St_dev[n_SiPM], errHV_LASER, errMean_hist_St_dev[n_SiPM]);
-
-
-//------------------------------
-
-gV_MS->SetMarkerStyle(21);
-gV_MS->SetMarkerColor(kOrange+2);
-gV_MS->SetTitle();
-gV_MS->GetXaxis()->SetTitle("Bias Voltage (V)");
-gV_MS->GetYaxis()->SetTitle("Mean/St_Dev ()");
-
-//------------------------------
-
-// TCanvas *cV_MS = new TCanvas("cV_MS", "cV_MS",w,h);
-// cV_MS->SetGrid();
-// gV_MS->Draw("AP");
-
-
-//------------------------------
-// Cross Talk
-//------------------------------
-//for(int i=0; i<n_GAIN; i++){
-  //  cout<<HV_LASER_GAIN[i]<<"\t"<<Prob_Cross_Talk[n_SiPM][i]<<endl;
-//}
-TGraphErrors *gV_PCT  = new TGraphErrors(n_GAIN, HV_LASER_GAIN, Prob_Cross_Talk[n_SiPM], errHV_LASER_GAIN, errProb_Cross_Talk[n_SiPM]);
-
-
-//------------------------------
-
-gV_PCT->SetMarkerStyle(21);
-// gV_PCT->SetMarkerSize(2);
-gV_PCT->SetMarkerColor(kOrange+2);
-gV_PCT->SetTitle();
-gV_PCT->GetXaxis()->SetTitle("Bias Voltage (V)");
-gV_PCT->GetYaxis()->SetTitle("Cross Talk");
-
-//------------------------------
-
-TCanvas *cV_PCT = new TCanvas("cV_PCT", "cV_PCT",w,h);
-cV_PCT->SetGrid();
-gV_PCT->Draw("AP");
-
-
-
-
-
-
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
 
 
 
@@ -1525,13 +1464,13 @@ gV_PCT->Draw("AP");
       mgCT_DARK_LASER->Add(gV_CT_Del_1);
       // mgCT_DARK_LASER->Add(gV_CT_Del_2);
       // mgCT_DARK_LASER->Add(gV_CT_Del_3);
-      mgCT_DARK_LASER->Add(gV_PCT);
+      mgCT_DARK_LASER->Add(gV_PCT[0]);
       mgCT_DARK_LASER->Draw("AP");
 
       auto legendCT_DARK_LASER = new TLegend(0.15,0.70,0.35,0.85);
       legendCT_DARK_LASER->AddEntry(gV_CT_1,    "HD3-2 (1), from DCR","p");
       legendCT_DARK_LASER->AddEntry(gV_CT_Del_1,"HD3-2 (1), from DELAYS","p");
-      legendCT_DARK_LASER->AddEntry(gV_PCT,     "HD3-2 (1), from LASER","p");
+      legendCT_DARK_LASER->AddEntry(gV_PCT[0],     "HD3-2 (1), from LASER","p");
       legendCT_DARK_LASER->Draw();
 
 
@@ -1663,8 +1602,101 @@ gV_PCT->Draw("AP");
     cout<<"\% From LASER"<<endl;
     cout<<"\% HV & CT & R_{gain}   \\\\"<<endl;
     for(int i=0; i<n_GAIN; i++){
-        printf("$ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ \\\\ \n", HV_LASER[i], errHV_LASER[i], R_gain[i], Prob_Cross_Talk[n_SiPM][i],R_gain[i], errProb_Cross_Talk[n_SiPM][i]);
+        printf("$ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ \\\\ \n", HV_LASER_GAIN[i], errHV_LASER_GAIN[i], R_gain[0][i], Prob_Cross_Talk[n_SiPM][i],R_gain[0][i], errProb_Cross_Talk[n_SiPM][i]);
     }
+
+
+    /////////////////////////
+    // OLD STUFF:
+    ////////////////////////
+
+    // for (int i=0; i<n_GAIN; i++){
+    //
+    //     // GainWeighted[n_SiPM]
+    //     // GainWeighted[n_SiPM][i] = GAIN[n_SiPM][i]/TMath::Sqrt(Sigma_peak_1[n_SiPM][i]*Sigma_peak_1[n_SiPM][i]-Sigma_peak_0[n_SiPM][i]*Sigma_peak_0[n_SiPM][i]);
+    //     // errGainWeighted[n_SiPM][i] = errGAIN[n_SiPM][i]*errGAIN[n_SiPM][i]/(Sigma_peak_1[n_SiPM][i]*Sigma_peak_1[n_SiPM][i]-Sigma_peak_0[n_SiPM][i]*Sigma_peak_0[n_SiPM][i]);
+    //     // errGainWeighted[n_SiPM][i] += errSigma_peak_1[n_SiPM][i]*errSigma_peak_1[n_SiPM][i]*Sigma_peak_1[n_SiPM][i]*Sigma_peak_1[n_SiPM][i]*GAIN[n_SiPM][i]*GAIN[n_SiPM][i]/TMath::Power(Sigma_peak_1[n_SiPM][i]*Sigma_peak_1[n_SiPM][i]-Sigma_peak_0[n_SiPM][i]*Sigma_peak_0[n_SiPM][i],3);
+    //     // errGainWeighted[n_SiPM][i] += errSigma_peak_0[n_SiPM][i]*errSigma_peak_0[n_SiPM][i]*Sigma_peak_0[n_SiPM][i]*Sigma_peak_0[n_SiPM][i]*GAIN[n_SiPM][i]*GAIN[n_SiPM][i]/TMath::Power(Sigma_peak_1[n_SiPM][i]*Sigma_peak_1[n_SiPM][i]-Sigma_peak_0[n_SiPM][i]*Sigma_peak_0[n_SiPM][i],3);
+    //     // errGainWeighted[n_SiPM][i] = TMath::Sqrt(errGainWeighted[n_SiPM][i]);
+    //
+    //     // Integral_GAIN
+    //     // Integral_GAIN[n_SiPM][i]=TMath::Abs(Integral[n_SiPM][i])/(GAIN[n_SiPM][i]*Cross_Talk[i]);
+    //     // errIntegral_GAIN[n_SiPM][i]=Integral[n_SiPM][i]/(GAIN[n_SiPM][i]*Cross_Talk[i])*TMath::Power(errGAIN[n_SiPM][i]*errGAIN[n_SiPM][i]/(GAIN[n_SiPM][i]*GAIN[n_SiPM][i])+errCross_Talk[i]*errCross_Talk[i]/(Cross_Talk[i]*Cross_Talk[i]),0.5);
+    //     //Integral_GAIN[n_SiPM][i]=TMath::Abs(Integral[n_SiPM][i])/(GAIN[n_SiPM][i]);
+    //     //errIntegral_GAIN[n_SiPM][i]=Integral[n_SiPM][i]*errGAIN[n_SiPM][i]/(GAIN[n_SiPM][i]*GAIN[n_SiPM][i]);
+    //
+    //     //Probabilità CrossTalk LED
+    //
+    // }
+    // double temp;
+    // for (int i = 0; i < n_MEAN; i++) {
+    //   // Mean_hg[n_SiPM]/St_dev
+    //   Mean_hist_St_dev[n_SiPM][i]= Mean_hg[n_SiPM][i]/Std_hg[n_SiPM][i];
+    //   errMean_hist_St_dev[n_SiPM][i] = TMath::Power(Std_hg[n_SiPM][i],-1)*TMath::Power(errMean_hg[n_SiPM][i]*errMean_hg[n_SiPM][i]+Mean_hg[n_SiPM][i]*Mean_hg[n_SiPM][i]*errStd_hg[n_SiPM][i]*errStd_hg[n_SiPM][i]/(Std_hg[n_SiPM][i]*Std_hg[n_SiPM][i]),0.5);
+    //
+    //   // temp = errMean_hg[n_SiPM][i]*errMean_hg[n_SiPM][i]+Mean_hg[n_SiPM][i]*Mean_hg[n_SiPM][i]*errStd_hg[n_SiPM][i]*errStd_hg[n_SiPM][i]/(Std_hg[n_SiPM][i]*Std_hg[n_SiPM][i]);
+    //   // temp = TMath::Power(temp, 0.5);
+    //   // temp *= 1/Std_hg[n_SiPM][i];
+    //   //
+    // }
+
+    //------------------------------
+    // Gain_Weighted
+    //------------------------------
+
+    // TGraphErrors *gV_GW  = new TGraphErrors(n_GAIN, HV_LASER_GAIN, GainWeighted[0], errHV_LASER_GAIN, errGainWeighted[0]);
+    //
+    //
+    // //------------------------------
+    //
+    // gV_GW->SetMarkerStyle(21);
+    // gV_GW->SetMarkerColor(kOrange+2);
+    // gV_GW->SetTitle();
+    // gV_GW->GetXaxis()->SetTitle("Bias Voltage (V)");
+    // gV_GW->GetYaxis()->SetTitle("Weighted Gain");
+    //
+    // //------------------------------
+    //
+    // TCanvas *cV_GW = new TCanvas("cV_GW", "cV_GW",w,h);
+    // cV_GW->SetGrid();
+    // gV_GW->Draw("AP");
+
+
+
+    // check
+    // TCanvas *cV_check_GW_Rg = new TCanvas("cV_check_GW_Rg", "cV_check_GW_Rg",w,h);
+    // TMultiGraph *mgcheck_GW_Rg = new TMultiGraph("mgcheck_GW_Rg", ";Bias Voltage (V);Cross Talk");
+    // gV_Rg->SetLineColor(kOrange+2);
+    // mgcheck_GW_Rg->Add(gV_GW);
+    // mgcheck_GW_Rg->Add(gV_Rg);
+    // mgcheck_GW_Rg->Draw("AP");
+
+    //------------------------------
+    // MS
+    //------------------------------
+    // TGraphErrors *gV_MS  = new TGraphErrors(n_MEAN, HV_LASER, Mean_hist_St_dev[n_SiPM], errHV_LASER, errMean_hist_St_dev[n_SiPM]);
+    //
+    // gV_MS->SetMarkerStyle(21);
+    // gV_MS->SetMarkerColor(kOrange+2);
+    // gV_MS->SetTitle();
+    // gV_MS->GetXaxis()->SetTitle("Bias Voltage (V)");
+    // gV_MS->GetYaxis()->SetTitle("Mean/St_Dev ()");
+
+
+    // TCanvas *cV_MS = new TCanvas("cV_MS", "cV_MS",w,h);
+    // cV_MS->SetGrid();
+    // gV_MS->Draw("AP");
+
+
+    //*****************************************************************************
+    //*****************************************************************************
+    //*****************************************************************************
+    //*****************************************************************************
+    //*****************************************************************************
+    //*****************************************************************************
+    //*****************************************************************************
+    //*****************************************************************************
+
 
 
 }
