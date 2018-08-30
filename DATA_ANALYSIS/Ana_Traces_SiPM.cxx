@@ -272,8 +272,8 @@ double Area = 36.00; // 6*6 mm^2 for FBK NUV HD3-2
 // double Area = 36.844900; // 6.07*6.07 mm^2 for SensL MicroFJ-SMTPA-60035
 
 // ONLY for LED measures
-int minLED_amp = 174;//168;//168;//168;//290;//115;  // window: min time for peak (ns) for LED
-int maxLED_amp = 184;//180;//177;//176;//305;//125;  // window: max time for peak (ns) for LED
+int minLED_amp = 176;//168;//168;//168;//290;//115;  // window: min time for peak (ns) for LED
+int maxLED_amp = 188;//180;//177;//176;//305;//125;  // window: max time for peak (ns) for LED
 double time_area_low = 30;  // time for the area before the LED peak (ns)
 double time_area_high = 200; // time for the area after the LED peak (ns)
 int dcr_mintp  = minLED_amp + 200;
@@ -2742,7 +2742,7 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
 
   // Fit Range
   float fit_low  = -20;
-  float fit_high = 27;
+  float fit_high = 44.5;
 
   float Mean_peak_0, Mean_peak_1, Mean_peak_2;
   float errMean_peak_0, errMean_peak_1, errMean_peak_2;
