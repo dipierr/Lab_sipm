@@ -134,6 +134,7 @@ void FindPeakPositions(float* vector, Bool_t dled_bool, Int_t dt);
 void FindPeaksFromPositions();
 void fit_hist_peaks_0pe_1pe_2pe(TCanvas *canv, TH1D *hist);
 void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_talk);
+void fit_hist_peaks_gaus_sum_01(TCanvas *canv, TH1D *hist, bool evaluate_cross_talk);
 void fit_hist_peaks_gaus_sum_12(TH1D *hist);
 void fit_hist_del(float expDelLow, float expDelHigh);
 void fit_hist_peaks(TCanvas *canv, TH1D *hist);
@@ -272,8 +273,8 @@ double Area = 36.00; // 6*6 mm^2 for FBK NUV HD3-2
 // double Area = 36.844900; // 6.07*6.07 mm^2 for SensL MicroFJ-SMTPA-60035
 
 // ONLY for LED measures
-int minLED_amp = 176;//168;//168;//168;//290;//115;  // window: min time for peak (ns) for LED
-int maxLED_amp = 188;//180;//177;//176;//305;//125;  // window: max time for peak (ns) for LED
+int minLED_amp = 168;//168;//168;//290;//115;  // window: min time for peak (ns) for LED
+int maxLED_amp = 180;//177;//176;//305;//125;  // window: max time for peak (ns) for LED
 double time_area_low = 30;  // time for the area before the LED peak (ns)
 double time_area_high = 200; // time for the area after the LED peak (ns)
 int dcr_mintp  = minLED_amp + 200;
@@ -481,6 +482,9 @@ int color_file[] = {kBlue,kBlue,kBlue,kBlue,kBlue,kBlue,kBlue,kBlue,kBlue,kBlue}
 
 double opacity = 0.3;
 
+float fit_low  = -20;
+float fit_high = 27;
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -578,6 +582,14 @@ TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[6])*(x-[6])/(
 // TF1 *gaus_sum_012 = new TF1("gaus_sum_012", "[0]*TMath::Exp( - (x-[7])*(x-[7])/( 2*[5]*[5] ) ) + [1]*TMath::Exp( - (x-[7]-[4])*(x-[7]-[4])/( 2*([5]*[5] + [6]*[6] )) ) + [2]*TMath::Exp( - (x-[7]-2*[4])*(x-[7]-2*[4])/( 2*([5]*[5] + 4*[6]*[6] ) ) ) + [3]*TMath::Exp( - (x-[7]-3*[4])*(x-[7]-3*[4])/( 2*([5]*[5] + 9*[6]*[6]) ) )" ,-100,100);
 //[H0]*TMath::Exp( - (x-[V0])*(x-[V0])/( 2*[s0]*[s0] ) ) + [H1]*TMath::Exp( - (x-[V0]-[gain])*(x-[V0]-[gain])/( 2*([s0]*[s0] + [sadd]*[sadd] )) ) + [H2]*TMath::Exp( - (x-[V0]-2*[gain])*(x-[V0]-2*[gain])/( 2*([s0]*[s0] + 4*[sadd]*[sadd] ) ) ) + [H3]*TMath::Exp( - (x-[V0]-3*[gain])*(x-[V0]-3*[gain])/( 2*([s0]*[s0] + 9*[sadd]*[sadd]) ) )
 
+
+TF1 *gaus_sum_01 = new TF1("gaus_sum_01", "[0]*TMath::Exp( - (x-[2])*(x-[2])/( 2*([4]*[4]))) + [1]*TMath::Exp( - (x-[2]-[3])*(x-[2]-[3])/( 2*([4]*[4] + [5]*[5] ) ) ) " ,-100,100);
+// [0]  A_0pe
+// [1]  A_1pe
+// [2]  V0
+// [3]  g
+// [4]  Sigma_0
+// [5]  Sigma_add
 
 
 //I want to create ONLY one time the Canvas below... this is not the smartest way but it should work...
@@ -823,7 +835,12 @@ void Ana_LED(string file1, int last_event_n){
     cout<<"---[ LED ]---"<<endl;
     cout<<"-------------"<<endl;
     cout<<endl;
-    fit_hist_peaks_gaus_sum_012(canvLED, ptrHistLED, evaluate_cross_talk);
+
+    // Fit Range
+    fit_low  = -20;
+    fit_high = 27;
+    fit_hist_peaks_gaus_sum_01(canvLED, ptrHistLED, evaluate_cross_talk);
+    // fit_hist_peaks_gaus_sum_012(canvLED, ptrHistLED, evaluate_cross_talk);
     cout<<"---------------------------------------------------------------------"<<endl;
 
     if(led_and_dcr_0pe){
@@ -2737,12 +2754,9 @@ void fit_hist_peaks_0pe_1pe_2pe(TCanvas *canv, TH1D *hist){
 
 
 //------------------------------------------------------------------------------
-void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_talk){
+void fit_hist_peaks_gaus_sum_01(TCanvas *canv, TH1D *hist, bool evaluate_cross_talk){
 
 
-  // Fit Range
-  float fit_low  = -20;
-  float fit_high = 44.5;
 
   float Mean_peak_0, Mean_peak_1, Mean_peak_2;
   float errMean_peak_0, errMean_peak_1, errMean_peak_2;
@@ -2762,9 +2776,160 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
 
   canv->cd();
 
-  //   [0]*TMath::Exp( - (x-[6])*(x-[6])/( 2*[4]*[4] ) ) +
-  // + [1]*TMath::Exp( - (x-[6]-[3])*(x-[6]-[3])/( 2*([4]*[4] + [5]*[5] )) ) +
-  // + [2]*TMath::Exp( - (x-[6]-2*[3])*(x-[6]-2*[3])/( 2*([4]*[4] + 4*[5]*[5] ) ) )
+  // [0]A_0pe; [1]A_1pe; [2]V0; [3]g; [4]Sigma_0; [5]Sigma_add
+
+  // Set Name
+  gaus_sum_01->SetParName(0, "H0");
+  gaus_sum_01->SetParName(1, "H1");
+  gaus_sum_01->SetParName(2, "V0");
+  gaus_sum_01->SetParName(3, "gain");
+  gaus_sum_01->SetParName(4, "s0");
+  gaus_sum_01->SetParName(5, "sadd");
+
+  // Initialize Parameters
+  gaus_sum_01->SetParameter(0, 100);
+  gaus_sum_01->SetParameter(1, 140);
+  gaus_sum_01->SetParameter(2, 0);
+  gaus_sum_01->SetParameter(3, 20);
+  gaus_sum_01->SetParameter(4, 2);
+  gaus_sum_01->SetParameter(5, 2);
+
+  // FIT
+  gaus_sum_01->SetRange(fit_low, fit_high);
+  hist -> Fit("gaus_sum_01", "", "", fit_low, fit_high);
+
+  // gain
+  Gain              = gaus_sum_01->GetParameter(3);
+  errGain           = gaus_sum_01->GetParError(3);
+
+  // sigma add
+  Sigma_add        = gaus_sum_01->GetParameter(5);
+  errSigma_add     = gaus_sum_01->GetParError(5);
+
+  //--------------
+  //---[ 0pe ]---
+  //-------------
+  H_peak_0          = gaus_sum_01->GetParameter(0);
+  errH_peak_0       = gaus_sum_01->GetParError(0);
+  Mean_peak_0       = gaus_sum_01->GetParameter(2);
+  errMean_peak_0    = gaus_sum_01->GetParError(2);
+  Sigma_peak_0      = gaus_sum_01->GetParameter(4);
+  errSigma_peak_0   = gaus_sum_01->GetParError(4);
+
+  //--------------
+  //---[ 1pe ]---
+  //-------------
+  H_peak_1          = gaus_sum_01->GetParameter(1);
+  errH_peak_1       = gaus_sum_01->GetParError(1);
+  Mean_peak_1       = Mean_peak_0 + Gain;
+  errMean_peak_1    = TMath::Sqrt(errMean_peak_0*errMean_peak_0 + errGain*errGain);
+  Sigma_peak_1      = TMath::Sqrt( Sigma_peak_0*Sigma_peak_0 + Sigma_add*Sigma_add );
+  errSigma_peak_1   = TMath::Sqrt( (Sigma_peak_0*Sigma_peak_0*errSigma_peak_0*errSigma_peak_0 + Sigma_add*Sigma_add*errSigma_add*errSigma_add) / ( Sigma_peak_0*Sigma_peak_0 + Sigma_add*Sigma_add ) );
+
+  //---------------------
+  //---[ GLOBAL HIST ]---
+  //---------------------
+  Entries = hist->GetEntries();
+  Mean_hg = hist->GetMean();
+  errMean_hg = hist->GetMeanError();
+  Std_hg  = hist->GetStdDev();
+  errStd_hg = hist->GetStdDevError();
+
+  //-----------------------------
+  //---[ CROSS TALK from LED ]---
+  //-----------------------------
+  double Area0 = H_peak_0*Sigma_peak_0*TMath::Power(2*TMath::Pi(),0.5)/1;
+  double Prob_0pe = Area0/Entries;
+  double Mu = -TMath::Log(Prob_0pe);
+  double Prob_1pe = Mu*TMath::Exp(-Mu);
+  double Area1 = H_peak_1*Sigma_peak_1*TMath::Power(2*TMath::Pi(),0.5)/1;
+  double Prob_1peS = Area1/Entries;
+  double Prob_Cross_Talk = 1-(Prob_1peS/Prob_1pe);
+
+  //-----------------
+  //---[ RESULTS ]---
+  //-----------------
+  int index = 0;
+  cout<<endl;
+  cout<<"Enter vector index:"<<endl;
+  cin>>index;
+
+  cout<<endl;
+  cout<<"// Window for LED peak: "<<"("<<minLED_amp<<", "<<maxLED_amp<<") ns"<<"  (minLED_amp, maxLED_amp)"<<endl;
+  cout<<"// Other: dleddt = "<<dleddt<<"; smooth_trace_bool = "<<smooth_trace_bool<<";"<<endl;
+  cout<<"//        histLED_low = "<<histLED_low<<"; histLED_high = "<<histLED_high<<"; histLED_binw = "<<histLED_binw<<";"<<endl;
+  cout<<"//        fit_low = "<<fit_low<<"; fit_high = "<<fit_high<<";"<<endl;
+
+  // peak 0
+  cout<<"H_peak_0[n_SiPM]["<<index<<"]          = "<<H_peak_0<<";"<<endl;
+  cout<<"errH_peak_0[n_SiPM]["<<index<<"]       = "<<errH_peak_0<<";"<<endl;
+  cout<<"Sigma_peak_0[n_SiPM]["<<index<<"]      = "<<Sigma_peak_0<<";"<<endl;
+  cout<<"errSigma_peak_0[n_SiPM]["<<index<<"]   = "<<errSigma_peak_0<<";"<<endl;
+
+  // peak 1
+  cout<<"H_peak_1[n_SiPM]["<<index<<"]          = "<<H_peak_1<<";"<<endl;
+  cout<<"errH_peak_1[n_SiPM]["<<index<<"]       = "<<errH_peak_1<<";"<<endl;
+  cout<<"Sigma_peak_1[n_SiPM]["<<index<<"]      = "<<Sigma_peak_1<<";"<<endl;
+  cout<<"errSigma_peak_1[n_SiPM]["<<index<<"]   = "<<errSigma_peak_1<<";"<<endl;
+  cout<<"Mean_peak_1[n_SiPM]["<<index<<"]       = "<<Mean_peak_1<<";"<<endl;
+  cout<<"errMean_peak_1[n_SiPM]["<<index<<"]    = "<<errMean_peak_1<<";"<<endl;
+
+  // GAIN
+  cout<<"GAIN[n_SiPM]["<<index<<"]              = "<<Gain<<";"<<endl;
+  cout<<"errGAIN[n_SiPM]["<<index<<"]           = "<<errGain<<";"<<endl;
+
+  // SIGMA ADD:
+  cout<<"Sigma_add[n_SiPM]["<<index<<"]         = "<<Sigma_add<<";"<<endl;
+  cout<<"errSigma_add[n_SiPM]["<<index<<"]      = "<<errSigma_add<<";"<<endl;
+
+  // GLOBAL HIST
+  cout<<"Mean_hg[n_SiPM]["<<index+2<<"]           = "<<Mean_hg<<";"<<endl;
+  cout<<"errMean_hg[n_SiPM]["<<index+2<<"]        = "<<errMean_hg<<";"<<endl;
+  cout<<"Std_hg[n_SiPM]["<<index+2<<"]            = "<<Std_hg<<";"<<endl;
+  cout<<"errStd_hg[n_SiPM]["<<index+2<<"]         = "<<errStd_hg<<";"<<endl;
+  cout<<"Entries[n_SiPM]["<<index<<"]           = "<<Entries<<";"<<endl;
+
+  // Info
+  cout<<endl;
+  cout<<"// Fit based on the function reported in: "<<endl;
+  cout<<"//       Mallamaci Manuela, Mariotti Mosé - Report SiPM tests"<<endl;
+
+  // Cross Talk
+  if(evaluate_cross_talk){
+    cout<<endl;
+    cout << "Cross Talk           = " << Prob_Cross_Talk*100 <<" \%" << endl;
+  }
+
+
+
+
+}
+
+//------------------------------------------------------------------------------
+void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_talk){
+
+
+  // Fit Range
+  fit_low  = -20;
+  fit_high = 44.5;
+
+  float Mean_peak_0, Mean_peak_1, Mean_peak_2;
+  float errMean_peak_0, errMean_peak_1, errMean_peak_2;
+
+  float Sigma_peak_0, Sigma_peak_1, Sigma_peak_2;
+  float errSigma_peak_0, errSigma_peak_1, errSigma_peak_2;
+
+  float H_peak_0, H_peak_1, H_peak_2;
+  float errH_peak_0, errH_peak_1, errH_peak_2;
+
+  float Gain, errGain, Sigma_add, errSigma_add, Diff_Gain_0_1, errDiff_Gain_0_1;
+
+  float Mean_hg, errMean_hg, Std_hg, errStd_hg;
+
+  int Entries;
+
+
+  canv->cd();
 
   // Set Name
   gaus_sum_012->SetParName(0, "H0");
@@ -2938,10 +3103,7 @@ void fit_hist_peaks_gaus_sum_012(TCanvas *canv, TH1D *hist, bool evaluate_cross_
   }
 
 
-
-
 }
-
 
 
 
@@ -2954,8 +3116,8 @@ void fit_hist_peaks_gaus_sum_12( TH1D *hist){
     Init_gaus_sum_12();
 
   // Fit Range
-  float fit_low  = -10;
-  float fit_high = 50;
+  fit_low  = -10;
+  fit_high = 50;
 
 
   // FIT
