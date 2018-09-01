@@ -116,7 +116,7 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07_NoGap(){
 
     // ERRORS:
     bool percentage_error_bool = false;
-    bool fix_error_bool = false;
+    bool fix_error_bool = true;
 
     // EVALUARE DCR / AREA
     bool dcr_area = true;
