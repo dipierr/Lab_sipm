@@ -4499,6 +4499,14 @@ void Init_gaus_sum_12(){
     gaus_sum_12->SetParameter(4, 2);
     gaus_sum_12->SetParameter(5, 2);
 
+
+    gaus_sum_12->SetParLimits(0, 100,800000000);
+    gaus_sum_12->SetParLimits(1, 100,800000000);
+    gaus_sum_12->SetParLimits(2, -10,10);
+    gaus_sum_12->SetParLimits(3, 10,40);
+    gaus_sum_12->SetParLimits(4, 0,5);
+    gaus_sum_12->SetParLimits(5, 0,5);
+
 }
 
 
