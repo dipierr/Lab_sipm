@@ -16,8 +16,8 @@
  *  > trace_time = SUM(trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0] +
  *                  - DCR_cnt_temp * 2 * dleddt ) / n_ev_tot
  *
- *  > minyhistDelays = ;  maxyhistDelays = ;
- *
+ *  > minyhistDelays = 50;  maxyhistDelays = 250;
+ *    expDelLow_max  = minyhistDelays; expDelHigh_max = maxyhistDelays;
  *
  *
  *
