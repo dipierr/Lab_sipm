@@ -323,12 +323,12 @@ int bins_Charge = 100;
 
 
 // for: FBK HD3-2
-float minyhistDelays = 15;
-float maxyhistDelays = 500;
+float minyhistDelays = 50;
+float maxyhistDelays = 250;
     // maxyhistDelays = 100; for DCR_CT_1SiPM_nHVs() for 20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat and similar (from 32 to 36 V)
     // maxyhistDelays = 127; for DCR_CT_1SiPM_nHVs() for 20180725_HD3-2_01_DARK_AgilentE3641A_31.00_AS_2_100000ev_01.dat
     // other info in result files
-int bins_Delays = 50;
+int bins_Delays = 150;
 float expDelLow_max  = minyhistDelays;
 float expDelHigh_max = maxyhistDelays;
 

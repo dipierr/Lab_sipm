@@ -144,7 +144,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07_NoGap(){
     bool dcr_area = true;
 
     // DRAW ALL
-    bool draw_all_bool = false;
+    bool draw_all_bool = true;
 
     // Area:
     double Area = 36;
@@ -637,35 +637,35 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07_NoGap(){
 
     //------------------------------
 
-    if(draw_all_bool){
-        TCanvas *cV_DCR_1 = new TCanvas("cV_DCR_1", "cV_DCR_1",w,h);
-        cV_DCR_1->SetGrid();
-        gV_DCR_1->Draw("AP");
-
-        TCanvas *cV_DCR_2 = new TCanvas("cV_DCR_2", "cV_DCR_2",w,h);
-        cV_DCR_2->SetGrid();
-        gV_DCR_2->Draw("AP");
-
-        TCanvas *cV_DCR_3 = new TCanvas("cV_DCR_3", "cV_DCR_3",w,h);
-        cV_DCR_3->SetGrid();
-        gV_DCR_3->Draw("AP");
-    }
+    // if(draw_all_bool){
+    //     TCanvas *cV_DCR_1 = new TCanvas("cV_DCR_1", "cV_DCR_1",w,h);
+    //     cV_DCR_1->SetGrid();
+    //     gV_DCR_1->Draw("AP");
+    //
+    //     TCanvas *cV_DCR_2 = new TCanvas("cV_DCR_2", "cV_DCR_2",w,h);
+    //     cV_DCR_2->SetGrid();
+    //     gV_DCR_2->Draw("AP");
+    //
+    //     TCanvas *cV_DCR_3 = new TCanvas("cV_DCR_3", "cV_DCR_3",w,h);
+    //     cV_DCR_3->SetGrid();
+    //     gV_DCR_3->Draw("AP");
+    // }
 
     //------------------------------
 
-    if(draw_all_bool){
-        TCanvas *cV_CT_1 = new TCanvas("cV_CT_1", "cV_CT_1",w,h);
-        cV_CT_1->SetGrid();
-        gV_CT_1->Draw("AP");
-
-        TCanvas *cV_CT_2 = new TCanvas("cV_CT_2", "cV_CT_2",w,h);
-        cV_CT_2->SetGrid();
-        gV_CT_2->Draw("AP");
-
-        TCanvas *cV_CT_3 = new TCanvas("cV_CT_3", "cV_CT_3",w,h);
-        cV_CT_3->SetGrid();
-        gV_CT_3->Draw("AP");
-    }
+    // if(draw_all_bool){
+    //     TCanvas *cV_CT_1 = new TCanvas("cV_CT_1", "cV_CT_1",w,h);
+    //     cV_CT_1->SetGrid();
+    //     gV_CT_1->Draw("AP");
+    //
+    //     TCanvas *cV_CT_2 = new TCanvas("cV_CT_2", "cV_CT_2",w,h);
+    //     cV_CT_2->SetGrid();
+    //     gV_CT_2->Draw("AP");
+    //
+    //     TCanvas *cV_CT_3 = new TCanvas("cV_CT_3", "cV_CT_3",w,h);
+    //     cV_CT_3->SetGrid();
+    //     gV_CT_3->Draw("AP");
+    // }
 
 
     //------------------------------
@@ -709,36 +709,36 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07_NoGap(){
 
     //------------------------------
 
-    if(draw_all_bool){
-        TCanvas *cV_DCR_Del_1 = new TCanvas("cV_DCR_Del_1", "cV_DCR_Del_1",w,h);
-        cV_DCR_Del_1->SetGrid();
-        gV_DCR_Del_1->Draw("AP");
-
-        TCanvas *cV_DCR_Del_2 = new TCanvas("cV_DCR_Del_2", "cV_DCR_Del_2",w,h);
-        cV_DCR_Del_2->SetGrid();
-        gV_DCR_Del_2->Draw("AP");
-
-        TCanvas *cV_DCR_Del_3 = new TCanvas("cV_DCR_Del_3", "cV_DCR_Del_3",w,h);
-        cV_DCR_Del_3->SetGrid();
-        gV_DCR_Del_3->Draw("AP");
-    }
+    // if(draw_all_bool){
+    //     TCanvas *cV_DCR_Del_1 = new TCanvas("cV_DCR_Del_1", "cV_DCR_Del_1",w,h);
+    //     cV_DCR_Del_1->SetGrid();
+    //     gV_DCR_Del_1->Draw("AP");
+    //
+    //     TCanvas *cV_DCR_Del_2 = new TCanvas("cV_DCR_Del_2", "cV_DCR_Del_2",w,h);
+    //     cV_DCR_Del_2->SetGrid();
+    //     gV_DCR_Del_2->Draw("AP");
+    //
+    //     TCanvas *cV_DCR_Del_3 = new TCanvas("cV_DCR_Del_3", "cV_DCR_Del_3",w,h);
+    //     cV_DCR_Del_3->SetGrid();
+    //     gV_DCR_Del_3->Draw("AP");
+    // }
 
 
     //------------------------------
 
-    if(draw_all_bool){
-        TCanvas *cV_CT_Del_1 = new TCanvas("cV_CT_Del_1", "cV_CT_Del_1",w,h);
-        cV_CT_Del_1->SetGrid();
-        gV_CT_Del_1->Draw("AP");
-
-        TCanvas *cV_CT_Del_2 = new TCanvas("cV_CT_Del_2", "cV_CT_Del_2",w,h);
-        cV_CT_Del_2->SetGrid();
-        gV_CT_Del_2->Draw("AP");
-
-        TCanvas *cV_CT_Del_3 = new TCanvas("cV_CT_Del_3", "cV_CT_Del_3",w,h);
-        cV_CT_Del_3->SetGrid();
-        gV_CT_Del_3->Draw("AP");
-    }
+    // if(draw_all_bool){
+    //     TCanvas *cV_CT_Del_1 = new TCanvas("cV_CT_Del_1", "cV_CT_Del_1",w,h);
+    //     cV_CT_Del_1->SetGrid();
+    //     gV_CT_Del_1->Draw("AP");
+    //
+    //     TCanvas *cV_CT_Del_2 = new TCanvas("cV_CT_Del_2", "cV_CT_Del_2",w,h);
+    //     cV_CT_Del_2->SetGrid();
+    //     gV_CT_Del_2->Draw("AP");
+    //
+    //     TCanvas *cV_CT_Del_3 = new TCanvas("cV_CT_Del_3", "cV_CT_Del_3",w,h);
+    //     cV_CT_Del_3->SetGrid();
+    //     gV_CT_Del_3->Draw("AP");
+    // }
 
 
     //------------------------------
