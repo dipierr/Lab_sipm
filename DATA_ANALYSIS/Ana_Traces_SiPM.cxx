@@ -324,11 +324,12 @@ int bins_Charge = 100;
 
 // for: FBK HD3-2
 float minyhistDelays = 15;
-float maxyhistDelays = 130;
+float maxyhistDelays = 500;
     // maxyhistDelays = 100; for DCR_CT_1SiPM_nHVs() for 20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat and similar (from 32 to 36 V)
     // maxyhistDelays = 127; for DCR_CT_1SiPM_nHVs() for 20180725_HD3-2_01_DARK_AgilentE3641A_31.00_AS_2_100000ev_01.dat
+    // other info in result files
 int bins_Delays = 50;
-float expDelLow_max  = minyhistDelays*1.25;
+float expDelLow_max  = minyhistDelays;
 float expDelHigh_max = maxyhistDelays;
 
 // For SenSL
@@ -2118,7 +2119,8 @@ void FindDCRfromVector(){
     }
 
     // trace_time = trace_time_raw - DCR_cnt * 2 * (dleddt) - n_ev_tot * rise_time;
-    trace_time = trace_time_raw;
+    trace_time = trace_time_raw - DCR_cnt * 2 * (dleddt);
+    // trace_time = trace_time_raw;
 
 
     double err_DCR_cnt = 0.;
@@ -4084,7 +4086,9 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
 
             // trace_time += ( trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0] - DCR_cnt_temp * 2 * dleddt - rise_time ); // time in trace is in ns
 
-            trace_time += trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0]; // time in trace is in ns
+            trace_time += ( trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0] - DCR_cnt_temp * 2 * dleddt ); // time in trace is in ns
+
+            // trace_time += trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0]; // time in trace is in ns
 
 
             // FindPeakPositions(trace_DLED[1], DLED_bool, dleddt);
