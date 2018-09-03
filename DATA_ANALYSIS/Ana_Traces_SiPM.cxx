@@ -323,8 +323,8 @@ int bins_Charge = 100;
 
 
 // for: FBK HD3-2
-float minyhistDelays = 100;
-float maxyhistDelays = 500;
+float minyhistDelays = 50;
+float maxyhistDelays = 250;
     // maxyhistDelays = 100; for DCR_CT_1SiPM_nHVs() for 20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat and similar (from 32 to 36 V)
     // maxyhistDelays = 127; for DCR_CT_1SiPM_nHVs() for 20180725_HD3-2_01_DARK_AgilentE3641A_31.00_AS_2_100000ev_01.dat
     // other info in result files
@@ -1813,7 +1813,7 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
                         if(index_old>0){
                             time_delay = t[0][index_new] - t[0][index_old];
                             // if( (time_delay>expDelLow_max) and (time_delay<expDelHigh_max) and (t[0][index_new]>2*expDelLow_max) and (index_new<900) ){
-                            if( (time_delay>minyhistDelays) and (time_delay<expDelHigh_max) ){
+                            if( (time_delay>minyhistDelays) and (time_delay<maxyhistDelays) ){
                                 ptrHistDelays[nfile] -> Fill(time_delay);
                                 peaks_all_delay[0][ind_peaks_all_delay] = t[0][index_new];
                                 peaks_all_delay[1][ind_peaks_all_delay] = t[1][index_new];
@@ -2504,7 +2504,7 @@ void fit_hist_del(float expDelLow, float expDelHigh){ //fit hists filled with ti
     expDel-> SetParName(0,"DCR");
     expDel-> SetParName(1,"MultCost");
     expDel->SetParameter(0,0.001);
-    ptrHistDelays[nfile] -> Fit(expDel, "", "", expDelLow, expDelHigh);
+    ptrHistDelays[nfile] -> Fit(expDel, "r", "", expDelLow, expDelHigh);
     expDel->Draw("same");
 }
 

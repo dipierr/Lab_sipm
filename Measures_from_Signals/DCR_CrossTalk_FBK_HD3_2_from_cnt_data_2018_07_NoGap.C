@@ -1,7 +1,7 @@
 /******************************************************************************\
  * DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07_NoGap.C
  *
- * Values obtained by Ana_Traces_SiPM.cxx (version of 07/08/2018, 1)
+ * Values obtained by Ana_Traces_SiPM.cxx (version of 01/09/2018)
  *
  * KEY POINTS:
  *  > DCR_CT_1SiPM_nHVs(...)

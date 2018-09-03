@@ -1,7 +1,7 @@
 /******************************************************************************\
  * GAIN_V_SiPM_HD3_2_GausSum_NoGap.C
  *
- * GAIN values obtained by Ana_Traces_SiPM.cxx (version of 06/08/2018, 4)
+ * GAIN values obtained by Ana_Traces_SiPM.cxx (version of 01/09/2018, 4)
  *
  * KEY POINTS:
  *  > Ana1(...)
