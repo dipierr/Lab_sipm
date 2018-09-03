@@ -12,7 +12,7 @@
  *  > max_thr_to_find_peaks = 80; //last thr value in the DCR vs thr plot (mV)
  *  > Area = 36; // 6x6 mm^2
  *  > No gap between peaks (when I found a peak I don't jump of a certain value
- *    but I only do i++)
+ *    but I only do i++, i.e. gap_between_peaks=1)
  *  > trace_time = SUM(trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0] +
  *                  - DCR_cnt_temp * 2 * dleddt ) / n_ev_tot
  *
