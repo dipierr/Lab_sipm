@@ -261,9 +261,9 @@ float min_pe_1_5 = 28; //min value for 1.5pe threshold (mV)
 float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 // float pe_0_5_vect[nfilemax] = {8.,  8., 8., 8., 8., 8., 10., 10., 10., 10.};
-// float pe_1_5_vect[nfilemax] = {21., 25., 30., 35., 40., 45., 50., 30., 30., 30.};
+// float pe_1_5_vect[nfilemax] = {21., 25., 28., 33., 38., 43., 47., 30., 30., 30.};
 float pe_0_5_vect[nfilemax] = {9.,  10., 11., 12., 13., 15., 18., 10., 10., 10.};
-float pe_1_5_vect[nfilemax] = {18., 22., 29., 30., 32., 35., 30., 30., 30., 30.};
+float pe_1_5_vect[nfilemax] = {18., 22., 25., 27., 30., 33., 35., 30., 30., 30.};
 
 // used for DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07 (6 files, 32 - 37)
 // float pe_0_5_vect[nfilemax] = {8.,  8., 10., 11., 12., 13., 10., 10., 10., 10.};
@@ -326,7 +326,7 @@ int bins_Charge = 100;
 
 // for: FBK HD3-2
 float minyhistDelays = 20;
-float maxyhistDelays = 200;
+float maxyhistDelays = 150;
     // maxyhistDelays = 100; for DCR_CT_1SiPM_nHVs() for 20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat and similar (from 32 to 36 V)
     // maxyhistDelays = 127; for DCR_CT_1SiPM_nHVs() for 20180725_HD3-2_01_DARK_AgilentE3641A_31.00_AS_2_100000ev_01.dat
     // other info in result files
