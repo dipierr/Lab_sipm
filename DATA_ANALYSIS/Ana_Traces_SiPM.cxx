@@ -324,11 +324,11 @@ int bins_Charge = 100;
 
 // for: FBK HD3-2
 float minyhistDelays = 15;
-float maxyhistDelays = 100;
+float maxyhistDelays = 115;
     // maxyhistDelays = 100; for DCR_CT_1SiPM_nHVs() for 20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat and similar (from 32 to 36 V)
     // maxyhistDelays = 127; for DCR_CT_1SiPM_nHVs() for 20180725_HD3-2_01_DARK_AgilentE3641A_31.00_AS_2_100000ev_01.dat
     // other info in result files
-int bins_Delays = 200;
+int bins_Delays = 100;
 float expDelLow_max  = minyhistDelays;
 float expDelHigh_max = maxyhistDelays;
 
@@ -1123,6 +1123,8 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
         cout<<pe_1_5_vect[i]<<", ";
     }
     cout<<pe_1_5_vect[nfiletot-1]<<"}"<<endl;
+    cout<<"//minyhistDelays = "<<minyhistDelays<<";  maxyhistDelays = "<<maxyhistDelays<<endl;
+    cout<<"//expDelLow_max = "<<expDelLow_max<<";  expDelHigh_max = "<<expDelHigh_max<<endl;
 
     for(int i=0; i<nfiletot; i++){
         // // nfile
