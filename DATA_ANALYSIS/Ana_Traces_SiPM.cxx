@@ -262,8 +262,15 @@ float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 // float pe_0_5_vect[nfilemax] = {8.,  8., 8., 8., 8., 8., 10., 10., 10., 10.};
 // float pe_1_5_vect[nfilemax] = {21., 25., 28., 33., 38., 43., 47., 30., 30., 30.};
-float pe_0_5_vect[nfilemax] = {9.,  10., 11., 12., 13., 15., 18., 10., 10., 10.};
-float pe_1_5_vect[nfilemax] = {18., 22., 25., 27., 30., 33., 35., 30., 30., 30.};
+float pe_0_5_vect[nfilemax] = {8, 8, 8, 8, 8, 8, 10, 999., 999., 999};
+float pe_1_5_vect[nfilemax] = {21, 25, 28, 32, 37, 40, 45, 999., 999., 999.};
+
+// H0 L1
+// pe_0_5_vect[7] = {9, 10, 11, 12, 14, 15, 18}
+// pe_1_5_vect[7] = {18, 22, 25, 27, 30, 32, 35}
+// L0 H1
+// pe_0_5_vect[7] = {8, 8, 8, 8, 8, 8, 10}
+// pe_1_5_vect[7] = {21, 25, 28, 32, 37, 40, 45}
 
 // used for DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07 (6 files, 32 - 37)
 // float pe_0_5_vect[nfilemax] = {8.,  8., 10., 11., 12., 13., 10., 10., 10., 10.};
