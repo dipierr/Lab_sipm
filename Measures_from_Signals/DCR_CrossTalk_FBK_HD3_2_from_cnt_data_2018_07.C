@@ -938,12 +938,6 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.328943;
 
 
-
-    //------------------------------
-
-
-
-
     //------------------------------
 
     // FIXED ERROR
@@ -1641,7 +1635,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     TGraphErrors *gV_CT_Del_3_Eb  = new TGraphErrors(n_DCR, HV_3_Eb, CT_Del_3_Eb, errHV_3_Eb, errCT_Del_3_Eb);
 
     //----------
- 
+
     gV_DCR_1_Ea->SetMarkerStyle(4);
     gV_DCR_2_Ea->SetMarkerStyle(4);
     gV_DCR_3_Ea->SetMarkerStyle(4);
@@ -1668,7 +1662,7 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     gV_CT_Del_3_Eb->SetMarkerStyle(4);
 
 
-    bool draw_check_bool = true;
+    bool draw_check_bool = false;
 
     if(draw_check_bool){
         TCanvas *cV_DCR_1_E = new TCanvas("cV_DCR_1_E", "cV_DCR_1_E",w,h);
@@ -1776,10 +1770,74 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     }
 
 
+    ////////////////////////////////////////////////////////////////////////////
+    //  PRINT
+    ////////////////////////////////////////////////////////////////////////////
+    cout<<endl<<endl;
+    cout<<"double HV_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<HV_1[i]<<", "; cout<<HV_1[n_DCR-1]<<"};"<<endl;
+
+    cout<<"double DCR_1_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_1[i]<<", "; cout<<DCR_1[n_DCR-1]<<"};"<<endl;
+    cout<<"double errDCR_1_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_1[i]<<", "; cout<<errDCR_1[n_DCR-1]<<"};"<<endl;
+    cout<<"double DCR_Del_1_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_Del_1[i]<<", "; cout<<DCR_Del_1[n_DCR-1]<<"};"<<endl;
+    cout<<"double errDCR_Del_1_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_Del_1[i]<<", "; cout<<errDCR_Del_1[n_DCR-1]<<"};"<<endl;
+
+    cout<<"double DCR_2_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_2[i]<<", "; cout<<DCR_2[n_DCR-1]<<"};"<<endl;
+    cout<<"double errDCR_2_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_2[i]<<", "; cout<<errDCR_2[n_DCR-1]<<"};"<<endl;
+    cout<<"double DCR_Del_2_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_Del_2[i]<<", "; cout<<DCR_Del_2[n_DCR-1]<<"};"<<endl;
+    cout<<"double errDCR_Del_2_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_Del_2[i]<<", "; cout<<errDCR_Del_2[n_DCR-1]<<"};"<<endl;
+
+    cout<<"double DCR_3_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_3[i]<<", "; cout<<DCR_3[n_DCR-1]<<"};"<<endl;
+    cout<<"double errDCR_3_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_3[i]<<", "; cout<<errDCR_3[n_DCR-1]<<"};"<<endl;
+    cout<<"double DCR_Del_3_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_Del_3[i]<<", "; cout<<DCR_Del_3[n_DCR-1]<<"};"<<endl;
+    cout<<"double errDCR_Del_3_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_Del_3[i]<<", "; cout<<errDCR_Del_3[n_DCR-1]<<"};"<<endl;
+
+
 
     ////////////////////////////////////////////////////////////////////////////
     //          OLD
     ////////////////////////////////////////////////////////////////////////////
+
+    // // FIXED ERROR
+    // if(fix_error_bool){ // fix_error_bool
+    //     double err_fix_DCR = 1;
+    //     double err_fix_CT = 0.02;
+    //     for(int i=0; i<n_DCR; i++){
+    //         errDCR_1[i] = err_fix_DCR;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errDCR_2[i] = err_fix_DCR;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errDCR_3[i] = err_fix_DCR;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errCT_1[i] = err_fix_CT;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errCT_2[i] = err_fix_CT;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errCT_3[i] = err_fix_CT;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errDCR_Del_1[i] = err_fix_DCR;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errDCR_Del_2[i] = err_fix_DCR;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errDCR_Del_3[i] = err_fix_DCR;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errCT_Del_1[i] = err_fix_CT;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errCT_Del_2[i] = err_fix_CT;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errCT_Del_3[i] = err_fix_CT;
+    //     }
+    // }
 
     // // PERCENTAGE ERROR
     // if(percentage_error_bool){

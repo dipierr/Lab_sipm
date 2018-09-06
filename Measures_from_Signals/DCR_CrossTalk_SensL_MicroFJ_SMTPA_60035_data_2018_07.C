@@ -74,8 +74,8 @@
 #include "TROOT.h"
 #include "TString.h"
 
-#define n_DCR_1 4
-#define n_DCR_2 4
+#define n_DCR 4
+#define n_DCR 4
 
 
 #define h 600
@@ -83,6 +83,7 @@
 
 void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07();
 int find_index(double v[],int N, double value);
+double GetMaxOrPercentage(double num, double LimUp, double LimDown, double min_percentage, double max_percentage);
 
 char title_DCR[80];
 char title_DCR_mg[80];
@@ -90,17 +91,46 @@ char title_DCR_mg[80];
 void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
 
     // SiPM1:
-    double HV_1[n_DCR_1], errHV_1[n_DCR_1];
-    double DCR_1[n_DCR_1], errDCR_1[n_DCR_1];
-    double CT_1[n_DCR_1], errCT_1[n_DCR_1];
-    double DCR_Del_1[n_DCR_1], errDCR_Del_1[n_DCR_1];
-    double CT_Del_1[n_DCR_1], errCT_Del_1[n_DCR_1];
+    double HV_1[n_DCR], errHV_1[n_DCR];
+    double DCR_1[n_DCR], errDCR_1[n_DCR];
+    double CT_1[n_DCR], errCT_1[n_DCR];
+    double DCR_Del_1[n_DCR], errDCR_Del_1[n_DCR];
+    double CT_Del_1[n_DCR], errCT_Del_1[n_DCR];
     // SiPM2:
-    double HV_2[n_DCR_2], errHV_2[n_DCR_2];
-    double DCR_2[n_DCR_2], errDCR_2[n_DCR_2];
-    double CT_2[n_DCR_2], errCT_2[n_DCR_2];
-    double DCR_Del_2[n_DCR_2], errDCR_Del_2[n_DCR_2];
-    double CT_Del_2[n_DCR_2], errCT_Del_2[n_DCR_2];
+    double HV_2[n_DCR], errHV_2[n_DCR];
+    double DCR_2[n_DCR], errDCR_2[n_DCR];
+    double CT_2[n_DCR], errCT_2[n_DCR];
+    double DCR_Del_2[n_DCR], errDCR_Del_2[n_DCR];
+    double CT_Del_2[n_DCR], errCT_Del_2[n_DCR];
+
+    // SiPM1:
+    double HV_1_Ea[n_DCR], errHV_1_Ea[n_DCR];
+    double DCR_1_Ea[n_DCR], errDCR_1_Ea[n_DCR];
+    double CT_1_Ea[n_DCR], errCT_1_Ea[n_DCR];
+    double DCR_Del_1_Ea[n_DCR], errDCR_Del_1_Ea[n_DCR];
+    double CT_Del_1_Ea[n_DCR], errCT_Del_1_Ea[n_DCR];
+    // SiPM2:
+    double HV_2_Ea[n_DCR], errHV_2_Ea[n_DCR];
+    double DCR_2_Ea[n_DCR], errDCR_2_Ea[n_DCR];
+    double CT_2_Ea[n_DCR], errCT_2_Ea[n_DCR];
+    double DCR_Del_2_Ea[n_DCR], errDCR_Del_2_Ea[n_DCR];
+    double CT_Del_2_Ea[n_DCR], errCT_Del_2_Ea[n_DCR];
+
+    // SiPM1:
+    double HV_1_Eb[n_DCR], errHV_1_Eb[n_DCR];
+    double DCR_1_Eb[n_DCR], errDCR_1_Eb[n_DCR];
+    double CT_1_Eb[n_DCR], errCT_1_Eb[n_DCR];
+    double DCR_Del_1_Eb[n_DCR], errDCR_Del_1_Eb[n_DCR];
+    double CT_Del_1_Eb[n_DCR], errCT_Del_1_Eb[n_DCR];
+    // SiPM2:
+    double HV_2_Eb[n_DCR], errHV_2_Eb[n_DCR];
+    double DCR_2_Eb[n_DCR], errDCR_2_Eb[n_DCR];
+    double CT_2_Eb[n_DCR], errCT_2_Eb[n_DCR];
+    double DCR_Del_2_Eb[n_DCR], errDCR_Del_2_Eb[n_DCR];
+    double CT_Del_2_Eb[n_DCR], errCT_Del_2_Eb[n_DCR];
+
+    double min_percentage = 0.02;
+    double max_percentage = 0.1;
 
     double HV = 0.;
 
@@ -119,29 +149,34 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
 
     // Area:
     double Area;
-    Area = 6.07*6.07;
+    Area =  36.844900;
 
     // Initialization
-    for(int i=0; i<n_DCR_1; i++){
+    for(int i=0; i<n_DCR; i++){
         HV_1[i] = errHV_1[i] = DCR_1[i] = errDCR_1[i] = CT_1[i] = errCT_1[i] = DCR_Del_1[i] = errDCR_Del_1[i] = CT_Del_1[i] = errCT_Del_1[i] = 0.;
     }
-    for(int i=0; i<n_DCR_2; i++){
+    for(int i=0; i<n_DCR; i++){
         HV_2[i] = errHV_2[i] = DCR_2[i] = errDCR_2[i] = CT_2[i] = errCT_2[i] = DCR_Del_2[i] = errDCR_Del_2[i] = CT_Del_2[i] = errCT_Del_2[i] = 0.;
     }
 
     // HV
     HV_1[0]    = 28.00;
     errHV_1[0] =  0.01;
-    for(int i=1; i<n_DCR_1; i++){
+    for(int i=1; i<n_DCR; i++){
         HV_1[i]    = HV_1[i-1]+1.;
         errHV_1[i] = errHV_1[0];
     }
 
     HV_2[0]    = 28.00;
     errHV_2[0] =  0.01;
-    for(int i=1; i<n_DCR_2; i++){
+    for(int i=1; i<n_DCR; i++){
         HV_2[i]    = HV_2[i-1]+1.;
         errHV_2[i] = errHV_2[0];
+    }
+
+    for(int i=0; i<n_DCR; i++){
+        HV_1_Ea[i] = HV_1_Eb[i] = HV_1[i];
+        HV_2_Ea[i] = HV_2_Eb[i] = HV_2[i];
     }
 
 
@@ -150,195 +185,340 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
     ///////////////////////////////////////////////////////////////////////////
     //      SiPM1
     ///////////////////////////////////////////////////////////////////////////
-    // pe_0_5_vect[4] = {8, 8, 9, 9}
-    // pe_1_5_vect[4] = {17, 20, 22, 25}
+    // pe_0_5_vect[4] = {8, 9, 10, 12}
+    // pe_1_5_vect[4] = {16, 20, 23, 26}
+    //minyhistDelays = 20;  maxyhistDelays = 150
+    //expDelLow_max = 20;  expDelHigh_max = 150
     HV = 28.00;
     index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
     DCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 3.82583;
     errDCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.00637308;
-    CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.158867;
-    DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 5.07058;
-    errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0234848;
-    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.367245;
+    CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.183342;
+    DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 3.40796;
+    errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0742061;
+    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.518048;
 
     HV = 29.00;
     index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
-    DCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 6.15163;
-    errDCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.00822183;
-    CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.214115;
-    DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 7.3883;
-    errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0212815;
-    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.360222;
+    DCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 6.05291;
+    errDCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.00814973;
+    CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.217607;
+    DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 6.45756;
+    errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.052426;
+    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.451755;
 
     HV = 30.00;
     index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
-    DCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 8.19421;
-    errDCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.00962935;
-    CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.289273;
-    DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 9.16169;
-    errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0216425;
-    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.400945;
+    DCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 8.10417;
+    errDCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.00957019;
+    CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.285169;
+    DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 9.0646;
+    errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0442492;
+    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.50324;
 
     HV = 31.00;
     index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
-    DCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 10.777;
-    errDCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0112431;
-    CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.361095;
-    DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 10.8933;
-    errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0230686;
-    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.443454;
-
+    DCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 10.3189;
+    errDCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0109671;
+    CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.370261;
+    DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 12.0701;
+    errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.041697;
+    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.673026;
 
 
 
     ///////////////////////////////////////////////////////////////////////////
     //      SiPM2
     ///////////////////////////////////////////////////////////////////////////
-    // pe_0_5_vect[4] = {10, 10, 12, 15}
-    // pe_1_5_vect[4] = {22, 26, 30, 35}
+    // pe_0_5_vect[4] = {8, 8, 9, 10}
+    // pe_1_5_vect[4] = {22, 26, 30, 36}
+    //minyhistDelays = 20;  maxyhistDelays = 150
+    //expDelLow_max = 20;  expDelHigh_max = 150
     HV = 28.00;
     index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
-    DCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 5.09667;
-    errDCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.00742597;
-    CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.136213;
-    DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 6.4611;
-    errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0218516;
-    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.342274;
-
+    DCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 5.68451;
+    errDCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.00787657;
+    CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.122127;
+    DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 5.08447;
+    errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0551179;
+    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.170004;
 
     HV = 29.00;
     index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
-    DCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 7.03377;
-    errDCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.00884792;
-    CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.200065;
-    DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 8.183;
-    errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0213146;
-    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.334543;
+    DCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 7.46109;
+    errDCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0091407;
+    CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.188606;
+    DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 7.89422;
+    errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.046461;
+    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.314003;
 
     HV = 30.00;
     index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
-    DCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 8.81432;
-    errDCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0100308;
-    CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.272034;
-    DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 9.7331;
-    errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0223014;
-    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.381575;
+    DCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 9.09404;
+    errDCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0102087;
+    CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.263666;
+    DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 10.343;
+    errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0419293;
+    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.409825;
 
     HV = 31.00;
     index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
-    DCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 11.1032;
-    errDCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0114374;
-    CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.352952;
-    DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 11.5422;
-    errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0238066;
-    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.434841;
+    DCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 11.6313;
+    errDCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0117482;
+    CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.332936;
+    DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 13.4533;
+    errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0386315;
+    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.50966;
 
 
+    ///////////////////////////////////////////////////////////////////////////
+    //      SiPM1 Ea
+    ///////////////////////////////////////////////////////////////////////////
+    // pe_0_5_vect[4] = {9, 10, 12, 14}
+    // pe_1_5_vect[4] = {15, 18, 20, 24}
+    //minyhistDelays = 20;  maxyhistDelays = 150
+    //expDelLow_max = 20;  expDelHigh_max = 150
+    HV = 28.00;
+    index = find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV);
+    DCR_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 3.54204;
+    errDCR_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.00611903;
+    CT_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.224412;
+    DCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 3.09719;
+    errDCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.0793106;
+    CT_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.530894;
+
+    HV = 29.00;
+    index = find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV);
+    DCR_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 5.8196;
+    errDCR_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.0079775;
+    CT_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.250291;
+    DCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 6.03033;
+    errDCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.0540352;
+    CT_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.551998;
+
+    HV = 30.00;
+    index = find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV);
+    DCR_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 7.65428;
+    errDCR_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.00927107;
+    CT_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.333838;
+    DCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 8.07358;
+    errDCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.0459563;
+    CT_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.641448;
+
+    HV = 31.00;
+    index = find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV);
+    DCR_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 9.57454;
+    errDCR_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.01051;
+    CT_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.415883;
+    DCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 11.0657;
+    errDCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.0440001;
+    CT_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.774982;
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //      SiPM2 Ea
+    ///////////////////////////////////////////////////////////////////////////
+    // pe_0_5_vect[4] = {8, 8, 14, 15}
+    // pe_1_5_vect[4] = {21, 25, 28, 34}
+    //minyhistDelays = 20;  maxyhistDelays = 150
+    //expDelLow_max = 20;  expDelHigh_max = 150
+    HV = 28.00;
+    index = find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV);
+    DCR_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 5.68451;
+    errDCR_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.00787657;
+    CT_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.13062;
+    DCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 5.08447;
+    errDCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0551179;
+    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.206421;
+
+    HV = 29.00;
+    index = find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV);
+    DCR_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 7.46106;
+    errDCR_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.00914068;
+    CT_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.193362;
+    DCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 7.89424;
+    errDCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0464611;
+    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.331427;
+
+    HV = 30.00;
+    index = find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV);
+    DCR_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 8.65516;
+    errDCR_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0099287;
+    CT_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.287459;
+    DCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 9.27632;
+    errDCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0420888;
+    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.491594;
+
+    HV = 31.00;
+    index = find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV);
+    DCR_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 11.1032;
+    errDCR_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0114374;
+    CT_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.356998;
+    DCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 12.1853;
+    errDCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0386498;
+    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.591088;
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //      SiPM1 Eb
+    ///////////////////////////////////////////////////////////////////////////
+    // pe_0_5_vect[4] = {8, 8, 8, 8}
+    // pe_1_5_vect[4] = {17.2, 21.5, 26, 29}
+    //minyhistDelays = 20;  maxyhistDelays = 150
+    //expDelLow_max = 20;  expDelHigh_max = 150
+    HV = 28.00;
+    index = find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV);
+    DCR_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 3.82583;
+    errDCR_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.00637308;
+    CT_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.154017;
+    DCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 3.40796;
+    errDCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.0742061;
+    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.401973;
+
+    HV = 29.00;
+    index = find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV);
+    DCR_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 6.15159;
+    errDCR_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.00822181;
+    CT_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.19103;
+    DCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 6.63993;
+    errDCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.0518692;
+    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.38527;
+
+    HV = 30.00;
+    index = find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV);
+    DCR_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 8.25296;
+    errDCR_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.00966782;
+    CT_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.250617;
+    DCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 9.4189;
+    errDCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.044051;
+    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.394462;
+
+    HV = 31.00;
+    index = find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV);
+    DCR_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 10.8524;
+    errDCR_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.0112882;
+    CT_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.327915;
+    DCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 13.1122;
+    errDCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.0410786;
+    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.573737;
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //      SiPM2 Eb
+    ///////////////////////////////////////////////////////////////////////////
+    // pe_0_5_vect[4] = {8, 8, 8, 8}
+    // pe_1_5_vect[4] = {25, 27, 32, 38}
+    //minyhistDelays = 20;  maxyhistDelays = 150
+    //expDelLow_max = 20;  expDelHigh_max = 150
+    HV = 28.00;
+    index = find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV);
+    DCR_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 5.68451;
+    errDCR_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.00787657;
+    CT_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0866556;
+    DCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 5.08447;
+    errDCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0551179;
+    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.104521;
+
+    HV = 29.00;
+    index = find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV);
+    DCR_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 7.46109;
+    errDCR_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0091407;
+    CT_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.183442;
+    DCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 7.89422;
+    errDCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.046461;
+    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.291108;
+
+    HV = 30.00;
+    index = find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV);
+    DCR_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 9.2344;
+    errDCR_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0102972;
+    CT_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.252253;
+    DCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 10.4042;
+    errDCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0416963;
+    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.368098;
+
+    HV = 31.00;
+    index = find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV);
+    DCR_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 11.8565;
+    errDCR_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0118794;
+    CT_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.318394;
+    DCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 13.7087;
+    errDCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0386603;
+    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.469012;
+
+
+
+    // ERRORS
+    for(int i=0; i<n_DCR; i++){
+        errDCR_1[i] = GetMaxOrPercentage(DCR_1[i], DCR_1_Ea[i], DCR_1_Eb[i], min_percentage, max_percentage);
+        errDCR_2[i] = GetMaxOrPercentage(DCR_2[i], DCR_2_Ea[i], DCR_2_Eb[i], min_percentage, max_percentage);
+        errDCR_Del_1[i] = GetMaxOrPercentage(DCR_Del_1[i], DCR_Del_1_Ea[i], DCR_Del_1_Eb[i], min_percentage, max_percentage);
+        errDCR_Del_2[i] = GetMaxOrPercentage(DCR_Del_2[i], DCR_Del_2_Ea[i], DCR_Del_2_Eb[i], min_percentage, max_percentage);
+        errCT_1[i] = GetMaxOrPercentage(CT_1[i], CT_1_Ea[i], CT_1_Eb[i], min_percentage, max_percentage);
+        errCT_2[i] = GetMaxOrPercentage(CT_2[i], CT_2_Ea[i], CT_2_Eb[i], min_percentage, max_percentage);
+        errCT_Del_1[i] = GetMaxOrPercentage(CT_Del_1[i], CT_Del_1_Ea[i], CT_Del_1_Eb[i], min_percentage, max_percentage);
+        errCT_Del_2[i] = GetMaxOrPercentage(CT_Del_2[i], CT_Del_2_Ea[i], CT_Del_2_Eb[i], min_percentage, max_percentage);
+    } // end error from vect
 
 
     //------------------------------
 
 
-    // PERCENTAGE ERROR
-    if(percentage_error_bool){
-        double err_rel = 0.05;
-        for(int i=0; i<n_DCR_1; i++){
-            errDCR_1[i] = err_rel * DCR_1[i];
-        }
-        for(int i=0; i<n_DCR_2; i++){
-            errDCR_2[i] = err_rel * DCR_2[i];
-        }
-
-        for(int i=0; i<n_DCR_1; i++){
-            errCT_1[i] = err_rel * CT_1[i];
-        }
-        for(int i=0; i<n_DCR_2; i++){
-            errCT_2[i] = err_rel * CT_2[i];
-        }
-
-        for(int i=0; i<n_DCR_1; i++){
-            errDCR_Del_1[i] = err_rel * DCR_Del_1[i];
-        }
-        for(int i=0; i<n_DCR_1; i++){
-            errDCR_Del_2[i] = err_rel * DCR_Del_2[i];
-        }
-
-        for(int i=0; i<n_DCR_1; i++){
-            errCT_Del_1[i] = err_rel * CT_Del_1[i];
-        }
-        for(int i=0; i<n_DCR_1; i++){
-            errCT_Del_2[i] = err_rel * CT_Del_2[i];
-        }
-
-    }
-
-    //------------------------------
-
-    // FIXED ERROR
-    if(fix_error_bool){
-        double err_fix_DCR = 1;
-        double err_fix_CT = 0.02;
-        for(int i=0; i<n_DCR_1; i++){
-            errDCR_1[i] = err_fix_DCR;
-        }
-        for(int i=0; i<n_DCR_2; i++){
-            errDCR_2[i] = err_fix_DCR;
-        }
-
-        for(int i=0; i<n_DCR_1; i++){
-            errCT_1[i] = err_fix_CT;
-        }
-        for(int i=0; i<n_DCR_2; i++){
-            errCT_2[i] = err_fix_CT;
-        }
-
-        for(int i=0; i<n_DCR_1; i++){
-            errDCR_Del_1[i] = err_fix_DCR;
-        }
-        for(int i=0; i<n_DCR_1; i++){
-            errDCR_Del_2[i] = err_fix_DCR;
-        }
-
-        for(int i=0; i<n_DCR_1; i++){
-            errCT_Del_1[i] = err_fix_CT;
-        }
-        for(int i=0; i<n_DCR_1; i++){
-            errCT_Del_2[i] = err_fix_CT;
-        }
-
-    }
-
-
-    //------------------------------
 
     if(dcr_area){
-        for(int i=0; i< n_DCR_1; i++){
+        for(int i=0; i< n_DCR; i++){
             DCR_1[i]  /= Area;
             errDCR_1[i] /= Area;
             DCR_1[i]  *= 1e3;
             errDCR_1[i] *= 1e3;
-        }
-        for(int i=0; i< n_DCR_2; i++){
             DCR_2[i]  /= Area;
             errDCR_2[i] /= Area;
             DCR_2[i]  *= 1e3;
             errDCR_2[i] *= 1e3;
-        }
-
-
-        //------------------------------
-
-        for(int i=0; i< n_DCR_1; i++){
             DCR_Del_1[i]  /= Area;
             errDCR_Del_1[i] /= Area;
             DCR_Del_1[i]  *= 1e3;
             errDCR_Del_1[i] *= 1e3;
-        }
-        for(int i=0; i< n_DCR_2; i++){
             DCR_Del_2[i]  /= Area;
             errDCR_Del_2[i] /= Area;
             DCR_Del_2[i]  *= 1e3;
             errDCR_Del_2[i] *= 1e3;
+
+            DCR_1_Ea[i]  /= Area;
+            errDCR_1_Ea[i] /= Area;
+            DCR_1_Ea[i]  *= 1e3;
+            errDCR_1_Ea[i] *= 1e3;
+            DCR_2_Ea[i]  /= Area;
+            errDCR_2_Ea[i] /= Area;
+            DCR_2_Ea[i]  *= 1e3;
+            errDCR_2_Ea[i] *= 1e3;
+            DCR_Del_1_Ea[i]  /= Area;
+            errDCR_Del_1_Ea[i] /= Area;
+            DCR_Del_1_Ea[i]  *= 1e3;
+            errDCR_Del_1_Ea[i] *= 1e3;
+            DCR_Del_2_Ea[i]  /= Area;
+            errDCR_Del_2_Ea[i] /= Area;
+            DCR_Del_2_Ea[i]  *= 1e3;
+            errDCR_Del_2_Ea[i] *= 1e3;
+
+            DCR_1_Eb[i]  /= Area;
+            errDCR_1_Eb[i] /= Area;
+            DCR_1_Eb[i]  *= 1e3;
+            errDCR_1_Eb[i] *= 1e3;
+            DCR_2_Eb[i]  /= Area;
+            errDCR_2_Eb[i] /= Area;
+            DCR_2_Eb[i]  *= 1e3;
+            errDCR_2_Eb[i] *= 1e3;
+            DCR_Del_1_Eb[i]  /= Area;
+            errDCR_Del_1_Eb[i] /= Area;
+            DCR_Del_1_Eb[i]  *= 1e3;
+            errDCR_Del_1_Eb[i] *= 1e3;
+            DCR_Del_2_Eb[i]  /= Area;
+            errDCR_Del_2_Eb[i] /= Area;
+            DCR_Del_2_Eb[i]  *= 1e3;
+            errDCR_Del_2_Eb[i] *= 1e3;
         }
 
 
@@ -349,17 +529,32 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
     //------------------------------
 
 
-    TGraphErrors *gV_DCR_1  = new TGraphErrors(n_DCR_1, HV_1, DCR_1, errHV_1, errDCR_1);
-    TGraphErrors *gV_DCR_2  = new TGraphErrors(n_DCR_2, HV_2, DCR_2, errHV_2, errDCR_2);
+    TGraphErrors *gV_DCR_1  = new TGraphErrors(n_DCR, HV_1, DCR_1, errHV_1, errDCR_1);
+    TGraphErrors *gV_DCR_2  = new TGraphErrors(n_DCR, HV_2, DCR_2, errHV_2, errDCR_2);
+    TGraphErrors *gV_CT_1  = new TGraphErrors(n_DCR, HV_1, CT_1, errHV_1, errCT_1);
+    TGraphErrors *gV_CT_2  = new TGraphErrors(n_DCR, HV_2, CT_2, errHV_2, errCT_2);
+    TGraphErrors *gV_DCR_Del_1  = new TGraphErrors(n_DCR, HV_1, DCR_Del_1, errHV_1, errDCR_Del_1);
+    TGraphErrors *gV_DCR_Del_2  = new TGraphErrors(n_DCR, HV_2, DCR_Del_2, errHV_2, errDCR_Del_2);
+    TGraphErrors *gV_CT_Del_1  = new TGraphErrors(n_DCR, HV_1, CT_Del_1, errHV_1, errCT_Del_1);
+    TGraphErrors *gV_CT_Del_2  = new TGraphErrors(n_DCR, HV_2, CT_Del_2, errHV_2, errCT_Del_2);
 
-    TGraphErrors *gV_CT_1  = new TGraphErrors(n_DCR_1, HV_1, CT_1, errHV_1, errCT_1);
-    TGraphErrors *gV_CT_2  = new TGraphErrors(n_DCR_2, HV_2, CT_2, errHV_2, errCT_2);
+    TGraphErrors *gV_DCR_1_Ea  = new TGraphErrors(n_DCR, HV_1, DCR_1_Ea, errHV_1, errDCR_1_Ea);
+    TGraphErrors *gV_DCR_2_Ea  = new TGraphErrors(n_DCR, HV_2_Ea, DCR_2_Ea, errHV_2_Ea, errDCR_2_Ea);
+    TGraphErrors *gV_CT_1_Ea  = new TGraphErrors(n_DCR, HV_1, CT_1_Ea, errHV_1, errCT_1_Ea);
+    TGraphErrors *gV_CT_2_Ea  = new TGraphErrors(n_DCR, HV_2_Ea, CT_2_Ea, errHV_2_Ea, errCT_2_Ea);
+    TGraphErrors *gV_DCR_Del_1_Ea  = new TGraphErrors(n_DCR, HV_1, DCR_Del_1_Ea, errHV_1, errDCR_Del_1_Ea);
+    TGraphErrors *gV_DCR_Del_2_Ea  = new TGraphErrors(n_DCR, HV_2_Ea, DCR_Del_2_Ea, errHV_2_Ea, errDCR_Del_2_Ea);
+    TGraphErrors *gV_CT_Del_1_Ea  = new TGraphErrors(n_DCR, HV_1, CT_Del_1_Ea, errHV_1, errCT_Del_1_Ea);
+    TGraphErrors *gV_CT_Del_2_Ea  = new TGraphErrors(n_DCR, HV_2_Ea, CT_Del_2_Ea, errHV_2_Ea, errCT_Del_2_Ea);
 
-    TGraphErrors *gV_DCR_Del_1  = new TGraphErrors(n_DCR_1, HV_1, DCR_Del_1, errHV_1, errDCR_Del_1);
-    TGraphErrors *gV_DCR_Del_2  = new TGraphErrors(n_DCR_2, HV_2, DCR_Del_2, errHV_2, errDCR_Del_2);
-
-    TGraphErrors *gV_CT_Del_1  = new TGraphErrors(n_DCR_1, HV_1, CT_Del_1, errHV_1, errCT_Del_1);
-    TGraphErrors *gV_CT_Del_2  = new TGraphErrors(n_DCR_2, HV_2, CT_Del_2, errHV_2, errCT_Del_2);
+    TGraphErrors *gV_DCR_1_Eb  = new TGraphErrors(n_DCR, HV_1, DCR_1_Eb, errHV_1, errDCR_1_Eb);
+    TGraphErrors *gV_DCR_2_Eb  = new TGraphErrors(n_DCR, HV_2_Eb, DCR_2_Eb, errHV_2_Eb, errDCR_2_Eb);
+    TGraphErrors *gV_CT_1_Eb  = new TGraphErrors(n_DCR, HV_1, CT_1_Eb, errHV_1, errCT_1_Eb);
+    TGraphErrors *gV_CT_2_Eb  = new TGraphErrors(n_DCR, HV_2_Eb, CT_2_Eb, errHV_2_Eb, errCT_2_Eb);
+    TGraphErrors *gV_DCR_Del_1_Eb  = new TGraphErrors(n_DCR, HV_1, DCR_Del_1_Eb, errHV_1, errDCR_Del_1_Eb);
+    TGraphErrors *gV_DCR_Del_2_Eb  = new TGraphErrors(n_DCR, HV_2_Eb, DCR_Del_2_Eb, errHV_2_Eb, errDCR_Del_2_Eb);
+    TGraphErrors *gV_CT_Del_1_Eb  = new TGraphErrors(n_DCR, HV_1, CT_Del_1_Eb, errHV_1, errCT_Del_1_Eb);
+    TGraphErrors *gV_CT_Del_2_Eb  = new TGraphErrors(n_DCR, HV_2_Eb, CT_Del_2_Eb, errHV_2_Eb, errCT_Del_2_Eb);
 
 
     //------------------------------
@@ -654,7 +849,7 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
 
 
     // TEST Z
-    int N_Z = n_DCR_1;
+    int N_Z = n_DCR;
     double testZ_DCR[3][N_Z];
     double testZ_CT[3][N_Z];
     int n_SiPM = 0;
@@ -707,9 +902,205 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
     cout<<"\% From file DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07.C"<<endl;
     cout<<"\% From cnt"<<endl;
     cout<<"\% HV & DCR_1 (kHz/mm^2) & DCR_2 (kHz/mm^2) & CT_1  & CT_2   \\\\"<<endl;
-    for(int i=0; i<n_DCR_1; i++){
+    for(int i=0; i<n_DCR; i++){
         printf("$ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $  \\\\ \n", HV_1[i], errHV_1[i], DCR_1[i], errDCR_1[i],DCR_2[i], errDCR_2[i], CT_1[i], errCT_1[i],CT_2[i], errCT_2[i]);
     }
+
+
+    //----------
+
+    gV_DCR_1_Ea->SetMarkerStyle(4);
+    gV_DCR_2_Ea->SetMarkerStyle(4);
+    gV_CT_1_Ea->SetMarkerStyle(4);
+    gV_CT_2_Ea->SetMarkerStyle(4);
+    gV_DCR_Del_1_Ea->SetMarkerStyle(4);
+    gV_DCR_Del_2_Ea->SetMarkerStyle(4);
+    gV_CT_Del_1_Ea->SetMarkerStyle(4);
+    gV_CT_Del_2_Ea->SetMarkerStyle(4);
+    gV_DCR_1_Eb->SetMarkerStyle(4);
+    gV_DCR_2_Eb->SetMarkerStyle(4);
+    gV_CT_1_Eb->SetMarkerStyle(4);
+    gV_CT_2_Eb->SetMarkerStyle(4);
+    gV_DCR_Del_1_Eb->SetMarkerStyle(4);
+    gV_DCR_Del_2_Eb->SetMarkerStyle(4);
+    gV_CT_Del_1_Eb->SetMarkerStyle(4);
+    gV_CT_Del_2_Eb->SetMarkerStyle(4);
+
+
+    bool draw_check_bool = true;
+
+    if(draw_check_bool){
+        TCanvas *cV_DCR_1_E = new TCanvas("cV_DCR_1_E", "cV_DCR_1_E",w,h);
+        cV_DCR_1_E->SetGrid();
+        TMultiGraph *mgV_DCR_1_E = new TMultiGraph("mgV_DCR_1_E", ";Bias Voltage (V); DCR");
+        mgV_DCR_1_E->Add(gV_DCR_1);
+        mgV_DCR_1_E->Add(gV_DCR_1_Ea);
+        mgV_DCR_1_E->Add(gV_DCR_1_Eb);
+        mgV_DCR_1_E->Draw("AP");
+
+        TCanvas *cV_DCR_2_E = new TCanvas("cV_DCR_2_E", "cV_DCR_2_E",w,h);
+        cV_DCR_2_E->SetGrid();
+        TMultiGraph *mgV_DCR_2_E = new TMultiGraph("mgV_DCR_2_E", ";Bias Voltage (V); DCR");
+        mgV_DCR_2_E->Add(gV_DCR_2);
+        mgV_DCR_2_E->Add(gV_DCR_2_Ea);
+        mgV_DCR_2_E->Add(gV_DCR_2_Eb);
+        mgV_DCR_2_E->Draw("AP");
+
+
+        //----------
+
+        TCanvas *cV_CT_1_E = new TCanvas("cV_CT_1_E", "cV_CT_1_E",w,h);
+        cV_CT_1_E->SetGrid();
+        TMultiGraph *mgV_CT_1_E = new TMultiGraph("mgV_CT_1_E", ";Bias Voltage (V); CT");
+        mgV_CT_1_E->Add(gV_CT_1);
+        mgV_CT_1_E->Add(gV_CT_1_Ea);
+        mgV_CT_1_E->Add(gV_CT_1_Eb);
+        mgV_CT_1_E->Draw("AP");
+
+        TCanvas *cV_CT_2_E = new TCanvas("cV_CT_2_E", "cV_CT_2_E",w,h);
+        cV_CT_2_E->SetGrid();
+        TMultiGraph *mgV_CT_2_E = new TMultiGraph("mgV_CT_2_E", ";Bias Voltage (V); CT");
+        mgV_CT_2_E->Add(gV_CT_2);
+        mgV_CT_2_E->Add(gV_CT_2_Ea);
+        mgV_CT_2_E->Add(gV_CT_2_Eb);
+        mgV_CT_2_E->Draw("AP");
+
+
+
+        //----------
+
+        TCanvas *cV_DCR_Del_1_E = new TCanvas("cV_DCR_Del_1_E", "cV_DCR_Del_1_E",w,h);
+        cV_DCR_Del_1_E->SetGrid();
+        TMultiGraph *mgV_DCR_Del_1_E = new TMultiGraph("mgV_DCR_Del_1_E", ";Bias Voltage (V); DCR_Del");
+        mgV_DCR_Del_1_E->Add(gV_DCR_Del_1);
+        mgV_DCR_Del_1_E->Add(gV_DCR_Del_1_Ea);
+        mgV_DCR_Del_1_E->Add(gV_DCR_Del_1_Eb);
+        mgV_DCR_Del_1_E->Draw("AP");
+
+        TCanvas *cV_DCR_Del_2_E = new TCanvas("cV_DCR_Del_2_E", "cV_DCR_Del_2_E",w,h);
+        cV_DCR_Del_2_E->SetGrid();
+        TMultiGraph *mgV_DCR_Del_2_E = new TMultiGraph("mgV_DCR_Del_2_E", ";Bias Voltage (V); DCR_Del");
+        mgV_DCR_Del_2_E->Add(gV_DCR_Del_2);
+        mgV_DCR_Del_2_E->Add(gV_DCR_Del_2_Ea);
+        mgV_DCR_Del_2_E->Add(gV_DCR_Del_2_Eb);
+        mgV_DCR_Del_2_E->Draw("AP");
+
+
+        //----------
+
+        TCanvas *cV_CT_Del_1_E = new TCanvas("cV_CT_Del_1_E", "cV_CT_Del_1_E",w,h);
+        cV_CT_Del_1_E->SetGrid();
+        TMultiGraph *mgV_CT_Del_1_E = new TMultiGraph("mgV_CT_Del_1_E", ";Bias Voltage (V); CT_Del");
+        mgV_CT_Del_1_E->Add(gV_CT_Del_1);
+        mgV_CT_Del_1_E->Add(gV_CT_Del_1_Ea);
+        mgV_CT_Del_1_E->Add(gV_CT_Del_1_Eb);
+        mgV_CT_Del_1_E->Draw("AP");
+
+        TCanvas *cV_CT_Del_2_E = new TCanvas("cV_CT_Del_2_E", "cV_CT_Del_2_E",w,h);
+        cV_CT_Del_2_E->SetGrid();
+        TMultiGraph *mgV_CT_Del_2_E = new TMultiGraph("mgV_CT_Del_2_E", ";Bias Voltage (V); CT_Del");
+        mgV_CT_Del_2_E->Add(gV_CT_Del_2);
+        mgV_CT_Del_2_E->Add(gV_CT_Del_2_Ea);
+        mgV_CT_Del_2_E->Add(gV_CT_Del_2_Eb);
+        mgV_CT_Del_2_E->Draw("AP");
+
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //  PRINT
+    ////////////////////////////////////////////////////////////////////////////
+    cout<<endl<<endl;
+    cout<<"double HV_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<HV_1[i]<<", "; cout<<HV_1[n_DCR-1]<<"};"<<endl;
+
+    cout<<"double DCR_1_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_1[i]<<", "; cout<<DCR_1[n_DCR-1]<<"};"<<endl;
+    cout<<"double errDCR_1_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_1[i]<<", "; cout<<errDCR_1[n_DCR-1]<<"};"<<endl;
+    cout<<"double DCR_Del_1_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_Del_1[i]<<", "; cout<<DCR_Del_1[n_DCR-1]<<"};"<<endl;
+    cout<<"double errDCR_Del_1_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_Del_1[i]<<", "; cout<<errDCR_Del_1[n_DCR-1]<<"};"<<endl;
+
+    cout<<"double DCR_2_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_2[i]<<", "; cout<<DCR_2[n_DCR-1]<<"};"<<endl;
+    cout<<"double errDCR_2_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_2[i]<<", "; cout<<errDCR_2[n_DCR-1]<<"};"<<endl;
+    cout<<"double DCR_Del_2_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_Del_2[i]<<", "; cout<<DCR_Del_2[n_DCR-1]<<"};"<<endl;
+    cout<<"double errDCR_Del_2_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_Del_2[i]<<", "; cout<<errDCR_Del_2[n_DCR-1]<<"};"<<endl;
+
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //          OLD
+    ////////////////////////////////////////////////////////////////////////////
+
+    // PERCENTAGE ERROR
+    // if(percentage_error_bool){
+    //     double err_rel = 0.05;
+    //     for(int i=0; i<n_DCR; i++){
+    //         errDCR_1[i] = err_rel * DCR_1[i];
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errDCR_2[i] = err_rel * DCR_2[i];
+    //     }
+    //
+    //     for(int i=0; i<n_DCR; i++){
+    //         errCT_1[i] = err_rel * CT_1[i];
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errCT_2[i] = err_rel * CT_2[i];
+    //     }
+    //
+    //     for(int i=0; i<n_DCR; i++){
+    //         errDCR_Del_1[i] = err_rel * DCR_Del_1[i];
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errDCR_Del_2[i] = err_rel * DCR_Del_2[i];
+    //     }
+    //
+    //     for(int i=0; i<n_DCR; i++){
+    //         errCT_Del_1[i] = err_rel * CT_Del_1[i];
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errCT_Del_2[i] = err_rel * CT_Del_2[i];
+    //     }
+    //
+    // }
+
+    //------------------------------
+
+    // FIXED ERROR
+    // if(fix_error_bool){
+    //     double err_fix_DCR = 1;
+    //     double err_fix_CT = 0.02;
+    //     for(int i=0; i<n_DCR; i++){
+    //         errDCR_1[i] = err_fix_DCR;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errDCR_2[i] = err_fix_DCR;
+    //     }
+    //
+    //     for(int i=0; i<n_DCR; i++){
+    //         errCT_1[i] = err_fix_CT;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errCT_2[i] = err_fix_CT;
+    //     }
+    //
+    //     for(int i=0; i<n_DCR; i++){
+    //         errDCR_Del_1[i] = err_fix_DCR;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errDCR_Del_2[i] = err_fix_DCR;
+    //     }
+    //
+    //     for(int i=0; i<n_DCR; i++){
+    //         errCT_Del_1[i] = err_fix_CT;
+    //     }
+    //     for(int i=0; i<n_DCR; i++){
+    //         errCT_Del_2[i] = err_fix_CT;
+    //     }
+    //
+    // }
+
+
+    //------------------------------
+
 
 
 
@@ -730,5 +1121,23 @@ int find_index(double v[], int N, double value){
     }
 
     return index;
+
+}
+
+
+double GetMaxOrPercentage(double num, double LimUp, double LimDown, double min_percentage, double max_percentage){
+    double err;
+
+    err = max(TMath::Abs(num-LimUp), TMath::Abs(num-LimDown));
+
+    if(err > num*max_percentage){
+        err = num*max_percentage;
+    }else{
+        if(err < num*min_percentage){
+            err = num*min_percentage;
+        }
+    }
+
+    return err;
 
 }
