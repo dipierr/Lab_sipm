@@ -242,7 +242,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 8;//9;//8;//5;//9*GSPS;
+int dleddt = 6;//9;//8;//5;//9*GSPS;
     // dleddt = 6; for DCR_CT_1SiPM_nHVs(), 20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat and similar
     // dleddt = 9; for Ana_LED(), 20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_35_AS_2_50000_01.dat and similar
 int blind_gap = 2*dleddt; //ns
@@ -252,8 +252,8 @@ int gap_between_peaks = 10;
 int rise_time = dleddt;
 
 // ONLY for DCR_CT_1SiPM_1HV and DCR_CT_1SiPM_3HVs:
-float min_thr_to_find_peaks = 7.1;  //first thr value in the DCR vs thr plot (mV)
-float max_thr_to_find_peaks = 60; //last thr value in the DCR vs thr plot (mV)
+float min_thr_to_find_peaks = 8;  //first thr value in the DCR vs thr plot (mV)
+float max_thr_to_find_peaks = 80; //last thr value in the DCR vs thr plot (mV)
 float gap_between_thr = 0.1; //gap between thresholds in the DCR vs thr plot (mV)
 float min_pe_0_5 = 8;  //min value for 0.5pe threshold (mV)
 float max_pe_0_5 = 15; //max value for 0.5pe threshold (mV)
@@ -262,16 +262,13 @@ float max_pe_1_5 = 33; //max value for 1.5pe threshold (mV)
 int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 // float pe_0_5_vect[nfilemax] = {8.,  8., 8., 8., 8., 8., 10., 10., 10., 10.};
 // float pe_1_5_vect[nfilemax] = {21., 25., 28., 33., 38., 43., 47., 30., 30., 30.};
-float pe_0_5_vect[nfilemax] = {8, 8, 8, 8, 999, 8, 10, 999., 999., 999};
-float pe_1_5_vect[nfilemax] = {25, 27, 32, 38, 999, 40, 45, 999., 999., 999.};
+float pe_0_5_vect[nfilemax] = {8, 9, 9, 10, 10, 10, 11, 999., 999., 999};
+float pe_1_5_vect[nfilemax] = {19, 22, 25, 29, 33, 34, 38, 999., 999., 999.};
 
-// H0 L1
-// pe_0_5_vect[4] = {8, 8, 14, 15}
-// pe_1_5_vect[4] = {21, 25, 28, 34}
-
-// L0 H1
-// pe_0_5_vect[4] = {8, 8, 8, 8}
-// pe_1_5_vect[4] = {25, 27, 32, 38}
+float pe_0_5_vect_Ea[nfilemax];
+float pe_0_5_vect_Eb[nfilemax];
+float pe_1_5_vect_Ea[nfilemax];
+float pe_1_5_vect_Eb[nfilemax];
 
 
 // used for DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07 (6 files, 32 - 37)
@@ -280,7 +277,7 @@ float pe_1_5_vect[nfilemax] = {25, 27, 32, 38, 999, 40, 45, 999., 999., 999.};
 
 
 // AREA
-double Area = 36.844900; // 6*6 mm^2 for FBK NUV HD3-2
+double Area = 36.; // 6*6 mm^2 for FBK NUV HD3-2
 // double Area = 36.844900; // 6.07*6.07 mm^2 for SensL MicroFJ-SMTPA-60035
 
 // ONLY for LED measures
@@ -426,6 +423,23 @@ double DCR_pe_0_5_delays_vect[nfilemax];
 double DCR_pe_1_5_delays_vect[nfilemax];
 double errDCR_pe_0_5_delays_vect[nfilemax];
 double errDCR_pe_1_5_delays_vect[nfilemax];
+
+double DCR_pe_0_5_vect_Ea[nfilemax];
+double DCR_pe_1_5_vect_Ea[nfilemax];
+double errDCR_pe_0_5_vect_Ea[nfilemax];
+double errDCR_pe_1_5_vect_Ea[nfilemax];
+double DCR_pe_0_5_delays_vect_Ea[nfilemax];
+double DCR_pe_1_5_delays_vect_Ea[nfilemax];
+double errDCR_pe_0_5_delays_vect_Ea[nfilemax];
+double errDCR_pe_1_5_delays_vect_Ea[nfilemax];
+double DCR_pe_0_5_vect_Eb[nfilemax];
+double DCR_pe_1_5_vect_Eb[nfilemax];
+double errDCR_pe_0_5_vect_Eb[nfilemax];
+double errDCR_pe_1_5_vect_Eb[nfilemax];
+double DCR_pe_0_5_delays_vect_Eb[nfilemax];
+double DCR_pe_1_5_delays_vect_Eb[nfilemax];
+double errDCR_pe_0_5_delays_vect_Eb[nfilemax];
+double errDCR_pe_1_5_delays_vect_Eb[nfilemax];
 
 double DCR_pe_0_5_Area_vect[nfilemax];
 double DCR_pe_1_5_Area_vect[nfilemax];
@@ -1138,19 +1152,6 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
     cout<<"//expDelLow_max = "<<expDelLow_max<<";  expDelHigh_max = "<<expDelHigh_max<<endl;
 
     for(int i=0; i<nfiletot; i++){
-        // // nfile
-        // cout<<legend_entry[i]<<endl;
-        //
-        // // 0.5 pe
-        // cout<<"     DCR at 0.5 pe from cnt    = ("<<DCR_pe_0_5_Area_vect[i]*n6*Area<<" +- "<<errDCR_pe_0_5_Area_vect[i]*n6*Area<<") MHz"<<endl;
-        // cout<<"     DCR at 0.5 pe from delays = ("<<DCR_pe_0_5_Area_delays_vect[i]*n6*Area<<" +- "<<errDCR_pe_0_5_Area_delays_vect[i]*n6*Area<<") MHz"<<endl;
-        //
-        // // 1.5 pe
-        // cout<<"     DCR at 1.5 pe from cnt = ("<<DCR_pe_1_5_Area_vect[i]*n6*Area<<" +- "<<errDCR_pe_1_5_Area_vect[i]*n6*Area<<") MHz"<<endl;
-        // cout<<"     DCR at 1.5 pe from delays = ("<<DCR_pe_1_5_Area_delays_vect[i]*n6*Area<<" +- "<<errDCR_pe_1_5_Area_delays_vect[i]*n6*Area<<") MHz"<<endl;
-        //
-        // cout<<endl;
-
         cout<< "HV = "<<legend_entry[i]<<";"<<endl;
         cout<< "index = find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV);"<<endl;
         // CNT
@@ -1163,6 +1164,38 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
         cout<< "CT_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_1_5_Area_delays_vect[i]/DCR_pe_0_5_Area_delays_vect[i]<<";"<<endl;
         cout<<endl;
     }
+
+    cout<<endl<<"//////// Ea ////////"<<endl;
+    for(int i=0; i<nfiletot; i++){
+        cout<< "HV = "<<legend_entry[i]<<";"<<endl;
+        cout<< "index = find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV);"<<endl;
+        // CNT
+        cout<< "DCR_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_0_5_vect_Ea[i]*n6<<";"<<endl;
+        cout<< "errDCR_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<errDCR_pe_0_5_vect_Ea[i]*n6<<";"<<endl;
+        cout<< "CT_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_1_5_vect_Ea[i]/DCR_pe_0_5_vect_Ea[i]<<";"<<endl;
+        // DELAYS
+        cout<< "DCR_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_0_5_delays_vect_Ea[i]*n6<<";"<<endl;
+        cout<< "errDCR_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<errDCR_pe_0_5_delays_vect_Ea[i]*n6<<";"<<endl;
+        cout<< "CT_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_1_5_delays_vect_Ea[i]/DCR_pe_0_5_delays_vect_Ea[i]<<";"<<endl;
+        cout<<endl;
+    }
+
+    cout<<endl<<"//////// Eb ////////"<<endl;
+    for(int i=0; i<nfiletot; i++){
+        cout<< "HV = "<<legend_entry[i]<<";"<<endl;
+        cout<< "index = find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV);"<<endl;
+        // CNT
+        cout<< "DCR_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_0_5_vect_Eb[i]*n6<<";"<<endl;
+        cout<< "errDCR_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<errDCR_pe_0_5_vect_Eb[i]*n6<<";"<<endl;
+        cout<< "CT_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_1_5_vect_Eb[i]/DCR_pe_0_5_vect_Eb[i]<<";"<<endl;
+        // DELAYS
+        cout<< "DCR_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_0_5_delays_vect_Eb[i]*n6<<";"<<endl;
+        cout<< "errDCR_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<errDCR_pe_0_5_delays_vect_Eb[i]*n6<<";"<<endl;
+        cout<< "CT_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_1_5_delays_vect_Eb[i]/DCR_pe_0_5_delays_vect_Eb[i]<<";"<<endl;
+        cout<<endl;
+    }
+
+
 
 }
 
@@ -1463,18 +1496,14 @@ TGraphErrors *DCR_func_NO_Delays(string file1, int last_event_n, int tot_files, 
             // reset
             ptrHistAllPeaks[nfile]->Reset();
             ptrHistDelays[nfile]->Reset();
-
             // From delays
             FindDelaysFromVector();
             fit_hist_del(expDelLow_max, expDelHigh_max);
-
             DCR_pe_0_5_delays_vect[nfile] = GetDCRfromDelays();
             errDCR_pe_0_5_delays_vect[nfile] = GetErrDCRfromDelays();
-
             // From cnt
             DCR_pe_0_5_vect[nfile] = DCR[nfile][h];
             errDCR_pe_0_5_vect[nfile] = errDCR[nfile][h];
-
             // cout<<"DCR_thr[h] "<<DCR_thr[h]<<endl;
             // cout<<"DCR_pe_0_5_delays_vect[nfile]"<<DCR_pe_0_5_delays_vect[nfile]<<endl;
         }
@@ -1484,18 +1513,91 @@ TGraphErrors *DCR_func_NO_Delays(string file1, int last_event_n, int tot_files, 
             // reset
             ptrHistAllPeaks[nfile]->Reset();
             ptrHistDelays[nfile]->Reset();
-
             // From delays
             FindDelaysFromVector();
             fit_hist_del(expDelLow_max, expDelHigh_max);
-
             DCR_pe_1_5_delays_vect[nfile] = GetDCRfromDelays();
             errDCR_pe_1_5_delays_vect[nfile] = GetErrDCRfromDelays();
-
             // From cnt
             DCR_pe_1_5_vect[nfile] = DCR[nfile][h];
             errDCR_pe_1_5_vect[nfile] = errDCR[nfile][h];
+            // cout<<"DCR_thr[h] "<<DCR_thr[h]<<endl;
+            // cout<<"DCR[nfile][h] "<<DCR[nfile][h]<<endl;
+            // cout<<"DCR_pe_1_5_vect[nfile] "<<DCR_pe_1_5_vect[nfile]<<endl;
+        }
 
+        for(int i=0; i<nfilemax; i++){
+            pe_0_5_vect_Ea[i] = pe_0_5_vect[i]-1;
+            pe_1_5_vect_Ea[i] = pe_1_5_vect[i]-1;
+            pe_0_5_vect_Eb[i] = pe_0_5_vect[i]+1;
+            pe_1_5_vect_Eb[i] = pe_1_5_vect[i]+1;
+        }
+
+        // 0.5 pe Ea
+        if((thr_to_find_peaks > pe_0_5_vect_Ea[nfile] - delta) and (thr_to_find_peaks < pe_0_5_vect_Ea[nfile] + delta)){
+            // reset
+            ptrHistAllPeaks[nfile]->Reset();
+            ptrHistDelays[nfile]->Reset();
+            // From delays
+            FindDelaysFromVector();
+            fit_hist_del(expDelLow_max, expDelHigh_max);
+            DCR_pe_0_5_delays_vect_Ea[nfile] = GetDCRfromDelays();
+            errDCR_pe_0_5_delays_vect_Ea[nfile] = GetErrDCRfromDelays();
+            // From cnt
+            DCR_pe_0_5_vect_Ea[nfile] = DCR[nfile][h];
+            errDCR_pe_0_5_vect_Ea[nfile] = errDCR[nfile][h];
+            // cout<<"DCR_thr[h] "<<DCR_thr[h]<<endl;
+            // cout<<"DCR_pe_0_5_delays_vect[nfile]"<<DCR_pe_0_5_delays_vect[nfile]<<endl;
+        }
+
+        // 1.5 pe Ea
+        if((thr_to_find_peaks > pe_1_5_vect_Ea[nfile] - delta) and (thr_to_find_peaks < pe_1_5_vect_Ea[nfile] + delta)){
+            // reset
+            ptrHistAllPeaks[nfile]->Reset();
+            ptrHistDelays[nfile]->Reset();
+            // From delays
+            FindDelaysFromVector();
+            fit_hist_del(expDelLow_max, expDelHigh_max);
+            DCR_pe_1_5_delays_vect_Ea[nfile] = GetDCRfromDelays();
+            errDCR_pe_1_5_delays_vect_Ea[nfile] = GetErrDCRfromDelays();
+            // From cnt
+            DCR_pe_1_5_vect_Ea[nfile] = DCR[nfile][h];
+            errDCR_pe_1_5_vect_Ea[nfile] = errDCR[nfile][h];
+            // cout<<"DCR_thr[h] "<<DCR_thr[h]<<endl;
+            // cout<<"DCR[nfile][h] "<<DCR[nfile][h]<<endl;
+            // cout<<"DCR_pe_1_5_vect[nfile] "<<DCR_pe_1_5_vect[nfile]<<endl;
+        }
+
+        // 0.5 pe Eb
+        if((thr_to_find_peaks > pe_0_5_vect_Eb[nfile] - delta) and (thr_to_find_peaks < pe_0_5_vect_Eb[nfile] + delta)){
+            // reset
+            ptrHistAllPeaks[nfile]->Reset();
+            ptrHistDelays[nfile]->Reset();
+            // From delays
+            FindDelaysFromVector();
+            fit_hist_del(expDelLow_max, expDelHigh_max);
+            DCR_pe_0_5_delays_vect_Eb[nfile] = GetDCRfromDelays();
+            errDCR_pe_0_5_delays_vect_Eb[nfile] = GetErrDCRfromDelays();
+            // From cnt
+            DCR_pe_0_5_vect_Eb[nfile] = DCR[nfile][h];
+            errDCR_pe_0_5_vect_Eb[nfile] = errDCR[nfile][h];
+            // cout<<"DCR_thr[h] "<<DCR_thr[h]<<endl;
+            // cout<<"DCR_pe_0_5_delays_vect[nfile]"<<DCR_pe_0_5_delays_vect[nfile]<<endl;
+        }
+
+        // 1.5 pe Eb
+        if((thr_to_find_peaks > pe_1_5_vect_Eb[nfile] - delta) and (thr_to_find_peaks < pe_1_5_vect_Eb[nfile] + delta)){
+            // reset
+            ptrHistAllPeaks[nfile]->Reset();
+            ptrHistDelays[nfile]->Reset();
+            // From delays
+            FindDelaysFromVector();
+            fit_hist_del(expDelLow_max, expDelHigh_max);
+            DCR_pe_1_5_delays_vect_Eb[nfile] = GetDCRfromDelays();
+            errDCR_pe_1_5_delays_vect_Eb[nfile] = GetErrDCRfromDelays();
+            // From cnt
+            DCR_pe_1_5_vect_Eb[nfile] = DCR[nfile][h];
+            errDCR_pe_1_5_vect_Eb[nfile] = errDCR[nfile][h];
             // cout<<"DCR_thr[h] "<<DCR_thr[h]<<endl;
             // cout<<"DCR[nfile][h] "<<DCR[nfile][h]<<endl;
             // cout<<"DCR_pe_1_5_vect[nfile] "<<DCR_pe_1_5_vect[nfile]<<endl;
