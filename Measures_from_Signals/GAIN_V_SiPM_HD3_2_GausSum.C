@@ -121,7 +121,8 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
 
     // ERRORS
     bool percentage_error_bool = false;
-    bool fix_error_bool = true;
+    bool fix_error_bool = false;
+    bool error_diff_with_2_diff_gaus_bool = true;
 
     // Initialization
     for(int i=0; i<n_GAIN_1; i++){
@@ -278,7 +279,28 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
             errGAIN_3[i] = err_fix;
         }
     }
+    if(error_diff_with_2_diff_gaus_bool){
+        errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), 32)] =  ;
+        errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), 33)] =  ;
+        errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), 34)] =  ;
+        errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), 35)] =  ;
+        errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), 36)] =  ;
+        errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), 37)] =  ;
 
+        errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), 32)] =  ;
+        errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), 33)] =  ;
+        errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), 34)] =  ;
+        errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), 35)] =  ;
+        errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), 36)] =  ;
+        errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), 37)] =  ;
+
+        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 32)] =  ;
+        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 33)] =  ;
+        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 34)] =  ;
+        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 35)] =  ;
+        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 36)] =  ;
+        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 37)] =  ;
+    }
 
 
     //------------------------------

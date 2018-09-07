@@ -1066,6 +1066,19 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
         ptrHistDCRthr[k]   = new TH1D(strcat(h3,k_temp),"",bins_DCR,0,maxyhistDCR);
     }
 
+    for(int i=0; i<nfiletot; i++){
+        double diff_temp_0 = 1;
+        double diff_temp_1 = 1*(1+1./(double)(nfiletot-1)*(double)i);
+        diff_temp_1 = (int)(diff_temp_1*10);
+        diff_temp_1/=10;
+        cout<<"diff_temp_1 = "<<diff_temp_1<<endl;
+        pe_0_5_vect_Ea[i] = pe_0_5_vect[i]-diff_temp_0;
+        pe_1_5_vect_Ea[i] = pe_1_5_vect[i]-diff_temp_1;
+        pe_0_5_vect_Eb[i] = pe_0_5_vect[i]+diff_temp_0;
+        pe_1_5_vect_Eb[i] = pe_1_5_vect[i]+diff_temp_1;
+    }
+    // getchar();
+
     // colors:
     color_file[0] = kBlack;
     color_file[1] = kOrange+5;
@@ -1168,30 +1181,30 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
     cout<<endl<<"//////// Ea ////////"<<endl;
     for(int i=0; i<nfiletot; i++){
         cout<< "HV = "<<legend_entry[i]<<";"<<endl;
-        cout<< "index = find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV);"<<endl;
+        cout<< "index = find_index(HV_IndexVect_Ea,  sizeof(HV_IndexVect_Ea)/sizeof(HV_IndexVect_Ea[0]), HV);"<<endl;
         // CNT
-        cout<< "DCR_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_0_5_vect_Ea[i]*n6<<";"<<endl;
-        cout<< "errDCR_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<errDCR_pe_0_5_vect_Ea[i]*n6<<";"<<endl;
-        cout<< "CT_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_1_5_vect_Ea[i]/DCR_pe_0_5_vect_Ea[i]<<";"<<endl;
+        cout<< "DCR_IndexVect_Ea[find_index(HV_IndexVect_Ea,  sizeof(HV_IndexVect_Ea)/sizeof(HV_IndexVect_Ea[0]), HV)] = "<<DCR_pe_0_5_vect_Ea[i]*n6<<";"<<endl;
+        cout<< "errDCR_IndexVect_Ea[find_index(HV_IndexVect_Ea,  sizeof(HV_IndexVect_Ea)/sizeof(HV_IndexVect_Ea[0]), HV)] = "<<errDCR_pe_0_5_vect_Ea[i]*n6<<";"<<endl;
+        cout<< "CT_IndexVect_Ea[find_index(HV_IndexVect_Ea,  sizeof(HV_IndexVect_Ea)/sizeof(HV_IndexVect_Ea[0]), HV)] = "<<DCR_pe_1_5_vect_Ea[i]/DCR_pe_0_5_vect_Ea[i]<<";"<<endl;
         // DELAYS
-        cout<< "DCR_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_0_5_delays_vect_Ea[i]*n6<<";"<<endl;
-        cout<< "errDCR_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<errDCR_pe_0_5_delays_vect_Ea[i]*n6<<";"<<endl;
-        cout<< "CT_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_1_5_delays_vect_Ea[i]/DCR_pe_0_5_delays_vect_Ea[i]<<";"<<endl;
+        cout<< "DCR_Del_IndexVect_Ea[find_index(HV_IndexVect_Ea,  sizeof(HV_IndexVect_Ea)/sizeof(HV_IndexVect_Ea[0]), HV)] = "<<DCR_pe_0_5_delays_vect_Ea[i]*n6<<";"<<endl;
+        cout<< "errDCR_Del_IndexVect_Ea[find_index(HV_IndexVect_Ea,  sizeof(HV_IndexVect_Ea)/sizeof(HV_IndexVect_Ea[0]), HV)] = "<<errDCR_pe_0_5_delays_vect_Ea[i]*n6<<";"<<endl;
+        cout<< "CT_Del_IndexVect_Ea[find_index(HV_IndexVect_Ea,  sizeof(HV_IndexVect_Ea)/sizeof(HV_IndexVect_Ea[0]), HV)] = "<<DCR_pe_1_5_delays_vect_Ea[i]/DCR_pe_0_5_delays_vect_Ea[i]<<";"<<endl;
         cout<<endl;
     }
 
     cout<<endl<<"//////// Eb ////////"<<endl;
     for(int i=0; i<nfiletot; i++){
         cout<< "HV = "<<legend_entry[i]<<";"<<endl;
-        cout<< "index = find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV);"<<endl;
+        cout<< "index = find_index(HV_IndexVect_Eb,  sizeof(HV_IndexVect_Eb)/sizeof(HV_IndexVect_Eb[0]), HV);"<<endl;
         // CNT
-        cout<< "DCR_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_0_5_vect_Eb[i]*n6<<";"<<endl;
-        cout<< "errDCR_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<errDCR_pe_0_5_vect_Eb[i]*n6<<";"<<endl;
-        cout<< "CT_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_1_5_vect_Eb[i]/DCR_pe_0_5_vect_Eb[i]<<";"<<endl;
+        cout<< "DCR_IndexVect_Eb[find_index(HV_IndexVect_Eb,  sizeof(HV_IndexVect_Eb)/sizeof(HV_IndexVect_Eb[0]), HV)] = "<<DCR_pe_0_5_vect_Eb[i]*n6<<";"<<endl;
+        cout<< "errDCR_IndexVect_Eb[find_index(HV_IndexVect_Eb,  sizeof(HV_IndexVect_Eb)/sizeof(HV_IndexVect_Eb[0]), HV)] = "<<errDCR_pe_0_5_vect_Eb[i]*n6<<";"<<endl;
+        cout<< "CT_IndexVect_Eb[find_index(HV_IndexVect_Eb,  sizeof(HV_IndexVect_Eb)/sizeof(HV_IndexVect_Eb[0]), HV)] = "<<DCR_pe_1_5_vect_Eb[i]/DCR_pe_0_5_vect_Eb[i]<<";"<<endl;
         // DELAYS
-        cout<< "DCR_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_0_5_delays_vect_Eb[i]*n6<<";"<<endl;
-        cout<< "errDCR_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<errDCR_pe_0_5_delays_vect_Eb[i]*n6<<";"<<endl;
-        cout<< "CT_Del_IndexVect[find_index(HV_IndexVect,  sizeof(HV_IndexVect)/sizeof(HV_IndexVect[0]), HV)] = "<<DCR_pe_1_5_delays_vect_Eb[i]/DCR_pe_0_5_delays_vect_Eb[i]<<";"<<endl;
+        cout<< "DCR_Del_IndexVect_Eb[find_index(HV_IndexVect_Eb,  sizeof(HV_IndexVect_Eb)/sizeof(HV_IndexVect_Eb[0]), HV)] = "<<DCR_pe_0_5_delays_vect_Eb[i]*n6<<";"<<endl;
+        cout<< "errDCR_Del_IndexVect_Eb[find_index(HV_IndexVect_Eb,  sizeof(HV_IndexVect_Eb)/sizeof(HV_IndexVect_Eb[0]), HV)] = "<<errDCR_pe_0_5_delays_vect_Eb[i]*n6<<";"<<endl;
+        cout<< "CT_Del_IndexVect_Eb[find_index(HV_IndexVect_Eb,  sizeof(HV_IndexVect_Eb)/sizeof(HV_IndexVect_Eb[0]), HV)] = "<<DCR_pe_1_5_delays_vect_Eb[i]/DCR_pe_0_5_delays_vect_Eb[i]<<";"<<endl;
         cout<<endl;
     }
 
@@ -1526,12 +1539,7 @@ TGraphErrors *DCR_func_NO_Delays(string file1, int last_event_n, int tot_files, 
             // cout<<"DCR_pe_1_5_vect[nfile] "<<DCR_pe_1_5_vect[nfile]<<endl;
         }
 
-        for(int i=0; i<nfilemax; i++){
-            pe_0_5_vect_Ea[i] = pe_0_5_vect[i]-1;
-            pe_1_5_vect_Ea[i] = pe_1_5_vect[i]-1;
-            pe_0_5_vect_Eb[i] = pe_0_5_vect[i]+1;
-            pe_1_5_vect_Eb[i] = pe_1_5_vect[i]+1;
-        }
+
 
         // 0.5 pe Ea
         if((thr_to_find_peaks > pe_0_5_vect_Ea[nfile] - delta) and (thr_to_find_peaks < pe_0_5_vect_Ea[nfile] + delta)){
