@@ -427,6 +427,7 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
 
 
 
+
     // ERRORS
     for(int i=0; i<n_DCR; i++){
         errDCR_1[i] = GetMaxCheckPercentage(DCR_1[i], DCR_1_Ea[i], DCR_1_Eb[i], min_percentage, max_percentage);
