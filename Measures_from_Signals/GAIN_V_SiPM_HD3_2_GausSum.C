@@ -294,12 +294,12 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
         errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), 36)] =  0.3;
         errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), 37)] =  0.3;
 
-        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 32)] =  000;
-        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 33)] =  000;
-        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 34)] =  000;
-        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 35)] =  000;
-        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 36)] =  000;
-        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 37)] =  000;
+        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 32)] =  0.5;
+        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 33)] =  0.5;
+        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 34)] =  0.4;
+        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 35)] =  0.4;
+        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 36)] =  0.4;
+        errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 37)] =  0.4;
     }
 
 
