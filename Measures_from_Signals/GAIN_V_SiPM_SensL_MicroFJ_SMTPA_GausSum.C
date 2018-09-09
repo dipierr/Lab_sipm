@@ -108,7 +108,7 @@ void GAIN_V_SiPM_SensL_MicroFJ_SMTPA_GausSum(){
     bool percentage_error_bool = false;
     bool fix_error_bool = false;
     bool error_diff_with_2_diff_gaus_bool = true;
-    bool add_error_percentage_bool = true;
+    bool add_error_percentage_bool = false;
 
     double err_rel_noise = 0.05;
 
@@ -272,11 +272,21 @@ void GAIN_V_SiPM_SensL_MicroFJ_SMTPA_GausSum(){
     TF1 *linearFit = new TF1("linearFit","pol1",-100,100);
 
 
-    gV_GAIN_1->Fit("linearFit1");
-    V_bd_1  = - linearFit1->GetParameter(0)/linearFit1->GetParameter(1);
+    TFitResultPtr r_1 = gV_GAIN_1->Fit(linearFit1,"S");
+    TFitResultPtr r_2 = gV_GAIN_2->Fit(linearFit2,"S");
 
-    gV_GAIN_2->Fit("linearFit2");
-    V_bd_2  = - linearFit2->GetParameter(0)/linearFit2->GetParameter(1);
+    double m_1 = linearFit1->GetParameter(1);
+    double q_1 = linearFit1->GetParameter(0);
+    double m_2 = linearFit2->GetParameter(1);
+    double q_2 = linearFit2->GetParameter(0);
+    double errm_1 = linearFit1->GetParError(1);
+    double errq_1 = linearFit1->GetParError(0);
+    double errm_2 = linearFit2->GetParError(1);
+    double errq_2 = linearFit2->GetParError(0);
+
+    V_bd_1  = - q_1/m_1;
+    V_bd_2  = - q_2/m_2;
+
 
 
     // ERRORS
@@ -308,21 +318,43 @@ void GAIN_V_SiPM_SensL_MicroFJ_SMTPA_GausSum(){
     TGraphErrors *gV_GAIN_2_b  = new TGraphErrors(n_GAIN_2, HV_2, GAIN_2_b, errHV_2, errGAIN_2);
 
     double V_bd_1_a, V_bd_2_a,  V_bd_1_b, V_bd_2_b;
-    gV_GAIN_1_a->Fit("linearFit","0");
+    gV_GAIN_1_a->Fit("linearFit","0q");
     V_bd_1_a  = - linearFit->GetParameter(0)/linearFit->GetParameter(1);
-    gV_GAIN_2_a->Fit("linearFit","0");
+    gV_GAIN_2_a->Fit("linearFit","0q");
     V_bd_2_a  = - linearFit->GetParameter(0)/linearFit->GetParameter(1);
-    gV_GAIN_1_b->Fit("linearFit","0");
+    gV_GAIN_1_b->Fit("linearFit","0q");
     V_bd_1_b  = - linearFit->GetParameter(0)/linearFit->GetParameter(1);
-    gV_GAIN_2_b->Fit("linearFit","0");
+    gV_GAIN_2_b->Fit("linearFit","0q");
     V_bd_2_b  = - linearFit->GetParameter(0)/linearFit->GetParameter(1);
 
     cout<<endl;
+    cout<<"--------------------------------------------------------------------------------"<<endl;
+    cout<<"Intersection from data, data+err_data and data-err_data"<<endl;
     cout<<"V_bd_1 = "<<V_bd_1<<"\t"<<V_bd_1_a<<"\t"<<V_bd_1_b<<endl;
     cout<<"V_bd_2 = "<<V_bd_2<<"\t"<<V_bd_2_a<<"\t"<<V_bd_2_b<<endl;
     cout<<endl;
     printf("V_bd_1 = %.2f +- %.2f\n",V_bd_1, TMath::Max(TMath::Abs(V_bd_1-V_bd_1_a), TMath::Abs(V_bd_1-V_bd_1_b) ));
     printf("V_bd_2 = %.2f +- %.2f\n",V_bd_2, TMath::Max(TMath::Abs(V_bd_2-V_bd_2_a), TMath::Abs(V_bd_2-V_bd_2_b) ));
+
+    cout<<endl<<endl;
+    cout<<"--------------------------------------------------------------------------------"<<endl;
+    cout<<"From error propagation"<<endl;
+    // double err_Vbd_1 = TMath::Sqrt(TMath::Power((q_1/(m_1*m_1)*errm_1),2) + TMath::Power(1/m_1*errq_1,2));
+    // double err_Vbd_1 = V_bd_1*TMath::Sqrt(errq_1/q_1*errq_1/q_1 + errm_1/m_1*errm_1/m_1);
+    // double err_Vbd_2 = TMath::Sqrt(TMath::Power((q_2/(m_2*m_2)*errm_2),2) + TMath::Power(1/m_2*errq_2,2));
+    double err_Vbd_1=0., err_Vbd_2=0.;
+    double dm_1 = -q_1/(m_1*m_1);
+    double dq_1 = 1/m_1;
+    double dm_2 = -q_2/(m_2*m_2);
+    double dq_2 = 1/m_2;
+    TMatrixDSym cov_1 = r_1->GetCovarianceMatrix();
+    err_Vbd_1 = TMath::Sqrt( dq_1*dq_1*cov_1[0][0] + dq_1*dm_1*cov_1[0][1] + dm_1*dq_1*cov_1[1][0] + dm_1*dm_1*cov_1[1][1] );
+    cout<<endl;
+    TMatrixDSym cov_2 = r_2->GetCovarianceMatrix();
+    err_Vbd_2 = TMath::Sqrt( dq_2*dq_2*cov_2[0][0] + dq_2*dm_2*cov_2[0][1] + dm_2*dq_2*cov_2[1][0] + dm_2*dm_2*cov_2[1][1] );
+    cout<<endl;
+    printf("V_bd_1 = %.2f +- %.2f\n",V_bd_1,err_Vbd_1);
+    printf("V_bd_2 = %.2f +- %.2f\n",V_bd_2,err_Vbd_2);
 
 
     auto legendGAIN = new TLegend(0.15,0.70,0.35,0.85);
