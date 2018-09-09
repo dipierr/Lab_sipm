@@ -989,7 +989,11 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_DARK_data_2018_07(){
     //  PRINT
     ////////////////////////////////////////////////////////////////////////////
     cout<<endl<<endl;
-    cout<<"double HV_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<HV_1[i]<<", "; cout<<HV_1[n_DCR-1]<<"};"<<endl;
+    cout<<"//-------------"<<endl;
+    cout<<"// SensL - DARK"<<endl;
+    cout<<"//-------------"<<endl;
+    cout<<"double HV_SensL_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<HV_1[i]<<", "; cout<<HV_1[n_DCR-1]<<"};"<<endl;
+    cout<<"double errHV_SensL_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errHV_1[i]<<", "; cout<<errHV_1[n_DCR-1]<<"};"<<endl;
 
     cout<<"double DCR_1_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_1[i]<<", "; cout<<DCR_1[n_DCR-1]<<"};"<<endl;
     cout<<"double errDCR_1_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_1[i]<<", "; cout<<errDCR_1[n_DCR-1]<<"};"<<endl;
@@ -1000,6 +1004,16 @@ void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_DARK_data_2018_07(){
     cout<<"double errDCR_2_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_2[i]<<", "; cout<<errDCR_2[n_DCR-1]<<"};"<<endl;
     cout<<"double DCR_Del_2_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_Del_2[i]<<", "; cout<<DCR_Del_2[n_DCR-1]<<"};"<<endl;
     cout<<"double errDCR_Del_2_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_Del_2[i]<<", "; cout<<errDCR_Del_2[n_DCR-1]<<"};"<<endl;
+
+    cout<<"double CT_1_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<CT_1[i]<<", "; cout<<CT_1[n_DCR-1]<<"};"<<endl;
+    cout<<"double errCT_1_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errCT_1[i]<<", "; cout<<errCT_1[n_DCR-1]<<"};"<<endl;
+    cout<<"double CT_Del_1_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<CT_Del_1[i]<<", "; cout<<CT_Del_1[n_DCR-1]<<"};"<<endl;
+    cout<<"double errCT_Del_1_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errCT_Del_1[i]<<", "; cout<<errCT_Del_1[n_DCR-1]<<"};"<<endl;
+
+    cout<<"double CT_2_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<CT_2[i]<<", "; cout<<CT_2[n_DCR-1]<<"};"<<endl;
+    cout<<"double errCT_2_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errCT_2[i]<<", "; cout<<errCT_2[n_DCR-1]<<"};"<<endl;
+    cout<<"double CT_Del_2_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<CT_Del_2[i]<<", "; cout<<CT_Del_2[n_DCR-1]<<"};"<<endl;
+    cout<<"double errCT_Del_2_SensL[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errCT_Del_2[i]<<", "; cout<<errCT_Del_2[n_DCR-1]<<"};"<<endl;
 
 
 
