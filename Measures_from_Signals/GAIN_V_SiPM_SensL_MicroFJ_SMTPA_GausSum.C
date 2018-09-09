@@ -106,7 +106,11 @@ void GAIN_V_SiPM_SensL_MicroFJ_SMTPA_GausSum(){
 
     // ERRORS
     bool percentage_error_bool = false;
-    bool fix_error_bool = true;
+    bool fix_error_bool = false;
+    bool error_diff_with_2_diff_gaus_bool = true;
+    bool add_error_percentage_bool = true;
+
+    double err_rel_noise = 0.05;
 
     // Initialization
     for(int i=0; i<n_GAIN_1; i++){
@@ -182,26 +186,44 @@ void GAIN_V_SiPM_SensL_MicroFJ_SMTPA_GausSum(){
 
 
     // PERCENTAGE ERROR
-    if(percentage_error_bool){
-        double err_rel = 0.05;
-        for(int i=0; i<n_GAIN_1; i++){
-            errGAIN_1[i] = err_rel * GAIN_1[i];
-        }
-        for(int i=0; i<n_GAIN_2; i++){
-            errGAIN_2[i] = err_rel * GAIN_2[i];
-        }
+    // if(percentage_error_bool){
+    //     double err_rel = 0.05;
+    //     for(int i=0; i<n_GAIN_1; i++){
+    //         errGAIN_1[i] = err_rel * GAIN_1[i];
+    //     }
+    //     for(int i=0; i<n_GAIN_2; i++){
+    //         errGAIN_2[i] = err_rel * GAIN_2[i];
+    //     }
+    //
+    // }
+    // if(fix_error_bool){
+    //     double err_fix = 1;
+    //     for(int i=0; i<n_GAIN_1; i++){
+    //         errGAIN_1[i] = err_fix;
+    //     }
+    //     for(int i=0; i<n_GAIN_2; i++){
+    //         errGAIN_2[i] = err_fix;
+    //     }
+    //
+    // }
+    if(error_diff_with_2_diff_gaus_bool){
+        errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), 28)] =  0.55;
+        errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), 29)] =  0.55;
+        errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), 30)] =  0.45;
+        errGAIN_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), 31)] =  0.45;
 
+        // Redo:
+        errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), 28)] =  0.55;
+        errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), 29)] =  0.55;
+        errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), 30)] =  0.45;
+        errGAIN_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), 31)] =  0.45;
     }
-    if(fix_error_bool){
-        double err_fix = 1;
-        for(int i=0; i<n_GAIN_1; i++){
-            errGAIN_1[i] = err_fix;
-        }
-        for(int i=0; i<n_GAIN_2; i++){
-            errGAIN_2[i] = err_fix;
-        }
-
-    }
+    // if(add_error_percentage_bool){
+    //     for(int i=0; i<n_GAIN_1; i++){
+    //         errGAIN_1[i] = TMath::Sqrt( TMath::Power(errGAIN_1[i],2) + TMath::Power(err_rel_noise*GAIN_1[i],2) );
+    //         errGAIN_2[i] = TMath::Sqrt( TMath::Power(errGAIN_2[i],2) + TMath::Power(err_rel_noise*GAIN_2[i],2) );
+    //     }
+    // }
 
 
 
@@ -247,6 +269,7 @@ void GAIN_V_SiPM_SensL_MicroFJ_SMTPA_GausSum(){
 
     TF1 *linearFit1 = new TF1("linearFit1","pol1",-100,100);
     TF1 *linearFit2 = new TF1("linearFit2","pol1",-100,100);
+    TF1 *linearFit = new TF1("linearFit","pol1",-100,100);
 
 
     gV_GAIN_1->Fit("linearFit1");
@@ -256,11 +279,51 @@ void GAIN_V_SiPM_SensL_MicroFJ_SMTPA_GausSum(){
     V_bd_2  = - linearFit2->GetParameter(0)/linearFit2->GetParameter(1);
 
 
+    // ERRORS
+    double GAIN_1_a[n_GAIN_1], GAIN_1_b[n_GAIN_1];
+    double GAIN_2_a[n_GAIN_2], GAIN_2_b[n_GAIN_2];
+    double GAIN_3_a[n_GAIN_3], GAIN_3_b[n_GAIN_3];
+    for(int i=0; i<n_GAIN_1; i++){
+        GAIN_1_a[i] = GAIN_1[i] + errGAIN_1[i];
+        GAIN_2_a[i] = GAIN_2[i] + errGAIN_2[i];
+        GAIN_1_b[i] = GAIN_1[i] - errGAIN_1[i];
+        GAIN_2_b[i] = GAIN_2[i] - errGAIN_2[i];
+    }
+    // int mid_n_GAIN = (int)(n_GAIN_1/2);
+    // for(int i=0; i<mid_n_GAIN; i++){
+    //     GAIN_1_a[i] = GAIN_1[i] + 0.25*errGAIN_1[i];
+    //     GAIN_2_a[i] = GAIN_2[i] + 0.25*errGAIN_2[i];
+    //     GAIN_1_b[i] = GAIN_1[i] - 0.25*errGAIN_1[i];
+    //     GAIN_2_b[i] = GAIN_2[i] - 0.25*errGAIN_2[i];
+    // }
+    // for(int i=mid_n_GAIN; i<n_GAIN_1; i++){
+    //     GAIN_1_a[i] = GAIN_1[i] - 0.25*errGAIN_1[i];
+    //     GAIN_2_a[i] = GAIN_2[i] - 0.25*errGAIN_2[i];
+    //     GAIN_1_b[i] = GAIN_1[i] + 0.25*errGAIN_1[i];
+    //     GAIN_2_b[i] = GAIN_2[i] + 0.25*errGAIN_2[i];
+    // }
+    TGraphErrors *gV_GAIN_1_a  = new TGraphErrors(n_GAIN_1, HV_1, GAIN_1_a, errHV_1, errGAIN_1);
+    TGraphErrors *gV_GAIN_2_a  = new TGraphErrors(n_GAIN_2, HV_2, GAIN_2_a, errHV_2, errGAIN_2);
+    TGraphErrors *gV_GAIN_1_b  = new TGraphErrors(n_GAIN_1, HV_1, GAIN_1_b, errHV_1, errGAIN_1);
+    TGraphErrors *gV_GAIN_2_b  = new TGraphErrors(n_GAIN_2, HV_2, GAIN_2_b, errHV_2, errGAIN_2);
 
+    double V_bd_1_a, V_bd_2_a,  V_bd_1_b, V_bd_2_b;
+    gV_GAIN_1_a->Fit("linearFit","0");
+    V_bd_1_a  = - linearFit->GetParameter(0)/linearFit->GetParameter(1);
+    gV_GAIN_2_a->Fit("linearFit","0");
+    V_bd_2_a  = - linearFit->GetParameter(0)/linearFit->GetParameter(1);
+    gV_GAIN_1_b->Fit("linearFit","0");
+    V_bd_1_b  = - linearFit->GetParameter(0)/linearFit->GetParameter(1);
+    gV_GAIN_2_b->Fit("linearFit","0");
+    V_bd_2_b  = - linearFit->GetParameter(0)/linearFit->GetParameter(1);
 
+    cout<<endl;
+    cout<<"V_bd_1 = "<<V_bd_1<<"\t"<<V_bd_1_a<<"\t"<<V_bd_1_b<<endl;
+    cout<<"V_bd_2 = "<<V_bd_2<<"\t"<<V_bd_2_a<<"\t"<<V_bd_2_b<<endl;
+    cout<<endl;
+    printf("V_bd_1 = %.2f +- %.2f\n",V_bd_1, TMath::Max(TMath::Abs(V_bd_1-V_bd_1_a), TMath::Abs(V_bd_1-V_bd_1_b) ));
+    printf("V_bd_2 = %.2f +- %.2f\n",V_bd_2, TMath::Max(TMath::Abs(V_bd_2-V_bd_2_a), TMath::Abs(V_bd_2-V_bd_2_b) ));
 
-    cout<<"V_bd_1 = "<<V_bd_1<<endl;
-    cout<<"V_bd_2 = "<<V_bd_2<<endl;
 
     auto legendGAIN = new TLegend(0.15,0.70,0.35,0.85);
     legendGAIN->AddEntry(gV_GAIN_1,"SensL MicroFJ (1)","p");

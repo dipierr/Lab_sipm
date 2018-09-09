@@ -304,13 +304,13 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
         errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 36)] =  0.4;
         errGAIN_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), 37)] =  0.4;
     }
-    if(add_error_percentage_bool){
-        for(int i=0; i<n_GAIN_1; i++){
-            errGAIN_1[i] = TMath::Sqrt( TMath::Power(errGAIN_1[i],2) + TMath::Power(err_rel_noise*GAIN_1[i],2) );
-            errGAIN_2[i] = TMath::Sqrt( TMath::Power(errGAIN_2[i],2) + TMath::Power(err_rel_noise*GAIN_2[i],2) );
-            errGAIN_3[i] = TMath::Sqrt( TMath::Power(errGAIN_3[i],2) + TMath::Power(err_rel_noise*GAIN_3[i],2) );
-        }
-    }
+    // if(add_error_percentage_bool){
+    //     for(int i=0; i<n_GAIN_1; i++){
+    //         errGAIN_1[i] = TMath::Sqrt( TMath::Power(errGAIN_1[i],2) + TMath::Power(err_rel_noise*GAIN_1[i],2) );
+    //         errGAIN_2[i] = TMath::Sqrt( TMath::Power(errGAIN_2[i],2) + TMath::Power(err_rel_noise*GAIN_2[i],2) );
+    //         errGAIN_3[i] = TMath::Sqrt( TMath::Power(errGAIN_3[i],2) + TMath::Power(err_rel_noise*GAIN_3[i],2) );
+    //     }
+    // }
 
     // CHECK
     for(int i=0; i<n_GAIN_1; i++){
@@ -386,31 +386,31 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     double GAIN_1_a[n_GAIN_1], GAIN_1_b[n_GAIN_1];
     double GAIN_2_a[n_GAIN_2], GAIN_2_b[n_GAIN_2];
     double GAIN_3_a[n_GAIN_3], GAIN_3_b[n_GAIN_3];
-    // for(int i=0; i<n_GAIN_1; i++){
-    //     GAIN_1_a[i] = GAIN_1[i] + errGAIN_1[i];
-    //     GAIN_2_a[i] = GAIN_2[i] + errGAIN_2[i];
-    //     GAIN_3_a[i] = GAIN_3[i] + errGAIN_3[i];
-    //     GAIN_1_b[i] = GAIN_1[i] - errGAIN_1[i];
-    //     GAIN_2_b[i] = GAIN_2[i] - errGAIN_2[i];
-    //     GAIN_3_b[i] = GAIN_3[i] - errGAIN_3[i];
+    for(int i=0; i<n_GAIN_1; i++){
+        GAIN_1_a[i] = GAIN_1[i] + errGAIN_1[i];
+        GAIN_2_a[i] = GAIN_2[i] + errGAIN_2[i];
+        GAIN_3_a[i] = GAIN_3[i] + errGAIN_3[i];
+        GAIN_1_b[i] = GAIN_1[i] - errGAIN_1[i];
+        GAIN_2_b[i] = GAIN_2[i] - errGAIN_2[i];
+        GAIN_3_b[i] = GAIN_3[i] - errGAIN_3[i];
+    }
+    // int mid_n_GAIN = (int)(n_GAIN_1/2);
+    // for(int i=0; i<mid_n_GAIN; i++){
+    //     GAIN_1_a[i] = GAIN_1[i] + 0.25*errGAIN_1[i];
+    //     GAIN_2_a[i] = GAIN_2[i] + 0.25*errGAIN_2[i];
+    //     GAIN_3_a[i] = GAIN_3[i] + 0.25*errGAIN_3[i];
+    //     GAIN_1_b[i] = GAIN_1[i] - 0.25*errGAIN_1[i];
+    //     GAIN_2_b[i] = GAIN_2[i] - 0.25*errGAIN_2[i];
+    //     GAIN_3_b[i] = GAIN_3[i] - 0.25*errGAIN_3[i];
     // }
-    int mid_n_GAIN = (int)(n_GAIN_1/2);
-    for(int i=0; i<mid_n_GAIN; i++){
-        GAIN_1_a[i] = GAIN_1[i] + 0.25*errGAIN_1[i];
-        GAIN_2_a[i] = GAIN_2[i] + 0.25*errGAIN_2[i];
-        GAIN_3_a[i] = GAIN_3[i] + 0.25*errGAIN_3[i];
-        GAIN_1_b[i] = GAIN_1[i] - 0.25*errGAIN_1[i];
-        GAIN_2_b[i] = GAIN_2[i] - 0.25*errGAIN_2[i];
-        GAIN_3_b[i] = GAIN_3[i] - 0.25*errGAIN_3[i];
-    }
-    for(int i=mid_n_GAIN; i<n_GAIN_1; i++){
-        GAIN_1_a[i] = GAIN_1[i] - 0.25*errGAIN_1[i];
-        GAIN_2_a[i] = GAIN_2[i] - 0.25*errGAIN_2[i];
-        GAIN_3_a[i] = GAIN_3[i] - 0.25*errGAIN_3[i];
-        GAIN_1_b[i] = GAIN_1[i] + 0.25*errGAIN_1[i];
-        GAIN_2_b[i] = GAIN_2[i] + 0.25*errGAIN_2[i];
-        GAIN_3_b[i] = GAIN_3[i] + 0.25*errGAIN_3[i];
-    }
+    // for(int i=mid_n_GAIN; i<n_GAIN_1; i++){
+    //     GAIN_1_a[i] = GAIN_1[i] - 0.25*errGAIN_1[i];
+    //     GAIN_2_a[i] = GAIN_2[i] - 0.25*errGAIN_2[i];
+    //     GAIN_3_a[i] = GAIN_3[i] - 0.25*errGAIN_3[i];
+    //     GAIN_1_b[i] = GAIN_1[i] + 0.25*errGAIN_1[i];
+    //     GAIN_2_b[i] = GAIN_2[i] + 0.25*errGAIN_2[i];
+    //     GAIN_3_b[i] = GAIN_3[i] + 0.25*errGAIN_3[i];
+    // }
     TGraphErrors *gV_GAIN_1_a  = new TGraphErrors(n_GAIN_1, HV_1, GAIN_1_a, errHV_1, errGAIN_1);
     TGraphErrors *gV_GAIN_2_a  = new TGraphErrors(n_GAIN_2, HV_2, GAIN_2_a, errHV_2, errGAIN_2);
     TGraphErrors *gV_GAIN_3_a  = new TGraphErrors(n_GAIN_3, HV_3, GAIN_3_a, errHV_3, errGAIN_3);
