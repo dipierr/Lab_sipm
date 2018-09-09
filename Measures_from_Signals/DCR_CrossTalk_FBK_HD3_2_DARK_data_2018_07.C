@@ -1684,8 +1684,13 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     //  PRINT
     ////////////////////////////////////////////////////////////////////////////
     cout<<endl<<endl;
+    cout<<"//---------------"<<endl;
+    cout<<"// FBK HD3-2 DARK"<<endl;
+    cout<<"//---------------"<<endl;
     cout<<"double HV_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<HV_1[i]<<", "; cout<<HV_1[n_DCR-1]<<"};"<<endl;
-
+    cout<<"double errHV_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errHV_1[i]<<", "; cout<<errHV_1[n_DCR-1]<<"};"<<endl;
+    cout<<endl;
+    cout<<"// DCR"<<endl;
     cout<<"double DCR_1_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_1[i]<<", "; cout<<DCR_1[n_DCR-1]<<"};"<<endl;
     cout<<"double errDCR_1_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_1[i]<<", "; cout<<errDCR_1[n_DCR-1]<<"};"<<endl;
     cout<<"double DCR_Del_1_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_Del_1[i]<<", "; cout<<DCR_Del_1[n_DCR-1]<<"};"<<endl;
@@ -1700,6 +1705,23 @@ void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07(){
     cout<<"double errDCR_3_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_3[i]<<", "; cout<<errDCR_3[n_DCR-1]<<"};"<<endl;
     cout<<"double DCR_Del_3_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<DCR_Del_3[i]<<", "; cout<<DCR_Del_3[n_DCR-1]<<"};"<<endl;
     cout<<"double errDCR_Del_3_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errDCR_Del_3[i]<<", "; cout<<errDCR_Del_3[n_DCR-1]<<"};"<<endl;
+
+    cout<<endl;
+    cout<<"// CT"<<endl;
+    cout<<"double CT_1_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<CT_1[i]<<", "; cout<<CT_1[n_DCR-1]<<"};"<<endl;
+    cout<<"double errCT_1_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errCT_1[i]<<", "; cout<<errCT_1[n_DCR-1]<<"};"<<endl;
+    cout<<"double CT_Del_1_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<CT_Del_1[i]<<", "; cout<<CT_Del_1[n_DCR-1]<<"};"<<endl;
+    cout<<"double errCT_Del_1_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errCT_Del_1[i]<<", "; cout<<errCT_Del_1[n_DCR-1]<<"};"<<endl;
+
+    cout<<"double CT_2_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<CT_2[i]<<", "; cout<<CT_2[n_DCR-1]<<"};"<<endl;
+    cout<<"double errCT_2_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errCT_2[i]<<", "; cout<<errCT_2[n_DCR-1]<<"};"<<endl;
+    cout<<"double CT_Del_2_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<CT_Del_2[i]<<", "; cout<<CT_Del_2[n_DCR-1]<<"};"<<endl;
+    cout<<"double errCT_Del_2_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errCT_Del_2[i]<<", "; cout<<errCT_Del_2[n_DCR-1]<<"};"<<endl;
+
+    cout<<"double CT_3_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<CT_3[i]<<", "; cout<<CT_3[n_DCR-1]<<"};"<<endl;
+    cout<<"double errCT_3_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errCT_3[i]<<", "; cout<<errCT_3[n_DCR-1]<<"};"<<endl;
+    cout<<"double CT_Del_3_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<CT_Del_3[i]<<", "; cout<<CT_Del_3[n_DCR-1]<<"};"<<endl;
+    cout<<"double errCT_Del_3_FBK_DARK[] = {"; for(int i=0; i<n_DCR-1; i++) cout<<errCT_Del_3[i]<<", "; cout<<errCT_Del_3[n_DCR-1]<<"};"<<endl;
 
 
 

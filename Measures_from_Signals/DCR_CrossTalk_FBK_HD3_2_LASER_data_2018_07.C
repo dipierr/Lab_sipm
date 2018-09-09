@@ -683,6 +683,11 @@ void DCR_CrossTalk_FBK_HD3_2_LASER_data_2018_07(){
 
 
     cout<<endl<<endl;
+    cout<<"//----------------"<<endl;
+    cout<<"// FBK HD3-2 LASER"<<endl;
+    cout<<"//----------------"<<endl;
+    cout<<"double HV_FBK_LASER[] = {"; for(int i=0; i<n_GAIN-1; i++) cout<<HV_LASER_GAIN[i]<<", "; cout<<HV_LASER_GAIN[n_GAIN-1]<<"};"<<endl;
+    cout<<"double errHV_FBK_LASER[] = {"; for(int i=0; i<n_GAIN-1; i++) cout<<errHV_LASER_GAIN[i]<<", "; cout<<errHV_LASER_GAIN[n_GAIN-1]<<"};"<<endl;
     cout<<"double CT_1_FBK_LASER[] = {"; for(int i=0; i<n_GAIN-1; i++) cout<<Prob_Cross_Talk[0][i]<<", "; cout<<Prob_Cross_Talk[0][n_GAIN-1]<<"};"<<endl;
     cout<<"double errCT_1_FBK_LASER[] = {"; for(int i=0; i<n_GAIN-1; i++) cout<<errProb_Cross_Talk[0][i]<<", "; cout<<errProb_Cross_Talk[0][n_GAIN-1]<<"};"<<endl;
 
@@ -714,13 +719,14 @@ void DCR_CrossTalk_FBK_HD3_2_LASER_data_2018_07(){
       //------------------------------
       // For LaTeX
       //------------------------------
+      n_SiPM=0;
       cout<<endl<<endl;
       cout<<"For LaTeX"<<endl<<endl;
       cout<<"\% From file DCR_CrossTalk_FBK_HD3_2_DARK_LASER_data_2018_07.C"<<endl;
       cout<<"\% From LASER"<<endl;
       cout<<"\% HV & CT & R_{gain}   \\\\"<<endl;
       for(int i=0; i<n_GAIN; i++){
-          printf("$ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ \\\\ \n", HV_LASER_GAIN[i], errHV_LASER_GAIN[i], R_gain[0][i], Prob_Cross_Talk[n_SiPM][i],R_gain[0][i], errProb_Cross_Talk[n_SiPM][i]);
+          printf("$ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ \\\\ \n", HV_LASER_GAIN[i], errHV_LASER_GAIN[i], Prob_Cross_Talk[n_SiPM][i], errProb_Cross_Talk[n_SiPM][i], R_gain[n_SiPM][i], errR_gain[n_SiPM][i]);
       }
 
 

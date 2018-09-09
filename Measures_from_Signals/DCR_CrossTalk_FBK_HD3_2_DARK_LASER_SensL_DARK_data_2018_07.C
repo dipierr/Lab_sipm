@@ -52,24 +52,49 @@
 
 void DCR_CrossTalk_FBK_HD3_2_DARK_LASER_SensL_DARK_data_2018_07(){
 
+    //---------------
+    // FBK HD3-2 DARK
+    //---------------
     double HV_FBK_DARK[] = {31, 32, 33, 34, 35, 36, 37};
     double errHV_FBK_DARK[] = {0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01};
-    double DCR_1_FBK_DARK[] = {301.3, 410.681, 493.403, 563.636, 630.558, 692.942, 756.225};
-    double errDCR_1_FBK_DARK[] = {6.026, 8.21361, 9.86806, 11.2727, 12.6112, 13.8588, 26.2333};
-    double DCR_Del_1_FBK_DARK[] = {296.506, 421.242, 512.722, 587.747, 658.806, 722.903, 789.519};
-    double errDCR_Del_1_FBK_DARK[] = {5.93011, 8.42483, 10.2544, 11.7549, 13.1761, 15.3333, 28.925};
-    double DCR_2_FBK_DARK[] = {303.656, 420.208, 524.233, 602.572, 675.086, 743.881, 807.983};
-    double errDCR_2_FBK_DARK[] = {6.725, 15.8528, 22.8611, 18.8222, 18.6222, 26.7056, 41.1667};
-    double DCR_Del_2_FBK_DARK[] = {297.931, 427.972, 541.625, 627.806, 704.772, 777.228, 844.7};
-    double errDCR_Del_2_FBK_DARK[] = {6.72778, 16.6806, 23.4778, 19.2167, 19.025, 27.8667, 44.8611};
-    double DCR_3_FBK_DARK[] = {367.839, 490.181, 589.292, 674.222, 754.314, 829.019, 897.669};
-    double errDCR_3_FBK_DARK[] = {7.35678, 9.80361, 11.7858, 13.4844, 15.0863, 16.5804, 34.9056};
-    double DCR_Del_3_FBK_DARK[] = {364.106, 502.686, 611.697, 703.564, 787.081, 866.672, 940.539};
-    double errDCR_Del_3_FBK_DARK[] = {7.28211, 10.0537, 12.2339, 14.0713, 15.7416, 17.3334, 37.8861};
 
+    // DCR
+    double DCR_1_FBK_DARK[] = {301.3, 410.681, 493.403, 563.636, 630.558, 692.942, 756.225};
+    double errDCR_1_FBK_DARK[] = {3.50833, 2.15556, 1.21389, 1.85278, 1.73611, 1.27778, 1.49444};
+    double DCR_Del_1_FBK_DARK[] = {296.506, 421.242, 512.722, 587.747, 658.806, 722.903, 789.519};
+    double errDCR_Del_1_FBK_DARK[] = {3.65, 1.86111, 0.891667, 1.41667, 1.38611, 1.28889, 1.71667};
+    double DCR_2_FBK_DARK[] = {303.656, 416.183, 520.406, 596.392, 670.1, 739.65, 805.164};
+    double errDCR_2_FBK_DARK[] = {6.725, 11.8278, 9.06944, 6.18056, 4.98611, 4.23056, 3.08056};
+    double DCR_Del_2_FBK_DARK[] = {297.931, 423.736, 537.936, 621.978, 699.983, 773.25, 841.906};
+    double errDCR_Del_2_FBK_DARK[] = {6.72778, 12.4444, 9.06944, 5.86389, 4.78889, 3.97778, 3.31389};
+    double DCR_3_FBK_DARK[] = {367.839, 490.181, 589.292, 674.222, 754.314, 829.019, 897.669};
+    double errDCR_3_FBK_DARK[] = {3.89167, 1.88889, 2.89167, 2.37222, 3.18611, 3.66667, 6.18889};
+    double DCR_Del_3_FBK_DARK[] = {364.106, 502.686, 611.697, 703.564, 787.081, 866.672, 940.539};
+    double errDCR_Del_3_FBK_DARK[] = {4.41389, 1.74722, 2.84167, 2.61667, 3.625, 3.99444, 6.625};
+
+    // CT
+    double CT_1_FBK_DARK[] = {0.194892, 0.20516, 0.240606, 0.269749, 0.29342, 0.328475, 0.358377};
+    double errCT_1_FBK_DARK[] = {0.016018, 0.013109, 0.011335, 0.01174, 0.014037, 0.012211, 0.012549};
+    double CT_Del_1_FBK_DARK[] = {0.206139, 0.226054, 0.263384, 0.287259, 0.306948, 0.340825, 0.366465};
+    double errCT_Del_1_FBK_DARK[] = {0.016767, 0.022734, 0.014977, 0.018556, 0.02624, 0.018793, 0.018545};
+    double CT_2_FBK_DARK[] = {0.176788, 0.206578, 0.236805, 0.263922, 0.289775, 0.328639, 0.354963};
+    double errCT_2_FBK_DARK[] = {0.018846, 0.021822, 0.022803, 0.016043, 0.018487, 0.019276, 0.015744};
+    double CT_Del_2_FBK_DARK[] = {0.19483, 0.227325, 0.257828, 0.277089, 0.300092, 0.337381, 0.35954};
+    double errCT_Del_2_FBK_DARK[] = {0.018765, 0.023513, 0.023997, 0.025855, 0.030283, 0.018697, 0.021711};
+    double CT_3_FBK_DARK[] = {0.192589, 0.208325, 0.24549, 0.276746, 0.306715, 0.339257, 0.369078};
+    double errCT_3_FBK_DARK[] = {0.016406, 0.013547, 0.014306, 0.011511, 0.012366, 0.011901, 0.013996};
+    double CT_Del_3_FBK_DARK[] = {0.189957, 0.222822, 0.26071, 0.286266, 0.310631, 0.341255, 0.366327};
+    double errCT_Del_3_FBK_DARK[] = {0.018004, 0.02793, 0.020407, 0.018377, 0.01958, 0.017395, 0.021229};
+
+    //----------------
+    // FBK HD3-2 LASER
+    //----------------
+    double HV_FBK_LASER[] = {31, 32, 33, 34, 35, 36};
+    double errHV_FBK_LASER[] = {0.01, 0.01, 0.01, 0.01, 0.01, 0.01};
     double CT_1_FBK_LASER[] = {0.182358, 0.197717, 0.212695, 0.226478, 0.246893, 0.291059};
     double errCT_1_FBK_LASER[] = {0.02, 0.02, 0.02, 0.02, 0.02, 0.02};
 
+    // DARK SensL
     double HV_SensL[] = {28, 29, 30, 31};
     double DCR_1_SensL[] = {103.836, 164.281, 219.954, 280.063};
     double errDCR_1_SensL[] = {7.70229, 6.33222, 12.2104, 20.2025};
@@ -81,6 +106,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_LASER_SensL_DARK_data_2018_07(){
     double errDCR_Del_2_SensL[] = {2.75993, 4.28511, 28.0717, 34.4145};
 
     int n_DCR_DARK = 7;
+    int n_DCR_LASER = 6;
 
     TGraphErrors *gDCR_1_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, DCR_1_FBK_DARK, errHV_FBK_DARK, errDCR_1_FBK_DARK);
     TGraphErrors *gDCR_2_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, DCR_2_FBK_DARK, errHV_FBK_DARK, errDCR_2_FBK_DARK);
@@ -88,60 +114,120 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_LASER_SensL_DARK_data_2018_07(){
     TGraphErrors *gDCR_Del_1_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, DCR_Del_1_FBK_DARK, errHV_FBK_DARK, errDCR_Del_1_FBK_DARK);
     TGraphErrors *gDCR_Del_2_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, DCR_Del_2_FBK_DARK, errHV_FBK_DARK, errDCR_Del_2_FBK_DARK);
     TGraphErrors *gDCR_Del_3_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, DCR_Del_3_FBK_DARK, errHV_FBK_DARK, errDCR_Del_3_FBK_DARK);
-    // TGraphErrors *gCT_1_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, CT_1_FBK_DARK, errHV_FBK_DARK, errCT_1_FBK_DARK);
-    // TGraphErrors *gCT_2_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, CT_2_FBK_DARK, errHV_FBK_DARK, errCT_2_FBK_DARK);
-    // TGraphErrors *gCT_3_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, CT_3_FBK_DARK, errHV_FBK_DARK, errCT_3_FBK_DARK);
-    // TGraphErrors *gCT_Del_1_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, CT_Del_1_FBK_DARK, errHV_FBK_DARK, errCT_Del_1_FBK_DARK);
-    // TGraphErrors *gCT_Del_2_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, CT_Del_2_FBK_DARK, errHV_FBK_DARK, errCT_Del_2_FBK_DARK);
-    // TGraphErrors *gCT_Del_3_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, CT_Del_3_FBK_DARK, errHV_FBK_DARK, errCT_Del_3_FBK_DARK);
+    TGraphErrors *gCT_1_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, CT_1_FBK_DARK, errHV_FBK_DARK, errCT_1_FBK_DARK);
+    TGraphErrors *gCT_2_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, CT_2_FBK_DARK, errHV_FBK_DARK, errCT_2_FBK_DARK);
+    TGraphErrors *gCT_3_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, CT_3_FBK_DARK, errHV_FBK_DARK, errCT_3_FBK_DARK);
+    TGraphErrors *gCT_Del_1_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, CT_Del_1_FBK_DARK, errHV_FBK_DARK, errCT_Del_1_FBK_DARK);
+    TGraphErrors *gCT_Del_2_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, CT_Del_2_FBK_DARK, errHV_FBK_DARK, errCT_Del_2_FBK_DARK);
+    TGraphErrors *gCT_Del_3_FBK_DARK  = new TGraphErrors(n_DCR_DARK, HV_FBK_DARK, CT_Del_3_FBK_DARK, errHV_FBK_DARK, errCT_Del_3_FBK_DARK);
 
+    TGraphErrors *gCT_1_FBK_LASER  = new TGraphErrors(n_DCR_LASER, HV_FBK_LASER, CT_1_FBK_LASER, errHV_FBK_LASER, errCT_1_FBK_LASER);
+
+
+
+    //------------------------------
 
     gDCR_1_FBK_DARK->SetMarkerStyle(20);
     gDCR_1_FBK_DARK->SetMarkerColor(kOrange+1);
     gDCR_1_FBK_DARK->SetTitle();
     gDCR_1_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gDCR_1_FBK_DARK->GetYaxis()->SetTitle("title_DCR");
+    gDCR_1_FBK_DARK->GetYaxis()->SetTitle("DCR \frac{Hz}{mm^2}");
 
     gDCR_2_FBK_DARK->SetMarkerStyle(20);
     gDCR_2_FBK_DARK->SetMarkerColor(kRed);
     gDCR_2_FBK_DARK->SetTitle();
     gDCR_2_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gDCR_2_FBK_DARK->GetYaxis()->SetTitle("title_DCR");
+    gDCR_2_FBK_DARK->GetYaxis()->SetTitle("DCR \frac{Hz}{mm^2}");
 
     gDCR_3_FBK_DARK->SetMarkerStyle(20);
     gDCR_3_FBK_DARK->SetMarkerColor(kMagenta);
     gDCR_3_FBK_DARK->SetTitle();
     gDCR_3_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
-    gDCR_3_FBK_DARK->GetYaxis()->SetTitle("title_DCR");
+    gDCR_3_FBK_DARK->GetYaxis()->SetTitle("DCR \frac{Hz}{mm^2}");
 
     //------------------------------
 
-    // gCT_1_FBK_DARK->SetMarkerStyle(20);
-    // gCT_1_FBK_DARK->SetMarkerColor(kOrange+1);
-    // gCT_1_FBK_DARK->SetTitle();
-    // gCT_1_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
-    // gCT_1_FBK_DARK->GetYaxis()->SetTitle("P_{CT}");
-    //
-    // gCT_2_FBK_DARK->SetMarkerStyle(20);
-    // gCT_2_FBK_DARK->SetMarkerColor(kRed);
-    // gCT_2_FBK_DARK->SetTitle();
-    // gCT_2_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
-    // gCT_2_FBK_DARK->GetYaxis()->SetTitle("P_{CT}");
-    //
-    // gCT_3_FBK_DARK->SetMarkerStyle(20);
-    // gCT_3_FBK_DARK->SetMarkerColor(kMagenta);
-    // gCT_3_FBK_DARK->SetTitle();
-    // gCT_3_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
-    // gCT_3_FBK_DARK->GetYaxis()->SetTitle("P_{CT}");
+    gCT_1_FBK_DARK->SetMarkerStyle(20);
+    gCT_1_FBK_DARK->SetMarkerColor(kOrange+1);
+    gCT_1_FBK_DARK->SetTitle();
+    gCT_1_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
+    gCT_1_FBK_DARK->GetYaxis()->SetTitle("P_{CT}");
+
+    gCT_2_FBK_DARK->SetMarkerStyle(20);
+    gCT_2_FBK_DARK->SetMarkerColor(kRed);
+    gCT_2_FBK_DARK->SetTitle();
+    gCT_2_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
+    gCT_2_FBK_DARK->GetYaxis()->SetTitle("P_{CT}");
+
+    gCT_3_FBK_DARK->SetMarkerStyle(20);
+    gCT_3_FBK_DARK->SetMarkerColor(kMagenta);
+    gCT_3_FBK_DARK->SetTitle();
+    gCT_3_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
+    gCT_3_FBK_DARK->GetYaxis()->SetTitle("P_{CT}");
+
+    //------------------------------
+
+    gDCR_Del_1_FBK_DARK->SetMarkerStyle(22);
+    gDCR_Del_1_FBK_DARK->SetMarkerColor(kOrange+1);
+    gDCR_Del_1_FBK_DARK->SetTitle();
+    gDCR_Del_1_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
+    gDCR_Del_1_FBK_DARK->GetYaxis()->SetTitle("DCR \frac{Hz}{mm^2}");
+
+    gDCR_Del_2_FBK_DARK->SetMarkerStyle(22);
+    gDCR_Del_2_FBK_DARK->SetMarkerColor(kRed);
+    gDCR_Del_2_FBK_DARK->SetTitle();
+    gDCR_Del_2_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
+    gDCR_Del_2_FBK_DARK->GetYaxis()->SetTitle("DCR \frac{Hz}{mm^2}");
+
+    gDCR_Del_3_FBK_DARK->SetMarkerStyle(22);
+    gDCR_Del_3_FBK_DARK->SetMarkerColor(kMagenta);
+    gDCR_Del_3_FBK_DARK->SetTitle();
+    gDCR_Del_3_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
+    gDCR_Del_3_FBK_DARK->GetYaxis()->SetTitle("DCR \frac{Hz}{mm^2}");
+
+    //------------------------------
+
+    gCT_Del_1_FBK_DARK->SetMarkerStyle(22);
+    gCT_Del_1_FBK_DARK->SetMarkerColor(kOrange+1);
+    gCT_Del_1_FBK_DARK->SetTitle();
+    gCT_Del_1_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
+    gCT_Del_1_FBK_DARK->GetYaxis()->SetTitle("P_{CT}");
+
+    gCT_Del_2_FBK_DARK->SetMarkerStyle(22);
+    gCT_Del_2_FBK_DARK->SetMarkerColor(kRed);
+    gCT_Del_2_FBK_DARK->SetTitle();
+    gCT_Del_2_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
+    gCT_Del_2_FBK_DARK->GetYaxis()->SetTitle("P_{CT}");
+
+    gCT_Del_3_FBK_DARK->SetMarkerStyle(22);
+    gCT_Del_3_FBK_DARK->SetMarkerColor(kMagenta);
+    gCT_Del_3_FBK_DARK->SetTitle();
+    gCT_Del_3_FBK_DARK->GetXaxis()->SetTitle("Bias Voltage (V)");
+    gCT_Del_3_FBK_DARK->GetYaxis()->SetTitle("P_{CT}");
+
+    //------------------------------
+
+    gCT_1_FBK_LASER->SetMarkerStyle(21);
+    gCT_1_FBK_LASER->SetMarkerColor(kOrange+2);
+    gCT_1_FBK_LASER->SetTitle();
+    gCT_1_FBK_LASER->GetXaxis()->SetTitle("Bias Voltage (V)");
+    gCT_1_FBK_LASER->GetYaxis()->SetTitle("P_{CT}");
+
+    //------------------------------
 
 
-
-
-
-    TCanvas *cV_CT_FBK = new TCanvas("cV_CT_FBK", "cV_CT_FBK",w,h);
-    cV_CT_FBK->SetGrid();
-    TMultiGraph *mgV_CT_Del_1_E = new TMultiGraph("mgV_CT_Del_1_E", ";Bias Voltage (V); CT_Del");
-    mgV_CT_Del_1_E->Add(gDCR_1_FBK_DARK);
-    mgV_CT_Del_1_E->Draw("AP");
+    TCanvas *cV_CT_FBK_1 = new TCanvas("cV_CT_FBK_1", "cV_CT_FBK_1",w,h);
+    cV_CT_FBK_1->SetGrid();
+    auto legendCT_FBK_1 = new TLegend(0.15,0.70,0.35,0.85);
+    legendCT_FBK_1->AddEntry(gCT_1_FBK_DARK,    "HD3-2 (1), from DCR","p");
+    legendCT_FBK_1->AddEntry(gCT_Del_1_FBK_DARK,"HD3-2 (1), from DELAYS","p");
+    legendCT_FBK_1->AddEntry(gCT_1_FBK_LASER,     "HD3-2 (1), from LASER","p");
+    legendCT_FBK_1->Draw();
+    TMultiGraph *mgV_CT_FBK_1 = new TMultiGraph("mgV_CT_FBK_1", ";Bias Voltage (V); P_{CT}");
+    mgV_CT_FBK_1->Add(gCT_1_FBK_DARK);
+    mgV_CT_FBK_1->Add(gCT_Del_1_FBK_DARK);
+    mgV_CT_FBK_1->Add(gCT_1_FBK_LASER);
+    mgV_CT_FBK_1->Draw("AP");
+    legendCT_FBK_1->Draw();
 
 }
