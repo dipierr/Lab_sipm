@@ -81,14 +81,14 @@
 #define h 600
 #define w 1000
 
-void DCR_CrossTalk_FBK_HD3_2_from_cnt_data_2018_07();
+void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_DARK_data_2018_07();
 int find_index(double v[],int N, double value);
 double GetMaxCheckPercentage(double num, double LimUp, double LimDown, double min_percentage, double max_percentage);
 
 char title_DCR[80];
 char title_DCR_mg[80];
 
-void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_data_2018_07(){
+void DCR_CrossTalk_SensL_MicroFJ_SMTPA_60035_DARK_data_2018_07(){
 
     // SiPM1:
     double HV_1[n_DCR], errHV_1[n_DCR];
