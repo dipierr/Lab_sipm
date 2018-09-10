@@ -91,18 +91,18 @@ def main(**kwargs):
 
     low_lim = 24.2
     central_lim_low=26
-    central_lim_high=26.6
+    central_lim_high=26.6 #26.6
     #central_lim_high=27.5 # non va il test z con il confronto con GAIN-V
     up_lim = 30
 
     intersect_low = 26.2;
-    intersect_up = 27;
+    intersect_up = 40#27;
 
     void=1.5
 
     errV = 0.01
 
-    approx_Vbd_sqrt = 26.6
+    approx_Vbd_sqrt = 26.5#26.6
 
     up_lim_ALL = 30
 
@@ -326,9 +326,14 @@ def main(**kwargs):
     m=optimizedParameters_sqrt[0]
     q=optimizedParameters_sqrt[1]
 
+    Vbd_sqrtI_V = -q/m
+
+
+    plt.plot(Vbd_sqrtI_V, 0, color='red', marker='o', linestyle='None', markersize=5)
+
+
     #ERROR PROPAGATION
 
-    Vbd_sqrtI_V = -q/m
 
     #partial derivatives
     df_dm = q/(m**2)
