@@ -473,6 +473,12 @@ void GAIN_V_SiPM_HD3_2_GausSum(){
     double dq_3 = 1/m_3;
     TMatrixDSym cov_1 = r_1->GetCovarianceMatrix();
     err_Vbd_1 = TMath::Sqrt( dq_1*dq_1*cov_1[0][0] + dq_1*dm_1*cov_1[0][1] + dm_1*dq_1*cov_1[1][0] + dm_1*dm_1*cov_1[1][1] );
+    // cout<<"cov"<<endl;
+    // for(int i=0; i<2; i++){
+    //     for(int j=0; j<2; j++){
+    //         cout<<cov_1[i][j]<<endl;
+    //     }
+    // }
     cout<<endl;
     TMatrixDSym cov_2 = r_2->GetCovarianceMatrix();
     err_Vbd_2 = TMath::Sqrt( dq_2*dq_2*cov_2[0][0] + dq_2*dm_2*cov_2[0][1] + dm_2*dq_2*cov_2[1][0] + dm_2*dm_2*cov_2[1][1] );
