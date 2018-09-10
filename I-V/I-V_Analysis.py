@@ -102,7 +102,7 @@ def main(**kwargs):
 
     errV = 0.01
 
-    approx_Vbd_sqrt = 26.5#26.6
+    approx_Vbd_sqrt = 26.6#26.6
 
     up_lim_ALL = 30
 
