@@ -616,9 +616,14 @@ void DCR_CrossTalk_FBK_HD3_2_LASER_data_2018_07(){
             ///   RATIO GAIN   ///
             //////////////////////
             R_gain[n_SiPM][i]    = GAIN[n_SiPM][i] / Sigma_add[n_SiPM][i];
-            errR_gain[n_SiPM][i] = (errGAIN[n_SiPM][i]*errGAIN[n_SiPM][i])/(Sigma_add[n_SiPM][i]*Sigma_add[n_SiPM][i]);
-            errR_gain[n_SiPM][i]+= (errSigma_add[n_SiPM][i]*errSigma_add[n_SiPM][i])*(GAIN[n_SiPM][i]*GAIN[n_SiPM][i])/TMath::Power(Sigma_add[n_SiPM][i],4);
-            errR_gain[n_SiPM][i] = TMath::Sqrt(errR_gain[n_SiPM][i]);
+            // errR_gain[n_SiPM][i] = (errGAIN[n_SiPM][i]*errGAIN[n_SiPM][i])/(Sigma_add[n_SiPM][i]*Sigma_add[n_SiPM][i]);
+            // errR_gain[n_SiPM][i]+= (errSigma_add[n_SiPM][i]*errSigma_add[n_SiPM][i])*(GAIN[n_SiPM][i]*GAIN[n_SiPM][i])/TMath::Power(Sigma_add[n_SiPM][i],4);
+            // errR_gain[n_SiPM][i] = TMath::Sqrt(errR_gain[n_SiPM][i]);
+
+            // Since I don't have the Covariance Matrix:
+            double R_gain_Up   = (GAIN[n_SiPM][i] + errGAIN[n_SiPM][i]) / (Sigma_add[n_SiPM][i] - errSigma_add[n_SiPM][i]);
+            double R_gain_Down = (GAIN[n_SiPM][i] - errGAIN[n_SiPM][i]) / (Sigma_add[n_SiPM][i] + errSigma_add[n_SiPM][i]);
+            errR_gain[n_SiPM][i] = TMath::Max( TMath::Abs(R_gain_Up-R_gain[n_SiPM][i]), TMath::Abs(R_gain_Down-R_gain[n_SiPM][i]) );
         }
     }
 
