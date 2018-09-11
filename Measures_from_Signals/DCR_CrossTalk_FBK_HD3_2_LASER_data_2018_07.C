@@ -604,11 +604,12 @@ void DCR_CrossTalk_FBK_HD3_2_LASER_data_2018_07(){
             Prob_1peS[n_SiPM][i]=Area1[i]/Entries[n_SiPM][i];
             Prob_Cross_Talk[n_SiPM][i]=1-(Prob_1peS[n_SiPM][i]/Prob_1pe[n_SiPM][i]);
 
+            errArea0[n_SiPM][i]=Area0[n_SiPM][i]*TMath::Sqrt(TMath::Power(errH_peak_0[n_SiPM][i]/H_peak_0[n_SiPM][i],2)+TMath::Power(errSigma_peak_0[n_SiPM][i]/Sigma_peak_0[n_SiPM][i],2));
             errArea1[n_SiPM][i]=Area1[i]*TMath::Power(TMath::Power(errH_peak_1[n_SiPM][i]/H_peak_1[n_SiPM][i],2)+TMath::Power(errSigma_peak_1[n_SiPM][i]/Sigma_peak_1[n_SiPM][i],2),0.5);
             errProb_1peS[n_SiPM][i]=errArea1[n_SiPM][i]/Entries[n_SiPM][i];
-            errMu[n_SiPM][i]=errArea0[n_SiPM][i]/(Prob_0pe[n_SiPM][i]*Entries[n_SiPM][i]);
+            // errMu[n_SiPM][i]=errArea0[n_SiPM][i]/(Prob_0pe[n_SiPM][i]*Entries[n_SiPM][i]);
+            errMu[n_SiPM][i]=errArea0[n_SiPM][i]/(Area0[n_SiPM][i]);
             errProb_1pe[n_SiPM][i]=TMath::Exp(-Mu[n_SiPM][i])*TMath::Abs(1-Mu[n_SiPM][i])*errMu[n_SiPM][i];
-            errArea0[n_SiPM][i]=Area0[n_SiPM][i]*TMath::Power(TMath::Power(errH_peak_0[n_SiPM][i]/H_peak_0[n_SiPM][i],2)+TMath::Power(errSigma_peak_0[n_SiPM][i]/Sigma_peak_0[n_SiPM][i],2),0.5);
             errProb_0pe[n_SiPM][i]=errArea0[n_SiPM][i]/Entries[n_SiPM][i];
             errProb_Cross_Talk[n_SiPM][i]=TMath::Power(TMath::Power(errProb_1peS[n_SiPM][i]/Prob_1pe[n_SiPM][i],2)+TMath::Power(Prob_1peS[n_SiPM][i]*errProb_1pe[n_SiPM][i]/Prob_1pe[n_SiPM][i],2),0.5);
 
@@ -624,6 +625,9 @@ void DCR_CrossTalk_FBK_HD3_2_LASER_data_2018_07(){
             double R_gain_Up   = (GAIN[n_SiPM][i] + errGAIN[n_SiPM][i]) / (Sigma_add[n_SiPM][i] - errSigma_add[n_SiPM][i]);
             double R_gain_Down = (GAIN[n_SiPM][i] - errGAIN[n_SiPM][i]) / (Sigma_add[n_SiPM][i] + errSigma_add[n_SiPM][i]);
             errR_gain[n_SiPM][i] = TMath::Max( TMath::Abs(R_gain_Up-R_gain[n_SiPM][i]), TMath::Abs(R_gain_Down-R_gain[n_SiPM][i]) );
+
+            // double errR_gain_temp = R_gain[n_SiPM][i]*TMath::Sqrt( TMath::Power(errGAIN[n_SiPM][i]/GAIN[n_SiPM][i],2) + TMath::Power(errSigma_add[n_SiPM][i]/Sigma_add[n_SiPM][i],2) );
+            // cout<<"eR "<<errR_gain[n_SiPM][i]<<"\t"<<errR_gain_temp<<endl;
         }
     }
 
@@ -678,7 +682,7 @@ void DCR_CrossTalk_FBK_HD3_2_LASER_data_2018_07(){
         gV_PCT[n_SiPM]->SetMarkerColor(kOrange+2);
         gV_PCT[n_SiPM]->SetTitle();
         gV_PCT[n_SiPM]->GetXaxis()->SetTitle("Bias Voltage (V)");
-        gV_PCT[n_SiPM]->GetYaxis()->SetTitle("Cross Talk");
+        gV_PCT[n_SiPM]->GetYaxis()->SetTitle("P_{CT}");
 
         title_cV_PCT="cV_PCT_"+to_string(n_SiPM);
         cV_PCT[n_SiPM] = new TCanvas(title_cV_PCT.c_str(), title_cV_PCT.c_str(),w,h);
@@ -733,6 +737,18 @@ void DCR_CrossTalk_FBK_HD3_2_LASER_data_2018_07(){
       for(int i=0; i<n_GAIN; i++){
           printf("$ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ & $ %.2f \\pm %.2f $ \\\\ \n", HV_LASER_GAIN[i], errHV_LASER_GAIN[i], Prob_Cross_Talk[n_SiPM][i], errProb_Cross_Talk[n_SiPM][i], R_gain[n_SiPM][i], errR_gain[n_SiPM][i]);
       }
+
+
+      ////////////////////////////////
+      TCanvas *cMu = new TCanvas("cMu", "cMu",w,h);
+      cMu->SetGrid();
+      TGraphErrors *gMu  = new TGraphErrors(n_GAIN, HV_LASER_GAIN, Mu[0], errHV_LASER_GAIN, errMu[0]);
+      gMu->SetTitle();
+      gMu->SetMarkerStyle(21);
+      gMu->SetMarkerColor(kMagenta+1);
+      gMu->GetXaxis()->SetTitle("Bias Voltage (V)");
+      gMu->GetYaxis()->SetTitle("\\mu");
+      gMu->Draw("AP");
 
 
 //*****************************************************************************
