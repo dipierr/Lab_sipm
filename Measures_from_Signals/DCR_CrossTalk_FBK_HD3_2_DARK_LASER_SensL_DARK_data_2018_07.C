@@ -405,9 +405,9 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_LASER_SensL_DARK_data_2018_07(){
 
     TCanvas *cV_CT_FBK_1 = new TCanvas("cV_CT_FBK_1", "cV_CT_FBK_1",w,h);
     cV_CT_FBK_1->SetGrid();
-    auto legendCT_FBK_1 = new TLegend(0.15,0.70,0.35,0.85);
-    legendCT_FBK_1->AddEntry(gCT_1_FBK_DARK,    "HD3-2 (1), from DCR","p");
-    legendCT_FBK_1->AddEntry(gCT_Del_1_FBK_DARK,"HD3-2 (1), from DELAYS","p");
+    auto legendCT_FBK_1 = new TLegend(0.15,0.70,0.45,0.85);
+    legendCT_FBK_1->AddEntry(gCT_1_FBK_DARK,    "HD3-2 (1), from CNT (DARK)","p");
+    legendCT_FBK_1->AddEntry(gCT_Del_1_FBK_DARK,"HD3-2 (1), from DELAYS (DARK)","p");
     legendCT_FBK_1->AddEntry(gCT_1_FBK_LASER,     "HD3-2 (1), from LASER","p");
     legendCT_FBK_1->Draw();
     TMultiGraph *mgV_CT_FBK_1 = new TMultiGraph("mgV_CT_FBK_1", title_P_CT_mg);
