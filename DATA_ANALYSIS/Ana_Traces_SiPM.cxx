@@ -172,7 +172,7 @@ void EvaluateCrossTalk(double DCR_0_5, double errDCR_0_5, double DCR_1_5, double
 double GetDCRfromDelays();
 double GetErrDCRfromDelays();
 void Init_gaus_sum_12();
-
+void FitTraceExp(float *x, float *y, int trace_length, int ind_range_low, int ind_range_high);
 
 
 // READ FILE
@@ -244,7 +244,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 8;//9;//8;//5;//9*GSPS;
+int dleddt = 6;//9;//8;//5;//9*GSPS;
     // dleddt = 6; for DCR_CT_1SiPM_nHVs(), 20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat and similar
     // dleddt = 9; for Ana_LED(), 20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_35_AS_2_50000_01.dat and similar
 int blind_gap = 2*dleddt; //ns
@@ -587,6 +587,8 @@ TH1D *ptrHistDCR_window = new TH1D("HistDCR_window","",histLED_nbins, histLED_lo
 TH1F *ptrAll = new TH1F("histAll","",500,-100,100);
 TH1F *ptrAllTrace = new TH1F("histAllT","",86,-10.0,20.0);
 
+TH1F *hist_tau = new TH1F("hist_tau","",100,0,100);
+
 TH1F *offset_hist = new TH1F("offset_hist","Offset histogram;V [mV];freq",1000,-20.,20.);
 
 TH1D *ptrHistCharge = new TH1D("HistCharge","",bins_Charge,-maxyHistCharge,maxyHistCharge);
@@ -599,6 +601,8 @@ TF1 *expDel = new TF1("expDel","[1]*TMath::Exp(-[0]*x)",expDelLow_max,expDelHigh
 TF1 *gausFit0 = new TF1("gausFit0","gaus",-100,100);
 TF1 *gausFit1 = new TF1("gausFit1","gaus",-100,100);
 TF1 *gausFit2 = new TF1("gausFit2","gaus",-100,100);
+
+TF1 *expTrace = new TF1("expTrace","[0]*TMath::Exp(-x/[1])",0,100);
 
 TF1 *gaus_sum_12 = new TF1("gaus_sum_12", "[0]*TMath::Exp( - (x-[2]-[3])*(x-[2]-[3])/( 2*([4]*[4] + [5]*[5] )) ) + [1]*TMath::Exp( - (x-[2]-2*[3])*(x-[2]-2*[3])/( 2*([4]*[4] + 4*[5]*[5] ) ) ) " ,-100,100);
 // [0]  A_1pe
@@ -4240,7 +4244,9 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
             // ind_peaks_all_old -> ind_peaks_all
             // (both excluded)
             // I pass a positive trace
-            //FitTraceExp(trace[0], trace[1], ind_peaks_all_old+1, ind_peaks_all-1);
+            for(int i=ind_peaks_all_old+1; i<ind_peaks_all-2; i++){
+                FitTraceExp(trace[0], trace[1], trace_length, peaks_all_index[i], peaks_all_index[i+1]);
+            }
 
         } // END fit_trace_bool
 
@@ -4659,10 +4665,32 @@ void Init_gaus_sum_12(){
 }
 
 //------------------------------------------------------------------------------
-// void FitTraceExp(float *x, float *y, int range_low, int range_high){
-//
-// }
+void FitTraceExp(float *x, float *y, int trace_length, int ind_range_low, int ind_range_high){
+    if(x[ind_range_high]-x[ind_range_low]>15){
+        TGraphErrors *graph_temp = new TGraphErrors(trace_length,x,y,0,0);
+        expTrace->SetParameter(0, 100);
+        expTrace->SetParameter(1, 20);
+        expTrace->SetParLimits(0, 0,100000);
+        expTrace->SetParLimits(1, 5,150);
+        double low, high;
+        low = x[ind_range_low+3];
 
+        if(x[ind_range_high]-x[ind_range_low]<40){
+            high = x[ind_range_high-10];
+        }else{
+            high = x[ind_range_low+30];
+        }
+
+        graph_temp -> Fit("expTrace", "q", "", low, high);
+        double chi2_rid = expTrace->GetChisquare()/expTrace->GetNDF();
+        if(chi2_rid<10){
+            hist_tau -> Fill(expTrace->GetParameter(1));
+        }
+
+        delete graph_temp;
+    }
+    return;
+}
 
 
 
