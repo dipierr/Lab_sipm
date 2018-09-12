@@ -223,6 +223,8 @@ bool change_title_size_bool = true;
 
 bool fit_trace_bool = false;
 
+bool find_clean_peaks = false;
+
 //-----------------
 //-----------------
 
@@ -475,11 +477,12 @@ float peaks_all_delay[2][max_peaks];
 int ind_peaks_all_delay = 0;
 float peaks_all[max_peaks];
 float peaks_all_time[max_peaks];
-float peaks_all_index[max_peaks];
+int peaks_all_index[max_peaks];
 int ind_peaks_all = 0;
 int ind_peaks_all_old = 0;
 int n_ev_tot = 0;
 
+int clean_peaks_num = 0;
 
 float offset = 0.; float charge = 0.;
 
@@ -588,6 +591,8 @@ TH1F *ptrAll = new TH1F("histAll","",500,-100,100);
 TH1F *ptrAllTrace = new TH1F("histAllT","",86,-10.0,20.0);
 
 TH1F *hist_tau = new TH1F("hist_tau","",100,0,100);
+
+TH1F *hist_charge_clean = new TH1F("hist_charge_clean","",100,0.5e7,2e7);
 
 TH1F *offset_hist = new TH1F("offset_hist","Offset histogram;V [mV];freq",1000,-20.,20.);
 
@@ -2282,7 +2287,7 @@ void FindDelaysFromVector(){
     //int n,i,k;
     double time_new = -1., time_old = -1.;
     double time_delay = 0.;
-    std::cout << "here" << '\n';
+    // std::cout << "here" << '\n';
     for(int i=0;i<ind_peaks_all; i++){ // loop on peaks_all_delay
         // cout<<time_old<<endl;
         // cout<<peaks_all_delay[0][i]<<endl;
@@ -4249,6 +4254,44 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
             }
 
         } // END fit_trace_bool
+
+
+        if(find_clean_peaks){
+            if(ind_peaks_all-ind_peaks_all_old > 6){
+                for(int i=ind_peaks_all_old+2; i<ind_peaks_all-2; i++){
+                    if((peaks_all_index[i+1]-peaks_all_index[i])>300 && (peaks_all_index[i]-peaks_all_index[i-1])>100){
+                        double baseline=0;
+                        for(int k=peaks_all_index[i]+dleddt-25; k<peaks_all_index[i]+dleddt; k++){
+                            baseline+=trace[1][k];
+                        }
+                        baseline /= 25;
+                        // cout<<baseline<<endl;
+                        if(trace[1][peaks_all_index[i]+dleddt]+baseline<20){
+                            bool ok = true;
+                            // clean_peaks_num++;
+                            double sum=0.;
+                            for(int j=peaks_all_index[i]-5+dleddt; j<peaks_all_index[i]+100+dleddt; j++){
+                                if(trace[1][j]>20){
+                                    ok=false;
+                                    break;
+                                }
+                                // sum += trace[1][j];
+                                sum += trace[1][j]-baseline;
+                            }
+                            if(ok){
+                                sum *= 1e-3; // mV
+                                sum *= 1e-9; // ns
+                                // sum *= -1; // positive
+                                sum /= 2500; // transimpedance gain
+                                sum /= 1.6e-19; // gain in electrons
+                                hist_charge_clean->Fill(sum);
+                                cout<<sum<<endl;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
 
 
