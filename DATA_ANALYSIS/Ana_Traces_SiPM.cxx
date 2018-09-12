@@ -244,7 +244,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 6;//9;//8;//5;//9*GSPS;
+int dleddt = 8;//9;//8;//5;//9*GSPS;
     // dleddt = 6; for DCR_CT_1SiPM_nHVs(), 20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat and similar
     // dleddt = 9; for Ana_LED(), 20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_35_AS_2_50000_01.dat and similar
 int blind_gap = 2*dleddt; //ns
@@ -254,8 +254,8 @@ int gap_between_peaks = 10;
 int rise_time = dleddt;
 
 // ONLY for DCR_CT_1SiPM_1HV and DCR_CT_1SiPM_3HVs:
-float min_thr_to_find_peaks = 8;  //first thr value in the DCR vs thr plot (mV)
-float max_thr_to_find_peaks = 80; //last thr value in the DCR vs thr plot (mV)
+float min_thr_to_find_peaks = 7.1;  //first thr value in the DCR vs thr plot (mV)
+float max_thr_to_find_peaks = 60; //last thr value in the DCR vs thr plot (mV)
 float gap_between_thr = 0.1; //gap between thresholds in the DCR vs thr plot (mV)
 float min_pe_0_5 = 8;  //min value for 0.5pe threshold (mV)
 float max_pe_0_5 = 15; //max value for 0.5pe threshold (mV)
@@ -265,7 +265,7 @@ int n_mean = 10; //number of points used for smoothing the DCR vs thr plot
 // float pe_0_5_vect[nfilemax] = {8.,  8., 8., 8., 8., 8., 10., 10., 10., 10.};
 // float pe_1_5_vect[nfilemax] = {21., 25., 28., 33., 38., 43., 47., 30., 30., 30.};
 float pe_0_5_vect[nfilemax] = {8, 8, 9, 10, 11, 12, 14, 999., 999., 999};
-float pe_1_5_vect[nfilemax] = {19.5, 23.5, 26.5, 30, 33.5, 36, 40, 999., 999., 999.};
+float pe_1_5_vect[nfilemax] = {22, 26, 30, 36, 33.5, 36, 40, 999., 999., 999.};
 
 float pe_0_5_vect_Ea[nfilemax];
 float pe_0_5_vect_Eb[nfilemax];
@@ -279,8 +279,8 @@ float pe_1_5_vect_Eb[nfilemax];
 
 
 // AREA
-double Area = 36.; // 6*6 mm^2 for FBK NUV HD3-2
-// double Area = 36.844900; // 6.07*6.07 mm^2 for SensL MicroFJ-SMTPA-60035
+// double Area = 36.; // 6*6 mm^2 for FBK NUV HD3-2
+double Area = 36.844900; // 6.07*6.07 mm^2 for SensL MicroFJ-SMTPA-60035
 
 // ONLY for LED measures
 int minLED_amp = 168;//168;//168;//290;//115;  // window: min time for peak (ns) for LED
@@ -1072,7 +1072,8 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
 
     for(int i=0; i<nfiletot; i++){
         double diff_temp_0 = 1;
-        double diff_temp_1 = 1*(1+3./(double)(nfiletot-1)*(double)i);
+        double diff_temp_1 = 1*(1+1./(double)(nfiletot-1)*(double)i);
+        // double diff_temp_1 = 1*(1+3./(double)(nfiletot-1)*(double)i);
         diff_temp_1 = (int)(diff_temp_1*10);
         diff_temp_1/=10;
         cout<<"diff_temp_1 = "<<diff_temp_1<<endl;
