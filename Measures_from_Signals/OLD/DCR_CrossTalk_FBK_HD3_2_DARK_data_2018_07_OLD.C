@@ -305,8 +305,8 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     errDCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0110521;
     CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.194892;
     DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 10.6742;
-    errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.033244;
-    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.197997;
+    errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0332437;
+    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.206139;
 
     HV = 32.00;
     index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
@@ -314,8 +314,8 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     errDCR_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0131704;
     CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.20516;
     DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 15.1647;
-    errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0290422;
-    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.22506;
+    errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0290423;
+    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.226054;
 
     HV = 33.00;
     index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
@@ -324,7 +324,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.240606;
     DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 18.458;
     errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0277113;
-    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.263293;
+    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.263384;
 
     HV = 34.00;
     index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
@@ -333,7 +333,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.269749;
     DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 21.1589;
     errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0271707;
-    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.28729;
+    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.287259;
 
     HV = 35.00;
     index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
@@ -342,7 +342,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.29342;
     DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 23.717;
     errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0269739;
-    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.306855;
+    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.306948;
 
     HV = 36.00;
     index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
@@ -351,7 +351,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.328475;
     DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 26.0245;
     errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.0269753;
-    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.34085;
+    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.340825;
 
     HV = 37.00;
     index = find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV);
@@ -360,7 +360,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.358377;
     DCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 28.4227;
     errDCR_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.02718;
-    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.366474;
+    CT_Del_1[find_index(HV_1,  sizeof(HV_1)/sizeof(HV_1[0]), HV)] = 0.366465;
 
 
     //////// Ea ////////
@@ -398,7 +398,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.281489;
     DCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 21.186;
     errDCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.027144;
-    CT_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.297053;
+    CT_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.297041;
 
     HV = 35.00;
     index = find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV);
@@ -407,7 +407,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.303196;
     DCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 23.741;
     errDCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.0269559;
-    CT_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.321297;
+    CT_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.321314;
 
     HV = 36.00;
     index = find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV);
@@ -415,8 +415,8 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     errDCR_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.017981;
     CT_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.33856;
     DCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 26.0412;
-    errDCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.0269685;
-    CT_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.352039;
+    errDCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.0269684;
+    CT_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.352023;
 
     HV = 37.00;
     index = find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV);
@@ -425,7 +425,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.368358;
     DCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 28.4689;
     errDCR_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.0271892;
-    CT_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.378468;
+    CT_Del_1_Ea[find_index(HV_1_Ea,  sizeof(HV_1_Ea)/sizeof(HV_1_Ea[0]), HV)] = 0.378462;
 
 
     //////// Eb ////////
@@ -435,8 +435,8 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     errDCR_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.0109802;
     CT_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.178874;
     DCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 10.5428;
-    errDCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.0334733;
-    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.180544;
+    errDCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.033473;
+    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.189372;
 
     HV = 32.00;
     index = find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV);
@@ -445,7 +445,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.192051;
     DCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 15.0977;
     errDCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.0291175;
-    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.201746;
+    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.20332;
 
     HV = 33.00;
     index = find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV);
@@ -454,7 +454,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.229271;
     DCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 18.4259;
     errDCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.0277465;
-    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.248055;
+    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.248407;
 
     HV = 34.00;
     index = find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV);
@@ -463,7 +463,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.259681;
     DCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 21.1079;
     errDCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.0272029;
-    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.268702;
+    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.268703;
 
     HV = 35.00;
     index = find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV);
@@ -472,7 +472,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.279383;
     DCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 23.6671;
     errDCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.0269916;
-    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.280577;
+    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.280708;
 
     HV = 36.00;
     index = find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV);
@@ -481,7 +481,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.316264;
     DCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 25.9781;
     errDCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.0269812;
-    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.322062;
+    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.322032;
 
     HV = 37.00;
     index = find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV);
@@ -490,7 +490,8 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.345828;
     DCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 28.3609;
     errDCR_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.0271687;
-    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.347927;
+    CT_Del_1_Eb[find_index(HV_1_Eb,  sizeof(HV_1_Eb)/sizeof(HV_1_Eb[0]), HV)] = 0.34792;
+
 
 
 
@@ -508,9 +509,9 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     DCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 10.9316;
     errDCR_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0111002;
     CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.176788;
-    DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 10.7254;
-    errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0331166;
-    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.185645;
+    DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 10.7255;
+    errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0331164;
+    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.19483;
 
     HV = 32.00;
     index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
@@ -519,7 +520,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.206578;
     DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 15.2545;
     errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0286105;
-    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.226305;
+    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.227325;
 
     HV = 33.00;
     index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
@@ -528,7 +529,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.236805;
     DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 19.3657;
     errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0270007;
-    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.25734;
+    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.257828;
 
     HV = 34.00;
     index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
@@ -537,7 +538,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.263922;
     DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 22.3912;
     errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0266961;
-    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.277028;
+    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.277089;
 
     HV = 35.00;
     index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
@@ -546,7 +547,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.289775;
     DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 25.1994;
     errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0266617;
-    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.299984;
+    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.300092;
 
     HV = 36.00;
     index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
@@ -555,7 +556,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.328639;
     DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 27.837;
     errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0268445;
-    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.337352;
+    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.337381;
 
     HV = 37.00;
     index = find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV);
@@ -564,7 +565,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.354963;
     DCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 30.3086;
     errDCR_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.0271966;
-    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.359528;
+    CT_Del_2[find_index(HV_2,  sizeof(HV_2)/sizeof(HV_2[0]), HV)] = 0.35954;
 
 
     //////// Ea ////////
@@ -582,9 +583,9 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     DCR_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 15.1275;
     errDCR_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0133455;
     CT_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.2284;
-    DCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 15.407;
-    errDCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.028496;
-    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.246275;
+    DCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 15.4069;
+    errDCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0284775;
+    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.247424;
 
     HV = 33.00;
     index = find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV);
@@ -592,8 +593,8 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     errDCR_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0151872;
     CT_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.259608;
     DCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 19.4985;
-    errDCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0269202;
-    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.274532;
+    errDCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0269203;
+    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.27471;
 
     HV = 34.00;
     index = find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV);
@@ -602,7 +603,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.279133;
     DCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 22.601;
     errDCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0266066;
-    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.292778;
+    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.292766;
 
     HV = 35.00;
     index = find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV);
@@ -610,8 +611,8 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     errDCR_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0176867;
     CT_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.302267;
     DCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 25.3718;
-    errDCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0265875;
-    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.314436;
+    errDCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0265973;
+    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.314508;
 
     HV = 36.00;
     index = find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV);
@@ -620,7 +621,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.347915;
     DCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 27.9802;
     errDCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.026794;
-    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.35025;
+    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.350269;
 
     HV = 37.00;
     index = find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV);
@@ -629,7 +630,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.36895;
     DCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 30.4092;
     errDCR_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.0271947;
-    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.373495;
+    CT_Del_2_Ea[find_index(HV_2_Ea,  sizeof(HV_2_Ea)/sizeof(HV_2_Ea[0]), HV)] = 0.373502;
 
 
     //////// Eb ////////
@@ -639,8 +640,8 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     errDCR_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0109625;
     CT_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.157942;
     DCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 10.4833;
-    errDCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0335344;
-    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.161166;
+    errDCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0335342;
+    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.176065;
 
     HV = 32.00;
     index = find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV);
@@ -649,7 +650,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.189521;
     DCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 14.8065;
     errDCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0289394;
-    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.2019;
+    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.203812;
 
     HV = 33.00;
     index = find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV);
@@ -658,7 +659,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.221794;
     DCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 19.0392;
     errDCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0271436;
-    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.233434;
+    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.233831;
 
     HV = 34.00;
     index = find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV);
@@ -667,7 +668,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.247879;
     DCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 22.1801;
     errDCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0267407;
-    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.250873;
+    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.251234;
 
     HV = 35.00;
     index = find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV);
@@ -676,7 +677,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.271288;
     DCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 25.0477;
     errDCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0266949;
-    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.269644;
+    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.269809;
 
     HV = 36.00;
     index = find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV);
@@ -685,7 +686,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.31498;
     DCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 27.7111;
     errDCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0268662;
-    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.318632;
+    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.318684;
 
     HV = 37.00;
     index = find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV);
@@ -694,8 +695,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.339219;
     DCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 30.1893;
     errDCR_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.0271704;
-    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.337812;
-
+    CT_Del_2_Eb[find_index(HV_2_Eb,  sizeof(HV_2_Eb)/sizeof(HV_2_Eb[0]), HV)] = 0.337829;
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -712,7 +712,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.192589;
     DCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 13.1078;
     errDCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.0298438;
-    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.182632;
+    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.189957;
 
     HV = 32.00;
     index = find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV);
@@ -721,7 +721,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.208325;
     DCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 18.0967;
     errDCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.0271804;
-    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.223419;
+    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.222822;
 
     HV = 33.00;
     index = find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV);
@@ -730,7 +730,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.24549;
     DCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 22.0211;
     errDCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.0266151;
-    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.260092;
+    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.26071;
 
     HV = 34.00;
     index = find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV);
@@ -739,7 +739,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.276746;
     DCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 25.3283;
     errDCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.0266077;
-    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.286346;
+    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.286266;
 
     HV = 35.00;
     index = find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV);
@@ -748,7 +748,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.306715;
     DCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 28.3349;
     errDCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.0267659;
-    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.31063;
+    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.310631;
 
     HV = 36.00;
     index = find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV);
@@ -757,7 +757,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.339257;
     DCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 31.2002;
     errDCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.0271952;
-    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.341269;
+    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.341255;
 
     HV = 37.00;
     index = find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV);
@@ -766,7 +766,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.369078;
     DCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 33.8594;
     errDCR_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.027641;
-    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.366328;
+    CT_Del_3[find_index(HV_3,  sizeof(HV_3)/sizeof(HV_3[0]), HV)] = 0.366327;
 
 
     //////// Ea ////////
@@ -795,7 +795,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.259796;
     DCR_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 22.0518;
     errDCR_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.0265947;
-    CT_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.268981;
+    CT_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.269417;
 
     HV = 34.00;
     index = find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV);
@@ -804,7 +804,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.288257;
     DCR_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 25.3939;
     errDCR_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.0266003;
-    CT_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.297156;
+    CT_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.297125;
 
     HV = 35.00;
     index = find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV);
@@ -812,8 +812,8 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     errDCR_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.0189746;
     CT_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.317317;
     DCR_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 28.4193;
-    errDCR_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.0267864;
-    CT_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.322097;
+    errDCR_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.0267863;
+    CT_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.322109;
 
     HV = 36.00;
     index = find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV);
@@ -822,7 +822,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.350983;
     DCR_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 31.3187;
     errDCR_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.0272407;
-    CT_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.351519;
+    CT_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.351507;
 
     HV = 37.00;
     index = find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV);
@@ -831,7 +831,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.379357;
     DCR_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 34.0568;
     errDCR_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.027737;
-    CT_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.378995;
+    CT_Del_3_Ea[find_index(HV_3_Ea,  sizeof(HV_3_Ea)/sizeof(HV_3_Ea[0]), HV)] = 0.378994;
 
 
     //////// Eb ////////
@@ -842,7 +842,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.176183;
     DCR_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 12.9489;
     errDCR_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.0299836;
-    CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.160661;
+    CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.171953;
 
     HV = 32.00;
     index = find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV);
@@ -851,7 +851,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.194778;
     DCR_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 18.0338;
     errDCR_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.0272164;
-    CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.195314;
+    CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.194892;
 
     HV = 33.00;
     index = find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV);
@@ -860,7 +860,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.23415;
     DCR_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 21.9188;
     errDCR_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.0266291;
-    CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.239854;
+    CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.240303;
 
     HV = 34.00;
     index = find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV);
@@ -869,7 +869,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.26584;
     DCR_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 25.2341;
     errDCR_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.0265887;
-    CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.267988;
+    CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.267889;
 
     HV = 35.00;
     index = find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV);
@@ -878,7 +878,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.294349;
     DCR_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 28.2044;
     errDCR_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.0267136;
-    CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.291061;
+    CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.291051;
 
     HV = 36.00;
     index = find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV);
@@ -887,7 +887,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.327356;
     DCR_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 31.0564;
     errDCR_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.0271189;
-    CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.323865;
+    CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.32386;
 
     HV = 37.00;
     index = find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV);
@@ -896,9 +896,7 @@ void DCR_CrossTalk_FBK_HD3_2_DARK_data_2018_07(){
     CT_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.355082;
     DCR_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 33.6209;
     errDCR_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.0274934;
-    CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.345099;
-
-
+    CT_Del_3_Eb[find_index(HV_3_Eb,  sizeof(HV_3_Eb)/sizeof(HV_3_Eb[0]), HV)] = 0.345098;
 
     //------------------------------
 

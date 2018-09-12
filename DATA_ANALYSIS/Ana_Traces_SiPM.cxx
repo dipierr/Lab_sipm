@@ -221,6 +221,8 @@ bool automatic_find_thr_1pe_2pe = false;
 
 bool change_title_size_bool = true;
 
+bool fit_trace_bool = false;
+
 //-----------------
 //-----------------
 
@@ -242,7 +244,7 @@ double GSPS = 1;
 //---------------
 
 // DLED and PEAKS FINDING
-int dleddt = 8;//9;//8;//5;//9*GSPS;
+int dleddt = 6;//9;//8;//5;//9*GSPS;
     // dleddt = 6; for DCR_CT_1SiPM_nHVs(), 20180725_HD3-2_01_DARK_AgilentE3641A_35.00_AS_2_100000ev_01.dat and similar
     // dleddt = 9; for Ana_LED(), 20180614_HD3-2_1_LASER_PLS_81_PAPER_AGILENT_35_AS_2_50000_01.dat and similar
 int blind_gap = 2*dleddt; //ns
@@ -473,7 +475,9 @@ float peaks_all_delay[2][max_peaks];
 int ind_peaks_all_delay = 0;
 float peaks_all[max_peaks];
 float peaks_all_time[max_peaks];
+float peaks_all_index[max_peaks];
 int ind_peaks_all = 0;
+int ind_peaks_all_old = 0;
 int n_ev_tot = 0;
 
 
@@ -829,7 +833,7 @@ void Ana_LED(string file1, int last_event_n){
 
 
     // DISPLAY
-    bool display_trace_LED = true;
+    bool display_trace_LED = false;
     display_peaks_now = true;
     display_peaks = true;
     show_peak_LED_bool = true;
@@ -1848,6 +1852,7 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
 
     bool find_rising_edge = true;
 
+    ind_peaks_all_old = ind_peaks_all;
     DCR_cnt_temp = 0;
 
     while(i<length-1){ // loop on trace t
@@ -1928,6 +1933,7 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
                     // I fill also the vector:
                     peaks_all_time[ind_peaks_all] = t[0][index_new];
                     peaks_all[ind_peaks_all] = t[1][index_new];
+                    peaks_all_index[ind_peaks_all] = index_new;
                     ind_peaks_all++;
 
                     // DCR from the delay (Itzler Mark - Dark Count Rate Measure (pag 5 ss))
@@ -1972,10 +1978,12 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
     peaks_all_delay[0][ind_peaks_all_delay] = -1;
     peaks_all_delay[1][ind_peaks_all_delay] = -1;
 
+    peaks_all_time[ind_peaks_all] = -1;
     peaks_all[ind_peaks_all] = -1;
-    peaks_all[ind_peaks_all] = -1;
+    peaks_all_index[ind_peaks_all] = -1;
 
     ind_peaks_all_delay++;
+    ind_peaks_all++;
 
 }
 
@@ -2269,13 +2277,15 @@ void FindDelaysFromVector(){
     //int n,i,k;
     double time_new = -1., time_old = -1.;
     double time_delay = 0.;
-
+    std::cout << "here" << '\n';
     for(int i=0;i<ind_peaks_all; i++){ // loop on peaks_all_delay
         // cout<<time_old<<endl;
         // cout<<peaks_all_delay[0][i]<<endl;
-        if(peaks_all_time[i]==-1){ // new trace
+        // std::cout << peaks_all_time[i] << '\n';
+        if(peaks_all_time[i]<0){ // new trace
             time_old = -1;
             time_new = -1;
+            cout<<"New trace"<<endl;
         }
         else{ // trace
             if(peaks_all[i] > thr_to_find_peaks){ // > thr
@@ -2467,6 +2477,12 @@ if(line_bool){
     }
 
     canv->Update();
+
+    //--------------------
+    // new TCanvas();
+    // TGraphErrors *graphtemp = new TGraphErrors(trace_length1,x1,y1,0,0);
+    // graphtemp->Draw();
+    //--------------------
 
     // let the user to interact with the canvas, like zooming the axis
     // show next trace by pressing any key
@@ -4195,7 +4211,7 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
         //     trace_time = ( trace_DLED[0][trace_DLED_length-1] - trace_DLED[0][0] ); // time in trace is in ns
         // }
         fill_hist_peaks_when_found = false;
-        if(find_peaks_bool){
+        if(find_peaks_bool){ // find_peaks_bool
             // find_peaks(thr_to_find_peaks,max_peak_width, min_peak_width,blind_gap,DCR_DELAYS_bool);
 
             FindPeaksRisingFalling(thr_to_find_peaks, trace_DLED, trace_DLED_length, max_peak_width,2,4);
@@ -4216,7 +4232,16 @@ void ReadBin(string filename, int last_event_n, bool display, TCanvas *c){
 
             // FindPeakPositions(trace_DLED[1], DLED_bool, dleddt);
             // FindPeaksFromPositions();
-        }
+        } // END find_peaks_bool
+
+        if(fit_trace_bool){ // fit_trace_bool
+            // In this trace I have peaks between
+            // ind_peaks_all_old -> ind_peaks_all
+            // (both excluded)
+            // I pass a positive trace
+            //FitTraceExp(trace[0], trace[1], ind_peaks_all_old+1, ind_peaks_all-1);
+
+        } // END fit_trace_bool
 
 
 
@@ -4631,6 +4656,11 @@ void Init_gaus_sum_12(){
     gaus_sum_12->SetParLimits(5, 0,5);
 
 }
+
+//------------------------------------------------------------------------------
+// void FitTraceExp(float *x, float *y, int range_low, int range_high){
+//
+// }
 
 
 
