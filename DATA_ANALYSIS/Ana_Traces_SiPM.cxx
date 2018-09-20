@@ -55,7 +55,8 @@ using namespace std;
 
 #define nfilemax 10
 #define max_peak_num 50
-#define max_peaks 5000000
+#define max_peaks 50000000
+
 
 #define tau -225
 
@@ -120,6 +121,7 @@ void Ana_LED(string file1, int last_event_n);
 void Ana_Ped(string file1, int last_event_n);
 void DCR_CT_1SiPM_1HV(string file, int last_event_n);
 void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n);
+void Ana_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n);
 
 
 // SECONDARY
@@ -1225,6 +1227,116 @@ void DCR_CT_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
 
 
 }
+
+
+//------------------------------------------------------------------------------
+void Ana_1SiPM_nHVs(string filelist, int nfile_in_list, int last_event_n){
+    //VARIABLES:
+    //TRUE:
+    find_peaks_bool = true;
+    DCR_from_cnt_bool = true;
+    DO_NOT_DELETE_HIST_LED = true;
+    DCR_DELAYS_bool = true;
+    fit_hist_del_bool = false;
+
+
+    smooth_trace_bool = false;
+
+
+
+    // OPEN FILE AND READ FILE LIST
+    ifstream OpenFile (filelist.c_str());
+    string file[nfilemax], legend_entry[nfilemax];
+    nfiletot=0;
+
+    while(nfiletot<nfile_in_list and nfiletot<nfilemax){
+        OpenFile>>file[nfiletot];
+        OpenFile>>legend_entry[nfiletot];
+        OpenFile>>legend_entry[nfiletot];
+        OpenFile>>legend_entry[nfiletot];
+        nfiletot++;
+    }
+    OpenFile.close();
+
+    // Print the name of the files:
+    cout<<"Analysing files:"<<endl;
+    for(int i=0; i<nfiletot; i++){
+        cout<<"file "<<i+1<<" = "<<file[i]<<endl;
+    }
+
+    TCanvas *c = new TCanvas("Trace","Trace",w,h);
+
+    for(int k=0; k<nfiletot; k++){
+        //In order to set n different titles:
+        char h1[20], h2[20], h3[20];
+        char k_temp[2];
+        sprintf(h1, "histDelays");
+        sprintf(h2, "histAllPeaks");
+        sprintf(h3, "histDCRthr");
+        sprintf(k_temp, "%d", k);
+
+        //new hists:
+        ptrHistDelays[k]   = new TH1D(strcat(h1,k_temp),"",bins_Delays,0,maxyhistDelays);
+        ptrHistAllPeaks[k] = new TH1D(strcat(h2,k_temp),"",bins_DCR,0,maxyhistAllPeaks);
+        ptrHistDCRthr[k]   = new TH1D(strcat(h3,k_temp),"",bins_DCR,0,maxyhistDCR);
+    }
+
+
+    // colors:
+    color_file[0] = kBlack;
+    color_file[1] = kOrange+5;
+    color_file[2] = kRed;
+    color_file[3] = kOrange;
+    color_file[4] = kGreen+1;
+    color_file[5] = kCyan;
+    color_file[6] = kBlue;
+    color_file[7] = kViolet;
+    color_file[8] = kGray;
+    color_file[9] = kGray+3;
+
+    opacity = 0.3;
+
+    nfile = 0;
+
+    // LOOP ON FILES:
+    for(int i=0; i<nfiletot; i++){
+
+        first_time_main_called=true;
+        Analysis(file[i], last_event_n, false, c);
+
+        nfile++;
+    }
+
+
+    // Draw peak distribution for n different HVs
+    TCanvas *cAllPeaksn = new TCanvas("histAllPeaksn","histAllPeaksn",w,h);
+    cAllPeaksn->cd();
+    cAllPeaksn->SetGrid();
+    ptrHistAllPeaks[2]->SetLineColor(kRed+1);
+    double norm = 1.;
+    for(int i=0; i<nfiletot; i++){
+        ptrHistAllPeaks[i]->SetLineColor(color_file[i]);
+        // ptrHistAllPeaks[i]->SetLineWidth(2);
+        ptrHistAllPeaks[i]->SetStats(0);
+        ptrHistAllPeaks[i]->GetXaxis()->SetTitle("mV");
+        ptrHistAllPeaks[i]->GetYaxis()->SetTitle("Normalized Counts");
+        ptrHistAllPeaks[i]->Scale(norm/ptrHistAllPeaks[i]->Integral(), "width");
+        ptrHistAllPeaks[i]->Draw("histsame");
+    }
+
+    auto legend_AllPeaksn = new TLegend(0.55,0.80,0.9,0.9);
+    for(int i=0; i<nfiletot; i++){
+        legend_AllPeaksn->AddEntry(ptrHistAllPeaks[i],legend_entry[i].c_str(),"l");
+    }
+
+    int n_columns = 1;
+    if(nfile_in_list%2==0) n_columns = (int)nfile_in_list/2;
+    else                   n_columns = (int)nfile_in_list/2 + 1;
+    legend_AllPeaksn->SetNColumns(n_columns);
+    legend_AllPeaksn->Draw();
+
+}
+
 
 
 
