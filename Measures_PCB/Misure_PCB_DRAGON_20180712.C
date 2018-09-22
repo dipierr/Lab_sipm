@@ -245,14 +245,14 @@ void Misure_PCB_DRAGON_20180712(){
     //-------- MULTIGRAPHs ---------
     //------------------------------
 
-    TMultiGraph *V_out = new TMultiGraph("V_out", ";DAC_{ApplyHV} (adim); V_{HV} (V)");
+    TMultiGraph *V_out = new TMultiGraph("V_out", ";DAC_{ApplyHV} (a.u.); V_{HV} (V)");
     V_out->Add(gV_out_MINi);
     V_out->Add(gV_out_MAXi);
     V_out->Add(gV_out_SuperMAXi);
     V_out->Add(gV_out_SuperMINi);
 
 
-    TMultiGraph *V_vmon = new TMultiGraph("V_vmon", ";DAC_{ApplyHV} (adim); V_{MON} (V)");
+    TMultiGraph *V_vmon = new TMultiGraph("V_vmon", ";DAC_{ApplyHV} (a.u.); V_{MON} (V)");
     V_vmon->Add(gV_vmon_MINi);
     V_vmon->Add(gV_vmon_MAXi);
     V_vmon->Add(gV_vmon_SuperMAXi);
@@ -260,7 +260,7 @@ void Misure_PCB_DRAGON_20180712(){
 
 
 
-    TMultiGraph *V_imon = new TMultiGraph("V_imon", ";DAC_{ApplyHV} (adim); V_{I_{MON}} (V)");
+    TMultiGraph *V_imon = new TMultiGraph("V_imon", ";DAC_{ApplyHV} (a.u.); V_{I_{MON}} (V)");
     V_imon->Add(gV_imon_MINi);
     V_imon->Add(gV_imon_MAXi);
     V_imon->Add(gV_imon_SuperMAXi);
@@ -524,7 +524,7 @@ void Misure_PCB_DRAGON_20180712(){
     gK_SuperMAXi->SetLineColor(kOrange+2);
 
 
-    TMultiGraph *K_graph = new TMultiGraph("V_K", ";Vout (V); Vout/Vmon (adim)");
+    TMultiGraph *K_graph = new TMultiGraph("V_K", ";Vout (V); Vout/Vmon (a.u.)");
     K_graph->Add(gK_SuperMINi);
     K_graph->Add(gK_MINi);
     K_graph->Add(gK_MAXi);
@@ -614,7 +614,7 @@ void Misure_PCB_DRAGON_20180712(){
     gK_SuperMAXi_all->SetLineColor(kOrange+2);
 
 
-    TMultiGraph *K_graph_all = new TMultiGraph("V_K_all", ";Vout (V); Vout/Vmon (adim)");
+    TMultiGraph *K_graph_all = new TMultiGraph("V_K_all", ";Vout (V); Vout/Vmon (a.u.)");
     K_graph_all->Add(gK_SuperMINi_all);
     K_graph_all->Add(gK_MINi_all);
     K_graph_all->Add(gK_MAXi_all);
