@@ -104,6 +104,8 @@ void DLED_Line_Exp(){
         x_shift[i] = dleddt+i;
     }
 
+    y[0] = 10;
+    
     //y
     for(int i=1; i<=timeUp; i++){
         y[i] = y[i-1]+dyUp;
