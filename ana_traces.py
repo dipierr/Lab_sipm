@@ -1,8 +1,8 @@
 #!/usr/bin/python
-
+ 
 '''
 Goal: to extract information from SiPM traces digitized by the CAEN Digitizer.
-Steps: 
+Steps:
 	to find the peaks
 	to evaluate a baseline value relative to each peak
 	to measure amplitude of each peak
@@ -21,7 +21,7 @@ import pandas as pd
 import argparse
 
 
-#ottengo le opzioni: 
+#ottengo le opzioni:
 #--inputfile: file.txt containing the traces
 
 __description__ = 'Producing the azimuth and zenith angle for sim_telarray'
@@ -48,28 +48,28 @@ def read_trace_length(infile):
 		if i == (6 + trace_length):
 			break
 	return trace_length
-	
+
 def read_event(infile,trace_length,event_n):
-	trace = []	
+	trace = []
 	for i,line in enumerate(infile):
 		if (i >= event_n*(trace_length+7)+7) and (i < (event_n+1)*(trace_length+7)-1):
 			trace.append(float(line))
 		elif (i >= (event_n+1)*(trace_length+7)-1):
-			break						
-	trace_np = np.array(trace)	
+			break
+	trace_np = np.array(trace)
 	return trace_np
 
 def read_next_event(infile,trace_length):
-	trace = []	
+	trace = []
 	for i,line in enumerate(infile):
 		if line == '':
 			break
 		if (i >= 7 and i < trace_length+6 ):
 			trace.append(float(line))
 		elif (i >= trace_length+6 ):
-			break						
-	trace_np = np.array(trace)	
-	return trace_np	
+			break
+	trace_np = np.array(trace)
+	return trace_np
 
 #######
 # To be used and called in case the baseline on a single trace is unstable
@@ -77,33 +77,33 @@ def find_run_baseline(inputfile,nevents_baseline):
 	for n in range(1,nevents_baseline):
 		trace = read_event(inputfile,n,False)
 		trace_ave = np.sum(trace) / trace.size
-		print(trace_ave,np.mean(trace))	
-	baseline = np.mean(trace)	
+		print(trace_ave,np.mean(trace))
+	baseline = np.mean(trace)
 	return baseline
 #######
-	
+
 def find_trace_baseline(trace):
-	bl = stats.mode(trace) # ADC count distribution's mode (is an array [0]=value of the mode,[1] = counts of tyhe mode) as Baseline	
-	#I want to fit the histogram of ADC counts with a gaussian	
+	bl = stats.mode(trace) # ADC count distribution's mode (is an array [0]=value of the mode,[1] = counts of tyhe mode) as Baseline
+	#I want to fit the histogram of ADC counts with a gaussian
 	#first simple way using the scipy.stats.norm.fit method, but not flexible parameter bounds (I want to fix the mean value of the gaussian)
-	#bl_m, bl_s = stats.norm.fit(trace) # Sigma of gaussian fit of the data	
-	
+	#bl_m, bl_s = stats.norm.fit(trace) # Sigma of gaussian fit of the data
+
 	#second way: histogram and curve_fit
 	# first, produce the histogram with plt.hist
 	#y, binx, patches = plt.hist(trace, bins = int(np.amax(trace)-np.amin(trace))+1, range = (np.amin(trace)-0.5, np.amax(trace)+0.5), normed=0, facecolor='green', alpha=0.75)
 	y, binx = np.histogram(trace, bins = int(np.amax(trace)-np.amin(trace))+1, range = (np.amin(trace)-0.5, np.amax(trace)+0.5), normed=0)
 	x = []
 	for i in range(0,binx.size-1):
-		x.append( binx[i]+(binx[i+1] - binx[i])/2)#bin center			
+		x.append( binx[i]+(binx[i+1] - binx[i])/2)#bin center
 	# second, fit the histogram with the optimize.curve_fit method (coincident bounds = fixed parameter not allowed!)
-	popt,pcov = curve_fit(gaus,x,y,p0=[bl[1],bl[0],1],bounds=([-np.inf,bl[0],-np.inf],[np.inf,bl[0]+0.000001,np.inf]))		
+	popt,pcov = curve_fit(gaus,x,y,p0=[bl[1],bl[0],1],bounds=([-np.inf,bl[0],-np.inf],[np.inf,bl[0]+0.000001,np.inf]))
 	return bl[0], popt[2]
 
-def find_peaks(trace,display):	
+def find_peaks(trace,display):
 	bl,bl_s = find_trace_baseline(trace)
-	
+
 	#peak begins when trace > 3 sigma and ends when trace<peak_max/2, minimum 3 time slices.
-	peaks = [[2]]#first index is peak_bin, second peak_amplitude	
+	peaks = [[2]]#first index is peak_bin, second peak_amplitude
 	#trace = trace - bl
 	peak_num=0
 	peaks[peak_num]=[0,0]
@@ -120,11 +120,11 @@ def find_peaks(trace,display):
 			peak_ready = True
 			peak_num=peak_num+1
 			peaks.append([0,0])
-	
+
 	peaks_np = np.asarray(peaks)
-	peaks_np = np.delete(peaks_np,len(peaks_np)-1,0) 	
+	peaks_np = np.delete(peaks_np,len(peaks_np)-1,0)
 	#print(peaks_np)
-	
+
 	if display:
 		xpeaks = peaks_np[:,0]
 		ypeaks = peaks_np[:,1]
@@ -132,13 +132,13 @@ def find_peaks(trace,display):
 		plt.plot(trace, 'black')
 		plt.plot(xpeaks,ypeaks,'ro')
 		plt.ylabel("ADC counts")
-		plt.grid(True)			
-		plt.show()	
-			
+		plt.grid(True)
+		plt.show()
+
 	return peaks_np,bl[0]
-	
+
 def main(**kwargs):
-	
+
 	#first_event_n = 0
 	#last_event_n = 1500
 	#print(kwargs['events'])
@@ -151,9 +151,9 @@ def main(**kwargs):
 		print("Warning: Analyzing all events, --display option is not possible.")
 		first_event_n = 0
 		last_event_n = 100000
-	
+
 	print("Reading from event ",first_event_n," to event ",last_event_n)
-		
+
 	with open(kwargs['input_file'], "r") as infile:
 		trace_length = read_trace_length(infile)
 		for i in range(first_event_n,last_event_n):
@@ -163,7 +163,7 @@ def main(**kwargs):
 			if len(trace) < trace_length-1 :
 				print("Event ",i-1)
 				print("Reached EOF...exiting")
-				break				
+				break
 			peaks,bl = find_peaks(trace,kwargs['display'])
 			peaks[:,1] = peaks[:,1] - bl
 			if (i == first_event_n):
@@ -179,12 +179,11 @@ def main(**kwargs):
 			#print(i,bin_cen)
 		#print(bin_cen,hist0)
 		plt.hist(bin_cen, bins = 30, range = (-0.5,29.5), normed=0, weights = hist0)
-		#plt.yscale('log')	
+		#plt.yscale('log')
 		plt.show()
-			
+
 	infile.close()
 
 if __name__ == '__main__':
 	args = PARSER.parse_args()
 	main(**args.__dict__)
-
