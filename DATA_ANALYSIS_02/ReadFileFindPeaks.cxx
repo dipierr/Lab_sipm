@@ -105,8 +105,10 @@ typedef struct {
 //------------------------------------------------------------------------------
 
 
+// MAIN
+void Analysis(string file, int last_event_n, double thr, bool display);
+
 // SECONDARY
-void Analysis(string file, int last_event_n, bool display, TCanvas *c);
 void DLED(int trace_length, int dleddt);
 int FindPeaksFixTime(int mintp, int maxtp);
 void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_width, int rising_points, int falling_points);
@@ -195,7 +197,7 @@ float thr_to_find_peaks = 8; //thr_to_find_peaks, as seen in DLED trace (in V); 
 //-----------------
 int ev_to_display = 5;
 
- 
+
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 
@@ -213,6 +215,7 @@ float *peaks;
 float *peak_LED;
 
 ofstream FilePeaks;
+string FilePeaksName;
 
 int trace_DLED_length; int index_func = 0; int nfile = 0; int n_DCR = 0; int DCR_cnt = 0; int DCR_cnt_temp = 0; int discriminator_cnt = 0; int trace_length = 0; int n_ev, index_for_peak; int one_window=0;
 int nfiletot = 1; int n_smooth = 0;
@@ -316,12 +319,14 @@ bool smooth_trace_bool = false;
 
 
 //------------------------------------------------------------------------------
-//-------------------------[   PREDEFINED FUNCTIONS   ]-------------------------
+//----------------------------[   MAIN FUNCTION   ]-----------------------------
 //------------------------------------------------------------------------------
 
 //______________________________________________________________________________
-void Analysis(string file, int last_event_n, bool display){
+void Analysis(string file, int last_event_n, double thr, bool display){
     gROOT->Reset();
+
+    thr_to_find_peaks = thr;
 
     find_peaks_bool = true;
     drawHistAllPeaks = true; // to draw hist of all peaks in traces
@@ -335,7 +340,16 @@ void Analysis(string file, int last_event_n, bool display){
     DCR_from_cnt_bool = true;
     smooth_trace_bool = false;
 
-    FilePeaks.open("a");
+    char thr_char[50];
+    int temp_results;
+
+    temp_results = sprintf(thr_char, "%.2f", thr_to_find_peaks);
+    string thr_string(thr_char);
+
+    FilePeaksName = file + "_Peaks_" + thr_string + ".txt";
+    cout<<FilePeaksName<<endl;
+
+    FilePeaks.open(FilePeaksName);
 
     WriteIntro();
 
@@ -371,6 +385,10 @@ void Analysis(string file, int last_event_n, bool display){
 
 
 //------------------------------------------------------------------------------
+//-------------------------[   SECONDARY FUNCTIONS   ]--------------------------
+//------------------------------------------------------------------------------
+
+//______________________________________________________________________________
 void discriminator(double thr, float **t, double length){
     int i = 0;
     bool find_rising_edge = true;
@@ -408,7 +426,7 @@ void discriminator(double thr, float **t, double length){
 }
 
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
 void DLED(int trace_length, int dleddt){
     for(int i=0; i<trace_DLED_length; i++){
         trace_DLED[0][i] = trace[0][i + dleddt];
@@ -416,7 +434,7 @@ void DLED(int trace_length, int dleddt){
     }
 }
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
 int FindPeakLED(int mintp, int maxtp){
     double max_func = -10000;
     index_func=-1;
@@ -437,7 +455,6 @@ int FindPeakLED(int mintp, int maxtp){
     }
 
     if(index_func==-1){
-        // cout<<"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"<<endl;
         for(int i=mintp; i<maxtp; i++){
             if(trace_DLED[1][i]>max_func){
                 max_func=trace_DLED[1][i];
@@ -451,7 +468,7 @@ int FindPeakLED(int mintp, int maxtp){
 
 
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
 int FindPeaksFixTime(int mintp, int maxtp){
     double max_func = -10000;
     index_func=-1;
@@ -468,7 +485,7 @@ int FindPeaksFixTime(int mintp, int maxtp){
 }
 
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
 void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_width, int rising_points, int falling_points){
     int i=1+rising_points;
     int index_old = -1;
@@ -588,7 +605,7 @@ void FindPeaksRisingFalling(double thr, float **t, double length, int max_peak_w
 }
 
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
 void show_trace(TCanvas* canv, float *x, float *y, int trace_length, float miny, float maxy, bool line_bool, bool delete_bool){
 
     if(reverse_bool){
@@ -620,7 +637,7 @@ void show_trace(TCanvas* canv, float *x, float *y, int trace_length, float miny,
 }
 
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
 void show_trace2(TCanvas* canv, float *x1, float *y1, float *x2, float *y2, int trace_length1, int trace_length2, float miny1, float maxy1, float miny2, float maxy2, bool line_bool, bool delete_bool){
     if(reverse_bool){
       for(int i=0; i<trace_length1; i++){
@@ -769,7 +786,7 @@ if(line_bool){
 }
 
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
 void show_AVG_trace_window(TCanvas *canv, float *tracet, float *tracev, int trace_length, bool delete_bool){
 
 	if(reverse_bool){
@@ -785,7 +802,7 @@ void show_AVG_trace_window(TCanvas *canv, float *tracet, float *tracev, int trac
 
 }
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
 double find_area_trace(double center, double low, double high){
     double area = 0;
     int low_index = 0;
@@ -824,7 +841,7 @@ double find_area_trace(double center, double low, double high){
     return area;
 }
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
 void SmoothTraceN(int n){
     int max_k = n - n%2;
     double den = n + 1 - n%2;
@@ -1319,7 +1336,19 @@ void ReadDRS4Bin(string filename, int last_event_n, bool display, TCanvas *c){
 //______________________________________________________________________________
 void WriteIntro(){
     // write introduction in FilePeaks
-    FilePeaks<<"FilePeaks"<<endl;
+
+    // find name
+    std::size_t found = FilePeaksName.find_last_of("/\\");
+    FilePeaks<<FilePeaksName.substr(found+1)<<endl;
+
+    // print some important informations
+    FilePeaks<<"Peaks found using a threshold = "<<thr_to_find_peaks<<" mV"<<endl;
+    if(smooth_trace_bool) FilePeaks<<"YES ";
+    else                  FilePeaks<<"NO ";
+    FilePeaks<<"trace smoothing"<<endl;
+    FilePeaks<<"DLED related: dleddt = "<<dleddt<<endl;
+
+    // END of INTRODUCTION
     FilePeaks<<"END_INTRODUCTION"<<endl;
 
 }
