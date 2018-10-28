@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 def PlotSettings():
     # Direct input
     plt.rcParams['text.latex.preamble']=[r"\usepackage{lmodern}"]
+    plt.rcParams['text.latex.preamble']=[r"\usepackage{siunitx}"]
     # Options, rcParams
     params = {  # LaTeX font
                 'text.usetex' : True,
