@@ -24,12 +24,17 @@ def main(**kwargs):
     Area = 36 # mm^2
     TimeWindow = 1024 # ns
     dleddt = 0 # ns
+    nFile = 0
 
-    HV = np.array([36,37])
+    HV       = np.array([36,37])
+    thr_0_5  = np.array([10,10])
+    thr_1_5  = np.array([20,20])
     DCR_Area = np.array([])
+    CT       = np.array([])
 
-    titleX = "HV (V)"
-    titleY = "DCR $\\frac{\si{\kilo\hertz}}{\si{mm^2}}$"
+    titleHV = "HV (V)"
+    titleDCR = "DCR $\\frac{\si{\kilo\hertz}}{\si{mm^2}}$"
+    titleCT = "Cross Talk"
 
     with open(kwargs['input_filelist'], "r") as infilelist:
         for f in infilelist:
@@ -38,9 +43,9 @@ def main(**kwargs):
             with open(f, "r") as file:
                 lines = file.read().split("\n")
 
-                time = np.array([])
-                peaks = np.array([])
                 nTraks = 0
+                cnt_0_5_pe = 0
+                cnt_1_5_pe = 0
                 introduction_bool = True
 
                 for l in lines:
@@ -60,22 +65,32 @@ def main(**kwargs):
                             # temp = re.findall(r"[-+]?\d*\.\d+|\d+", l)
                             temp = l.split("\t")
                             if len(temp) > 1:
-                                time = np.append(time,float(temp[0]))
-                                peaks = np.append(peaks,float(temp[1]))
+                                if(float(temp[1]) > thr_0_5[nFile]):
+                                    cnt_0_5_pe = cnt_0_5_pe + 1
+                                    if(float(temp[1]) > thr_1_5[nFile]):
+                                        cnt_1_5_pe = cnt_1_5_pe + 1
 
-                DCR = len(peaks)/(TimeWindow*nTraks-len(peaks)*2*dleddt)*1e3
+                DCR = cnt_0_5_pe/(TimeWindow*nTraks-cnt_0_5_pe*2*dleddt)*1e3
                 DCR_Area = np.append(DCR_Area, float(DCR/Area*1e3))
-                print("DCR      = " + str(DCR) + "\t MHz")
+                CT = np.append(CT, float(cnt_1_5_pe/cnt_0_5_pe))
+                nFile = nFile + 1
 
 
     # Import Plot Settings from PlotSettings.py:
     PlotSettings.PlotSettings()
 
-    # Plot
+    # Plot DCR
     plt.figure(figsize=(10, 6))
     plt.plot(HV, DCR_Area, color='blue', marker='o', linestyle='None', markersize=4)
-    plt.xlabel(titleX)
-    plt.ylabel(titleY)
+    plt.xlabel(titleHV)
+    plt.ylabel(titleDCR)
+    plt.grid(True)
+
+    # Plot CT
+    plt.figure(figsize=(10, 6))
+    plt.plot(HV, CT, color='blue', marker='o', linestyle='None', markersize=4)
+    plt.xlabel(titleHV)
+    plt.ylabel(titleCT)
     plt.grid(True)
 
     plt.show(block=False)
