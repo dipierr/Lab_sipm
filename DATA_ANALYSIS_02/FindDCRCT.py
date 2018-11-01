@@ -1,4 +1,4 @@
-# FindDCR.py
+# FindDCRCT.py
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -12,7 +12,7 @@ import argparse
 # Other files in the same project:
 import PlotSettings
 
-__description__ = 'Plot X Y'
+__description__ = 'Find DCR and CT'
 
 formatter = argparse.ArgumentDefaultsHelpFormatter
 PARSER = argparse.ArgumentParser(description=__description__, formatter_class=formatter)
@@ -26,9 +26,9 @@ def main(**kwargs):
     dleddt = 0 # ns
     nFile = 0
 
-    HV       = np.array([36,37])
-    thr_0_5  = np.array([10,10])
-    thr_1_5  = np.array([20,20])
+    HV       = np.array([34,35,36,37])
+    thr_0_5  = np.array([9 ,10,10,10])
+    thr_1_5  = np.array([30,35,37,40])
     DCR_Area = np.array([])
     CT       = np.array([])
 
