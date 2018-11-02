@@ -9,6 +9,7 @@ from scipy.odr import *
 from pylab import *
 import argparse
 
+from numba import jit
 
 # Other files in the same project:
 import PlotSettings
@@ -29,13 +30,13 @@ def FindDCRCT(file):
     dleddt = 0 # ns
     nFile = 0
 
-    HV       = np.array([34,35,36,37])
-    thr_0_5  = np.array([9 ,9,9,10])
-    thr_1_5  = np.array([30,35,37,40])
+    HV       = np.array([31, 32, 33, 34, 35, 36, 37])
+    thr_0_5  = np.array([8,  8,  8,  9,  9,  9,  10])
+    thr_1_5  = np.array([19, 23, 26, 30, 35, 37, 40])
     DCR_Area = np.array([])
     CT       = np.array([])
-    thrs     = np.arange(8,50,20)
-    DCR_thr  = np.zeros((4, len(thrs)))
+    thrs     = np.arange(8,50,1)
+    DCR_thr  = np.zeros((len(HV), len(thrs)))
     peaks    = np.array([])
 
 
@@ -74,21 +75,13 @@ def FindDCRCT(file):
                             temp = l.split("\t")
                             if len(temp) > 1:
                                 nEvents = nEvents + 1
-                                if(float(temp[1]) > thr_0_5[nFile]):
-                                    cnt_0_5_pe = cnt_0_5_pe + 1
-                                    if(float(temp[1]) > thr_1_5[nFile]):
-                                        cnt_1_5_pe = cnt_1_5_pe + 1
-                                # for i in range(len(thrs)):
-                                #     if (float(temp[1]) > thrs[i]):
-                                #         DCR_thr[nFile][i] = DCR_thr[nFile][i] + 1
-                                #     else:
-                                #         break
+                                peak = float(temp[1])
+                                cnt_0_5_pe, cnt_1_5_pe = FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, len(thrs), DCR_thr, nFile)
 
                 TimeWindowCorrected = TimeWindow*nTraks - nEvents*2*dleddt
                 DCR = cnt_0_5_pe/(TimeWindowCorrected)*1e3
                 DCR_Area = np.append(DCR_Area, float(DCR/Area*1e3))
                 CT = np.append(CT, float(cnt_1_5_pe/cnt_0_5_pe))
-                DCR_thr[nFile] = DCR_thr[nFile]/(TimeWindowCorrected)
                 nFile = nFile + 1
 
 
@@ -111,10 +104,13 @@ def FindDCRCT(file):
 
     # Plot DCR vs thrs
     plt.figure(figsize=(10, 6))
-    plt.plot(thrs, DCR_thr[0], color='yellow',  linestyle='-')
-    plt.plot(thrs, DCR_thr[1], color='green',   linestyle='-')
-    plt.plot(thrs, DCR_thr[2], color='cyan',    linestyle='-')
-    plt.plot(thrs, DCR_thr[3], color='blue',    linestyle='-')
+    plt.semilogy(thrs, DCR_thr[0], color='black',  linestyle='-')
+    plt.semilogy(thrs, DCR_thr[1], color='#964B00',   linestyle='-')
+    plt.semilogy(thrs, DCR_thr[2], color='red',    linestyle='-')
+    plt.semilogy(thrs, DCR_thr[3], color='yellow',  linestyle='-')
+    plt.semilogy(thrs, DCR_thr[4], color='green',   linestyle='-')
+    plt.semilogy(thrs, DCR_thr[5], color='cyan',    linestyle='-')
+    plt.semilogy(thrs, DCR_thr[6], color='blue',    linestyle='-')
     plt.xlabel(titleHV)
     plt.ylabel(titleDCR)
     plt.grid(True)
@@ -122,6 +118,19 @@ def FindDCRCT(file):
     plt.show(block=False)
     input("Press Enter to continue... ")
     plt.close()
+
+@jit
+def FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, len, DCR_thr, nFile):
+    if(peak > thr_0_5[nFile]):
+        cnt_0_5_pe = cnt_0_5_pe + 1
+        if(peak > thr_1_5[nFile]):
+            cnt_1_5_pe = cnt_1_5_pe + 1
+    for i in range(len):
+        if (peak > thrs[i]):
+            DCR_thr[nFile][i] = DCR_thr[nFile][i] + 1
+        else:
+            break
+    return cnt_0_5_pe, cnt_1_5_pe
 
 if __name__ == '__main__':
     args = PARSER.parse_args()
