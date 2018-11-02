@@ -22,9 +22,6 @@ PARSER.add_argument('-flist', '--input_filelist', type=str, required=False, defa
 
 def main(**kwargs):
     file = kwargs['input_filelist']
-    FindDCRCT(file)
-
-def FindDCRCT(file):
     Area = 36 # mm^2
     TimeWindow = 1024 # ns
     dleddt = 0 # ns
@@ -41,8 +38,10 @@ def FindDCRCT(file):
 
 
     titleHV = "HV (V)"
-    titleDCR = "$\\frac{\si{DCR}}{\si{Area}} \, \\frac{\si{\kilo\hertz}}{\si{mm^2}}$"
+    titleDCR = "$\\frac{\si{DCR}}{\si{Area}} \, (\\frac{\si{\kilo\hertz}}{\si{mm^2}})$"
     titleCT = "Cross Talk"
+    titleThrs = "Thresholds (mV)"
+    titleDCR_multi = "$\\frac{\si{DCR}}{\si{Area}} \, (\\frac{\si{\hertz}}{\si{mm^2}})$"
 
     with open(file, "r") as infilelist:
         for f in infilelist:
@@ -67,7 +66,7 @@ def FindDCRCT(file):
                         print(l)
                     else:
                         if l == "N":
-                            if (nTraks%1000 == 0):
+                            if (nTraks%10000 == 0):
                                 print("Read trace " + str(nTraks))
                             nTraks = nTraks + 1
                         else:
@@ -82,7 +81,9 @@ def FindDCRCT(file):
                 DCR = cnt_0_5_pe/(TimeWindowCorrected)*1e3
                 DCR_Area = np.append(DCR_Area, float(DCR/Area*1e3))
                 CT = np.append(CT, float(cnt_1_5_pe/cnt_0_5_pe))
+                DCR_thr[nFile] =  DCR_thr[nFile]/(TimeWindowCorrected*1e-9*Area)
                 nFile = nFile + 1
+
 
 
     # Import Plot Settings from PlotSettings.py:
@@ -111,8 +112,8 @@ def FindDCRCT(file):
     plt.semilogy(thrs, DCR_thr[4], color='green',   linestyle='-')
     plt.semilogy(thrs, DCR_thr[5], color='cyan',    linestyle='-')
     plt.semilogy(thrs, DCR_thr[6], color='blue',    linestyle='-')
-    plt.xlabel(titleHV)
-    plt.ylabel(titleDCR)
+    plt.xlabel(titleThrs)
+    plt.ylabel(titleDCR_multi)
     plt.grid(True)
 
     plt.show(block=False)
