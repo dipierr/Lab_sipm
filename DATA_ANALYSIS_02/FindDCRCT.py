@@ -35,6 +35,7 @@ def main(**kwargs):
     thrs     = np.arange(8,50,1)
     DCR_thr  = np.zeros((len(HV), len(thrs)))
     peaks    = np.array([])
+    Files    = []
 
 
     titleHV = "HV (V)"
@@ -43,10 +44,13 @@ def main(**kwargs):
     titleThrs = "Thresholds (mV)"
     titleDCR_multi = "$\\frac{\si{DCR}}{\si{Area}} \, (\\frac{\si{\hertz}}{\si{mm^2}})$"
 
+
+
     with open(file, "r") as infilelist:
         for f in infilelist:
             f = f.rstrip('\n')
             print("Reading file ", f)
+            Files.append(f)
             with open(f, "r") as file:
                 lines = file.read().split("\n")
 
@@ -85,7 +89,6 @@ def main(**kwargs):
                 nFile = nFile + 1
 
 
-
     # Import Plot Settings from PlotSettings.py:
     PlotSettings.PlotSettings()
 
@@ -116,11 +119,20 @@ def main(**kwargs):
     plt.ylabel(titleDCR_multi)
     plt.grid(True)
 
+    # Print on File
+    print("Files Analized:\n")
+    for i in range(len(Files)):
+        print(Files[i])
+    print("\n\nResults:\n")
+    print("HV = " + str(list(HV)))
+    print("DCR_Area = " + str(list(DCR_Area)))
+    print("CT = " + str(list(CT)))
+
     plt.show(block=False)
     input("Press Enter to continue... ")
     plt.close()
 
-@jit
+@jit(nopython=True)
 def FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, len, DCR_thr, nFile):
     if(peak > thr_0_5[nFile]):
         cnt_0_5_pe = cnt_0_5_pe + 1
