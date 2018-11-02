@@ -346,7 +346,9 @@ void Analysis(string file, int last_event_n, double thr, bool display){
     temp_results = sprintf(thr_char, "%.2f", thr_to_find_peaks);
     string thr_string(thr_char);
 
-    FilePeaksName = file + "_Peaks_" + thr_string + ".txt";
+    std::size_t found = file.find_last_of("/\\");
+
+    FilePeaksName = file.substr(0,found) + "/Peaks/" + file.substr(found+1) + "_Peaks_" + thr_string + ".txt";
     cout<<FilePeaksName<<endl;
 
     FilePeaks.open(FilePeaksName);
