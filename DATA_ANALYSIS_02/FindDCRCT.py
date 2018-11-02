@@ -34,8 +34,14 @@ def main(**kwargs):
     CT       = np.array([])
     thrs     = np.arange(8,50,1)
     DCR_thr  = np.zeros((len(HV), len(thrs)))
-    peaks    = np.array([])
     Files    = []
+
+    min_peak = 0
+    max_peak = 200
+    nbins    = 200
+    binw     = (max_peak - min_peak)/nbins
+    peaksHy  = np.zeros(nbins)
+    peaksHx  = np.arange(min_peak, max_peak, binw)
 
 
     titleHV = "HV (V)"
@@ -144,6 +150,13 @@ def FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, len, DCR_t
         else:
             break
     return cnt_0_5_pe, cnt_1_5_pe
+
+@jit(nopython=True)
+def FillHistPeaks(value, vector, min_value, max_value, binw):
+    for i in range(len(vector)):
+        if(value < min_value + i*binw):
+            vector[i] = vector[i] + 1
+            break
 
 if __name__ == '__main__':
     args = PARSER.parse_args()
