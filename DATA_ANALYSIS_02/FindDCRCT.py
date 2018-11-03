@@ -1,4 +1,15 @@
-# FindDCRCT.py
+#!/usr/bin/env python3
+
+'''
+--------------------------------------------------------------------------------
+|   FindDCRCT.py                                                               |
+|                                                                              |
+|   Remember to give permissions to the file:                                  |
+|       $ chmod +x *.py                                                        |
+|                                                                              |
+|   Davide Depaoli 2018                                                        |
+--------------------------------------------------------------------------------
+'''
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,6 +19,7 @@ from scipy import asarray as ar,exp
 from scipy.odr import *
 from pylab import *
 import argparse
+import ntpath
 
 from numba import jit
 
@@ -22,6 +34,7 @@ PARSER.add_argument('-flist', '--input_filelist', type=str, required=False, defa
 
 def main(**kwargs):
     file = kwargs['input_filelist']
+    ResultsFileName = str(file) + "_DCRCT.txt"
     Area = 36 # mm^2
     TimeWindow = 1024 # ns
     dleddt = 0 # ns
@@ -57,7 +70,7 @@ def main(**kwargs):
     with open(file, "r") as infilelist:
         for f in infilelist:
             f = f.rstrip('\n')
-            print("Reading file ", f)
+            print("\nReading file ", FindNameAndPath(f))
             Files.append(f)
             with open(f, "r") as file:
                 lines = file.read().split("\n")
@@ -130,18 +143,24 @@ def main(**kwargs):
     plt.ylabel(titleDCR_multi)
 
     # Print on File
-    print("Files Analized:\n")
+    ResultsFile = open(ResultsFileName, "w")
+    ResultsFile.write("Files Analized:\n")
     for i in range(len(Files)):
-        print(Files[i])
-    print("\n\nParameters:\n")
-    print("HV = " + str(list(HV)))
+        ResultsFile.write(FindNameAndPath(Files[i]) + "\n")
+    ResultsFile.write("\n\nParameters:\n")
+    ResultsFile.write("HV = " + str(list(HV)) + " # V \n")
+    ResultsFile.write("errHV = " + str(list(errHV)) + " # V \n")
     for i in range(3):
-        print("thr_0_5[" + str(i) + "] = " + str(list(thr_0_5[i])))
+        ResultsFile.write("thr_0_5[" + str(i) + "] = " + str(list(thr_0_5[i])) + "\n")
     for i in range(3):
-        print("thr_1_5[" + str(i) + "] = " + str(list(thr_1_5[i])))
-    print("\n\nResults:\n")
-    print("DCR_Area = " + str(list(DCR_Area[1])))
-    print("CT = " + str(list(CT[1])))
+        ResultsFile.write("thr_1_5[" + str(i) + "] = " + str(list(thr_1_5[i])) + "\n")
+    ResultsFile.write("\n\nResults:\n")
+    ResultsFile.write("DCR_Area = " + str(list(DCR_Area[1])) + " # kHz \n")
+    ResultsFile.write("errDCR_Area = " + str(list(errDCR_Area)) + " # kHz \n")
+    ResultsFile.write("CT = " + str(list(CT[1])) + "\n")
+    ResultsFile.write("errCT = " + str(list(errCT)) + "\n")
+
+    ResultsFile.close()
 
     plt.show(block=False)
     input("Press Enter to continue... ")
@@ -168,12 +187,17 @@ def FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, DCR_thr, n
         else:
             break
 
+
 @jit(nopython=True)
 def FillHistPeaks(value, vector, min_value, max_value, binw):
     for i in range(len(vector)):
         if(value < min_value + i*binw):
             vector[i] = vector[i] + 1
             break
+
+def FindNameAndPath(path):
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
 
 if __name__ == '__main__':
     args = PARSER.parse_args()
