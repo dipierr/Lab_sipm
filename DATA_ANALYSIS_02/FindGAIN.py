@@ -1,4 +1,16 @@
-# FindGAIN.py
+#!/usr/bin/env python3
+
+'''
+--------------------------------------------------------------------------------
+|   FindGAIN.py                                                                |
+|                                                                              |
+|   Remember to give permissions to the file:                                  |
+|       $ chmod +x *.py                                                        |
+|                                                                              |
+|   Davide Depaoli 2018                                                        |
+--------------------------------------------------------------------------------
+'''
+
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,13 +20,14 @@ from scipy import asarray as ar,exp
 from scipy.odr import *
 from pylab import *
 import argparse
+import ntpath
 
 from numba import jit
 
 # Other files in the same project:
 import PlotSettings
 
-__description__ = 'Find DCR and CT'
+__description__ = 'Find GAIN'
 
 formatter = argparse.ArgumentDefaultsHelpFormatter
 PARSER = argparse.ArgumentParser(description=__description__, formatter_class=formatter)
@@ -22,12 +35,14 @@ PARSER.add_argument('-flist', '--input_filelist', type=str, required=False, defa
 
 def main(**kwargs):
     file = kwargs['input_filelist']
+    ResultsFileName = str(file) + "_GAIN.txt"
     Area = 36 # mm^2
     TimeWindow = 1024 # ns
     dleddt = 0 # ns
     nFile = 0
 
     HV       = np.array([31, 32, 33, 34, 35, 36, 37])
+    errHV = np.full(len(HV), 0.01)
     Files    = []
 
     min_peak = 0
@@ -37,7 +52,7 @@ def main(**kwargs):
     peaksHy  = np.zeros((len(HV), nbins))
     peaksHx  = np.arange(min_peak, max_peak, binw)
 
-    titleHx = "Peak (mV)"
+    titleHx = "Peaks (mV)"
     titleHy = "Normalized Counts"
 
 
@@ -45,7 +60,7 @@ def main(**kwargs):
     with open(file, "r") as infilelist:
         for f in infilelist:
             f = f.rstrip('\n')
-            print("Reading file ", f)
+            print("\nReading file:\n" + FindNameAndPath(f))
             Files.append(f)
             with open(f, "r") as file:
                 lines = file.read().split("\n")
@@ -79,24 +94,33 @@ def main(**kwargs):
     # Import Plot Settings from PlotSettings.py:
     PlotSettings.PlotSettings()
 
+    color = ['black', '#964B00', 'red', '#FFD700', 'green', 'cyan', 'blue']
 
-    # Plot Hist
+    # Plot Hists
+    for i in range(len(HV)):
+        plt.figure(figsize=(10, 6))
+        plt.step(peaksHx, peaksHy[i], color=color[i],   linestyle='-')
+        plt.xlabel(titleHx)
+        plt.ylabel(titleHy)
+
+    # Plot Hist at different HVs
     plt.figure(figsize=(10, 6))
-    plt.semilogy(peaksHx, peaksHy[0], color='black',   linestyle='-')
-    plt.semilogy(peaksHx, peaksHy[1], color='#964B00', linestyle='-')
-    plt.semilogy(peaksHx, peaksHy[2], color='red',     linestyle='-')
-    plt.semilogy(peaksHx, peaksHy[3], color='#FFD700', linestyle='-')
-    plt.semilogy(peaksHx, peaksHy[4], color='green',   linestyle='-')
-    plt.semilogy(peaksHx, peaksHy[5], color='cyan',    linestyle='-')
-    plt.semilogy(peaksHx, peaksHy[6], color='blue',    linestyle='-')
+    for i in range(len(HV)):
+        plt.step(peaksHx, peaksHy[i], color=color[i],   linestyle='-')
+    plt.yscale("log")
     plt.xlabel(titleHx)
     plt.ylabel(titleHy)
-    plt.grid(True)
 
     # Print on File
-    print("\n\nFiles Analized:\n")
+    ResultsFile = open(ResultsFileName, "w")
+    ResultsFile.write("Files Analized:\n")
     for i in range(len(Files)):
-        print(Files[i])
+        ResultsFile.write(FindNameAndPath(Files[i]) + "\n")
+    ResultsFile.write("\n\nParameters:\n")
+    ResultsFile.write("HV = " + str(list(HV)) + " # V \n")
+    ResultsFile.write("errHV = " + str(list(errHV)) + " # V \n")
+    ResultsFile.write("\n\nResults:\n")
+    ResultsFile.close()
 
     plt.show(block=False)
     input("Press Enter to continue... ")
@@ -109,6 +133,10 @@ def FillHistPeaks(value, vector, min_value, max_value, binw):
         if(value < min_value + i*binw):
             vector[i] = vector[i] + 1
             break
+
+def FindNameAndPath(path):
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
 
 if __name__ == '__main__':
     args = PARSER.parse_args()

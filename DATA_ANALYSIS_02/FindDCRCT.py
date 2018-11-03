@@ -159,7 +159,6 @@ def main(**kwargs):
     ResultsFile.write("errDCR_Area = " + str(list(errDCR_Area)) + " # kHz \n")
     ResultsFile.write("CT = " + str(list(CT[1])) + "\n")
     ResultsFile.write("errCT = " + str(list(errCT)) + "\n")
-
     ResultsFile.close()
 
     plt.show(block=False)
