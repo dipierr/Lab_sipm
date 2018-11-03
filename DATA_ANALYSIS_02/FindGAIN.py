@@ -110,6 +110,7 @@ def main(**kwargs):
     sigma2Init = (gaus1high - gaus1low) / 2
 
     GAIN       = np.zeros(len(HV))
+    errGAIN    = np.zeros(len(HV))
 
     # Plot Hists
     for i in range(len(HV)):
@@ -130,6 +131,8 @@ def main(**kwargs):
         popt2, pcov2 = curve_fit(gaus, xfit2, yfit2, p0=[a2Init[i], mean2Init[i], sigma2Init[i]])
         plt.plot(peaksHx, gaus(peaksHx, *popt2), color='red', linestyle='--')
         GAIN[i] = popt2[1] - popt1[1]
+        errGAIN[i] = pcov1[1][1] + pcov2[1][1]
+        
 
     # Find Vbd
     poptVbd, pcovVbd = curve_fit(line, HV, GAIN)
@@ -138,7 +141,7 @@ def main(**kwargs):
 
     # Plot GAIN
     plt.figure(figsize=(10, 6))
-    plt.errorbar(HV, GAIN, xerr=errHV, yerr=0, color='blue', fmt='o', markersize=4)
+    plt.errorbar(HV, GAIN, xerr=errHV, yerr=errGAIN, color='blue', fmt='o', markersize=4)
     plt.xlabel(titleHV)
     plt.ylabel(titleGAIN)
 

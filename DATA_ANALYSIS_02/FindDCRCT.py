@@ -48,6 +48,13 @@ def main(**kwargs):
     DCR_Area = np.zeros((3, len(HV)))
     CT       = np.zeros((3, len(HV)))
 
+    min_delay = 0
+    max_delay = 200
+    nbins     = 50
+    binw      = (max_delay - min_delay)/nbins
+    delaysHy  = np.zeros((len(HV), nbins))
+    delaysHx  = np.arange(min_delay, max_delay, binw)
+
     thr_0_5[0]  = [ 8,  8,  8,  8,  8,  8,  8]
     thr_0_5[1]  = [ 8,  8,  8,  9,  9,  9, 10]
     thr_0_5[2]  = [ 9,  9, 10, 12, 14, 15, 15]
@@ -65,6 +72,8 @@ def main(**kwargs):
     titleCT = "Cross Talk"
     titleThrs = "Thresholds (mV)"
     titleDCR_multi = "$\\frac{\si{DCR}}{\si{Area}} \, (\\frac{\si{\hertz}}{\si{mm^2}})$"
+    titleHx   = "Delays (ns)"
+    titleHy   = "Normalized Counts"
 
 
     with open(file, "r") as infilelist:
@@ -81,6 +90,8 @@ def main(**kwargs):
                 cnt_1_5_pe = np.zeros(3)
                 introduction_bool = True
                 blind_gap = 0
+                new_time = 0
+                old_time = 0
 
                 for l in lines:
                     if l == "END_INTRODUCTION":
@@ -94,6 +105,8 @@ def main(**kwargs):
                         print(l)
                     else:
                         if l == "N":
+                            new_time = 0
+                            old_time = 0
                             if (nTraks%10000 == 0):
                                 print("Read trace " + str(nTraks))
                             nTraks = nTraks + 1
@@ -101,9 +114,13 @@ def main(**kwargs):
                             # temp = re.findall(r"[-+]?\d*\.\d+|\d+", l)
                             temp = l.split("\t")
                             if len(temp) > 1:
+                                new_time = temp[0]
                                 nEvents = nEvents + 1
                                 peak = float(temp[1])
                                 FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, DCR_thr, nFile)
+                                if(float(old_time) > 0):
+                                    FillHistPeaks(float(new_time) - float(old_time), delaysHy[nFile], min_delay, max_delay, binw)
+                                old_time = new_time
 
                 if(blind_gap==0):
                     blind_gap = 2*dleddt
@@ -115,7 +132,11 @@ def main(**kwargs):
                 DCR_thr[nFile] =  DCR_thr[nFile]/(TimeWindowCorrected*1e-9*Area)
                 nFile = nFile + 1
 
+    # Normalize Hists
+    for i in range(len(HV)):
+        delaysHy[i] = delaysHy[i]/sum(delaysHy[i])
 
+    # Evaluate errors
     errDCR_Area = np.maximum(np.abs(DCR_Area[1] - DCR_Area[0]), np.abs(DCR_Area[1] - DCR_Area[2]))
     errCT = np.maximum(np.abs(CT[1] - CT[0]), np.abs(CT[1] - CT[2]))
 
@@ -142,6 +163,15 @@ def main(**kwargs):
         plt.semilogy(thrs, DCR_thr[i], color=color[i], linestyle='-', label=label)
     plt.xlabel(titleThrs)
     plt.ylabel(titleDCR_multi)
+    plt.legend()
+
+    # Plot Hist at different HVs
+    plt.figure(figsize=(10, 6))
+    for i in range(len(HV)):
+        label = str(HV[i]) + " V"
+        plt.step(delaysHx, delaysHy[i], color=color[i], linestyle='-', label=label)
+    plt.xlabel(titleHx)
+    plt.ylabel(titleHy)
     plt.legend()
 
     # Print on File
@@ -192,6 +222,13 @@ def FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, DCR_thr, n
 def FindNameAndPath(path):
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
+
+@jit(nopython=True)
+def FillHistPeaks(value, vector, min_value, max_value, binw):
+    for i in range(len(vector)):
+        if(value < min_value + i*binw):
+            vector[i] = vector[i] + 1
+            break
 
 if __name__ == '__main__':
     args = PARSER.parse_args()
