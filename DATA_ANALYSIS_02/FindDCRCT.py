@@ -27,29 +27,31 @@ def main(**kwargs):
     dleddt = 0 # ns
     nFile = 0
 
-    HV       = np.array([31, 32, 33, 34, 35, 36, 37])
-    thr_0_5  = np.array([8,  8,  8,  9,  9,  9,  10])
-    thr_1_5  = np.array([19, 23, 26, 30, 35, 37, 40])
-    DCR_Area = np.array([])
-    CT       = np.array([])
+    HV    = np.array([31, 32, 33, 34, 35, 36, 37])
+    errHV = np.full(len(HV), 0.01)
+
+    thr_0_5  = np.zeros((3, len(HV)))
+    thr_1_5  = np.zeros((3, len(HV)))
+    DCR_Area = np.zeros((3, len(HV)))
+    CT       = np.zeros((3, len(HV)))
+
+    thr_0_5[0]  = [ 8,  8,  8,  8,  8,  8,  8]
+    thr_0_5[1]  = [ 8,  8,  8,  9,  9,  9, 10]
+    thr_0_5[2]  = [ 9,  9, 10, 12, 14, 15, 15]
+
+    thr_1_5[0]  = [18.5, 22, 26, 29, 33, 35, 37]
+    thr_1_5[1]  = [19,   23, 26, 30, 35, 37, 40]
+    thr_1_5[2]  = [19.5, 24, 27, 31, 36, 39, 42]
+
     thrs     = np.arange(8,50,1)
     DCR_thr  = np.zeros((len(HV), len(thrs)))
     Files    = []
-
-    min_peak = 0
-    max_peak = 200
-    nbins    = 200
-    binw     = (max_peak - min_peak)/nbins
-    peaksHy  = np.zeros(nbins)
-    peaksHx  = np.arange(min_peak, max_peak, binw)
-
 
     titleHV = "HV (V)"
     titleDCR = "$\\frac{\si{DCR}}{\si{Area}} \, (\\frac{\si{\kilo\hertz}}{\si{mm^2}})$"
     titleCT = "Cross Talk"
     titleThrs = "Thresholds (mV)"
     titleDCR_multi = "$\\frac{\si{DCR}}{\si{Area}} \, (\\frac{\si{\hertz}}{\si{mm^2}})$"
-
 
 
     with open(file, "r") as infilelist:
@@ -60,10 +62,10 @@ def main(**kwargs):
             with open(f, "r") as file:
                 lines = file.read().split("\n")
 
-                nTraks = 0
+                nTraks  = 0
                 nEvents = 0
-                cnt_0_5_pe = 0
-                cnt_1_5_pe = 0
+                cnt_0_5_pe = np.zeros(3)
+                cnt_1_5_pe = np.zeros(3)
                 introduction_bool = True
 
                 for l in lines:
@@ -85,32 +87,35 @@ def main(**kwargs):
                             if len(temp) > 1:
                                 nEvents = nEvents + 1
                                 peak = float(temp[1])
-                                cnt_0_5_pe, cnt_1_5_pe = FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, len(thrs), DCR_thr, nFile)
+                                FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, DCR_thr, nFile)
+
 
                 TimeWindowCorrected = TimeWindow*nTraks - nEvents*2*dleddt
                 DCR = cnt_0_5_pe/(TimeWindowCorrected)*1e3
-                DCR_Area = np.append(DCR_Area, float(DCR/Area*1e3))
-                CT = np.append(CT, float(cnt_1_5_pe/cnt_0_5_pe))
+                for i in range(3):
+                    DCR_Area[i][nFile] = float(DCR[i]/Area*1e3)
+                    CT[i][nFile] = float(cnt_1_5_pe[i]/cnt_0_5_pe[i])
                 DCR_thr[nFile] =  DCR_thr[nFile]/(TimeWindowCorrected*1e-9*Area)
                 nFile = nFile + 1
 
+
+    errDCR_Area = np.maximum(np.abs(DCR_Area[1] - DCR_Area[0]), np.abs(DCR_Area[1] - DCR_Area[2]))
+    errCT = np.maximum(np.abs(CT[1] - CT[0]), np.abs(CT[1] - CT[2]))
 
     # Import Plot Settings from PlotSettings.py:
     PlotSettings.PlotSettings()
 
     # Plot DCR
     plt.figure(figsize=(10, 6))
-    plt.plot(HV, DCR_Area, color='blue', marker='o', linestyle='None', markersize=4)
+    plt.errorbar(HV, DCR_Area[1], xerr=errHV, yerr=errDCR_Area, color='blue', fmt='o', markersize=4)
     plt.xlabel(titleHV)
     plt.ylabel(titleDCR)
-    plt.grid(True)
 
     # Plot CT
     plt.figure(figsize=(10, 6))
-    plt.plot(HV, CT, color='orange', marker='o', linestyle='None', markersize=4)
+    plt.errorbar(HV, CT[1], xerr=errHV, yerr=errCT, color='orange', fmt='o', markersize=4)
     plt.xlabel(titleHV)
     plt.ylabel(titleCT)
-    plt.grid(True)
 
     # Plot DCR vs thrs
     plt.figure(figsize=(10, 6))
@@ -123,33 +128,45 @@ def main(**kwargs):
     plt.semilogy(thrs, DCR_thr[6], color='blue',    linestyle='-')
     plt.xlabel(titleThrs)
     plt.ylabel(titleDCR_multi)
-    plt.grid(True)
 
     # Print on File
     print("Files Analized:\n")
     for i in range(len(Files)):
         print(Files[i])
-    print("\n\nResults:\n")
+    print("\n\nParameters:\n")
     print("HV = " + str(list(HV)))
-    print("DCR_Area = " + str(list(DCR_Area)))
-    print("CT = " + str(list(CT)))
+    for i in range(3):
+        print("thr_0_5[" + str(i) + "] = " + str(list(thr_0_5[i])))
+    for i in range(3):
+        print("thr_1_5[" + str(i) + "] = " + str(list(thr_1_5[i])))
+    print("\n\nResults:\n")
+    print("DCR_Area = " + str(list(DCR_Area[1])))
+    print("CT = " + str(list(CT[1])))
 
     plt.show(block=False)
     input("Press Enter to continue... ")
     plt.close()
 
 @jit(nopython=True)
-def FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, len, DCR_thr, nFile):
-    if(peak > thr_0_5[nFile]):
-        cnt_0_5_pe = cnt_0_5_pe + 1
-        if(peak > thr_1_5[nFile]):
-            cnt_1_5_pe = cnt_1_5_pe + 1
-    for i in range(len):
+def FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, DCR_thr, nFile):
+    # DCR at 0.5 pe:
+    for i in range(3):
+        if (peak > thr_0_5[i][nFile]):
+            cnt_0_5_pe[i] = cnt_0_5_pe[i] + 1
+        else:
+            break
+    # DCR at 1.5 pe:
+    for i in range(3):
+        if (peak > thr_1_5[i][nFile]):
+            cnt_1_5_pe[i] = cnt_1_5_pe[i] + 1
+        else:
+            break
+    # DCR at different thresholds:
+    for i in range(len(thrs)):
         if (peak > thrs[i]):
             DCR_thr[nFile][i] = DCR_thr[nFile][i] + 1
         else:
             break
-    return cnt_0_5_pe, cnt_1_5_pe
 
 @jit(nopython=True)
 def FillHistPeaks(value, vector, min_value, max_value, binw):

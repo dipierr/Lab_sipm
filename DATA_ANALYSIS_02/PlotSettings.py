@@ -16,7 +16,11 @@ def PlotSettings():
                 'axes.labelsize' : 18,
                 'xtick.labelsize': 16,
                 'ytick.labelsize': 16,
-                'savefig.bbox': 'tight'
+                'savefig.bbox'   : 'tight',
+                # Plot Grid
+                'axes.grid' : True,
+                # errorbars
+                'errorbar.capsize' : 3
               }
     # Update rcParams
     plt.rcParams.update(params)
