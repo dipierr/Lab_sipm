@@ -52,9 +52,10 @@ def main(**kwargs):
     peaksHy  = np.zeros((len(HV), nbins))
     peaksHx  = np.arange(min_peak, max_peak, binw)
 
-    titleHx = "Peaks (mV)"
-    titleHy = "Normalized Counts"
-
+    titleHx   = "Peaks (mV)"
+    titleHy   = "Normalized Counts"
+    titleHV   = "HV (V)"
+    titleGAIN = "GAIN (mV)"
 
 
     with open(file, "r") as infilelist:
@@ -97,21 +98,49 @@ def main(**kwargs):
 
     color = ['black', '#964B00', 'red', '#FFD700', 'green', 'cyan', 'blue']
 
+    gaus1low   = np.array([8.1,   10,  13,  13,  13,  13,  14])
+    gaus1high  = np.array([19.0,  22,  25,  27,  32,  33,  35])
+    gaus2low   = np.array([20.0,  24,  27,  30,  34,  40,  42])
+    gaus2high  = np.array([30.0,  34,  42,  47,  52,  60,  65])
+    a1Init     = np.full(len(HV), 1e-3)
+    mean1Init  = (gaus1high + gaus1low) / 2
+    sigma1Init = (gaus1high - gaus1low) / 2
+    a2Init     = np.full(len(HV), 1e-3)
+    mean2Init  = (gaus2high + gaus2low) / 2
+    sigma2Init = (gaus1high - gaus1low) / 2
+
+    GAIN       = np.zeros(len(HV))
+
     # Plot Hists
     for i in range(len(HV)):
         plt.figure(figsize=(10, 6))
-        plt.step(peaksHx, peaksHy[i], color=color[i],   linestyle='-')
+        plt.plot(peaksHx, peaksHy[i], color=color[i],   linestyle='-')
         plt.xlabel(titleHx)
         plt.ylabel(titleHy)
-        if (i==0):
-            yfit = peaksHy[0][peaksHx>8.1]
-            xfit = peaksHx[peaksHx>8.1]
-            yfit = yfit[xfit<19]
-            xfit = xfit[xfit<19]
-            print(xfit)
-            print(yfit)
-            popt, pcov = curve_fit(gaus, xfit, yfit, p0=[1,1,1])
-            plt.plot(peaksHx, gaus(peaksHx, *popt), color='red', linestyle='-')
+        yfit1 = peaksHy[i][peaksHx>gaus1low[i]]
+        xfit1 = peaksHx[peaksHx>gaus1low[i]]
+        yfit1 = yfit1[xfit1<gaus1high[i]]
+        xfit1 = xfit1[xfit1<gaus1high[i]]
+        popt1, pcov1 = curve_fit(gaus, xfit1, yfit1, p0=[a1Init[i], mean1Init[i], sigma1Init[i]])
+        plt.plot(peaksHx, gaus(peaksHx, *popt1), color='red', linestyle='--')
+        yfit2 = peaksHy[i][peaksHx>gaus2low[i]]
+        xfit2 = peaksHx[peaksHx>gaus2low[i]]
+        yfit2 = yfit2[xfit2<gaus2high[i]]
+        xfit2 = xfit2[xfit2<gaus2high[i]]
+        popt2, pcov2 = curve_fit(gaus, xfit2, yfit2, p0=[a2Init[i], mean2Init[i], sigma2Init[i]])
+        plt.plot(peaksHx, gaus(peaksHx, *popt2), color='red', linestyle='--')
+        GAIN[i] = popt2[1] - popt1[1]
+
+    # Find Vbd
+    poptVbd, pcovVbd = curve_fit(line, HV, GAIN)
+    Vbd = - poptVbd[1] / poptVbd[0]
+    print("Vbd = " + str(Vbd))
+
+    # Plot GAIN
+    plt.figure(figsize=(10, 6))
+    plt.errorbar(HV, GAIN, xerr=errHV, yerr=0, color='blue', fmt='o', markersize=4)
+    plt.xlabel(titleHV)
+    plt.ylabel(titleGAIN)
 
     # Plot Hist at different HVs
     plt.figure(figsize=(10, 6))
@@ -129,9 +158,14 @@ def main(**kwargs):
     for i in range(len(Files)):
         ResultsFile.write(FindNameAndPath(Files[i]) + "\n")
     ResultsFile.write("\n\nParameters:\n")
-    ResultsFile.write("HV = " + str(list(HV)) + " # V \n")
-    ResultsFile.write("errHV = " + str(list(errHV)) + " # V \n")
+    ResultsFile.write("HV = np.array(" + str(list(HV)) + ") # V \n")
+    ResultsFile.write("errHV = np.array(" + str(list(errHV)) + ") # V \n")
+    ResultsFile.write("gaus1low   = np.array(" + str(list(gaus1low)) + ") \n")
+    ResultsFile.write("gaus1high  = np.array(" + str(list(gaus1high)) + ") \n")
+    ResultsFile.write("gaus2low   = np.array(" + str(list(gaus2low)) + ") \n")
+    ResultsFile.write("gaus2high  = np.array(" + str(list(gaus2high)) + ") \n")
     ResultsFile.write("\n\nResults:\n")
+    ResultsFile.write("GAIN  = np.array(" + str(list(GAIN)) + ") \n")
     ResultsFile.close()
 
     plt.show(block=False)
@@ -141,6 +175,9 @@ def main(**kwargs):
 
 def gaus(x, a, x0, sigma):
     return a*exp(-(x-x0)**2/(2*sigma**2))
+
+def line(x, m, q):
+    return m*x + q
 
 @jit(nopython=True)
 def FillHistPeaks(value, vector, min_value, max_value, binw):

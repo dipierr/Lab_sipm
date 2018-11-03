@@ -80,6 +80,7 @@ def main(**kwargs):
                 cnt_0_5_pe = np.zeros(3)
                 cnt_1_5_pe = np.zeros(3)
                 introduction_bool = True
+                blind_gap = 0
 
                 for l in lines:
                     if l == "END_INTRODUCTION":
@@ -88,6 +89,8 @@ def main(**kwargs):
                     if introduction_bool:
                         if "dleddt" in l:
                             dleddt = double(re.findall(r"[-+]?\d*\.\d+|\d+", l)[0])
+                        if "blind_gap" in l:
+                            blind_gap = double(re.findall(r"[-+]?\d*\.\d+|\d+", l)[0])
                         print(l)
                     else:
                         if l == "N":
@@ -102,8 +105,9 @@ def main(**kwargs):
                                 peak = float(temp[1])
                                 FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, DCR_thr, nFile)
 
-
-                TimeWindowCorrected = TimeWindow*nTraks - nEvents*2*dleddt
+                if(blind_gap==0):
+                    blind_gap = 2*dleddt
+                TimeWindowCorrected = TimeWindow*nTraks - nEvents*blind_gap
                 DCR = cnt_0_5_pe/(TimeWindowCorrected)*1e3
                 for i in range(3):
                     DCR_Area[i][nFile] = float(DCR[i]/Area*1e3)
@@ -184,13 +188,6 @@ def FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, DCR_thr, n
         else:
             break
 
-
-@jit(nopython=True)
-def FillHistPeaks(value, vector, min_value, max_value, binw):
-    for i in range(len(vector)):
-        if(value < min_value + i*binw):
-            vector[i] = vector[i] + 1
-            break
 
 def FindNameAndPath(path):
     head, tail = ntpath.split(path)

@@ -1348,7 +1348,9 @@ void WriteIntro(){
     if(smooth_trace_bool) FilePeaks<<"YES ";
     else                  FilePeaks<<"NO ";
     FilePeaks<<"trace smoothing"<<endl;
+    FilePeaks<<"TimeWindow = "<<1024<<" ns"<<endl;
     FilePeaks<<"DLED related: dleddt = "<<dleddt<<endl;
+    FilePeaks<<"              blind_gap = "<<blind_gap<<endl;
 
     // END of INTRODUCTION
     FilePeaks<<"END_INTRODUCTION"<<endl;
