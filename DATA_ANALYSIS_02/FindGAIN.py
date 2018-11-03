@@ -41,9 +41,9 @@ def main(**kwargs):
     dleddt = 0 # ns
     nFile = 0
 
-    HV       = np.array([31, 32, 33, 34, 35, 36, 37])
+    HV    = np.array([31, 32, 33, 34, 35, 36, 37])
     errHV = np.full(len(HV), 0.01)
-    Files    = []
+    Files = []
 
     min_peak = 0
     max_peak = 200
@@ -87,9 +87,10 @@ def main(**kwargs):
 
                 nFile = nFile + 1
 
-
+    # Normalize Hists
     for i in range(len(HV)):
         peaksHy[i] = peaksHy[i]/sum(peaksHy[i])
+
 
     # Import Plot Settings from PlotSettings.py:
     PlotSettings.PlotSettings()
@@ -102,14 +103,25 @@ def main(**kwargs):
         plt.step(peaksHx, peaksHy[i], color=color[i],   linestyle='-')
         plt.xlabel(titleHx)
         plt.ylabel(titleHy)
+        if (i==0):
+            yfit = peaksHy[0][peaksHx>8.1]
+            xfit = peaksHx[peaksHx>8.1]
+            yfit = yfit[xfit<19]
+            xfit = xfit[xfit<19]
+            print(xfit)
+            print(yfit)
+            popt, pcov = curve_fit(gaus, xfit, yfit, p0=[1,1,1])
+            plt.plot(peaksHx, gaus(peaksHx, *popt), color='red', linestyle='-')
 
     # Plot Hist at different HVs
     plt.figure(figsize=(10, 6))
     for i in range(len(HV)):
-        plt.step(peaksHx, peaksHy[i], color=color[i],   linestyle='-')
+        label = str(HV[i]) + " V"
+        plt.step(peaksHx, peaksHy[i], color=color[i], linestyle='-', label=label)
     plt.yscale("log")
     plt.xlabel(titleHx)
     plt.ylabel(titleHy)
+    plt.legend()
 
     # Print on File
     ResultsFile = open(ResultsFileName, "w")
@@ -126,6 +138,9 @@ def main(**kwargs):
     input("Press Enter to continue... ")
     plt.close()
 
+
+def gaus(x, a, x0, sigma):
+    return a*exp(-(x-x0)**2/(2*sigma**2))
 
 @jit(nopython=True)
 def FillHistPeaks(value, vector, min_value, max_value, binw):

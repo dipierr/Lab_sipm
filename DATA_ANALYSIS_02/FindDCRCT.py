@@ -56,7 +56,7 @@ def main(**kwargs):
     thr_1_5[1]  = [19,   23, 26, 30, 35, 37, 40]
     thr_1_5[2]  = [19.5, 24, 27, 31, 36, 39, 42]
 
-    thrs     = np.arange(8,50,1)
+    thrs     = np.arange(8,70,1)
     DCR_thr  = np.zeros((len(HV), len(thrs)))
     Files    = []
 
@@ -131,16 +131,14 @@ def main(**kwargs):
     plt.ylabel(titleCT)
 
     # Plot DCR vs thrs
+    color = ['black', '#964B00', 'red', '#FFD700', 'green', 'cyan', 'blue']
     plt.figure(figsize=(10, 6))
-    plt.semilogy(thrs, DCR_thr[0], color='black',  linestyle='-')
-    plt.semilogy(thrs, DCR_thr[1], color='#964B00',   linestyle='-')
-    plt.semilogy(thrs, DCR_thr[2], color='red',    linestyle='-')
-    plt.semilogy(thrs, DCR_thr[3], color='yellow',  linestyle='-')
-    plt.semilogy(thrs, DCR_thr[4], color='green',   linestyle='-')
-    plt.semilogy(thrs, DCR_thr[5], color='cyan',    linestyle='-')
-    plt.semilogy(thrs, DCR_thr[6], color='blue',    linestyle='-')
+    for i in range(len(HV)):
+        label = str(HV[i]) + " V"
+        plt.semilogy(thrs, DCR_thr[i], color=color[i], linestyle='-', label=label)
     plt.xlabel(titleThrs)
     plt.ylabel(titleDCR_multi)
+    plt.legend()
 
     # Print on File
     ResultsFile = open(ResultsFileName, "w")
