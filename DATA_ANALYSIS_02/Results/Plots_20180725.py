@@ -2,7 +2,7 @@
 
 '''
 --------------------------------------------------------------------------------
-|   Plots.py                                                                   |
+|   Plots_20180725.py                                                          |
 |                                                                              |
 |   Remember to give permissions to the file:                                  |
 |       $ chmod +x *.py                                                        |
