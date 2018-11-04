@@ -20,9 +20,9 @@ from scipy import asarray as ar,exp
 from scipy.odr import *
 from pylab import *
 import argparse
-import ntpath
-
 from numba import jit
+import ntpath
+import datetime
 
 # Other files in the same project:
 import PlotSettings
@@ -132,7 +132,7 @@ def main(**kwargs):
         plt.plot(peaksHx, gaus(peaksHx, *popt2), color='red', linestyle='--')
         GAIN[i] = popt2[1] - popt1[1]
         errGAIN[i] = pcov1[1][1] + pcov2[1][1]
-        
+
 
     # Find Vbd
     poptVbd, pcovVbd = curve_fit(line, HV, GAIN)
@@ -157,7 +157,8 @@ def main(**kwargs):
 
     # Print on File
     ResultsFile = open(ResultsFileName, "w")
-    ResultsFile.write("Files Analized:\n")
+    ResultsFile.write(str(datetime.datetime.today().strftime('%Y-%m-%d')) + "    " + str(datetime.datetime.now().time()) + "\n")
+    ResultsFile.write("\n\nFiles Analized:\n")
     for i in range(len(Files)):
         ResultsFile.write(FindNameAndPath(Files[i]) + "\n")
     ResultsFile.write("\n\nParameters:\n")

@@ -19,9 +19,9 @@ from scipy import asarray as ar,exp
 from scipy.odr import *
 from pylab import *
 import argparse
-import ntpath
-
 from numba import jit
+import ntpath
+import datetime
 
 # Other files in the same project:
 import PlotSettings
@@ -245,16 +245,22 @@ def main(**kwargs):
 
     # Print on File
     ResultsFile = open(ResultsFileName, "w")
-    ResultsFile.write("Files Analized:\n")
+    ResultsFile.write(str(datetime.datetime.today().strftime('%Y-%m-%d')) + "    " + str(datetime.datetime.now().time()) + "\n")
+    ResultsFile.write("\n\nFiles Analized:\n")
     for i in range(len(Files)):
         ResultsFile.write(FindNameAndPath(Files[i]) + "\n")
     ResultsFile.write("\n\nParameters:\n")
     ResultsFile.write("HV = " + str(list(HV)) + " # V \n")
     ResultsFile.write("errHV = " + str(list(errHV)) + " # V \n")
     for i in range(3):
-        ResultsFile.write("thr_0_5[" + str(i) + "] = " + str(list(thr_0_5[i])) + "\n")
+        ResultsFile.write("thr_0_5[" + str(i) + "] = " + str(list(thr_0_5[i])) + " # mV\n")
     for i in range(3):
-        ResultsFile.write("thr_1_5[" + str(i) + "] = " + str(list(thr_1_5[i])) + "\n")
+        ResultsFile.write("thr_1_5[" + str(i) + "] = " + str(list(thr_1_5[i])) + " # mV\n")
+    if(delays_bool):
+        ResultsFile.write("min_delay    = " + str(min_delay) + "\n")
+        ResultsFile.write("max_delay    = " + str(max_delay) + "\n")
+        ResultsFile.write("nbins        = " + str(nbins) + "\n")
+        ResultsFile.write("low_lim_fit  = " + str(low_lim_fit) + "\n")
     ResultsFile.write("\n\nResults:\n")
     ResultsFile.write("DCR_Area = " + str(list(DCR_Area[1])) + " # kHz \n")
     ResultsFile.write("errDCR_Area = " + str(list(errDCR_Area)) + " # kHz \n")
