@@ -66,7 +66,8 @@ def main(**kwargs):
     # Import Plot Settings from PlotSettings.py:
     PlotSettings.PlotSettings()
 
-    color = ['#FFD700', 'red', '#FF00FF']
+    color  = ['#FFD700', 'red', '#FF00FF']
+    colorD = ['#FF8C00', '#8B0000', '#8A2BE2']
 
     HV = [31, 32, 33, 34, 35, 36, 37] # V
     errHV = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01] # V
@@ -161,7 +162,7 @@ def main(**kwargs):
         label = "FBK NUV HD3-2 (" + str(i+1) + ")" + " CNT"
         plt.errorbar(HV, DCR_Area[i], xerr=errHV, yerr=errDCR_Area[i], color=color[i], fmt='o', markersize=4, label=label)
         label = "FBK NUV HD3-2 (" + str(i+1) + ")" + " Del"
-        plt.errorbar(HV, DCR_Area_Del[i], xerr=errHV, yerr=errDCR_Area_Del[i], color=color[i], fmt='s', markersize=4, label=label)
+        plt.errorbar(HV, DCR_Area_Del[i], xerr=errHV, yerr=errDCR_Area_Del[i], color=colorD[i], fmt='s', markersize=4, label=label)
     plt.xlabel(titleHV)
     plt.ylabel(titleDCR)
     plt.legend()
@@ -172,7 +173,7 @@ def main(**kwargs):
         label = "FBK NUV HD3-2 (" + str(i+1) + ")" + " CNT"
         plt.errorbar(HV, CT[i], xerr=errHV, yerr=errCT[i], color=color[i], fmt='o', markersize=4, label=label)
         label = "FBK NUV HD3-2 (" + str(i+1) + ")" + " Del"
-        plt.errorbar(HV, CT_Del[i], xerr=errHV, yerr=errCT_Del[i], color=color[i], fmt='s', markersize=4, label=label)
+        plt.errorbar(HV, CT_Del[i], xerr=errHV, yerr=errCT_Del[i], color=colorD[i], fmt='s', markersize=4, label=label)
     plt.xlabel(titleHV)
     plt.ylabel(titleCT)
     plt.legend()
