@@ -106,8 +106,8 @@ def main(**kwargs):
                         print(l)
                     else:
                         if l == "N":
-                            new_time = np.zeros(6) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
-                            old_time = np.zeros(6) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
+                            new_time = np.full(6,0) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
+                            old_time = np.full(6,0) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
                             if (nTraks%10000 == 0):
                                 print("Read trace " + str(nTraks))
                             nTraks = nTraks + 1
@@ -172,27 +172,23 @@ def main(**kwargs):
     # Plot Hists at different HVs
     # 0.5 pe
     for k in range(3):
-        print("k = " + str(k))
         plt.figure(figsize=(10, 6))
         for n in range(len(HV)):
-            print("n = " + str(n))
             label = str(HV[n]) + " V"
-            print(label)
             plt.step(delaysHx, delays_0_5_Hy[n][k], color=color[n], linestyle='-', label=label)
-            print("n = " + str(n))
 
         plt.xlabel(titleHx)
         plt.ylabel(titleHy)
         plt.legend()
     # 1.5 pe
-    # for k in range(3):
-    #     plt.figure(figsize=(10, 6))
-    #     for n in range(len(HV)):
-    #         label = str(HV[n]) + " V"
-    #         plt.step(delaysHx, delays_1_5_Hy[n][k], color=color[n], linestyle='-', label=label)
-    #     plt.xlabel(titleHx)
-    #     plt.ylabel(titleHy)
-    #     plt.legend()
+    for k in range(3):
+        plt.figure(figsize=(10, 6))
+        for n in range(len(HV)):
+            label = str(HV[n]) + " V"
+            plt.step(delaysHx, delays_1_5_Hy[n][k], color=color[n], linestyle='-', label=label)
+        plt.xlabel(titleHx)
+        plt.ylabel(titleHy)
+        plt.legend()
 
     # Print on File
     # ResultsFile = open(ResultsFileName, "w")
@@ -238,24 +234,24 @@ def FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, DCR_thr, n
         else:
             break
 
-@jit(nopython=True)
+@jit(nopython=True, parallel=True)
 def FindDelaysDistribution(peak, time, thr_0_5, thr_1_5, new_time, old_time, delays_0_5_Hy, delays_1_5_Hy, min_delay, max_delay, binw, nFile):
     # Distribution at 0.5 pe:
     for i in range(3):
         if (peak > thr_0_5[i][nFile]):
             new_time[i] = time
-            if(float(old_time[i]) > 0):
-                FillHistPeaks(float(new_time[i]) - float(old_time[i]), delays_0_5_Hy[nFile][i], min_delay, max_delay, binw)
+            if(old_time[i] > 0):
+                FillHistPeaks(new_time[i] - old_time[i], delays_0_5_Hy[nFile][i], min_delay, max_delay, binw)
             old_time[i] = new_time[i]
         else:
             break
     # Distribution at 1.5 pe:
-    for i in range(3,6):
+    for i in range(3):
         if (peak > thr_1_5[i][nFile]):
-            new_time[i] = time
-            if(float(old_time[i]) > 0):
-                FillHistPeaks(float(new_time[i]) - float(old_time[i]), delays_1_5_Hy[nFile][i], min_delay, max_delay, binw)
-            old_time[i] = new_time[i]
+            new_time[i+3] = time
+            if(old_time[i+3] > 0):
+                FillHistPeaks(new_time[i+3] - old_time[i+3], delays_1_5_Hy[nFile][i], min_delay, max_delay, binw)
+            old_time[i+3] = new_time[i+3]
         else:
             break
 

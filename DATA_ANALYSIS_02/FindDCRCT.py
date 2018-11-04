@@ -30,10 +30,14 @@ __description__ = 'Find DCR and CT'
 
 formatter = argparse.ArgumentDefaultsHelpFormatter
 PARSER = argparse.ArgumentParser(description=__description__, formatter_class=formatter)
-PARSER.add_argument('-flist', '--input_filelist', type=str, required=False, default='file.txt', help='File to be analyzed.')
+PARSER.add_argument('-f', '--input_filelist', type=str, required=False, default='file.txt', help='List of File Names to be analyzed')
+PARSER.add_argument('-del', '--del_distrib', action='store_true', required=False, default=False, help='Obtain DCR and CT from Delays Distribution')
 
 def main(**kwargs):
+
     file = kwargs['input_filelist']
+    delays_bool = kwargs['del_distrib']
+
     ResultsFileName = str(file) + "_DCRCT.txt"
     Area = 36 # mm^2
     TimeWindow = 1024 # ns
@@ -47,14 +51,16 @@ def main(**kwargs):
     thr_1_5  = np.zeros((3, len(HV)))
     DCR_Area = np.zeros((3, len(HV)))
     CT       = np.zeros((3, len(HV)))
+    DCR_Area_Del = np.zeros((3, len(HV)))
+    CT_Del       = np.zeros((3, len(HV)))
 
-    # min_delay = 0
-    # max_delay = 200
-    # nbins     = 50
-    # binw      = (max_delay - min_delay)/nbins
-    # delays_0_5_Hy  = np.zeros((len(HV), 3, nbins))
-    # delays_1_5_Hy  = np.zeros((len(HV), 3, nbins))
-    # delaysHx  = np.linspace(min_delay, max_delay, nbins)
+    min_delay = 0
+    max_delay = 200
+    nbins     = 50
+    binw      = (max_delay - min_delay)/nbins
+    delays_0_5_Hy  = np.zeros((len(HV), 3, nbins))
+    delays_1_5_Hy  = np.zeros((len(HV), 3, nbins))
+    delaysHx  = np.linspace(min_delay, max_delay, nbins)
 
     thr_0_5[0]  = [ 8,  8,  8,  8,  8,  8,  8]
     thr_0_5[1]  = [ 8,  8,  8,  9,  9,  9, 10]
@@ -91,8 +97,8 @@ def main(**kwargs):
                 cnt_1_5_pe = np.zeros(3)
                 introduction_bool = True
                 blind_gap = 0
-                # new_time = np.zeros(6) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
-                # old_time = np.zeros(6) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
+                new_time = np.zeros(6) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
+                old_time = np.zeros(6) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
 
                 for l in lines:
                     if l == "END_INTRODUCTION":
@@ -106,8 +112,8 @@ def main(**kwargs):
                         print(l)
                     else:
                         if l == "N":
-                            # new_time = np.zeros(6) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
-                            # old_time = np.zeros(6) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
+                            new_time = np.zeros(6) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
+                            old_time = np.zeros(6) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
                             if (nTraks%10000 == 0):
                                 print("Read trace " + str(nTraks))
                             nTraks = nTraks + 1
@@ -118,7 +124,8 @@ def main(**kwargs):
                                 peak = float(temp[1])
                                 time = float(temp[0])
                                 FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, DCR_thr, nFile)
-                                # FindDelaysDistribution(peak, time, thr_0_5, thr_1_5, new_time, old_time, delays_0_5_Hy, delays_1_5_Hy, min_delay, max_delay, binw, nFile)
+                                if(delays_bool):
+                                    FindDelaysDistribution(peak, time, thr_0_5, thr_1_5, new_time, old_time, delays_0_5_Hy, delays_1_5_Hy, min_delay, max_delay, binw, nFile)
                                 nEvents = nEvents + 1
 
 
@@ -132,20 +139,17 @@ def main(**kwargs):
                 DCR_thr[nFile] =  DCR_thr[nFile]/(TimeWindowCorrected*1e-9*Area)
                 nFile = nFile + 1
 
-    # Normalize Hists
-    # for n in range(len(HV)):
-    #     for i in range(3):
-    #         if(sum(delays_0_5_Hy[n][i])>0):
-    #             delays_0_5_Hy[n][i] = delays_0_5_Hy[n][i]/sum(delays_0_5_Hy[n][i])
-    #         if(sum(delays_1_5_Hy[n][i])>0):
-    #             delays_1_5_Hy[n][i] = delays_1_5_Hy[n][i]/sum(delays_1_5_Hy[n][i])
+    # Import Plot Settings from PlotSettings.py:
+    PlotSettings.PlotSettings()
+
+
+    ###################
+    #####   CNT   #####
+    ###################
 
     # Evaluate errors
     errDCR_Area = np.maximum(np.abs(DCR_Area[1] - DCR_Area[0]), np.abs(DCR_Area[1] - DCR_Area[2]))
     errCT = np.maximum(np.abs(CT[1] - CT[0]), np.abs(CT[1] - CT[2]))
-
-    # Import Plot Settings from PlotSettings.py:
-    PlotSettings.PlotSettings()
 
     # Plot DCR
     plt.figure(figsize=(10, 6))
@@ -169,25 +173,75 @@ def main(**kwargs):
     plt.ylabel(titleDCR_multi)
     plt.legend()
 
-    # Plot Hists at different HVs
-    # 0.5 pe
-    # for k in range(3):
-    #     plt.figure(figsize=(10, 6))
-    #     for n in range(len(HV)):
-    #         label = str(HV[n]) + " V"
-    #         plt.step(delaysHx, delays_0_5_Hy[n][k], color=color[n], linestyle='-', label=label)
-    #     plt.xlabel(titleHx)
-    #     plt.ylabel(titleHy)
-    #     plt.legend()
-    # 1.5 pe
-    # for k in range(3):
-    #     plt.figure(figsize=(10, 6))
-    #     for n in range(len(HV)):
-    #         label = str(HV[n]) + " V"
-    #         plt.step(delaysHx, delays_1_5_Hy[n][k], color=color[n], linestyle='-', label=label)
-    #     plt.xlabel(titleHx)
-    #     plt.ylabel(titleHy)
-    #     plt.legend()
+
+    ###################
+    #####   DEL   #####
+    ###################
+
+    if(delays_bool):
+        # Normalize Hists
+        for n in range(len(HV)):
+            for i in range(3):
+                if(sum(delays_0_5_Hy[n][i])>0):
+                    delays_0_5_Hy[n][i] = delays_0_5_Hy[n][i]/sum(delays_0_5_Hy[n][i])
+                if(sum(delays_1_5_Hy[n][i])>0):
+                    delays_1_5_Hy[n][i] = delays_1_5_Hy[n][i]/sum(delays_1_5_Hy[n][i])
+
+        # Plot Hists at different HVs and Exp Fit
+        low_lim_fit = blind_gap + 5
+        # 0.5 pe
+        for i in range(3):
+            plt.figure(figsize=(10, 6))
+            for n in range(len(HV)):
+                label = str(HV[n]) + " V"
+                xfit = delaysHx[delaysHx > low_lim_fit]
+                yfit = delays_0_5_Hy[n][i][delaysHx > low_lim_fit]
+                plt.step(delaysHx, delays_0_5_Hy[n][i], color=color[n], linestyle='-', label=label)
+                popt, pcov = curve_fit(exp, xfit, yfit, p0=[1, 0.01])
+                DCR_Area_Del[i][n] = popt[1]/Area*10**(6)
+                plt.plot(xfit, exp(xfit, *popt), color='red', linestyle='--')
+            plt.xlabel(titleHx)
+            plt.ylabel(titleHy)
+            plt.legend()
+        # 1.5 pe
+        for i in range(3):
+            plt.figure(figsize=(10, 6))
+            for n in range(len(HV)):
+                label = str(HV[n]) + " V"
+                xfit = delaysHx[delaysHx > low_lim_fit]
+                yfit = delays_1_5_Hy[n][i][delaysHx > low_lim_fit]
+                plt.step(delaysHx, delays_1_5_Hy[n][i], color=color[n], linestyle='-', label=label)
+                popt, pcov = curve_fit(exp, xfit, yfit, p0=[1, 0.01])
+                CT_Del[i][n] = popt[1]/Area*10**(6)/DCR_Area_Del[i][n]
+                plt.plot(xfit, exp(xfit, *popt), color='red', linestyle='--')
+            plt.xlabel(titleHx)
+            plt.ylabel(titleHy)
+            plt.legend()
+
+        # Evaluate errors
+        errDCR_Area_Del = np.maximum(np.abs(DCR_Area_Del[1] - DCR_Area_Del[0]), np.abs(DCR_Area_Del[1] - DCR_Area_Del[2]))
+        errCT_Del = np.maximum(np.abs(CT_Del[1] - CT_Del[0]), np.abs(CT_Del[1] - CT_Del[2]))
+
+        # Plot DCR
+        plt.figure(figsize=(10, 6))
+        plt.errorbar(HV, DCR_Area[1], xerr=errHV, yerr=errDCR_Area, color='blue', fmt='o', markersize=4, label="DCR from CNT")
+        plt.errorbar(HV, DCR_Area_Del[1], xerr=errHV, yerr=errDCR_Area_Del, color='green', fmt='o', markersize=4, label="DCR from Del")
+        plt.xlabel(titleHV)
+        plt.ylabel(titleDCR)
+        plt.legend()
+
+        # Plot CT
+        plt.figure(figsize=(10, 6))
+        plt.errorbar(HV, CT[1], xerr=errHV, yerr=errCT, color='orange', fmt='o', markersize=4, label="CT from CNT")
+        plt.errorbar(HV, CT_Del[1], xerr=errHV, yerr=errCT_Del, color='red', fmt='o', markersize=4, label="CT from Del")
+        plt.xlabel(titleHV)
+        plt.ylabel(titleCT)
+        plt.legend()
+
+
+    ####################
+    #####   FILE   #####
+    ####################
 
     # Print on File
     ResultsFile = open(ResultsFileName, "w")
@@ -206,11 +260,20 @@ def main(**kwargs):
     ResultsFile.write("errDCR_Area = " + str(list(errDCR_Area)) + " # kHz \n")
     ResultsFile.write("CT = " + str(list(CT[1])) + "\n")
     ResultsFile.write("errCT = " + str(list(errCT)) + "\n")
+    if(delays_bool):
+        ResultsFile.write("DCR_Area_Del = " + str(list(DCR_Area_Del[1])) + " # kHz \n")
+        ResultsFile.write("errDCR_Area_Del = " + str(list(errDCR_Area_Del)) + " # kHz \n")
+        ResultsFile.write("CT_Del = " + str(list(CT_Del[1])) + "\n")
+        ResultsFile.write("errCT_Del = " + str(list(errCT_Del)) + "\n")
     ResultsFile.close()
 
     plt.show(block=False)
     input("Press Enter to continue... ")
     plt.close()
+
+###############################
+#####   OTHER FUNCTIONS   #####
+###############################
 
 @jit(nopython=True)
 def FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, DCR_thr, nFile):
@@ -233,27 +296,26 @@ def FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, DCR_thr, n
         else:
             break
 
-# @jit(nopython=True)
-# def FindDelaysDistribution(peak, time, thr_0_5, thr_1_5, new_time, old_time, delays_0_5_Hy, delays_1_5_Hy, min_delay, max_delay, binw, nFile):
-#     # Distribution at 0.5 pe:
-#     for i in range(3):
-#         if (peak > thr_0_5[i][nFile]):
-#             new_time[i] = time
-#             if(float(old_time[i]) > 0):
-#                 FillHistPeaks(float(new_time[i]) - float(old_time[i]), delays_0_5_Hy[nFile][i], min_delay, max_delay, binw)
-#             old_time[i] = new_time[i]
-#         else:
-#             break
-#     # Distribution at 1.5 pe:
-#     for i in range(3,6):
-#         if (peak > thr_1_5[i][nFile]):
-#             new_time[i] = time
-#             if(float(old_time[i]) > 0):
-#                 FillHistPeaks(float(new_time[i]) - float(old_time[i]), delays_1_5_Hy[nFile][i], min_delay, max_delay, binw)
-#             old_time[i] = new_time[i]
-#         else:
-#             break
-
+@jit(nopython=True, parallel=True)
+def FindDelaysDistribution(peak, time, thr_0_5, thr_1_5, new_time, old_time, delays_0_5_Hy, delays_1_5_Hy, min_delay, max_delay, binw, nFile):
+    # Distribution at 0.5 pe:
+    for i in range(3):
+        if (peak > thr_0_5[i][nFile]):
+            new_time[i] = time
+            if(old_time[i] > 0):
+                FillHistPeaks(new_time[i] - old_time[i], delays_0_5_Hy[nFile][i], min_delay, max_delay, binw)
+            old_time[i] = new_time[i]
+        else:
+            break
+    # Distribution at 1.5 pe:
+    for i in range(3):
+        if (peak > thr_1_5[i][nFile]):
+            new_time[i+3] = time
+            if(old_time[i+3] > 0):
+                FillHistPeaks(new_time[i+3] - old_time[i+3], delays_1_5_Hy[nFile][i], min_delay, max_delay, binw)
+            old_time[i+3] = new_time[i+3]
+        else:
+            break
 
 @jit(nopython=True)
 def FillHistPeaks(value, vector, min_value, max_value, binw):
@@ -265,6 +327,9 @@ def FillHistPeaks(value, vector, min_value, max_value, binw):
 def FindNameAndPath(path):
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
+
+def exp(x, a, b):
+    return a*np.exp(-b*x)
 
 if __name__ == '__main__':
     args = PARSER.parse_args()
