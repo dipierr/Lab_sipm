@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 '''
 --------------------------------------------------------------------------------
 |   FindDCRCT.py                                                               |
@@ -61,6 +59,8 @@ def main(**kwargs):
     delays_0_5_Hy  = np.zeros((len(HV), 3, nbins))
     delays_1_5_Hy  = np.zeros((len(HV), 3, nbins))
     delaysHx  = np.linspace(min_delay, max_delay, nbins)
+
+    low_lim_fit = 13
 
     thr_0_5[0]  = [ 8,  8,  8,  8,  8,  8,  8]
     thr_0_5[1]  = [ 8,  8,  8,  9,  9,  9, 10]
@@ -188,7 +188,7 @@ def main(**kwargs):
                     delays_1_5_Hy[n][i] = delays_1_5_Hy[n][i]/sum(delays_1_5_Hy[n][i])
 
         # Plot Hists at different HVs and Exp Fit
-        low_lim_fit = blind_gap + 5
+
         # 0.5 pe
         for i in range(3):
             plt.figure(figsize=(10, 6))

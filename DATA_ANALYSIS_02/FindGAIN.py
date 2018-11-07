@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 '''
 --------------------------------------------------------------------------------
 |   FindGAIN.py                                                                |
@@ -98,16 +96,16 @@ def main(**kwargs):
 
     color = ['black', '#964B00', 'red', '#FFD700', 'green', 'cyan', 'blue']
 
-    gaus1low   = np.array([8.1,   10,  13,  13,  13,  13,  14])
-    gaus1high  = np.array([19.0,  22,  25,  27,  32,  33,  35])
-    gaus2low   = np.array([20.0,  24,  27,  30,  34,  40,  42])
-    gaus2high  = np.array([30.0,  34,  42,  47,  52,  60,  65])
+    gaus1low   = [8.1,   10,  13,  13,  13,  13,  14]
+    gaus1high  = [19.0,  22,  25,  27,  32,  33,  35]
+    gaus2low   = [20.0,  24,  27,  30,  34,  40,  42]
+    gaus2high  = [30.0,  34,  42,  47,  52,  60,  65]
     a1Init     = np.full(len(HV), 1e-3)
-    mean1Init  = (gaus1high + gaus1low) / 2
-    sigma1Init = (gaus1high - gaus1low) / 2
+    mean1Init  = (np.array(gaus1high) + np.array(gaus1low)) / 2
+    sigma1Init = (np.array(gaus1high) - np.array(gaus1low)) / 2
     a2Init     = np.full(len(HV), 1e-3)
-    mean2Init  = (gaus2high + gaus2low) / 2
-    sigma2Init = (gaus1high - gaus1low) / 2
+    mean2Init  = (np.array(gaus2high) + np.array(gaus2low)) / 2
+    sigma2Init = (np.array(gaus2high) - np.array(gaus2low)) / 2
 
     GAIN       = np.zeros(len(HV))
     errGAIN    = np.zeros(len(HV))
@@ -162,14 +160,18 @@ def main(**kwargs):
     for i in range(len(Files)):
         ResultsFile.write(FindNameAndPath(Files[i]) + "\n")
     ResultsFile.write("\n\nParameters:\n")
-    ResultsFile.write("HV = np.array(" + str(list(HV)) + ") # V \n")
-    ResultsFile.write("errHV = np.array(" + str(list(errHV)) + ") # V \n")
-    ResultsFile.write("gaus1low   = np.array(" + str(list(gaus1low)) + ") \n")
-    ResultsFile.write("gaus1high  = np.array(" + str(list(gaus1high)) + ") \n")
-    ResultsFile.write("gaus2low   = np.array(" + str(list(gaus2low)) + ") \n")
-    ResultsFile.write("gaus2high  = np.array(" + str(list(gaus2high)) + ") \n")
+    ResultsFile.write("HV    = " + str(list(HV)) + " # V \n")
+    ResultsFile.write("errHV = " + str(list(errHV)) + " # V \n")
+    ResultsFile.write("gaus1low   = " + str(list(gaus1low)) + " \n")
+    ResultsFile.write("gaus1high  = " + str(list(gaus1high)) + " \n")
+    ResultsFile.write("gaus2low   = " + str(list(gaus2low)) + " \n")
+    ResultsFile.write("gaus2high  = " + str(list(gaus2high)) + " \n")
+    ResultsFile.write("min_peak   = " + str(min_peak) + "\n")
+    ResultsFile.write("max_peak   = " + str(max_peak) + "\n")
+    ResultsFile.write("nbins      = " + str(nbins) + "\n")
     ResultsFile.write("\n\nResults:\n")
-    ResultsFile.write("GAIN  = np.array(" + str(list(GAIN)) + ") \n")
+    ResultsFile.write("GAIN = " + str(list(GAIN)) + " \n")
+    ResultsFile.write("Vbd = "  + str(Vbd) + " \n")
     ResultsFile.close()
 
     plt.show(block=False)
