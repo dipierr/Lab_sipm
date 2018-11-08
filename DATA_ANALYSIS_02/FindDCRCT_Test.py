@@ -20,7 +20,6 @@ import argparse
 from numba import jit
 import ntpath
 import datetime
-import re
 
 # Other files in the same project:
 import PlotSettings
@@ -61,6 +60,9 @@ def main(**kwargs):
     delays_1_5_Hy  = np.zeros((len(HV), 3, nbins))
     delaysHx  = np.linspace(min_delay, max_delay, nbins)
 
+    delays_0_5_Hy = delays_0_5_Hy.tolist()
+    delays_1_5_Hy = delays_1_5_Hy.tolist()
+
     low_lim_fit = 13
 
     thr_0_5[0]  = [ 8,  8,  8,  8,  8,  8,  8]
@@ -100,6 +102,7 @@ def main(**kwargs):
                 blind_gap = 0
                 new_time = np.zeros(6) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
                 old_time = np.zeros(6) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
+                _time, _peak = [], []
 
                 for l in lines:
                     if l == "END_INTRODUCTION":
@@ -124,10 +127,13 @@ def main(**kwargs):
                             if len(temp) > 1:
                                 peak = float(temp[1])
                                 time = float(temp[0])
+                                _time.append(time)
+                                _peak.append(peak)
                                 FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, DCR_thr, nFile)
                                 if(delays_bool):
                                     FindDelaysDistribution(peak, time, thr_0_5, thr_1_5, new_time, old_time, delays_0_5_Hy, delays_1_5_Hy, min_delay, max_delay, binw, nFile)
                                 nEvents = nEvents + 1
+
 
 
                 if(blind_gap==0):
@@ -303,14 +309,15 @@ def FindDCRthrs(peak, thr_0_5, thr_1_5, cnt_0_5_pe, cnt_1_5_pe, thrs, DCR_thr, n
         else:
             break
 
-@jit(nopython=True, parallel=True)
+@jit()
 def FindDelaysDistribution(peak, time, thr_0_5, thr_1_5, new_time, old_time, delays_0_5_Hy, delays_1_5_Hy, min_delay, max_delay, binw, nFile):
     # Distribution at 0.5 pe:
     for i in range(3):
         if (peak > thr_0_5[i][nFile]):
             new_time[i] = time
             if(old_time[i] > 0):
-                FillHistPeaks(new_time[i] - old_time[i], delays_0_5_Hy[nFile][i], min_delay, max_delay, binw)
+                delays_0_5_Hy[nFile][i].append(old_time[i])
+                # FillHistPeaks(new_time[i] - old_time[i], delays_0_5_Hy[nFile][i], min_delay, max_delay, binw)
             old_time[i] = new_time[i]
         else:
             break
@@ -319,7 +326,8 @@ def FindDelaysDistribution(peak, time, thr_0_5, thr_1_5, new_time, old_time, del
         if (peak > thr_1_5[i][nFile]):
             new_time[i+3] = time
             if(old_time[i+3] > 0):
-                FillHistPeaks(new_time[i+3] - old_time[i+3], delays_1_5_Hy[nFile][i], min_delay, max_delay, binw)
+                delays_1_5_Hy[nFile][i].append(old_time[i])
+                # FillHistPeaks(new_time[i+3] - old_time[i+3], delays_1_5_Hy[nFile][i], min_delay, max_delay, binw)
             old_time[i+3] = new_time[i+3]
         else:
             break
