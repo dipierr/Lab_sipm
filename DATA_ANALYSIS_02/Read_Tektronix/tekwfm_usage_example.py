@@ -16,7 +16,7 @@ def demo1(myfile):
     samples, frames = volts.shape
     tstop = samples * tscale + tstart
     t = np.linspace(tstart+toff, tstop+toff, num=samples, endpoint=False)
-    # plot 
+    # plot
     plt.figure(1)
     plt.axvline(linewidth=1, color='r') # trigger annotation
     plt.plot(t, volts)
@@ -50,7 +50,7 @@ def demo2(myfile):
     plt.title('only frame 1')
     ax2 = plt.subplot(2, 1, 2, sharex=ax1)
     ax2.axvline(linewidth=1, color='r') # trigger annotation
-    ax2.plot(times, volts)
+    ax2.plot(times[:,1], volts[:,1])
     plt.xlabel('time (s)')
     plt.ylabel('volts (V)')
     plt.title('all frames')
@@ -105,4 +105,3 @@ def demo4(myfile):
     plt.ylabel('time (s)')
     plt.title('time between frames')
     plt.show()
-
