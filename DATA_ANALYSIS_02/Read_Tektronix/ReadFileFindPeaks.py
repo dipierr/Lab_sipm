@@ -18,6 +18,7 @@ import argparse
 from numba import jit
 import datetime
 import time
+import ntpath
 
 # Other files in the same project:
 import tekwfm
@@ -33,13 +34,13 @@ PARSER.add_argument('-f', '--input_file', type=str, required=False, default='fil
 
 def main(**kwargs):
 
-    file = kwargs['input_file']
+    File = kwargs['input_file']
+    FilePath, FileName = ntpath.split(File)
+    FilePeaksName = FilePath + "/Peaks/" + FileName + "_Peaks.txt"
     dleddt = 2*12
 
-
-
     # Read File
-    volts, tstart, tscale, tfrac, tdatefrac, tdate = tekwfm.read_wfm(file)
+    volts, tstart, tscale, tfrac, tdatefrac, tdate = tekwfm.read_wfm(File)
     # Create time vector
     samples, frames = volts.shape
     tstop = samples * tscale + tstart
@@ -49,26 +50,31 @@ def main(**kwargs):
         toff = subsample * tscale
         times[:,frame] = t + toff
     # Conversions
-    times *= 1e9  # times in ns
-    volts *= 1e3  # volts in mV
+    k_times = 1e9
+    k_volts = 1e3
+    times *= k_times  # times in ns
+    volts *= k_volts  # volts in mV
     # DLED
     times_dled, volts_dled = DLED(times, volts, dleddt)
+    # Open File Peaks
+    FilePeaks = open(FilePeaksName, "w")
     # Print Introduction
-    print(file)
-    print("Peaks found with find_peaks(volts_dled[:,i], height=0)")
-    print("NO trace smoothing")
-    print("TimeWindow = [" + str(times[0,0]) + " , " + str(times[-1,0]) + "] ns,  Dt = " + str(times[-1,0]-times[0,0]) + " ns" )
-    print("DLED related: dleddt = " + str(dleddt))
-    print("END_INTRODUCTION")
-    input("Press Enter to continue... ")
+    FilePeaks.write("Peaks from file:\n")
+    FilePeaks.write(FileName + "\n")
+    FilePeaks.write("Sampling = " + str(1/(tscale*k_times)) + " GHz     (Time Resolution = " + str(tscale*k_times*1e3) + " ps)\n")
+    FilePeaks.write("Peaks found with find_peaks(volts_dled[:,i], height=0)\n")
+    FilePeaks.write("NO trace smoothing\n")
+    FilePeaks.write("TimeWindow = [" + str(tstart*k_times) + " , " + str(tstop*k_times) + "] ns,  Dt = " + str((tstop-tstart)*k_times) + " ns\n" )
+    FilePeaks.write("DLED related: dleddt = " + str(dleddt) + " indices\n")
+    FilePeaks.write("END_INTRODUCTION\n")
 
     # Find Peaks
     for i in range(frame + 1):
     # for i in range(3):
         indices, _ = find_peaks(volts_dled[:,i], height=0)
         for j in range(len(indices)):
-            print(str(times_dled[indices[j],i]) + "\t" + str(volts_dled[indices[j],i]))
-        print("N")
+            FilePeaks.write(str(times_dled[indices[j],i]) + "\t" + str(volts_dled[indices[j],i]) + "\n")
+        FilePeaks.write("N\n")
         # Show the Plots
         # ShowPlot(times[:,i], volts[:,i], times_dled[:,i], volts_dled[:,i], indices)
 
@@ -91,7 +97,6 @@ def ShowPlot(x1, y1, x2, y2, indices):
     plt.show(block=False)
     input("Press Enter to continue... ")
     plt.close()
-
 
 
 
