@@ -45,8 +45,8 @@ def main(**kwargs):
 
     Sampling = 12.5
 
-    dleddt   = int(5*Sampling)
-    distance = int(2*dleddt)
+    dleddt   = int(5*Sampling)  # dleddt(num points) = dleddt(ns) * Sampling(GS/s)
+    distance = int(2*dleddt)    # distance(num points) = distance(ns) * Sampling(GS/s)
     height   = 7
 
     # Read File List
