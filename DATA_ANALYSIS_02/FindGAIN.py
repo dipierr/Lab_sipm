@@ -39,7 +39,9 @@ def main(**kwargs):
     dleddt = 0 # ns
     nFile = 0
 
-    HV    = np.array([31, 32, 33, 34, 35, 36, 37])
+    fit_bool = True
+
+    HV    = np.array([33, 34])
     errHV = np.full(len(HV), 0.01)
     Files = []
 
@@ -96,10 +98,10 @@ def main(**kwargs):
 
     color = ['black', '#964B00', 'red', '#FFD700', 'green', 'cyan', 'blue']
 
-    gaus1low   = [8.1,   10,  13,  13,  13,  13,  14]
-    gaus1high  = [19.0,  22,  25,  27,  32,  33,  35]
-    gaus2low   = [20.0,  24,  27,  30,  34,  40,  42]
-    gaus2high  = [30.0,  34,  42,  47,  52,  60,  65]
+    gaus1low   = [14,   14,  13,  13,  13,  13,  14]
+    gaus1high  = [24,  24,  25,  27,  32,  33,  35]
+    gaus2low   = [30.0,  30,  27,  30,  34,  40,  42]
+    gaus2high  = [40.0,  40,  42,  47,  52,  60,  65]
     a1Init     = np.full(len(HV), 1e-3)
     mean1Init  = (np.array(gaus1high) + np.array(gaus1low)) / 2
     sigma1Init = (np.array(gaus1high) - np.array(gaus1low)) / 2
@@ -116,20 +118,23 @@ def main(**kwargs):
         plt.plot(peaksHx, peaksHy[i], color=color[i],   linestyle='-')
         plt.xlabel(titleHx)
         plt.ylabel(titleHy)
+        # Fit 1 Init
         yfit1 = peaksHy[i][peaksHx>gaus1low[i]]
         xfit1 = peaksHx[peaksHx>gaus1low[i]]
         yfit1 = yfit1[xfit1<gaus1high[i]]
         xfit1 = xfit1[xfit1<gaus1high[i]]
-        popt1, pcov1 = curve_fit(gaus, xfit1, yfit1, p0=[a1Init[i], mean1Init[i], sigma1Init[i]])
-        plt.plot(peaksHx, gaus(peaksHx, *popt1), color='red', linestyle='--')
+        # Fit 2 Init
         yfit2 = peaksHy[i][peaksHx>gaus2low[i]]
         xfit2 = peaksHx[peaksHx>gaus2low[i]]
         yfit2 = yfit2[xfit2<gaus2high[i]]
         xfit2 = xfit2[xfit2<gaus2high[i]]
-        popt2, pcov2 = curve_fit(gaus, xfit2, yfit2, p0=[a2Init[i], mean2Init[i], sigma2Init[i]])
-        plt.plot(peaksHx, gaus(peaksHx, *popt2), color='red', linestyle='--')
-        GAIN[i] = popt2[1] - popt1[1]
-        errGAIN[i] = pcov1[1][1] + pcov2[1][1]
+        if(fit_bool):
+            popt1, pcov1 = curve_fit(gaus, xfit1, yfit1, p0=[a1Init[i], mean1Init[i], sigma1Init[i]])
+            plt.plot(peaksHx, gaus(peaksHx, *popt1), color='red', linestyle='--')
+            popt2, pcov2 = curve_fit(gaus, xfit2, yfit2, p0=[a2Init[i], mean2Init[i], sigma2Init[i]])
+            plt.plot(peaksHx, gaus(peaksHx, *popt2), color='red', linestyle='--')
+            GAIN[i] = popt2[1] - popt1[1]
+            errGAIN[i] = pcov1[1][1] + pcov2[1][1]
 
 
     # Find Vbd
