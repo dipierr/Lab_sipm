@@ -29,7 +29,7 @@ __description__ = 'Find DCR and CT'
 
 formatter = argparse.ArgumentDefaultsHelpFormatter
 PARSER = argparse.ArgumentParser(description=__description__, formatter_class=formatter)
-PARSER.add_argument('-f', '--input_filelist', type=str, required=False, default='file.txt', help='List of File Names to be analyzed')
+PARSER.add_argument('-flist', '--input_filelist', type=str, required=False, default='file.txt', help='List of File Names to be analyzed')
 PARSER.add_argument('-del', '--del_distrib', action='store_true', required=False, default=False, help='Obtain DCR and CT from Delays Distribution')
 
 def main(**kwargs):
@@ -39,9 +39,12 @@ def main(**kwargs):
 
     ResultsFileName = str(file) + "_DCRCT.txt"
     Area = 36 # mm^2
-    TimeWindow = 1024 # ns
+    # TimeWindow = 1024 # ns
+    TimeWindow = 1000 # ns
     dleddt = 0 # ns
     nFile = 0
+
+    Sampling = 1
 
     HV    = np.array([31, 32, 33, 34, 35, 36, 37])
     errHV = np.full(len(HV), 0.01)
@@ -84,15 +87,16 @@ def main(**kwargs):
     titleHy   = "Normalized Counts"
 
 
-    with open(file, "r") as infilelist:
+    with open(file, mode="r") as infilelist:
         for f in infilelist:
             f = f.rstrip('\n')
             print("\nReading file:\n" + FindNameAndPath(f))
             Files.append(f)
-            with open(f, "r") as file:
+            with open(f, mode="r") as file:
                 lines = file.read().split("\n")
 
-                nTraks  = 0
+
+                nTracks  = 0
                 nEvents = 0
                 cnt_0_5_pe = np.zeros(3)
                 cnt_1_5_pe = np.zeros(3)
@@ -110,14 +114,16 @@ def main(**kwargs):
                             dleddt = double(re.findall(r"[-+]?\d*\.\d+|\d+", l)[0])
                         if "blind_gap" in l:
                             blind_gap = double(re.findall(r"[-+]?\d*\.\d+|\d+", l)[0])
+                        if "Sampling" in l:
+                            Sampling = double(re.findall(r"[-+]?\d*\.\d+|\d+", l)[0])
                         print(l)
                     else:
                         if l == "N":
                             new_time = np.zeros(6) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
                             old_time = np.zeros(6) # 0,1,2: 0.5pe; 3,4,5: 1.5pe
-                            if (nTraks%10000 == 0):
-                                print("Read trace " + str(nTraks))
-                            nTraks = nTraks + 1
+                            if (nTracks%10000 == 0):
+                                print("Read trace " + str(nTracks))
+                            nTracks = nTracks + 1
                         else:
                             # temp = re.findall(r"[-+]?\d*\.\d+|\d+", l)
                             temp = l.split("\t")
@@ -131,8 +137,13 @@ def main(**kwargs):
 
 
                 if(blind_gap==0):
-                    blind_gap = 2*dleddt
-                TimeWindowCorrected = TimeWindow*nTraks - nEvents*blind_gap
+                    blind_gap = int(2*dleddt/Sampling)
+
+                ### OR ###
+                blind_gap = 0 # I do not consider the blind gap stuff
+
+                TimeWindowCorrected = TimeWindow*nTracks - nEvents*blind_gap
+
                 DCR = cnt_0_5_pe/(TimeWindowCorrected)*1e3
                 for i in range(3):
                     DCR_Area[i][nFile] = float(DCR[i]/Area*1e3)
