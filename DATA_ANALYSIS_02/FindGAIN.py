@@ -29,7 +29,9 @@ __description__ = 'Find GAIN'
 
 formatter = argparse.ArgumentDefaultsHelpFormatter
 PARSER = argparse.ArgumentParser(description=__description__, formatter_class=formatter)
-PARSER.add_argument('-flist', '--input_filelist', type=str, required=False, default='file.txt', help='File to be analyzed.')
+PARSER.add_argument('-flist', '--input_filelist', type=str, required=False, default='file.txt', help='File to be analyzed')
+PARSER.add_argument('-NoFit', '--no_fit_gain', action='store_true', required=False, default=False, help='Disables histogram fitting')
+
 
 def main(**kwargs):
     file = kwargs['input_filelist']
@@ -128,7 +130,7 @@ def main(**kwargs):
         xfit2 = peaksHx[peaksHx>gaus2low[i]]
         yfit2 = yfit2[xfit2<gaus2high[i]]
         xfit2 = xfit2[xfit2<gaus2high[i]]
-        if(fit_bool):
+        if(kwargs["no_fit_gain"] == False):
             popt1, pcov1 = curve_fit(gaus, xfit1, yfit1, p0=[a1Init[i], mean1Init[i], sigma1Init[i]])
             plt.plot(peaksHx, gaus(peaksHx, *popt1), color='red', linestyle='--')
             popt2, pcov2 = curve_fit(gaus, xfit2, yfit2, p0=[a2Init[i], mean2Init[i], sigma2Init[i]])
