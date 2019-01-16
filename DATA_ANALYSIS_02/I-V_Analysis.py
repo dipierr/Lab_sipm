@@ -1,4 +1,4 @@
-#I-V_Analysis.py
+# I-V_Analysis.py
 
 
 
@@ -18,7 +18,7 @@
 |   Nagy Ferenc & al. - A model based DC analysis of SiPM breakdown voltages    |
 |                                                                               |
 |                                                                               |
-|   Davide Depaoli 2018                                                         |
+|   Davide Depaoli 2018 - 2019                                                         |
 |                                                                               |
 |                                                                               |
 ---------------------------------------------------------------------------------
