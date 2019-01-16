@@ -5,7 +5,7 @@
 |   Remember to give permissions to the file:                                  |
 |       $ chmod +x *.py                                                        |
 |                                                                              |
-|   Davide Depaoli 2018                                                        |
+|   Davide Depaoli 2018 -2019                                                  |
 --------------------------------------------------------------------------------
 '''
 
