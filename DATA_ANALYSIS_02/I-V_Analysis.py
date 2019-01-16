@@ -17,7 +17,7 @@
 |   Nagy Ferenc & al. - A model based DC analysis of SiPM breakdown voltages    |
 |                                                                               |
 |                                                                               |
-|   Davide Depaoli 2018 - 2019                                                         |
+|   Davide Depaoli 2018 - 2019                                                  |
 |                                                                               |
 |                                                                               |
 ---------------------------------------------------------------------------------
