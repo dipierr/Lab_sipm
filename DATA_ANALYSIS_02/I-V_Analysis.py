@@ -16,6 +16,7 @@
 |   Reference:                                                                  |
 |   Nagy Ferenc & al. - A model based DC analysis of SiPM breakdown voltages    |
 |                                                                               |
+|   Then compared to Sqrt(I) intersection                                       |
 |                                                                               |
 |   Davide Depaoli 2018 - 2019                                                  |
 |                                                                               |
