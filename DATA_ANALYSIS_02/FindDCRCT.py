@@ -282,7 +282,8 @@ def main(**kwargs):
         ResultsFile.write("errCT_Del = " + str(list(errCT_Del)) + "\n")
     ResultsFile.close()
 
-    plt.show(block=False)
+    # plt.show(block=False)
+    plt.show()
     input("Press Enter to continue... ")
     plt.close()
 

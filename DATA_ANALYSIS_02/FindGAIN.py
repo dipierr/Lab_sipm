@@ -7,7 +7,7 @@
 |                                                                              |
 |   Davide Depaoli 2018 -2019                                                  |
 --------------------------------------------------------------------------------
-''' 
+'''
 
 
 import matplotlib.pyplot as plt
@@ -181,7 +181,8 @@ def main(**kwargs):
     ResultsFile.write("Vbd = "  + str(Vbd) + " \n")
     ResultsFile.close()
 
-    plt.show(block=False)
+    # plt.show(block=False)
+    plt.show()
     input("Press Enter to continue... ")
     plt.close()
 

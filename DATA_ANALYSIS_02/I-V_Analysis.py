@@ -358,7 +358,8 @@ def main(**kwargs):
 
 
 
-    plt.show(block=False)
+    # plt.show(block=False)
+    plt.show()
     input("Press Enter to continue... ")
     plt.close()
 
