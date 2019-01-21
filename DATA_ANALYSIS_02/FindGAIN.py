@@ -43,7 +43,7 @@ def main(**kwargs):
 
     fit_bool = True
 
-    HV    = np.array([33, 34])
+    HV    = np.array([31, 32, 33, 34, 35, 36, 37])
     errHV = np.full(len(HV), 0.01)
     Files = []
 
