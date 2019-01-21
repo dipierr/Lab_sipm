@@ -7,7 +7,7 @@
 |   I-V_Analysis.py                                                             |
 |                                                                               |
 |   File to be analyzed: tab separated, written as:                             |
-|   V (V)   I (muA) errI (muA)                                                  |
+|   V (V)   I (A)                                                  |
 |   with NO header                                                              |
 |                                                                               |
 |   Before Vdb: linear fit                                                      |
@@ -183,11 +183,12 @@ def main(**kwargs):
     plt.figure(figsize=(10, 6))
     plt.plot(V, I, color='blue', marker='o', linestyle='None', markersize=1)
     plt.xlabel(r'$V (V)$')
-    plt.ylabel(r'$I (\mu A)$')
+    plt.ylabel(r'$I (A)$')
     plt.grid(True)
     plt.errorbar(V, I, xerr=errV, yerr=errI, linestyle='None')
-    plt.ylim(10**(-3), 10**(1))
-    plt.yscale('log')
+    plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+    # plt.ylim(10**(-3), 10**(1))
+    # plt.yscale('log')
 
 
     if not kwargs["no_fit_gain"]:
@@ -299,7 +300,7 @@ def main(**kwargs):
         plt.plot(V, SqrtI, color='blue', marker='o', linestyle='None', markersize=1)
         # plt.plot(V_after, SqrtI_after, color='red', marker='o', linestyle='None', markersize=2)
         plt.xlabel(r'$V (V)$')
-        plt.ylabel(r'$\sqrt{I} (\sqrt{\mu A})$')
+        plt.ylabel(r'$\sqrt{I} (\sqrt{A})$')
         plt.grid(True)
         plt.errorbar(V, SqrtI, xerr=errV, yerr=errSqrtI, linestyle='None')
 
