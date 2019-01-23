@@ -37,13 +37,13 @@ def main(**kwargs):
     ResultsFileName = str(file) + "_DCRCT.txt"
     Area = 36 # mm^2
     # TimeWindow = 1024 # ns
-    TimeWindow = 1000 # ns
+    TimeWindow = 10000 # ns
     dleddt = 0 # ns
     nFile = 0
 
     Sampling = 1
 
-    HV    = np.array([31, 32, 33, 34, 35, 36, 37])
+    HV    = np.array([30, 31, 32, 33, 34, 35, 36, 37])
     errHV = np.full(len(HV), 0.01)
 
     thr_0_5  = np.zeros((3, len(HV)))
@@ -63,13 +63,13 @@ def main(**kwargs):
 
     low_lim_fit = 13
 
-    thr_0_5[0]  = [ 8,  8,  8,  8,  8,  8,  8]
-    thr_0_5[1]  = [ 8,  8,  8,  9,  9,  9, 10]
-    thr_0_5[2]  = [ 9,  9, 10, 12, 14, 15, 15]
+    thr_0_5[0]  = [ 8,  8,  8,  8,  8,  8,  8, 8]
+    thr_0_5[1]  = [ 8,  8,  8,  9,  9,  9, 10, 10]
+    thr_0_5[2]  = [ 9,  9, 10, 12, 14, 15, 15, 15]
 
-    thr_1_5[0]  = [18.5, 22, 26, 29, 33, 35, 37]
-    thr_1_5[1]  = [19,   23, 26, 30, 35, 37, 40]
-    thr_1_5[2]  = [19.5, 24, 27, 31, 36, 39, 42]
+    thr_1_5[0]  = [18.5, 22, 26, 29, 33, 35, 37, 37]
+    thr_1_5[1]  = [19,   23, 26, 30, 35, 37, 40, 40]
+    thr_1_5[2]  = [19.5, 24, 27, 31, 36, 39, 42, 42]
 
     thrs     = np.linspace(8,70,62)
     DCR_thr  = np.zeros((len(HV), len(thrs)))
@@ -173,7 +173,7 @@ def main(**kwargs):
     plt.ylabel(titleCT)
 
     # Plot DCR vs thrs
-    color = ['black', '#964B00', 'red', '#FFD700', 'green', 'cyan', 'blue']
+    color = ['black', '#964B00', 'red', '#FFD700', 'green', 'cyan', 'blue', '#5000FF']
     plt.figure(figsize=(10, 6))
     for i in range(len(HV)):
         label = str(HV[i]) + " V"

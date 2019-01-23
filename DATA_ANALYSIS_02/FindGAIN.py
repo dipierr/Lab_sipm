@@ -43,13 +43,13 @@ def main(**kwargs):
 
     fit_bool = True
 
-    HV    = np.array([31, 32, 33, 34, 35, 36, 37])
+    HV    = np.array([30, 31, 32, 33, 34, 35, 36, 37])
     errHV = np.full(len(HV), 0.01)
     Files = []
 
     min_peak = 0
     max_peak = 200
-    nbins    = 200
+    nbins    = 400
     binw     = (max_peak - min_peak)/nbins
     peaksHy  = np.zeros((len(HV), nbins))
     peaksHx  = np.arange(min_peak, max_peak, binw)
@@ -98,12 +98,12 @@ def main(**kwargs):
     # Import Plot Settings from PlotSettings.py:
     PlotSettings.PlotSettings()
 
-    color = ['black', '#964B00', 'red', '#FFD700', 'green', 'cyan', 'blue']
+    color = ['black', '#964B00', 'red', '#FFD700', 'green', 'cyan', 'blue', '#5000FF']
 
-    gaus1low   = [14,   14,  13,  13,  13,  13,  14]
-    gaus1high  = [24,  24,  25,  27,  32,  33,  35]
-    gaus2low   = [30.0,  30,  27,  30,  34,  40,  42]
-    gaus2high  = [40.0,  40,  42,  47,  52,  60,  65]
+    gaus1low   = [14,   14,  13,  13,  13,  13,  14, 40]
+    gaus1high  = [24,  24,  25,  27,  32,  33,  35, 40]
+    gaus2low   = [30.0,  30,  27,  30,  34,  40,  42, 40]
+    gaus2high  = [40.0,  40,  42,  47,  52,  60,  65, 40]
     a1Init     = np.full(len(HV), 1e-3)
     mean1Init  = (np.array(gaus1high) + np.array(gaus1low)) / 2
     sigma1Init = (np.array(gaus1high) - np.array(gaus1low)) / 2

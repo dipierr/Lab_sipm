@@ -82,7 +82,7 @@ def main(**kwargs):
 
     approx_Vbd_sqrt = 26.6 #26.6
 
-    up_lim_ALL = 30
+    up_lim_ALL = 37
 
 
 
