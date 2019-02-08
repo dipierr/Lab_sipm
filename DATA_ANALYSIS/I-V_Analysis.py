@@ -45,7 +45,8 @@ __description__ = 'ANALYSIS I-V CURVE for SiPM'
 formatter = argparse.ArgumentDefaultsHelpFormatter
 PARSER = argparse.ArgumentParser(description=__description__, formatter_class=formatter)
 PARSER.add_argument('-f', '--input_file', type=str, required=False, default='file.txt', help='File to be analyzed.')
-PARSER.add_argument('-NoFit', '--no_fit_gain', action='store_true', required=False, default=False, help='Disables histogram fitting')
+PARSER.add_argument('-NoFit', '--no_fit', action='store_true', required=False, default=False, help='Disables histogram fitting')
+PARSER.add_argument('-NoExtimErr', '--not_extimate_error', action='store_true', required=False, default=False, help='Do not extimate error; a third column is required and stored as I err')
 
 
 
@@ -62,27 +63,32 @@ def parabola_fit(p,x):
 def main(**kwargs):
 
     PlotSettings.PlotSettings()
+    
+    
+    
+    
 
 #-------------------------------------------------------------------------------
 #--------------------------------[   LOG(I) - V   ]-----------------------------
 #-------------------------------------------------------------------------------
-
-    low_lim = 24.2
-    central_lim_low=26
-    central_lim_high=26.6 #26.6
+    
+    low_lim = 23
+    central_lim_low=25.25#25
+    central_lim_high= 25.3 #26.6
     #central_lim_high=27.5 # non va il test z con il confronto con GAIN-V
-    up_lim = 30
+    up_lim = 27
 
-    intersect_low = 26.2
-    intersect_up = 40 #27;
+    intersect_low = 25.421#23
+    intersect_up =  26;
 
-    void=1.5
+    void=0.1
 
     errV = 0.01
+    
 
-    approx_Vbd_sqrt = 26.6 #26.6
+    approx_Vbd_sqrt = 25.6 #26.1
 
-    up_lim_ALL = 37
+    up_lim_ALL = 31
 
 
 
@@ -163,35 +169,50 @@ def main(**kwargs):
                 if temp < up_lim_ALL:
                     V[ind_all]=float(values[0])
                     I[ind_all]=float(values[1])
-                    errI[ind_all]=float(0)
+                    if kwargs["not_extimate_error"]:
+                        errI[ind_all]=float(0)
+                    else:
+                        errI[ind_all]=0.05*I[ind_all]
                     # errI[ind_all]=float(values[2])
                     ind_all=ind_all+1
                 if low_lim < temp < central_lim_low:
                     V1[j]=float(values[0])
                     I1[j]=float(values[1])
-                    errI1[j]=float(0)
+                    if kwargs["not_extimate_error"]:
+                        errI1[j]=float(0)
+                    else:
+                        errI1[j]=0.05*I1[j]
                     # errI1[j]=float(values[2])
                     j=j+1
                 if central_lim_high < temp < up_lim:
                     V2[h]=float(values[0])
                     I2[h]=float(values[1])
-                    errI2[h]=float(0)
+                    if kwargs["not_extimate_error"]:
+                        errI2[h]=float(0)
+                    else:
+                        errI2[h]=0.05*I2[h]
+                    #errI2[h]=float(0)
                     # errI2[h]=float(values[2])
                     h=h+1
 
     #plot I-V
     plt.figure(figsize=(10, 6))
-    plt.plot(V, I, color='blue', marker='o', linestyle='None', markersize=1)
-    plt.xlabel(r'$V (V)$')
-    plt.ylabel(r'$I (A)$')
+    V_plot=V[V.index(float(23)):V.index(float(30.95))]
+    I_plot=I[V.index(float(23)):V.index(float(30.95))]
+    errI_plot=errI[V.index(float(23)):V.index(float(30.95))]
+    #plt.plot(V, I, color='blue', marker='o', linestyle='None', markersize=1)
+   # plt.xlabel(r'$\si{V} (\si{V})$')
+   # plt.ylabel(r'$\si{I} (\si{A})$')
+    plt.xlabel("V (A)")
+    plt.ylabel("I (A)")
     plt.grid(True)
-    plt.errorbar(V, I, xerr=errV, yerr=errI, linestyle='None')
+    plt.errorbar(V_plot, I_plot, xerr=errV, yerr=errI_plot, linestyle='None',marker='o', markersize=1)
     plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-    # plt.ylim(10**(-3), 10**(1))
-    # plt.yscale('log')
+    #plt.ylim(10**(-11), 10**(-6))
+    plt.yscale('log')
 
 
-    if not kwargs["no_fit_gain"]:
+    if not kwargs["no_fit"]:
         #---------
         #  ODR FIT
         #---------
@@ -218,7 +239,7 @@ def main(**kwargs):
         optimizedParameters2 = odr2.output.beta # fit parameters
 
         #PLOT
-        xfit1 = np.arange(low_lim, central_lim_low + void,0.01)
+        xfit1 = np.arange(low_lim, central_lim_low, 0.01)
         xfit2 = np.arange(intersect_low,up_lim,0.01)
         yfit1 = line_fit(optimizedParameters1, xfit1)
         yfit2 =  parabola_fit(optimizedParameters2, xfit2)
@@ -232,20 +253,26 @@ def main(**kwargs):
         #------------------
         #   INTERSECTION
         #------------------
-        div_int = 0.000002
-        div_int_close = 0.0000001
+        div_int =  0.0001
+        
         xfit_int = np.arange(intersect_low, intersect_up,div_int)
         yfit1_int = line_fit(optimizedParameters1, xfit_int)
         yfit2_int =  parabola_fit(optimizedParameters2, xfit_int)
 
 
         # Print the cross point
-        idx = np.argwhere(np.isclose(yfit1_int, yfit2_int, atol=div_int_close)).reshape(-1)
+        idx = np.argwhere(np.diff(np.sign(yfit1_int - yfit2_int))).flatten()
+        # ----------
+        # OLD way:
+        # div_int_close = 0.0001
+        # idx = np.argwhere(np.isclose(yfit1_int, yfit2_int, atol=div_int_close)).reshape(-1)
+        # ----------
+            
         Vbd_logI_V = xfit_int[idx]
         print ('\nIntersection:\t{}'.format(xfit_int[idx]))
-        print ('Before:\t{}'.format(xfit_int[idx-1]))
-        print ('After:\t{}'.format(xfit_int[idx+1]))
-        Intersection = xfit_int[idx][0]
+        # print ('Before:\t{}'.format(xfit_int[idx-1]))
+        # print ('After:\t{}'.format(xfit_int[idx+1]))
+        # Intersection = xfit_int[idx][0]
 
         plt.plot(xfit_int[idx], yfit1_int[idx], color='red', marker='o', linestyle='None', markersize=5)
 
@@ -297,12 +324,14 @@ def main(**kwargs):
 
         #plot SqrtI-V
         plt.figure(figsize=(10, 6))
-        plt.plot(V, SqrtI, color='blue', marker='o', linestyle='None', markersize=1)
+        SqrtI_plot = SqrtI[V.index(float(23)):V.index(float(30.95))]
+        errSqrtI_plot = errSqrtI[V.index(float(23)):V.index(float(30.95))]
+        plt.plot(V_plot, SqrtI_plot, color='blue', marker='o', linestyle='None', markersize=1)
         # plt.plot(V_after, SqrtI_after, color='red', marker='o', linestyle='None', markersize=2)
         plt.xlabel(r'$V (V)$')
         plt.ylabel(r'$\sqrt{I} (\sqrt{A})$')
         plt.grid(True)
-        plt.errorbar(V, SqrtI, xerr=errV, yerr=errSqrtI, linestyle='None')
+        plt.errorbar(V_plot, SqrtI_plot, xerr=errV, yerr=errSqrtI_plot, linestyle='None')
 
         #FIT
         print( 'SQRT(I) - V')

@@ -23,14 +23,13 @@ def main(**kwargs):
     file = kwargs['input_filelist']
     nFile = 0
     
-    T    = np.array([0, 5])
+    T    = np.array([-10, -5, 0, 5, 10, 15, 20, 25, 30])
     errT = np.full(len(T), 0.5)
+    V = np.array([])
+    I = np.array([])
     Files = []
     
-    min_I = 23
-    max_I = 31
-    
-    titleI="I (mA)"
+    titleI="I (A)"
     titleV="V (V)"
      
     with open(file, "r") as infilelist:
@@ -39,59 +38,46 @@ def main(**kwargs):
             print("\nReading file:\n" + FindNameAndPath(f))
             Files.append(f)
             with open(f, "r") as file:
-                 lines = file.read().split("\n")
-                 I = 0
-                 V = 0
-                 nPoint = 0
-                 introduction_bool = True
-                
-                 for l in lines:
-                     if l == "END_INTRODUCTION":
+                lines = file.read().split("\n")
+
+                V_temp = np.array([])
+                I_temp = np.array([])
+
+                introduction_bool = True
+
+                for l in lines:
+                    if l == "END_INTRODUCTION":
                         introduction_bool = False
-                        continue
-                     if introduction_bool:
+                    if introduction_bool:
                         print(l)
-                     else:
-                        values = l.split("\t")
-                     if(len(values) > 1):
-                        temp = float(values[0])
-
-                     if(temp < max_I):
-                        nPoint = nPoint +1
-
-            nFile = nFile + 1       
+                    else:
+                        temp = l.split("\t")
+                        if len(temp) > 1:
+                            if float(temp[0])>23 and float(temp[0])<31:
+                                V_temp = np.append(V_temp,float(temp[0]))
+                                I_temp = np.append(I_temp,float(temp[1]))
+                
+                if nFile == 0:
+                    V = V_temp
+                    I = I_temp
+                else:
+                    V = np.vstack([V, V_temp])
+                    I = np.vstack([I, I_temp])
+                
+                nFile = nFile + 1
      
-     # define length of columns
-    I = ["" for x in range(nPoint)]
-    V = ["" for x in range(nPoint)]
     
-    j = 0
-    k = 0
-    
-    
-    introduction_bool = True
-
-    for l in lines:
-        if l == "END_INTRODUCTION":
-            introduction_bool = False
-            continue
-        if not introduction_bool:
-            values = l.split("\t")
-            if(len(values) > 1):
-                temp=float(values[0])
-                if temp < up_lim_ALL:
-                    V[j]=float(values[0])
-                    I[k]=float(values[1])
 # Import Plot Settings from PlotSettings.py:
     PlotSettings.PlotSettings()
 
-    color = ['black', '#964B00', 'red', '#FFD700', 'green', 'cyan', 'blue', '#5000FF']
+    color = ['#c6ecd7', '#9fdfbc', '#79d2a1', '#53c687', '#3cb371', '#339961', '#267349', '#194d30', '#0d2618']
     
 # Plot I-V at different T
     plt.figure(figsize=(10, 6))
     for i in range(len(T)):
         label = str(T[i]) + " °C"
-        plt.step(V, I[i], color=color[i], linestyle='-', label=label)
+        plt.plot(V[i], I[i], color=color[i], linestyle='-', label=label)
+    #plt.yscale("log")
     plt.xlabel(titleV)
     plt.ylabel(titleI)
     plt.legend()

@@ -280,6 +280,13 @@ def main(**kwargs):
         ResultsFile.write("errDCR_Area_Del = " + str(list(errDCR_Area_Del)) + " # kHz \n")
         ResultsFile.write("CT_Del = " + str(list(CT_Del[1])) + "\n")
         ResultsFile.write("errCT_Del = " + str(list(errCT_Del)) + "\n")
+    ResultsFile.write("\n\n")
+    ResultsFile.write("HV\terrHV\tDCR\terrDCR\tCT\terrCT\n")
+    ResultsFile.write("END_INTRODUCTION")
+    ResultsFile.write("\n")
+    for i in range(len(HV)):
+        ResultsFile.write(str(HV[i]) + "\t" + str(errHV[i]) + "\t" + str(DCR_Area[1][i]) + "\t" + str(errDCR_Area[i]) + "\t" + str(CT[1][i]) + "\t" + str(errCT[i]))
+        ResultsFile.write("\n")
     ResultsFile.close()
 
     # plt.show(block=False)
